@@ -1,0 +1,19 @@
+name: NeuRosetta-dev
+channels: [conda-forge]
+dependencies:
+  - python=3.11
+  - pip
+  - numpy
+  - pandas
+  - scipy
+  - jax
+  - tqdm
+  - trimesh
+  - vedo
+  - gudhi
+  - graph-tool
+  - pytest
+  - mypy
+  - ruff
+  - pip:
+      - pydantic>=2

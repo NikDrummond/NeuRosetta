@@ -1,0 +1,49 @@
+{% set name = "NeuRosetta" %}
+{% set version = "0.1.0" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  path: ..
+
+build:
+  noarch: python
+  script: {{ PYTHON }} -m pip install . -vv
+
+requirements:
+  host:
+    - python =3.11
+    - pip
+    - hatchling
+  run:
+    - python =3.11
+    - numpy
+    - pandas
+    - scipy
+    - jax
+    - tqdm
+    - trimesh
+    - vedo
+    - pydantic >=2
+    # Conda-forge-only / C++-backed deps:
+    - graph-tool
+    - gudhi
+
+test:
+  requires:
+    - pytest
+  commands:
+    - pytest -q
+
+about:
+  home: https://github.com/your-org/NeuRosetta
+  license: MIT
+  summary: ""
+  dev_url: https://github.com/your-org/NeuRosetta
+  doc_url: https://your-org.github.io/NeuRosetta
+
+extra:
+  recipe-maintainers:
+    - nikdrummond

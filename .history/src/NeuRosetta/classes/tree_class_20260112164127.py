@@ -1,0 +1,25 @@
+from graph_tool.all import Graph
+from numpy import ndarray
+
+from ..core import _Tree
+from ..tree_graphs.coordinates import vertex_coordinates
+from ..io_utils.swc_utils import write_swc as _write_swc_func
+
+
+class Tree_graph(_Tree):
+
+    def __init__(self, ID:int, units:str, meta:dict, graph:Graph) -> None:
+        super().__init__(ID = ID, units = units, meta = meta, graph = graph)
+
+    ### get ndoe inds
+    def get_coordinates(self, subset = None) -> ndarray:
+        return vertex_coordinates(self, subset)
+
+    def write_swc(self, fpath: str, header = None):
+        
+        from ..io_utils.swc_utils import write_swc
+        write_swc(self, fpath, header)
+
+### adopt doc strings
+Tree_graph.write_swc.__doc__ = _write_swc_func.__doc__
+Tree_graph.get_coordinates.__doc__ = vertex_coordinates.__doc__

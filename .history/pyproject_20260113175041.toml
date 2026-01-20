@@ -1,0 +1,60 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "NeuRosetta"
+version = "0.1.0"
+description = ""
+readme = "README.md"
+requires-python = "==3.11.*"
+license = "MIT"
+authors = [{ name = "Nik Drummond", email = "nikolasdrummond@gmail.com" }]
+keywords = ["Morphology","Connectomics","topology", "geometry", "graphs"]        # example
+dependencies = [
+  "numpy",
+  "pandas",
+  "scipy",
+  "vedo",
+  "jax",
+  "tqdm",
+  "trimesh",
+  "pydantic>=2",
+  # Note: graph-tool and gudhi are required but only available via conda-forge
+  # Install with: conda install -c conda-forge graph-tool gudhi
+]
+
+[project.optional-dependencies]
+# For dev installs: pip install -e .[dev]
+dev = [
+  "pytest",
+  "mypy",
+  "ruff",
+  "pytest-cov",
+  "types-tqdm",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/NeuRosetta"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+lint.select = ["E","F","I","UP","B","SIM"] # example: pycodestyle, pyflakes, isort, pyupgrade, bugbear, simplify
+lint.ignore = ["E203","W503"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["NeuRosetta"]
+
+[tool.mypy]
+python_version = "3.11"
+plugins = ["pydantic.mypy"]
+strict = true
+warn_unreachable = true
+warn_unused_ignores = true
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+warn_required_dynamic_aliases = true
+
+
