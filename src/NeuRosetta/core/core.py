@@ -1,7 +1,11 @@
-from graph_tool.all import Graph
-from collections.abc import Iterable, Iterator, Sequence
-from typing import Callable, Any
+from typing import Iterable, Iterator, Callable, TypeVar, Any
+from collections.abc import Sequence
 from concurrent.futures import ThreadPoolExecutor
+
+from graph_tool.all import Graph
+from tqdm import tqdm
+
+T = TypeVar("T")
 
 class _Stone(object):
     """Core single item class"""
@@ -22,16 +26,16 @@ class _Tree(_Stone):
 
 class _Forest(Sequence):
     """Ordered, mutable container of Tree objects"""
-
-    def __init__(self, trees: Iterable[_Tree] = ()) -> None:
-        self._trees: list[_Tree] = []
+    
+    def __init__(self, trees: Iterable[Any] = ()) -> None:
+        self._trees: list[Any] = []
         self._id_index: dict[int, int] = {}
         self.extend(trees)
 
     def __len__(self) -> int:
         return len(self._trees)
 
-    def __iter__(self) -> Iterator[_Tree]:
+    def __iter__(self) -> Iterator[Any]:
         return iter(self._trees)
 
     def __getitem__(self, idx):
@@ -39,7 +43,7 @@ class _Forest(Sequence):
             return _Forest(self._trees[idx])
         return self._trees[idx]
 
-    def _check_id(self, tree: _Tree) -> None:
+    def _check_id(self, tree: Any) -> None:
         if tree.ID in self._id_index:
             raise ValueError(f"Duplicate Tree ID: {tree.ID}")
 
@@ -47,31 +51,30 @@ class _Forest(Sequence):
         for i in range(start, len(self._trees)):
             self._id_index[self._trees[i].ID] = i
 
-    def append(self, tree: _Tree) -> None:
+    def append(self, tree: Any) -> None:
         self._check_id(tree)
         self._id_index[tree.ID] = len(self._trees)
         self._trees.append(tree)
 
-    def extend(self, trees: Iterable[_Tree]) -> None:
+    def extend(self, trees: Iterable[Any]) -> None:
         for tree in trees:
             self._check_id(tree)
-
         for tree in trees:
             self._id_index[tree.ID] = len(self._trees)
             self._trees.append(tree)
 
-    def insert(self, index: int, tree: _Tree) -> None:
+    def insert(self, index: int, tree: Any) -> None:
         self._check_id(tree)
         self._trees.insert(index, tree)
         self._rebuild_index(index)
 
-    def remove(self, tree: _Tree) -> None:
+    def remove(self, tree: Any) -> None:
         self.pop(self._id_index[tree.ID])
 
     def remove_id(self, ID: int) -> None:
         self.pop(self._id_index[ID])
 
-    def pop(self, index: int = -1) -> _Tree:
+    def pop(self, index: int = -1) -> Any:
         tree = self._trees.pop(index)
         del self._id_index[tree.ID]
         self._rebuild_index(index)
@@ -85,22 +88,42 @@ class _Forest(Sequence):
         self.extend(other)
         return self
 
-    def by_id(self, ID: int) -> _Tree:
+    def by_id(self, ID: int) -> Any:
         return self._trees[self._id_index[ID]]
 
     def ids(self) -> list[int]:
         return [tree.ID for tree in self._trees]
 
-    def map(self, fn: Callable[[_Tree], Any]) -> list[Any]:
+    def map(self, fn: Callable[[Any], Any]) -> list[Any]:
+        """Sequential map over trees"""
         return [fn(tree) for tree in self._trees]
 
-    def apply(self, method_name: str, *args, **kwargs):
+    def apply(self, method_name: str, *args, **kwargs) -> list[Any]:
+        """Sequentially call a method by name on each tree"""
         return self.map(lambda t: getattr(t, method_name)(*args, **kwargs))
 
-    def map_threads(
+    ### parallel mapping
+
+    def _map(
         self,
-        fn: Callable[[_Tree], Any],
+        fn: Callable[[Any], T],
+        *,
+        parallel: bool = True,
         max_workers: int | None = None,
-    ):
+        show_progress: bool = False,
+    ) -> list[T]:
+        """
+        Generic map over trees with optional threading and optional progress bar.
+        """
+        if not parallel:
+            if show_progress:
+                return [fn(tree) for tree in tqdm(self._trees, desc="Processing trees")]
+            else:
+                return [fn(tree) for tree in self._trees]
+
+        # Parallel mode
         with ThreadPoolExecutor(max_workers=max_workers) as ex:
-            return list(ex.map(fn, self._trees))
+            results = ex.map(fn, self._trees)
+            if show_progress:
+                results = tqdm(results, total=len(self._trees), desc="Processing trees")
+            return list(results)

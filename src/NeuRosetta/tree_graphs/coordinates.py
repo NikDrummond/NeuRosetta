@@ -1,10 +1,9 @@
 # functions to get coordinates from graphs
+from typing import Tuple, List
 
 from numpy import ndarray
-from typing import Tuple
 
 from ..core import _Tree
-from typing import List
 from ..errors.errors import _raise_internal_property
 from .vertex_inds import get_edges
 
