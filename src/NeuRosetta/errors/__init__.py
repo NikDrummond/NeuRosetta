@@ -1,1 +1,1 @@
-from .errors import _check_internal_property, _InternalPropertyMissingError
+from .errors import _raise_internal_property, _InternalPropertyMissingError

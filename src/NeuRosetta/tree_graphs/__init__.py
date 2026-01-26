@@ -1,6 +1,14 @@
 from .vertex_inds import get_root, get_leaves, get_branches, get_core_inds, get_edges
 from .coordinates import vertex_coordinates, edge_coordinates
-from .counting import count_roots, count_vertices, count_edges, count_branches, count_leaves, count_transitive_nodes
+from .counting import (
+    count_roots,
+    count_vertices,
+    count_edges,
+    count_branches,
+    count_leaves,
+    count_transitive_nodes,
+)
+from .tree_checks import is_Reduced, has_property
 
 __all__ = [
     # inds
@@ -18,5 +26,8 @@ __all__ = [
     "count_edges",
     "count_branches",
     "count_leaves",
-    "count_transitive_nodes"
+    "count_transitive_nodes",
+    # checks
+    "is_Reduced",
+    "has_property"
 ]

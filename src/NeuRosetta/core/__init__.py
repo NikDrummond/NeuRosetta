@@ -1,5 +1,5 @@
-""" Base classes and core"""
+"""Base classes and core"""
 
-from .core import _Stone, _Tree
+from .core import _Stone, _Tree, _Forest
 
-__all__ = ['_Stone','_Tree']
+__all__ = ["_Stone", "_Tree", "_Forest"]

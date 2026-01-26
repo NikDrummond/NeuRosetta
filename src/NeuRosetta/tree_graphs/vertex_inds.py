@@ -5,6 +5,7 @@ from graph_tool.all import bfs_iterator
 
 from ..core import _Tree
 
+
 ### Node indices
 def get_root(tree: _Tree) -> int:
     """
