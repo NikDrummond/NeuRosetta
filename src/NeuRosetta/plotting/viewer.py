@@ -9,7 +9,7 @@ from vedo import settings
 settings.default_backend = "vtk"
 settings.use_parallel_projection = True
 
-from ..core import _Tree
+from ..core import _Tree, _Forest
 from .utils import _build_3d
 
 
@@ -129,8 +129,8 @@ class Viewer:
         self,
         tree: _Tree,
         cache: bool = False,
-        line_kwargs: dict = {},
-        root_kwargs: dict = {},
+        line_kwargs: dict | None = None,
+        root_kwargs: dict | None = None,
     ) -> None:
         """_summary_
 
@@ -158,3 +158,18 @@ class Viewer:
             tree._plot_dict = plot_dict
 
         self.add([plot_dict["lns"], plot_dict["root"]])
+    
+    def add_forest(
+        self,
+        forest: _Forest,
+        parallel: bool = True,
+        max_workers: int = 4,
+        progress: bool = True,
+    ) -> None:
+        """ Add all neurons in a forest"""
+
+        # build and cache 
+        forest._gen_3d(parallel = parallel, max_workers = max_workers, progress = progress)
+        for tree in forest:
+            self.add_neuron(tree)
+

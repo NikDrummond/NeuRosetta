@@ -7,6 +7,9 @@ from tqdm import tqdm
 
 T = TypeVar("T")
 
+def _is_iterable(x):
+    return isinstance(x, Iterable) and not isinstance(x, (str, bytes))
+
 class _Stone(object):
     """Core single item class"""
 
@@ -104,26 +107,84 @@ class _Forest(Sequence):
 
     ### parallel mapping
 
-    def _map(
+    def apply_fn(
         self,
-        fn: Callable[[Any], T],
-        *,
+        fn: Callable[..., T],
+        *args,
         parallel: bool = True,
         max_workers: int | None = None,
         show_progress: bool = False,
+        **kwargs,
     ) -> list[T]:
         """
-        Generic map over trees with optional threading and optional progress bar.
+        Apply an arbitrary function to each tree with argument broadcasting.
         """
-        if not parallel:
-            if show_progress:
-                return [fn(tree) for tree in tqdm(self._trees, desc="Processing trees")]
-            else:
-                return [fn(tree) for tree in self._trees]
 
-        # Parallel mode
-        with ThreadPoolExecutor(max_workers=max_workers) as ex:
-            results = ex.map(fn, self._trees)
+        n = len(self)
+
+        # --- normalize positional args
+        norm_args: list[list] = []
+        for a in args:
+            if _is_iterable(a):
+                if len(a) != n:
+                    raise ValueError("Iterable argument length mismatch")
+                norm_args.append(list(a))
+            else:
+                norm_args.append([a] * n)
+
+        # --- normalize keyword args
+        norm_kwargs: dict[str, list] = {}
+        for k, v in kwargs.items():
+            if _is_iterable(v):
+                if len(v) != n:
+                    raise ValueError(f"Iterable kwarg '{k}' length mismatch")
+                norm_kwargs[k] = list(v)
+            else:
+                norm_kwargs[k] = [v] * n
+
+        # --- per-tree callables
+        def call(i: int) -> T:
+            return fn(
+                self._trees[i],
+                *(arg[i] for arg in norm_args),
+                **{k: v[i] for k, v in norm_kwargs.items()},
+            )
+
+        indices = range(n)
+
+        if not parallel:
+            it = indices
             if show_progress:
-                results = tqdm(results, total=len(self._trees), desc="Processing trees")
+                it = tqdm(it, total=n, desc="Processing trees")
+            return [call(i) for i in it]
+
+        with ThreadPoolExecutor(max_workers=max_workers) as ex:
+            results = ex.map(call, indices)
+            if show_progress:
+                results = tqdm(results, total=n, desc="Processing trees")
             return list(results)
+
+    def foreach(
+        self,
+        fn: Callable[..., Any],
+        *args,
+        parallel: bool = True,
+        max_workers: int | None = None,
+        show_progress: bool = False,
+        **kwargs,
+    ) -> None:
+        """
+        Apply a function to each tree for side effects only.
+
+        Unlike apply_fn, this does NOT collect return values.
+        """
+
+        _ = self.apply_fn(
+            fn,
+            *args,
+            parallel=parallel,
+            max_workers=max_workers,
+            show_progress=show_progress,
+            **kwargs,
+        )
+        return None

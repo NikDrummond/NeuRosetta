@@ -1,7 +1,7 @@
 ### boring functions for counting things
-from numpy import where
+from numpy import where, ndarray, array
 
-from ..core import _Tree
+from ..core import _Tree, _Forest
 from .vertex_inds import get_leaves, get_branches
 
 
@@ -21,7 +21,6 @@ def count_roots(tree: _Tree) -> int:
     """
     return len(where(tree.graph.degree_property_map("in").a == 0))
 
-
 def count_vertices(tree: _Tree) -> int:
     """
     Count the number of nodes in the tree
@@ -37,7 +36,6 @@ def count_vertices(tree: _Tree) -> int:
         Number of nodes in the tree graph
     """
     return tree.graph.num_vertices()
-
 
 def count_edges(tree: _Tree) -> int:
     """
@@ -55,7 +53,6 @@ def count_edges(tree: _Tree) -> int:
     """
     return tree.graph.num_edges()
 
-
 def count_leaves(tree: _Tree) -> int:
     """
     Count the number of leaf nodes (those with out degree = 0)
@@ -72,7 +69,6 @@ def count_leaves(tree: _Tree) -> int:
     """
     return len(get_leaves(tree))
 
-
 def count_branches(tree: _Tree) -> int:
     """
     Count the number of branch nodes (those with out degree > 1)
@@ -88,7 +84,6 @@ def count_branches(tree: _Tree) -> int:
         Number of branching nodes
     """
     return len(get_branches(tree))
-
 
 def count_transitive_nodes(tree: _Tree) -> int:
     """

@@ -1,7 +1,11 @@
 ### various checks for tree graphs
-from ..core import _Tree
+from numpy import ndarray, array
+from functools import partial
+
+from ..core import _Tree, _Forest
 from .counting import count_transitive_nodes
 from ..graphs.properties import g_has_property
+
 
 def is_Reduced(tree: _Tree):
     """Check if the given graph, g, has no nodes with"""

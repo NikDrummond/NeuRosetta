@@ -1,3 +1,5 @@
+from numpy.random import choice
+from numpy import ndarray
 from vedo import Lines, Point
 
 from ..core import _Tree
@@ -31,14 +33,25 @@ def _vd_tree_root(tree: _Tree, kwargs: dict) -> Point:
     pnt = Point(r_coords, **kwargs)
     return pnt
 
+def _random_c() -> ndarray:
+    return list(choice(range(256), size = 3))
 
 def _build_3d(
     tree: _Tree,
     cache: bool = True,
-    line_kwargs: dict = {"c": "k4", "lw": 1, "alpha": 1.0},
-    root_kwargs: dict = {"r": 12, "c": "k4", "alpha": 1.0},
+    line_kwargs: dict | None= None,
+    root_kwargs: dict | None = None,
 ) -> dict | None:
 
+    if hasattr(tree, "_plot_dict"):
+        return
+
+    c = _random_c()
+    if line_kwargs is None:
+        line_kwargs = {"c": c, "lw": 1, "alpha": 1.0}
+    if root_kwargs is None:
+        root_kwargs = {"r": 12, "c": c, "alpha": 1.0}
+    
     plot_dict = {
         "lns": _vd_tree_lines(tree, line_kwargs),
         "root": _vd_tree_root(tree, root_kwargs),

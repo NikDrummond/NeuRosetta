@@ -8,7 +8,7 @@ from ..errors.errors import _raise_internal_property
 from .vertex_inds import get_edges
 
 
-def vertex_coordinates(tree: _Tree, subset: int | List | bool = None) -> ndarray:
+def vertex_coordinates(tree: _Tree, subset: int | List = None) -> ndarray:
     """Returns an n by 3 np.array of node coordinates within the neuron
 
     Parameters
