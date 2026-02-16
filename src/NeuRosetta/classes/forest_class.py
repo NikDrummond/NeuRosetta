@@ -82,10 +82,10 @@ class Forest(_Forest):
     def _gen_3d(self, parallel: bool = True, max_workers: int = 4, progress: bool = True) -> None:
         return self.foreach(_build_3d, cache = True, parallel = parallel, max_workers = max_workers, show_progress = progress)
 
-    def show_3d(self, return_viewer: bool = False) -> Viewer:
+    def show_3d(self, return_viewer: bool = False, **kwargs) -> Viewer:
 
         v = Viewer()
-        v.add_forest(self)
+        v.add_forest(self, **kwargs)
 
         if return_viewer:
             return v

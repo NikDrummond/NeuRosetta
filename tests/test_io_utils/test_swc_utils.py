@@ -4,7 +4,8 @@ from tempfile import TemporaryDirectory
 from pathlib import Path
 from pandas import DataFrame
 from numpy import array_equal, array, ones_like
-from NeuRosetta.io_utils.swc_utils import _check_swc_columns, _table_from_swc, write_swc, import_swc
+from NeuRosetta.io_utils.io_utils import _check_swc_columns, _table_from_swc
+from NeuRosetta.io_utils.swc_utils import export_swc, import_swc
 from NeuRosetta.classes import Tree
 
 def test_check_swc_columns_valid():
@@ -45,7 +46,7 @@ def test_swc_read_write(simple_tree):
         path = Path(tmpdir) / "1.swc"
 
         # Write then read
-        write_swc(tree = tree, fpath = path)
+        export_swc(tree = tree, fpath = path)
         result = import_swc(path)
 
     # assert metadata and ID
