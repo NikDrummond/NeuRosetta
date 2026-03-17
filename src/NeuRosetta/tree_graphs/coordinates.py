@@ -8,7 +8,7 @@ from ..errors.errors import _raise_internal_property
 from .vertex_inds import get_edges
 
 
-def vertex_coordinates(tree: _Tree, subset: int | List = None) -> ndarray:
+def vertex_coordinates(tree: _Tree, subset: int | List = None, SoA: bool = False) -> ndarray:
     """Returns an n by 3 np.array of node coordinates within the neuron
 
     Parameters
@@ -26,16 +26,19 @@ def vertex_coordinates(tree: _Tree, subset: int | List = None) -> ndarray:
 
     _raise_internal_property(tree.graph, "coordinates")
 
-    coords = tree.graph.vp["coordinates"].get_2d_array().T
+    coords = tree.graph.vp["coordinates"].get_2d_array()
 
     if subset is not None:
-        coords = coords[subset]
+        coords = coords[:,subset]
 
+    if ~SoA:
+        coords = coords.T
+    
     return coords
 
 
 def edge_coordinates(
-    tree: _Tree, root: int | None = None, subset: str | None = None
+    tree: _Tree, root: int | None = None, subset: str | None = None, SoA: bool = False
 ) -> Tuple[ndarray, ndarray]:
     """Returns tuple of n by 3 np.arrays with coordinates of source and target nodes for each edge (the start and stop point)
 
@@ -61,4 +64,9 @@ def edge_coordinates(
     coords = vertex_coordinates(tree)
     p1 = coords[edges[:, 0]]
     p2 = coords[edges[:, 1]]
+
+    # being a bit lazy about handling the transpose here, but I guess it generally wont be used.
+    if SoA:
+        p1, p2 = p1.T, p2.T
+
     return p1, p2

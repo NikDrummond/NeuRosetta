@@ -18,6 +18,8 @@ from ..tree_graphs.counting import (
 from ..tree_graphs.coordinates import vertex_coordinates, edge_coordinates
 from ..tree_graphs.tree_checks import is_Reduced, has_property
 
+from ..tree_graphs.traversals import BF_search, Tree_depth, DF_search, PostOrderVisitor
+
 from ..plotting.plot_2d import plot_2d
 from ..plotting.plot_3d import plot_3d
 
@@ -47,6 +49,14 @@ class Tree(_Tree):
     ### coordinates
     get_node_coordinates = vertex_coordinates
     get_edge_coordinates = edge_coordinates
+
+    ### Traversals
+    Breadth_first_search = BF_search
+    Depth_first_search = DF_search
+    Get_post_order_traversal = compute_post_order
+
+    ### Topological bits
+    Get_node_depths = compute_depths
 
     # saving
     export_swc = _write_swc_func

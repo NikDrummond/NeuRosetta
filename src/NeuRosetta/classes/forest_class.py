@@ -67,6 +67,22 @@ class Forest(_Forest):
     def get_edge_coordinates(self, parallel: bool = True,  max_workers: int = 4, progress: bool = True, **func_kwargs):
         return self.apply_fn(edge_coordinates, **func_kwargs, parallel = parallel, max_workers = max_workers, show_progress = progress)
 
+    ### Traversals
+
+    def Breadth_first_search(self, visitor: BFSVisitor, init_properties: dict {}, root: int | None = None, bind: bool = True, parallel: bool = True,  max_workers: int = 4, progress: bool = True, **func_kwargs):
+        return self.apply_fn(BF_search, visitor = visitor, init_properties = init_properties, root = root, bind = bind, **func_kwargs, parallel = parallel, max_workers = max_workers, show_progress = progress)
+
+    def Depth_first_search(self, visitor: DFSVisitor, init_properties: dict {}, root: int | None = None, bind: bool = True, parallel: bool = True,  max_workers: int = 4, progress: bool = True, **func_kwargs):
+        return self.apply_fn(DF_search, visitor = visitor, init_properties = init_properties, root = root, bind = bind, **func_kwargs, parallel = parallel, max_workers = max_workers, show_progress = progress)
+    
+    def Get_post_order_traversal(self, root: int | None = None, bind: bool = True, parallel: bool = True,  max_workers: int = 4, progress: bool = True, **func_kwargs):
+        return self.apply_fn(compute_post_order, root = root, bind = bind, **func_kwargs, parallel = parallel, max_workers = max_workers, show_progress = progress)
+
+    ### Topological bits
+
+    def Get_node_depths(self, root: int | None = None, bind: bool = True, parallel: bool = True,  max_workers: int = 4, progress: bool = True, **func_kwargs):
+        return self.apply_fn(compute_depths, root = root, bind = bind, **func_kwargs, parallel = parallel, max_workers = max_workers, show_progress = progress)
+
     ### saving
     export_swc = _write_swc_func
     save = _save
