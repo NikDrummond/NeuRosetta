@@ -1,11 +1,11 @@
-from graph_tool all import BFSVisitor, DFSVisitor
+from graph_tool.all import BFSVisitor, DFSVisitor
 
 from ..graphs.traversals import _BF_search, Tree_depth, _DF_search, PostOrderVisitor
 from ..core import _Tree
 
 ### Generic BF Search
 
-def BF_search(tree: _Tree, visitor: BFSVisitor, init_properties: dict {}, root: int | None = None, bind: bool = True):
+def BF_search(tree: _Tree, visitor: BFSVisitor, init_properties: dict = {}, root: int | None = None, bind: bool = True):
     if root is None:
         root = tree.root_index()
 
@@ -13,7 +13,7 @@ def BF_search(tree: _Tree, visitor: BFSVisitor, init_properties: dict {}, root: 
 
 ## Generic DF Search
 
-def DF_search(tree: _Tree, visitor: DFSVisitor, init_properties: dict {}, root: int | None = None, bind: bool = True):
+def DF_search(tree: _Tree, visitor: DFSVisitor, init_properties: dict = {}, root: int | None = None, bind: bool = True):
     if root is None:
         root = tree.root_index()
 
@@ -28,7 +28,7 @@ def compute_depths(tree: _Tree, root: int | None = 0, bind: bool = True):
     if root is None:
         root = tree.root_index()
 
-    out = BF_search(tree.graph, Tree_depth, {"depth": "int"}, root, bind=bind)
+    out = BF_search(tree, Tree_depth, {"depth": "int"}, root, bind=bind)
 
     return out["depth"] if not bind else None
 
@@ -42,7 +42,7 @@ def compute_post_order(tree: _Tree, root: int | None = 0, bind: bool = True):
     if root is None:
         root = tree.root_index()
 
-    vis = DF_search(tree.graph, PostOrderVisitor, {}, root)
+    vis = DF_search(tree, PostOrderVisitor, {}, root)
 
     if bind:
         tree.graph.vertex_properties["post_order"] = tree.graph.new_vp('int', vis.post_order)

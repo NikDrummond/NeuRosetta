@@ -44,11 +44,18 @@
  - [ ] Alignment
  - [ ] Bifurcation Geometry
 
+## Graph Theory
+
+ - [x] Depth First Search
+ - [x] Breadth First Search
+ - [x] Post-order traversal node order
+
 ## Plotting
 
  - [x] Single 2D plot
  - [x] Single 3D plot
  - [x] Viewer (for multiple)
+ - [ ] Dendrograms
 
 ## GUI
 
@@ -63,7 +70,7 @@
 
 ## Topology
 
-... 
+ - [x] Node Depth
 
 ## Paper Reproduction
 

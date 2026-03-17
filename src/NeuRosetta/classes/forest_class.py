@@ -1,3 +1,5 @@
+from graph_tool.all import BFSVisitor, DFSVisitor
+
 from ..core import _Forest
 
 from ..tree_graphs.vertex_inds import (
@@ -69,10 +71,10 @@ class Forest(_Forest):
 
     ### Traversals
 
-    def Breadth_first_search(self, visitor: BFSVisitor, init_properties: dict {}, root: int | None = None, bind: bool = True, parallel: bool = True,  max_workers: int = 4, progress: bool = True, **func_kwargs):
+    def Breadth_first_search(self, visitor: BFSVisitor, init_properties: dict = {}, root: int | None = None, bind: bool = True, parallel: bool = True,  max_workers: int = 4, progress: bool = True, **func_kwargs):
         return self.apply_fn(BF_search, visitor = visitor, init_properties = init_properties, root = root, bind = bind, **func_kwargs, parallel = parallel, max_workers = max_workers, show_progress = progress)
 
-    def Depth_first_search(self, visitor: DFSVisitor, init_properties: dict {}, root: int | None = None, bind: bool = True, parallel: bool = True,  max_workers: int = 4, progress: bool = True, **func_kwargs):
+    def Depth_first_search(self, visitor: DFSVisitor, init_properties: dict = {}, root: int | None = None, bind: bool = True, parallel: bool = True,  max_workers: int = 4, progress: bool = True, **func_kwargs):
         return self.apply_fn(DF_search, visitor = visitor, init_properties = init_properties, root = root, bind = bind, **func_kwargs, parallel = parallel, max_workers = max_workers, show_progress = progress)
     
     def Get_post_order_traversal(self, root: int | None = None, bind: bool = True, parallel: bool = True,  max_workers: int = 4, progress: bool = True, **func_kwargs):

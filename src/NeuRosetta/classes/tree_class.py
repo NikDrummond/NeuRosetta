@@ -18,10 +18,11 @@ from ..tree_graphs.counting import (
 from ..tree_graphs.coordinates import vertex_coordinates, edge_coordinates
 from ..tree_graphs.tree_checks import is_Reduced, has_property
 
-from ..tree_graphs.traversals import BF_search, Tree_depth, DF_search, PostOrderVisitor
+from ..tree_graphs.traversals import BF_search, compute_depths, DF_search, compute_post_order
 
 from ..plotting.plot_2d import plot_2d
 from ..plotting.plot_3d import plot_3d
+from ..plotting.plot_dendrogram import plot_dendrogram
 
 from ..io_utils.swc_utils import export_swc as _write_swc_func
 from ..io_utils.nr_utils import save as _save
@@ -65,6 +66,7 @@ class Tree(_Tree):
     # plotting
     show_2d = plot_2d
     show_3d = plot_3d
+    show_dendrogram = plot_dendrogram
 
     # checks
     is_reduced = is_Reduced
