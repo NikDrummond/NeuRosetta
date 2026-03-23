@@ -30,7 +30,7 @@ def compute_depths(tree: _Tree, root: int | None = 0, bind: bool = True):
 
     out = BF_search(tree, Tree_depth, {"depth": "int"}, root, bind=bind)
 
-    return out["depth"] if not bind else None
+    return out["depth"].a if not bind else None
 
 
 ### Specific DF searches

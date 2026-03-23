@@ -16,7 +16,9 @@ from ..tree_graphs.counting import (
     count_vertices,
 )
 from ..tree_graphs.coordinates import vertex_coordinates, edge_coordinates
-from ..tree_graphs.tree_checks import is_Reduced, has_property
+from ..tree_graphs.tree_checks import is_Reduced, update_reduced, has_property
+
+from ..tree_graphs.degrees import get_degrees, degree_distribution
 
 from ..tree_graphs.traversals import BF_search, compute_depths, DF_search, compute_post_order
 
@@ -51,6 +53,10 @@ class Tree(_Tree):
     get_node_coordinates = vertex_coordinates
     get_edge_coordinates = edge_coordinates
 
+    ### degrees
+    get_degree_array = get_degrees
+    get_degree_distribution = degree_distribution
+
     ### Traversals
     Breadth_first_search = BF_search
     Depth_first_search = DF_search
@@ -70,4 +76,5 @@ class Tree(_Tree):
 
     # checks
     is_reduced = is_Reduced
+    update_reduced = update_reduced
     check_property = has_property

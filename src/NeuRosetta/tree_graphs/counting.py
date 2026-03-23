@@ -1,7 +1,7 @@
 ### boring functions for counting things
 from numpy import where, ndarray, array
 
-from ..core import _Tree, _Forest
+from ..core import _Tree
 from .vertex_inds import get_leaves, get_branches
 
 

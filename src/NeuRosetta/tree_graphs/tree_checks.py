@@ -11,6 +11,13 @@ def is_Reduced(tree: _Tree):
     """Check if the given graph, g, has no nodes with"""
     return count_transitive_nodes(tree) == 0
 
+def update_reduced(tree):
+    """Update isReduced in metadata"""
+    if is_Reduced(tree):
+        tree.graph.gp['metadata']['isReduced'] = True
+    else:
+        tree.graph.gp['metadata']['isReduced'] = False
+
 def has_property(tree: _Tree, prop: str, level: str | None = None):
     """_summary_
 

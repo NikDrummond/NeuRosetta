@@ -1,5 +1,3 @@
-from graph_tool.all import BFSVisitor, DFSVisitor
-
 from ..core import _Forest
 
 from ..tree_graphs.vertex_inds import (
@@ -17,7 +15,11 @@ from ..tree_graphs.counting import (
     count_vertices,
 )
 from ..tree_graphs.coordinates import vertex_coordinates, edge_coordinates
-from ..tree_graphs.tree_checks import is_Reduced, has_property
+from ..tree_graphs.tree_checks import is_Reduced, update_reduced, has_property
+
+from ..tree_graphs.degrees import get_degrees, degree_distribution
+
+from ..tree_graphs.traversals import BF_search, compute_depths, DF_search, compute_post_order
 
 from ..io_utils.swc_utils import export_swc as _write_swc_func
 from ..io_utils.nr_utils import save as _save
@@ -71,11 +73,11 @@ class Forest(_Forest):
 
     ### Traversals
 
-    def Breadth_first_search(self, visitor: BFSVisitor, init_properties: dict = {}, root: int | None = None, bind: bool = True, parallel: bool = True,  max_workers: int = 4, progress: bool = True, **func_kwargs):
-        return self.apply_fn(BF_search, visitor = visitor, init_properties = init_properties, root = root, bind = bind, **func_kwargs, parallel = parallel, max_workers = max_workers, show_progress = progress)
+    # def Breadth_first_search(self, visitor: BFSVisitor, init_properties: dict = {}, root: int | None = None, bind: bool = True, parallel: bool = True,  max_workers: int = 4, progress: bool = True, **func_kwargs):
+    #     return self.apply_fn(BF_search, visitor = visitor, init_properties = init_properties, root = root, bind = bind, **func_kwargs, parallel = parallel, max_workers = max_workers, show_progress = progress)
 
-    def Depth_first_search(self, visitor: DFSVisitor, init_properties: dict = {}, root: int | None = None, bind: bool = True, parallel: bool = True,  max_workers: int = 4, progress: bool = True, **func_kwargs):
-        return self.apply_fn(DF_search, visitor = visitor, init_properties = init_properties, root = root, bind = bind, **func_kwargs, parallel = parallel, max_workers = max_workers, show_progress = progress)
+    # def Depth_first_search(self, visitor: DFSVisitor, init_properties: dict = {}, root: int | None = None, bind: bool = True, parallel: bool = True,  max_workers: int = 4, progress: bool = True, **func_kwargs):
+    #     return self.apply_fn(DF_search, visitor = visitor, init_properties = init_properties, root = root, bind = bind, **func_kwargs, parallel = parallel, max_workers = max_workers, show_progress = progress)
     
     def Get_post_order_traversal(self, root: int | None = None, bind: bool = True, parallel: bool = True,  max_workers: int = 4, progress: bool = True, **func_kwargs):
         return self.apply_fn(compute_post_order, root = root, bind = bind, **func_kwargs, parallel = parallel, max_workers = max_workers, show_progress = progress)
@@ -84,6 +86,13 @@ class Forest(_Forest):
 
     def Get_node_depths(self, root: int | None = None, bind: bool = True, parallel: bool = True,  max_workers: int = 4, progress: bool = True, **func_kwargs):
         return self.apply_fn(compute_depths, root = root, bind = bind, **func_kwargs, parallel = parallel, max_workers = max_workers, show_progress = progress)
+
+    ### degrees
+    def Get_degree_arrays(self, parallel: bool = True, max_workers: int = 4, progress: bool = True, **func_kwargs):
+        return self.apply_fn(get_degrees, **func_kwargs, parallel = parallel, max_workers = max_workers, show_progress = progress)
+    
+    def Get_degree_distributions(self, parallel: bool = True, max_workers: int = 4, progress: bool = True, **func_kwargs):
+        return self.apply_fn(degree_distribution, **func_kwargs, parallel = parallel, max_workers = max_workers, show_progress = progress)
 
     ### saving
     export_swc = _write_swc_func
@@ -95,6 +104,11 @@ class Forest(_Forest):
     
     def is_reduced(self, parallel: bool = True,  max_workers: int = 4, progress: bool = True, **func_kwargs):
         return self.apply_fn(is_Reduced, **func_kwargs, parallel = parallel, max_workers = max_workers, show_progress = progress)
+
+    ### updateing metadata
+    def update_reduced(self, parallel: bool = True, max_workers: int = 4, progress: bool = True) -> None:
+        return self.foreach(update_reduced, parallel = parallel, max_workers = max_workers, show_progress = progress)
+
 
     ### plotting
     def _gen_3d(self, parallel: bool = True, max_workers: int = 4, progress: bool = True) -> None:
