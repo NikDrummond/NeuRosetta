@@ -8,6 +8,7 @@ from .classes import Tree, Forest
 from .io_utils import import_swc, load
 from .tree_surgery import reduce_tree
 from .plotting import Viewer
+from .GUI import start_GUI
 
 # Check for required conda dependencies
 def _check_conda_deps():
@@ -37,7 +38,7 @@ from graph_tool.all import openmp_set_num_threads
 openmp_set_num_threads(1)
 
 # Public API
-__all__ = ["Tree", "import_swc", "load", "Viewer",'reduce_tree']
+__all__ = ["Tree", "import_swc", "load", "Viewer",'reduce_tree','start_GUI']
 
 # Version
 __version__ = "0.1.0"

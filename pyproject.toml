@@ -76,3 +76,6 @@ markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "integration: marks tests as integration tests",
 ]
+
+[project.scripts]
+run_neuro_GUI = "NeuRosetta.GUI.main:start_GUI"

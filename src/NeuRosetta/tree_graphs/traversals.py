@@ -16,6 +16,7 @@ from ..core import _Tree
 def BF_search(
     tree: _Tree,
     visitor: BFSVisitor,
+    init_kwargs:dict = {},
     init_properties: dict = {},
     root: int | None = None,
     bind: bool = True,
@@ -23,7 +24,7 @@ def BF_search(
     if root is None:
         root = tree.root_index()
 
-    return _BF_search(tree.graph, visitor, init_properties, root, bind)
+    return _BF_search(g = tree.graph, visitor = visitor, init_kwargs = init_kwargs, init_properties = init_properties, root = root, bind = bind)
 
 
 ## Generic DF Search
@@ -32,6 +33,7 @@ def BF_search(
 def DF_search(
     tree: _Tree,
     visitor: DFSVisitor,
+    init_kwargs: dict = {},
     init_properties: dict = {},
     root: int | None = None,
     bind: bool = True,
@@ -39,7 +41,7 @@ def DF_search(
     if root is None:
         root = tree.root_index()
 
-    return _DF_search(tree.graph, visitor, init_properties, root, bind)
+    return _DF_search(g = tree.graph, visitor = visitor, init_kwargs = init_kwargs, init_properties = init_properties, root = root, bind = bind)
 
 
 ### Specific BF Searches
@@ -52,7 +54,7 @@ def compute_depths(tree: _Tree, root: int | None = 0, bind: bool = True):
     if root is None:
         root = tree.root_index()
 
-    out = BF_search(tree, Tree_depth, {"depth": "int"}, root, bind=bind)
+    out = BF_search(tree = tree, visitor = Tree_depth, init_properties = {"depth": "int"}, root = root, bind=bind)
 
     return out["depth"].a if not bind else None
 
@@ -67,7 +69,7 @@ def compute_post_order(tree: _Tree, root: int | None = None, bind: bool = True):
     if root is None:
         root = tree.root_index()
 
-    vis = DF_search(tree, PostOrderVisitor, {}, root)
+    vis = DF_search(tree= tree, visitor = PostOrderVisitor, root = root)
 
     if bind:
         tree.graph.vertex_properties["post_order"] = tree.graph.new_vp(

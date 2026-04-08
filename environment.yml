@@ -1,4 +1,4 @@
-name: NeuRosetta-dev
+name: nr
 channels: [conda-forge]
 dependencies:
   - python=3.11
@@ -15,5 +15,6 @@ dependencies:
   - pytest
   - mypy
   - ruff
+  - pyside6
   - pip:
       - pydantic>=2
