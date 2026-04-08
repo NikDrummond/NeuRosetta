@@ -20,7 +20,11 @@ from ..tree_graphs.tree_checks import is_Reduced, update_reduced, has_property
 
 from ..tree_graphs.degrees import get_degrees, degree_distribution
 
+from ..tree_graphs.path_lengths import euclidean_edge_length
+
 from ..tree_graphs.traversals import BF_search, compute_depths, DF_search, compute_post_order
+
+from ..tree_graphs.traversals import reduce_graph
 
 from ..plotting.plot_2d import plot_2d
 from ..plotting.plot_3d import plot_3d
@@ -57,6 +61,9 @@ class Tree(_Tree):
     get_degree_array = get_degrees
     get_degree_distribution = degree_distribution
 
+    ### distances
+    get_edge_lengths = euclidean_edge_length
+
     ### Traversals
     Breadth_first_search = BF_search
     Depth_first_search = DF_search
@@ -64,6 +71,9 @@ class Tree(_Tree):
 
     ### Topological bits
     Get_node_depths = compute_depths
+
+    ### Tree Surgery
+    reduce_tree = reduce_graph
 
     # saving
     export_swc = _write_swc_func

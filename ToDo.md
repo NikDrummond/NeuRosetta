@@ -2,7 +2,10 @@
 
 ## Geneal Fixes
 
-- [ ] Streamline paallelisation by merging `forrest.apply`, `forest.for_each` and `foest.apply_fn` into one, handling binding.    
+- [x] Streamline paallelisation by merging `forrest.apply`, `forest.for_each` and `foest.apply_fn` into one, handling binding.   
+- [ ] Remove 'metadata' as core attribute and update function to always call _Tree.graph.gp['metadata]. Make sure metadata updating works frorm the graph directly (ensurers consistent behaviour when updating metadata) 
+- [ ] move `_Forest` subsetting and co to `Forest`, otherwise we return the sub class instance, not the user exposed one.
+
 
 ## Functionality
 
@@ -12,6 +15,7 @@
  - [x] Forest
  - [ ] Mesh Class
  - [x] Threaded Parallelisation
+ - [ ] Subsetting by metadata values
 
 ### I/O
 
@@ -44,7 +48,7 @@
 
 #### Lin. Alg.
 
- - [ ] Pairwise Distances
+ - [x] Pairwise (Edge) Distances
  - [ ] Distance matricies
  - [ ] Rotations
  - [ ] Alignment

@@ -1,10 +1,10 @@
 from typing import Iterable, Iterator, Callable, TypeVar, Any, List
 from collections.abc import Sequence
 from concurrent.futures import ThreadPoolExecutor
-
+import inspect
 # from concurrent.futures import ProcessPoolExecutor, as_completed
 
-from graph_tool.all import Graph, openmp_set_num_threads
+from graph_tool.all import Graph
 from tqdm import tqdm
 
 T = TypeVar("T")
@@ -106,23 +106,24 @@ class _Forest(Sequence):
         """Sequential map over trees"""
         return [fn(tree) for tree in self._trees]
 
-    def apply(self, method_name: str, *args, **kwargs) -> list[Any]:
-        """Sequentially call a method by name on each tree"""
-        return self.map(lambda t: getattr(t, method_name)(*args, **kwargs))
-
     ### parallel mapping
 
-    def apply_fn(
+    def apply(
         self,
         fn: Callable[..., T],
         *args,
         parallel: bool = True,
         max_workers: int | None = None,
         show_progress: bool = False,
+        bind: bool = False,
         **kwargs,
-    ) -> list[T]:
+    ) -> list[T] | None:
         """
-        Apply an arbitrary function to each tree with argument broadcasting.
+        Unified apply:
+        - If bind=True AND fn accepts 'bind', results are not collected.
+        - Otherwise returns list of results.
+
+        Supports broadcasting of args/kwargs and optional parallel execution.
         """
 
         n = len(self)
@@ -147,50 +148,49 @@ class _Forest(Sequence):
             else:
                 norm_kwargs[k] = [v] * n
 
-        # --- per-tree callables
-        def call(i: int) -> T:
+        # --- check if fn accepts 'bind'
+        sig = inspect.signature(fn)
+        accepts_bind = "bind" in sig.parameters
+
+        # --- per-tree call
+        def call(i: int):
+            call_kwargs = {k: v[i] for k, v in norm_kwargs.items()}
+
+            if accepts_bind:
+                call_kwargs["bind"] = bind
+
             return fn(
                 self._trees[i],
                 *(arg[i] for arg in norm_args),
-                **{k: v[i] for k, v in norm_kwargs.items()},
+                **call_kwargs,
             )
 
         indices = range(n)
 
+        # --- sequential
         if not parallel:
             it = indices
             if show_progress:
                 it = tqdm(it, total=n, desc="Processing trees")
-            return [call(i) for i in it]
 
+            if bind and accepts_bind:
+                for i in it:
+                    call(i)
+                return None
+            else:
+                return [call(i) for i in it]
+
+        # --- parallel
         with ThreadPoolExecutor(max_workers=max_workers) as ex:
             results = ex.map(call, indices)
+
             if show_progress:
                 results = tqdm(results, total=n, desc="Processing trees")
 
-            return list(results)
-
-    def foreach(
-        self,
-        fn: Callable[..., Any],
-        *args,
-        parallel: bool = True,
-        max_workers: int | None = None,
-        show_progress: bool = False,
-        **kwargs,
-    ) -> None:
-        """
-        Apply a function to each tree for side effects only.
-
-        Unlike apply_fn, this does NOT collect return values.
-        """
-
-        _ = self.apply_fn(
-            fn,
-            *args,
-            parallel=parallel,
-            max_workers=max_workers,
-            show_progress=show_progress,
-            **kwargs,
-        )
-        return None
+            if bind and accepts_bind:
+                # exhaust iterator without collecting
+                for _ in results:
+                    pass
+                return None
+            else:
+                return list(results)

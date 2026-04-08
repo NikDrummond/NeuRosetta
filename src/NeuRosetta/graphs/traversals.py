@@ -3,7 +3,7 @@ from graph_tool.all import BFSVisitor, bfs_search, DFSVisitor, dfs_search, Graph
 ### BFS taversals - generic function wrrapper
 
 
-def _BF_search(g: Graph, visitor: BFSVisitor, init_properties: dict = {}, root: int = 0, bind: bool = True):
+def _BF_search(g: Graph, visitor: BFSVisitor, init_kwargs: dict = {}, init_properties: dict = {}, root: int = 0, bind: bool = True):
     """Wrapper for graph_tool's bfs_search that initialises properties and binds them to the graph if bind = True.
 
     Parameters
@@ -31,7 +31,7 @@ def _BF_search(g: Graph, visitor: BFSVisitor, init_properties: dict = {}, root: 
     # initialised properties
     properties = {name: g.new_vp(ptype) for name, ptype in init_properties.items()}
 
-    vis = visitor(**properties)
+    vis = visitor(**init_kwargs, **properties)
     # bfs search
     bfs_search(g, root, vis)
 
@@ -57,10 +57,8 @@ class Tree_depth(BFSVisitor):
 
 ### DFS generic function wrapper
 
-### DFS generic function wrapper
 
-
-def _DF_search(g: Graph, visitor: DFSVisitor, init_properties: dict = {}, root: int = 0, bind=True):
+def _DF_search(g: Graph, visitor: DFSVisitor, init_kwargs:dict = {}, init_properties: dict = {}, root: int = 0, bind=True):
     """Wrapper for graph_tool's dfs_search that initialises properties and binds them to the graph if
     bind = True.
 
@@ -92,7 +90,7 @@ def _DF_search(g: Graph, visitor: DFSVisitor, init_properties: dict = {}, root: 
     properties = {name: g.new_vp(ptype) for name, ptype in init_properties.items()}
 
     # initialise visitor
-    vis = visitor(**properties)
+    vis = visitor(**init_kwargs, **properties)
 
     # dfs search
     dfs_search(g, root, vis)
@@ -102,6 +100,7 @@ def _DF_search(g: Graph, visitor: DFSVisitor, init_properties: dict = {}, root: 
         if bind:
             for name, prop in properties.items():
                 g.vertex_properties[name] = prop
+        # may need to change this to return visitor?
         else:
             return properties
     return vis
@@ -116,3 +115,31 @@ class PostOrderVisitor(DFSVisitor):
 
     def finish_vertex(self, v):
         self.post_order.append(int(v))
+
+class ReduceVisitor(DFSVisitor):
+    
+    def __init__(self, graph, starts, stops):
+        self.graph = graph
+        self.starts = starts
+        self.stops = stops
+        self.curr_length = 0.0
+        self.edge_source = []
+        self.edge_target = [] 
+        self.path_lengths = []
+    
+    # what to do at each edge
+    def tree_edge(self, e):
+        # add length
+        self.curr_length += self.graph.ep['Path_length'][e]
+        # if sourse in starts 
+        if e.source() in self.starts:
+            # add to starts
+            self.edge_source.append(int(e.source()))
+            # set current length back to 0
+            self.curr_length = 0.0
+        # if the target is in stops 
+        if e.target() in self.stops:
+            # add to targets
+            self.edge_target.append(int(e.target()))
+            # add current length to path_lengths
+            self.path_lengths.append(self.curr_length)

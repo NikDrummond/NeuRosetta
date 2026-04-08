@@ -45,7 +45,7 @@ def plot_dendrogram(tree: _Tree, ax_pad = 1, root_possition = 'bottom', x_spacin
     # build a drawable position property
     pos = tree.graph.new_vertex_property("vector<double>")
     for v in tree.graph.vertices():
-        pos[v] = [x[int(v)], depth[v]] 
+        pos[v] = [x[int(v)], depth[int(v)]]
 
     coords = pos.get_2d_array().T
     edges = tree.edge_indices()
@@ -85,4 +85,4 @@ def plot_dendrogram(tree: _Tree, ax_pad = 1, root_possition = 'bottom', x_spacin
 
     axes.set_ylabel("Tree Depth")
     axes.set_aspect("equal")
-    axes.set_yticks(arange(0,depth.a.max() + 1,2));
+    axes.set_yticks(arange(0,depth.max() + 1,2));
