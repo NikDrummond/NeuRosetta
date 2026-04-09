@@ -9,6 +9,7 @@ dependencies:
   - jax
   - tqdm
   - trimesh
+  - ipykernel
   - vedo
   - gudhi
   - graph-tool

@@ -1,6 +1,6 @@
 # tests/test_tree_graphs/test_counting.py
 import pytest
-from NeuRosetta.tree_graphs.counting import (
+from NeuRosetta.ops.tree_graphs.counting import (
     count_vertices, count_edges, count_roots, count_leaves, count_branches
 )
 

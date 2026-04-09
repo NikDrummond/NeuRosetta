@@ -1,7 +1,7 @@
 # tests/test_errors.py
 import pytest
 from graph_tool.all import Graph
-from NeuRosetta.errors import _InternalPropertyMissingError, _raise_internal_property
+from NeuRosetta.utils.errors import _InternalPropertyMissingError, _raise_internal_property
 
 def test_internal_property_missing_error():
     error = _InternalPropertyMissingError("test_prop")

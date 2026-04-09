@@ -4,11 +4,11 @@ NeuRosetta: A Python package for morphological analysis and connectomics.
 This package provides tools for working with tree-like structures,
 spatial coordinates, and graph-based morphological data.
 """
-from .classes import Tree, Forest
-from .io_utils import import_swc, load
-from .tree_surgery import reduce_tree
-from .plotting import Viewer
-from .GUI import start_GUI
+from .api import Tree, Forest
+from .io import import_swc, load
+from .analysis import reduce_tree
+from .ops.plotting import Viewer
+from .gui import start_GUI
 
 # Check for required conda dependencies
 def _check_conda_deps():

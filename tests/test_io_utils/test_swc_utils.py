@@ -4,9 +4,9 @@ from tempfile import TemporaryDirectory
 from pathlib import Path
 from pandas import DataFrame
 from numpy import array_equal, array, ones_like
-from NeuRosetta.io_utils.io_utils import _check_swc_columns, _table_from_swc
-from NeuRosetta.io_utils.swc_utils import export_swc, import_swc
-from NeuRosetta.classes import Tree
+from NeuRosetta.io.io_utils import _check_swc_columns, _table_from_swc
+from NeuRosetta.io.swc_utils import export_swc, import_swc
+from NeuRosetta.api import Tree
 
 def test_check_swc_columns_valid():
     df = DataFrame({

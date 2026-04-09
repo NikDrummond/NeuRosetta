@@ -1,11 +1,50 @@
 # To Do
 
+## **Implement stricter Design rules!**
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  gui/          layer 6                                  │
+│  widgets, event handlers, visualisation                 │
+└───────────────────────┬─────────────────────────────────┘
+                        │
+┌───────────────────────▼─────────────────────────────────┐
+│  analysis/     layer 5                                  │
+│  top-level functions over user objects                  │
+└───────────────────────┬─────────────────────────────────┘
+                        |
+┌───────────────────────▼─────────────────────────────────┐
+│  io/           layer 4                                  │
+│  User exposed io layer                                  │
+└───────────────────────┬─────────────────────────────────┘
+                        │
+┌───────────────────────▼─────────────────────────────────┐
+│  api/          layer 3                                  │
+│  user-facing objects, methods call ops/                 │
+└───────────────────────┬─────────────────────────────────┘
+                        │
+┌───────────────────────▼─────────────────────────────────┐  - - - - - - - - - - -
+│  ops/          layer 2                                  │ >  utils/  (parallel) :
+│  functions applying utils/ to core/ classes             │  :                    :
+└───────────────────────┬─────────────────────────────────┘  : numpy_utils.py     :
+                        │                                    : graph_utils.py     :
+┌───────────────────────▼─────────────────────────────────┐  : other_utils.py     :
+│  core/         layer 1                                  │  - - - - - - - - - - -
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐      │
+│  │  stone.py   │  │  tree.py    │  │  forest.py  │      │
+│  │  core base  │  │  single-    │  │  collection │      │
+│  │  class      │  │  instance   │  │  multi-inst │      │
+│  └─────────────┘  └─────────────┘  └─────────────┘      │
+└─────────────────────────────────────────────────────────┘
+```
+
 ## Geneal Fixes
 
 - [x] Streamline paallelisation by merging `forrest.apply`, `forest.for_each` and `foest.apply_fn` into one, handling binding.   
 - [ ] Remove 'metadata' as core attribute and update function to always call _Tree.graph.gp['metadata]. Make sure metadata updating works frorm the graph directly (ensurers consistent behaviour when updating metadata) 
 - [ ] move `_Forest` subsetting and co to `Forest`, otherwise we return the sub class instance, not the user exposed one.
-- [ ] Not currently happy with how radii are handled with reduced trees, but not currently important
+- [ ] Not currently happy with how radii are handled with reduced trees, but not currently important.
+- [ ] Re-work aspect and scaling of dendrogram layouts.
 
 
 ## Functionality
@@ -70,14 +109,15 @@
 
 ### GUI
 
- - [ ] Load nr
- - [ ] Load swc
- - [ ] GUI core port
+ - [x] Load nr
+ - [x] Load swc
+ - [x] GUI core port
  - [ ] Point selection
 
 ### Tree Surgery
 
  - [x] Neuron reduction
+ - [ ] reooting
  - [ ] Subtree masking
  - [ ] Subtree identification
  - [ ] Subtree isolation

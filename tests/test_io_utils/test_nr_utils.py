@@ -1,9 +1,9 @@
 import pytest
 from tempfile import TemporaryDirectory
 from pathlib import Path
-from NeuRosetta.classes import Tree
-from NeuRosetta.io_utils.swc_utils import _base_meta
-from NeuRosetta.io_utils import load
+from NeuRosetta.api import Tree
+from NeuRosetta.io.swc_utils import _base_meta
+from NeuRosetta.io import load
 
 def test_nr_read_write(simple_tree):
 
