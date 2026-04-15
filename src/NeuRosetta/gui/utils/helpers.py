@@ -17,7 +17,7 @@ def n_pnt_coords(neuron: Any) -> np.ndarray:
     Returns:
         Array of point coordinates
     """
-    return neuron.get_node_coordinates()[neuron.get_core_inds()]
+    return neuron.get_node_coordinates()[neuron.core_indices()]
 
 
 def make_pnts(coords: np.ndarray, mask: np.ndarray) -> Tuple[vd.Points, vd.Points]:

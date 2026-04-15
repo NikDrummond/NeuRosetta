@@ -51,8 +51,9 @@ class NeuronTools:
         root_node_idx = node_indices[0]
         
         # Perform rerooting
-        nr.reroot_tree(self.current_neuron, root=root_node_idx, inplace=True, prune=False)
-        
+        # nr.reroot_tree(self.current_neuron, root=root_node_idx, inplace=True, prune=False)
+        self.current_neuron.get_rerooted_tree(root = root_node_idx, inplace = True)
+
         # Get updated coordinates
         new_vertex_coords = np.array(self.current_neuron.get_node_coordinates())
         new_point_coords = n_pnt_coords(self.current_neuron)

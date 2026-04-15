@@ -38,11 +38,12 @@
 └─────────────────────────────────────────────────────────┘
 ```
 
-- [ ] Going forward, use this structure
-- [ ] Need to refactor old (Specifically, `tree_graphs/`)
+Going forward, use this structure
+- [x] Need to refactor old (Specifically, `tree_graphs/`)
 - [x] `graph_utils` needs to be its own contained graph_tool toolbox.
-- [ ] same with `numpy_utils`
-- [ ] `ops/` integrates `core/` and `utils/`
+- [x] same with `numpy_utils`
+- [x] `ops/` integrates `core/` and `utils/`
+- [ ] Fix the annoying GUI bug which generates a random coulour every FUCKING time a neuron is reloaded. (default kwargs to `renderer.NeuronRenderer.render_neuron`)
 
 ## Geneal Fixes
 
