@@ -1,24 +1,21 @@
-### various checks for tree graphs
-from numpy import ndarray, array
-from functools import partial
+""" various checks for tree graphs """
 
-from ...core import _Tree, _Forest
-from .counting import count_transitive_nodes
-from ...utils.graph_utils.properties import g_has_property
+from ...core import _Tree
+from ...utils.graph_utils import g_has_property, count_transitive_vertices
 
 
-def is_Reduced(tree: _Tree):
-    """Check if the given graph, g, has no nodes with"""
-    return count_transitive_nodes(tree) == 0
+def check_reduced(tree: _Tree):
+    """Check if the given tree has no nodes with in-deg == out_deg == 1"""
+    return count_transitive_vertices(tree.graph) == 0
 
-def update_reduced(tree):
+def update_reduced(tree: _Tree):
     """Update isReduced in metadata"""
-    if is_Reduced(tree):
+    if check_reduced(tree):
         tree.graph.gp['metadata']['isReduced'] = True
     else:
         tree.graph.gp['metadata']['isReduced'] = False
 
-def has_property(tree: _Tree, prop: str, level: str | None = None):
+def tree_has_property(tree: _Tree, prop: str, level: str = "all"):
     """_summary_
 
     Parameters

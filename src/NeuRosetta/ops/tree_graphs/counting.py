@@ -1,11 +1,17 @@
-### boring functions for counting things
-from numpy import where, ndarray, array
+""" boring functions for counting things """
 
 from ...core import _Tree
-from .vertex_inds import get_leaves, get_branches
+from ...utils.graph_utils import (
+    count_roots,
+    count_vertices,
+    count_edges,
+    count_leaves,
+    count_branches,
+    count_transitive_vertices
+)
 
 
-def count_roots(tree: _Tree) -> int:
+def count_tree_roots(tree: _Tree) -> int:
     """
     Count the number of root nodes (those with in degree = 0)
 
@@ -19,9 +25,9 @@ def count_roots(tree: _Tree) -> int:
     int
         Number of root nodes
     """
-    return len(where(tree.graph.degree_property_map("in").a == 0))
+    return count_roots(tree.graph)
 
-def count_vertices(tree: _Tree) -> int:
+def count_tree_nodes(tree: _Tree) -> int:
     """
     Count the number of nodes in the tree
 
@@ -35,9 +41,9 @@ def count_vertices(tree: _Tree) -> int:
     int
         Number of nodes in the tree graph
     """
-    return tree.graph.num_vertices()
+    return count_vertices(tree.graph)
 
-def count_edges(tree: _Tree) -> int:
+def count_tree_edges(tree: _Tree) -> int:
     """
     Count the number of edges in the tree graph
 
@@ -51,9 +57,9 @@ def count_edges(tree: _Tree) -> int:
     int
         Number of edges in the tree
     """
-    return tree.graph.num_edges()
+    return count_edges(tree.graph)
 
-def count_leaves(tree: _Tree) -> int:
+def count_tree_leaves(tree: _Tree) -> int:
     """
     Count the number of leaf nodes (those with out degree = 0)
 
@@ -67,9 +73,9 @@ def count_leaves(tree: _Tree) -> int:
     int
         Number of leaf nodes
     """
-    return len(get_leaves(tree))
+    return count_leaves(tree.graph)
 
-def count_branches(tree: _Tree) -> int:
+def count_tree_branches(tree: _Tree) -> int:
     """
     Count the number of branch nodes (those with out degree > 1)
 
@@ -83,9 +89,9 @@ def count_branches(tree: _Tree) -> int:
     int
         Number of branching nodes
     """
-    return len(get_branches(tree))
+    return count_branches(tree.graph)
 
-def count_transitive_nodes(tree: _Tree) -> int:
+def count_tree_transitive_nodes(tree: _Tree) -> int:
     """
 
     Parameters
@@ -98,9 +104,4 @@ def count_transitive_nodes(tree: _Tree) -> int:
     int
         Returns the number of nodes with and in degree and out degree equal to 1.
     """
-    return int(
-        sum(
-            (tree.graph.degree_property_map("out").a == 1)
-            & (tree.graph.degree_property_map("in").a == 1)
-        )
-    )
+    return count_transitive_vertices(tree.graph)

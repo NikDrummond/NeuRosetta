@@ -2,7 +2,7 @@
 
 import numpy as np
 import vedo as vd
-import NeuRosetta as nr
+# import NeuRosetta as nr
 from typing import Tuple, Any
 from ..config import FILE_CONSTANTS
 
@@ -45,7 +45,7 @@ def get_mask_node_ind(neuron: Any, mask: np.ndarray) -> np.ndarray:
     Returns:
         Array of node indices
     """
-    return nr.g_lb_inds(neuron)[mask]
+    return neuron.core_indices()[mask]
 
 
 def validate_csv_data(df) -> bool:
@@ -70,6 +70,6 @@ def extract_coordinates_from_csv(df) -> np.ndarray:
     Returns:
         Numpy array of coordinates
     """
-    from config import FILE_CONSTANTS
+    from ..config import FILE_CONSTANTS
     required_cols = FILE_CONSTANTS['REQUIRED_CSV_COLUMNS']
     return df[required_cols].to_numpy()

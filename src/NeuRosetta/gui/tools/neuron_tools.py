@@ -2,7 +2,7 @@
 
 import logging
 import numpy as np
-import NeuRosetta as nr
+# import NeuRosetta as nr
 from typing import Any, Optional
 from ..utils.helpers import get_mask_node_ind, n_pnt_coords
 
@@ -54,7 +54,7 @@ class NeuronTools:
         nr.reroot_tree(self.current_neuron, root=root_node_idx, inplace=True, prune=False)
         
         # Get updated coordinates
-        new_vertex_coords = np.array(nr.g_vert_coords(self.current_neuron))
+        new_vertex_coords = np.array(self.current_neuron.get_node_coordinates())
         new_point_coords = n_pnt_coords(self.current_neuron)
         
         logging.info(f"Rerooted neuron at node {root_node_idx}")
@@ -101,8 +101,8 @@ class NeuronTools:
             return {"status": "No neuron loaded"}
         
         try:
-            vertex_coords = nr.g_vert_coords(self.current_neuron)
-            root_idx = nr.g_root_ind(self.current_neuron)
+            vertex_coords = self.current_neuron.get_node_coordinates()
+            root_idx = self.current_neuron.root_index()
             
             return {
                 "status": "Loaded",

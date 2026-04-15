@@ -6,7 +6,7 @@ spatial coordinates, and graph-based morphological data.
 """
 from .api import Tree, Forest
 from .io import import_swc, load
-from .analysis import reduce_tree
+# from .analysis import reduce_tree
 from .ops.plotting import Viewer
 from .gui import start_GUI
 
@@ -38,7 +38,7 @@ from graph_tool.all import openmp_set_num_threads
 openmp_set_num_threads(1)
 
 # Public API
-__all__ = ["Tree", "import_swc", "load", "Viewer",'reduce_tree','start_GUI']
+__all__ = ["Tree", "import_swc", "load", "Viewer",'start_GUI']
 
 # Version
 __version__ = "0.1.0"

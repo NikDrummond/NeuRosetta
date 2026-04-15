@@ -38,6 +38,12 @@
 └─────────────────────────────────────────────────────────┘
 ```
 
+- [ ] Going forward, use this structure
+- [ ] Need to refactor old (Specifically, `tree_graphs/`)
+- [x] `graph_utils` needs to be its own contained graph_tool toolbox.
+- [ ] same with `numpy_utils`
+- [ ] `ops/` integrates `core/` and `utils/`
+
 ## Geneal Fixes
 
 - [x] Streamline paallelisation by merging `forrest.apply`, `forest.for_each` and `foest.apply_fn` into one, handling binding.   
@@ -112,7 +118,7 @@
  - [x] Load nr
  - [x] Load swc
  - [x] GUI core port
- - [ ] Point selection
+ - [ ] Point selection (works, but has not functionality to call yet)
 
 ### Tree Surgery
 

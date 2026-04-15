@@ -10,6 +10,7 @@ def plot_3d(
     root_kwargs: dict = {"r": 12, "c": "k4", "alpha": 1.0},
     plot_kwargs: dict = {},
     cache: bool = True,
+    force_refresh: bool = False
 ) -> Viewer:
     """On the fly 3D neuron plotting. Opens an interactive vedo.Plotter instance with the neuron.
 
@@ -30,7 +31,7 @@ def plot_3d(
     """
 
     # get the plottable objects
-    if not hasattr(tree, "_plot_dict"):
+    if force_refresh or not hasattr(tree, "_plot_dict"):
         plot_dict = _build_3d(
             tree=tree, line_kwargs=line_kwargs, root_kwargs=root_kwargs, cache=False
         )

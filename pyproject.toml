@@ -78,4 +78,4 @@ markers = [
 ]
 
 [project.scripts]
-run_neuro_GUI = "NeuRosetta.GUI.main:start_GUI"
+run_neuro_GUI = "NeuRosetta.gui.main:start_GUI"

@@ -1,14 +1,16 @@
-# functions to get node indicies from graphs
-from typing import List
-from functools import partial
+""" functions to get node indicies from graphs """
+from numpy import ndarray
 
-from numpy import ndarray, where, unique, concatenate, isin, array
-from graph_tool.all import bfs_iterator
+from ...core import _Tree
+from ...utils.graph_utils import (
+    root_index,
+    leaf_indices,
+    branch_indices,
+    core_indices,
+    edge_indices,
+    subtree_indices,
+)
 
-from ...core import _Tree, _Forest
-
-
-### Node indices
 def get_root(tree: _Tree) -> int:
     """
     Get index of root node
@@ -22,7 +24,8 @@ def get_root(tree: _Tree) -> int:
     int
         Index of root node
     """
-    return int(where(tree.graph.degree_property_map("in").a == 0)[0][0])
+    return root_index(tree.graph)
+
 
 def get_leaves(tree: _Tree) -> ndarray:
     """
@@ -37,7 +40,8 @@ def get_leaves(tree: _Tree) -> ndarray:
     np.ndarray
         Index of leaves nodes
     """
-    return where(tree.graph.degree_property_map("out").a == 0)[0]
+    return leaf_indices(tree.graph)
+
 
 def get_branches(tree: _Tree) -> ndarray:
     """
@@ -52,9 +56,10 @@ def get_branches(tree: _Tree) -> ndarray:
     np.ndarray
         Index of branches nodes
     """
-    return where(tree.graph.degree_property_map("out").a > 1)[0]
+    return branch_indices(tree.graph)
 
-def get_core_inds(tree: _Tree, include_root: bool = True) -> ndarray:
+
+def get_core_indices(tree: _Tree, include_root: bool = True) -> ndarray:
     """
     Get index of core nodes (branch and leaf nodes, optionally including root)
     Parameters
@@ -69,27 +74,29 @@ def get_core_inds(tree: _Tree, include_root: bool = True) -> ndarray:
         Index of core nodes
     """
 
-    l_inds = get_leaves(tree)
-    b_inds = get_branches(tree)
+    return core_indices(tree.graph, include_root)
 
-    inds = unique(concatenate([l_inds, b_inds]))
+def get_subtree_nodes(tree: _Tree, root: int , traversal_order: str = "Breadth") -> ndarray:
+    """_summary_
 
-    root = get_root(tree)
+    Parameters
+    ----------
+    tree : _Tree
+        _description_
+    root : int
+        _description_
+    traversal_order : str, optional
+        _description_, by default "Breadth"
 
-    # check if the root is in inds
-    root_in = root in inds
-
-    # include it or exclude it as we want
-    if include_root and not root_in:
-        inds = concatenate(([root], inds))
-    elif not include_root and root_in:
-        inds = inds[inds != root]
-
-    return inds
-
+    Returns
+    -------
+    ndarray
+        _description_
+    """
+    return subtree_indices(tree.graph, root, traversal_order)
 
 def get_edges(
-    tree: _Tree, root: int | None = None, subset: str | None = None
+    tree: _Tree, root: int | None = None, traversal_order: str = "Breadth"
 ) -> ndarray:
     """
     Returns nx2 array of edge indices going parent -> child.
@@ -117,23 +124,4 @@ def get_edges(
         If a subset is passed which is not 'Internal' or 'External' or None.
     """
 
-    # get edges
-    if root is None:
-        edges = tree.graph.get_edges()
-    else:
-        edges = bfs_iterator(tree.graph, root, array=True)
-
-    ### Subset if needed
-    expected_subsets = ["None", "Internal", "External"]
-    if subset == None:
-        return edges
-    elif subset == "Internal":
-        l_inds = get_leaves(tree)
-        return edges[~isin(edges[:, 1], l_inds)]
-    elif subset == "External":
-        l_inds = get_leaves(tree)
-        return edges[isin(edges[:, 1], l_inds)]
-    else:
-        raise ValueError(
-            f"Given Subset {subset} is not valid, expected one of {expected_subsets}"
-        )
+    return edge_indices(tree.graph, root, traversal_order)

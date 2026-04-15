@@ -1,10 +1,14 @@
-from numpy import ndarray, unique
+"""functions to get degree info from trees"""
+
+from typing import Tuple
+from numpy import ndarray
 from graph_tool.all import EdgePropertyMap
 
 from ...core import _Tree
+from ...utils.graph_utils import get_vertex_degrees, degree_distribution
 
 
-def get_degrees(
+def get_node_degrees(
     tree: _Tree,
     deg: str = "total",
     weight: EdgePropertyMap | str | None = None,
@@ -28,35 +32,26 @@ def get_degrees(
         _description_
     """
 
-    if isinstance(weight, str):
-        weight = tree.graph.ep[weight]
+    return get_vertex_degrees(tree.graph, deg, weight)
 
-    return tree.graph.degree_property_map(deg, weight).a
 
-def degree_distribution(tree: _Tree, p: bool = True, deg: str = 'out', weight: EdgePropertyMap | str | None = None):
+def tree_degree_distribution(
+    tree: _Tree, deg: str = "total", mass: bool = True
+) -> Tuple[ndarray, ndarray]:
     """_summary_
 
     Parameters
     ----------
     tree : _Tree
         _description_
-    p : bool, optional
-        _description_, by default True
     deg : str, optional
-        _description_, by default 'out'
-    weight : EdgePropertyMap | str | None, optional
-        _description_, by default None
+        _description_, by default "total"
+    mass : bool, optional
+        _description_, by default True
 
     Returns
     -------
     _type_
         _description_
     """
-    deg = get_degrees(tree, deg, weight)
-
-    degs, counts = unique(deg, return_counts = True)
-
-    if p:
-        counts = counts / counts.sum()
-    
-    return degs, counts
+    return degree_distribution(tree.graph, deg, mass)

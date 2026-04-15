@@ -1,43 +1,61 @@
+"""Tree class"""
+
 from graph_tool.all import Graph
 
 from ..core import _Tree
-from ..ops.tree_graphs.vertex_inds import (
+from ..ops.tree_graphs import (
     get_root,
     get_leaves,
     get_branches,
-    get_core_inds,
+    get_core_indices,
+    get_subtree_nodes,
     get_edges,
+    count_tree_roots,
+    count_tree_nodes,
+    count_tree_edges,
+    count_tree_leaves,
+    count_tree_branches,
+    count_tree_transitive_nodes,
+    breadth_first_search,
+    breadth_first_iterator,
+    depth_first_search,
+    depth_first_iterator,
+    compute_tree_depths,
+    compute_post_order,
+    tree_node_coordinates,
+    subtree_node_coordinates,
+    tree_edge_coordinates,
+    subtree_edge_coordinates,
+    check_reduced,
+    update_reduced,
+    tree_has_property,
+    euclidean_edge_length,
+    total_cable_length,
+    get_node_degrees,
+    tree_degree_distribution,
+    reduce_tree,
+    reroot_tree,
 )
-from ..ops.tree_graphs.counting import (
-    count_roots,
-    count_edges,
-    count_branches,
-    count_leaves,
-    count_vertices,
+
+from ..ops.plotting import (
+    plot_2d,
+    plot_3d,
+    plot_dendrogram
 )
-from ..ops.tree_graphs.coordinates import vertex_coordinates, edge_coordinates
-from ..ops.tree_graphs.tree_checks import is_Reduced, update_reduced, has_property
 
-from ..ops.tree_graphs.degrees import get_degrees, degree_distribution
-
-from ..ops.tree_graphs.path_lengths import euclidean_edge_length
-
-from ..ops.tree_graphs.traversals import BF_search, compute_depths, DF_search, compute_post_order
-
-from ..ops.tree_graphs.traversals import reduce_graph
-
-# from ..tree_surgery.inplace_trees import _reroot_tree
-
-from ..ops.plotting.plot_2d import plot_2d
-from ..ops.plotting.plot_3d import plot_3d
-from ..ops.plotting.plot_dendrogram import plot_dendrogram
-
-from ..io.swc_utils import export_swc as _write_swc_func
-from ..io.nr_utils import save as _save
-
+from ..io import (
+    export_swc,
+    save,
+)
 
 class Tree(_Tree):
+    """_summary_
 
+    Parameters
+    ----------
+    _Tree : _type_
+        _description_
+    """
     def __init__(self, ID: int, metadata: dict, graph: Graph) -> None:
         super().__init__(ID=ID, metadata=metadata, graph=graph)
 
@@ -45,42 +63,50 @@ class Tree(_Tree):
     root_index = get_root
     leaf_indices = get_leaves
     branch_indices = get_branches
-    core_indices = get_core_inds
+    core_indices = get_core_indices
     edge_indices = get_edges
+    subtree_indices = get_subtree_nodes
 
     ### counting
-    num_roots = count_roots
-    num_nodes = count_vertices
-    num_edges = count_edges
-    num_branches = count_branches
-    num_leaves = count_leaves
+    count_roots = count_tree_roots
+    count_nodes = count_tree_nodes
+    count_edges = count_tree_edges
+    count_branches = count_tree_branches
+    count_leaves = count_tree_leaves
+    count_transitive_nodes = count_tree_transitive_nodes
 
     ### coordinates
-    get_node_coordinates = vertex_coordinates
-    get_edge_coordinates = edge_coordinates
+    get_node_coordinates = tree_node_coordinates
+    get_subtree_node_coordinates = subtree_node_coordinates
+    get_edge_coordinates = tree_edge_coordinates
+    get_subtree_edge_coordinates = subtree_edge_coordinates
 
     ### degrees
-    get_degree_array = get_degrees
-    get_degree_distribution = degree_distribution
+    get_degree_array = get_node_degrees
+    get_degree_distribution = tree_degree_distribution
 
     ### distances
     get_edge_lengths = euclidean_edge_length
+    get_cable_length = total_cable_length
 
     ### Traversals
-    Breadth_first_search = BF_search
-    Depth_first_search = DF_search
-    Get_post_order_traversal = compute_post_order
+    tree_breadth_first_search = breadth_first_search
+    tree_breadth_first_iterator = breadth_first_iterator
+    tree_depth_first_search = depth_first_search
+    tree_depth_first_iterator = depth_first_iterator
+
+    get_post_order_traversal = compute_post_order
 
     ### Topological bits
-    Get_node_depths = compute_depths
+    get_node_depths = compute_tree_depths
 
-    ### Tree Surgery
-    get_reduced_graph = reduce_graph
-    # reroot_tree = _reroot_tree
+    ### Tree Surgery / editing
+    get_reduced_tree = reduce_tree
+    get_rerooted_tree = reroot_tree
 
     # saving
-    export_swc = _write_swc_func
-    save = _save
+    export_to_swc = export_swc
+    save_tree = save
 
     # plotting
     show_2d = plot_2d
@@ -88,6 +114,11 @@ class Tree(_Tree):
     show_dendrogram = plot_dendrogram
 
     # checks
-    is_reduced = is_Reduced
+    is_reduced = check_reduced
     update_reduced = update_reduced
-    check_property = has_property
+    check_property = tree_has_property
+
+    # list properties (temp implementation)
+    def list_properties(self):
+        """List internal (bound) graph properties"""
+        self.graph.list_properties()

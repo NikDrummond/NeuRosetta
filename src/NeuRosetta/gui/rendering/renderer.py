@@ -91,7 +91,8 @@ class NeuronRenderer:
             actors = [subtree_result]
         
         # soma
-        root_coords = nr.g_vert_coords(neuron, nr.g_root_ind(neuron))[0]
+        # root_coords = nr.g_vert_coords(neuron, nr.g_root_ind(neuron))[0]
+        root_coords = neuron.get_node_coordinates(subset = neuron.root_index())
         soma = vd.Point(
             root_coords, 
             c=RENDERING_CONSTANTS['SOMA_COLOR'], 

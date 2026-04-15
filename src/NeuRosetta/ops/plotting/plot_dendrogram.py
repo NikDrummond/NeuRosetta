@@ -4,13 +4,15 @@ from numpy import stack, vstack, arange
 from matplotlib.pyplot import Axes, subplots
 
 from ...core import _Tree
+from ..tree_graphs import compute_tree_depths, compute_post_order
+
 
 ### compute x coordinate
 def compute_dend_x(
     tree: _Tree,
     root: int,
-    depth,            # vertex PropertyMap<int>
-    post_order,       # PostOrderVisitor (has .post_order list)
+    depth,  # vertex PropertyMap<int>
+    post_order,  # PostOrderVisitor (has .post_order list)
     x_spacing: float = 1.0,
 ) -> dict[int, float]:
     """
@@ -24,23 +26,28 @@ def compute_dend_x(
         # children = neighbours one level deeper
         ch = tree.graph.get_out_neighbors(v)
         # v is a leaf
-        if not ch.size > 0:                          
+        if not ch.size > 0:
             x[v] = counter * x_spacing
             counter += 1
         # v aint no leaf
-        else:                               
+        else:
             x[v] = sum([x[c] for c in ch]) / ch.size
 
     return x
 
 
+def plot_dendrogram(
+    tree: _Tree,
+    ax_pad=1,
+    root_possition="bottom",
+    x_spacing=0.3,
+    axes: Axes | None = None,
+):
+    """Plot tree as dendrogram"""
+    depth = compute_tree_depths(tree, bind=False)
+    post_order = compute_post_order(tree, bind=False)
 
-def plot_dendrogram(tree: _Tree, ax_pad = 1, root_possition = 'bottom', x_spacing = 0.3, axes: Axes | None = None):
-
-    depth = tree.Get_node_depths(bind = False)
-    post_order = tree.Get_post_order_traversal(bind = False)
-
-    x = compute_dend_x(tree, 0, depth, post_order, x_spacing = x_spacing)
+    x = compute_dend_x(tree, 0, depth, post_order, x_spacing=x_spacing)
 
     # build a drawable position property
     pos = tree.graph.new_vertex_property("vector<double>")
@@ -59,14 +66,16 @@ def plot_dendrogram(tree: _Tree, ax_pad = 1, root_possition = 'bottom', x_spacin
         fig, axes = subplots()
 
     # sort out y inversion
-    if root_possition == 'bottom':
+    if root_possition == "bottom":
         pass
-    elif root_possition == 'top':
+    elif root_possition == "top":
         axes.yaxis.set_inverted(True)
     else:
-        raise ValueError(f"root_position must be 'top' or 'bottom', got {root_possition}")
+        raise ValueError(
+            f"root_position must be 'top' or 'bottom', got {root_possition}"
+        )
 
-    lc = LineCollection(segments, color = 'gray', linewidth = 1, alpha = 1)
+    lc = LineCollection(segments, color="gray", linewidth=1, alpha=1)
 
     axes.add_collection(lc)
 
@@ -81,8 +90,8 @@ def plot_dendrogram(tree: _Tree, ax_pad = 1, root_possition = 'bottom', x_spacin
     axes.spines["bottom"].set_visible(False)
     axes.set_xticks([])
 
-    axes.scatter(coords[0,0],coords[0,1], c = 'r', zorder = 100)
+    axes.scatter(coords[0, 0], coords[0, 1], c="r", zorder=100)
 
     axes.set_ylabel("Tree Depth")
     axes.set_aspect("equal")
-    axes.set_yticks(arange(0,depth.max() + 1,2));
+    axes.set_yticks(arange(0, depth.max() + 1, 2))

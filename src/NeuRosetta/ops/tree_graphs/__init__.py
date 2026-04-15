@@ -1,43 +1,90 @@
 """Tree graph operations."""
 
-from .vertex_inds import get_root, get_leaves, get_branches, get_core_inds, get_edges
-from .coordinates import vertex_coordinates, edge_coordinates
-from .counting import (
-    count_roots,
-    count_vertices,
-    count_edges,
-    count_branches,
-    count_leaves,
-    count_transitive_nodes,
+from .vertex_inds import (
+    get_root,
+    get_leaves,
+    get_branches,
+    get_core_indices,
+    get_subtree_nodes,
+    get_edges
 )
-from .tree_checks import is_Reduced, update_reduced, has_property
-from .degrees import get_degrees, degree_distribution
-from .path_lengths import euclidean_edge_length
-from .traversals import BF_search, DF_search, compute_depths, compute_post_order, reduce_graph
+
+from .counting import (
+    count_tree_roots,
+    count_tree_nodes,
+    count_tree_edges,
+    count_tree_leaves,
+    count_tree_branches,
+    count_tree_transitive_nodes
+)
+
+from .traversals import (
+    breadth_first_search,
+    breadth_first_iterator,
+    depth_first_search,
+    depth_first_iterator,
+    compute_tree_depths,
+    compute_post_order
+)
+
+from .coordinates import (
+    tree_node_coordinates,
+    subtree_node_coordinates,
+    tree_edge_coordinates,
+    subtree_edge_coordinates
+)
+
+from .tree_checks import (
+    check_reduced,
+    update_reduced,
+    tree_has_property,
+)
+
+from .path_lengths import (
+    euclidean_edge_length,
+    total_cable_length,
+)
+
+from .degrees import (
+    get_node_degrees,
+    tree_degree_distribution,
+)
+
+from .tree_editing import (
+    reduce_tree,
+    reroot_tree,
+)
 
 __all__ = [
     "get_root",
     "get_leaves",
     "get_branches",
-    "get_core_inds",
+    "get_core_indices",
+    "get_subtree_nodes",
     "get_edges",
-    "vertex_coordinates",
-    "edge_coordinates",
-    "count_roots",
-    "count_vertices",
-    "count_edges",
-    "count_branches",
-    "count_leaves",
-    "count_transitive_nodes",
-    "is_Reduced",
-    "update_reduced",
-    "has_property",
-    "get_degrees",
-    "degree_distribution",
-    "euclidean_edge_length",
-    "BF_search",
-    "DF_search",
-    "compute_depths",
+    "count_tree_roots",
+    "count_tree_nodes",
+    "count_tree_edges",
+    "count_tree_leaves",
+    "count_tree_branches",
+    "count_tree_transitive_nodes",
+    "breadth_first_search",
+    "breadth_first_iterator",
+    "depth_first_search",
+    "depth_first_iterator",
+    "compute_tree_depths",
     "compute_post_order",
-    "reduce_graph",
+    "tree_node_coordinates",
+    "subtree_node_coordinates",
+    "tree_edge_coordinates",
+    "subtree_edge_coordinates",
+    "check_reduced",
+    "update_reduced",
+    "tree_has_property",
+    "euclidean_edge_length",
+    "total_cable_length",
+    "get_node_degrees",
+    "tree_degree_distribution",
+    "reduce_tree",
+    "reroot_tree",
 ]

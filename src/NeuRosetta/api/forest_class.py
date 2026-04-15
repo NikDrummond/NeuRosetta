@@ -1,34 +1,39 @@
+"""Forest (collection of Trees) Container class"""
+
 from ..core import _Forest
 
-from ..ops.tree_graphs.vertex_inds import (
+from ..ops.tree_graphs import (
     get_root,
     get_leaves,
     get_branches,
-    get_core_inds,
+    get_core_indices,
     get_edges,
+    count_tree_roots,
+    count_tree_nodes,
+    count_tree_edges,
+    count_tree_leaves,
+    count_tree_branches,
+    count_tree_transitive_nodes,
+    compute_tree_depths,
+    tree_node_coordinates,
+    tree_edge_coordinates,
+    check_reduced,
+    update_reduced,
+    tree_has_property,
+    euclidean_edge_length,
+    total_cable_length,
+    get_node_degrees,
+    tree_degree_distribution,
+    reduce_tree,
 )
-from ..ops.tree_graphs.counting import (
-    count_roots,
-    count_edges,
-    count_branches,
-    count_leaves,
-    count_vertices,
-)
-from ..ops.tree_graphs.coordinates import vertex_coordinates, edge_coordinates
-from ..ops.tree_graphs.tree_checks import is_Reduced, update_reduced, has_property
-
-from ..ops.tree_graphs.degrees import get_degrees, degree_distribution
-
-from ..ops.tree_graphs.path_lengths import euclidean_edge_length
-
-from ..ops.tree_graphs.traversals import compute_depths, compute_post_order
-
-from ..io.swc_utils import export_swc as _write_swc_func
-from ..io.nr_utils import save as _save
 
 from ..ops.plotting.utils import _build_3d
-from ..ops.plotting.viewer import Viewer
+from ..ops.plotting import Viewer
 
+from ..io import (
+    export_swc,
+    save,
+)
 
 class Forest(_Forest):
 
@@ -36,7 +41,7 @@ class Forest(_Forest):
         super().__init__(trees=trees)
 
     ### node inds
-    def root_indices(
+    def get_forest_roots(
         self,
         parallel: bool = True,
         max_workers: int = 4,
@@ -51,7 +56,7 @@ class Forest(_Forest):
             show_progress=progress,
         )
 
-    def leaf_indices(
+    def get_forest_leaves(
         self,
         parallel: bool = True,
         max_workers: int = 4,
@@ -66,7 +71,7 @@ class Forest(_Forest):
             show_progress=progress,
         )
 
-    def branch_indices(
+    def get_forest_branches(
         self,
         parallel: bool = True,
         max_workers: int = 4,
@@ -81,7 +86,7 @@ class Forest(_Forest):
             show_progress=progress,
         )
 
-    def core_indices(
+    def get_forest_core_indices(
         self,
         parallel: bool = True,
         max_workers: int = 4,
@@ -89,14 +94,14 @@ class Forest(_Forest):
         **func_kwargs,
     ):
         return self.apply(
-            get_core_inds,
+            get_core_indices,
             **func_kwargs,
             parallel=parallel,
             max_workers=max_workers,
             show_progress=progress,
         )
 
-    def edge_indices(
+    def get_forest_edge_indices(
         self,
         parallel: bool = True,
         max_workers: int = 4,
@@ -112,7 +117,7 @@ class Forest(_Forest):
         )
 
     ### counting
-    def num_roots(
+    def count_forest_roots(
         self,
         parallel: bool = True,
         max_workers: int = 4,
@@ -120,14 +125,14 @@ class Forest(_Forest):
         **func_kwargs,
     ):
         return self.apply(
-            count_roots,
+            count_tree_roots,
             **func_kwargs,
             parallel=parallel,
             max_workers=max_workers,
             show_progress=progress,
         )
 
-    def num_edges(
+    def count_forest_edges(
         self,
         parallel: bool = True,
         max_workers: int = 4,
@@ -135,14 +140,14 @@ class Forest(_Forest):
         **func_kwargs,
     ):
         return self.apply(
-            count_edges,
+            count_tree_edges,
             **func_kwargs,
             parallel=parallel,
             max_workers=max_workers,
             show_progress=progress,
         )
 
-    def num_branches(
+    def count_forest_branches(
         self,
         parallel: bool = True,
         max_workers: int = 4,
@@ -150,14 +155,14 @@ class Forest(_Forest):
         **func_kwargs,
     ):
         return self.apply(
-            count_branches,
+            count_tree_branches,
             **func_kwargs,
             parallel=parallel,
             max_workers=max_workers,
             show_progress=progress,
         )
 
-    def num_leaves(
+    def count_forest_leaves(
         self,
         parallel: bool = True,
         max_workers: int = 4,
@@ -165,14 +170,14 @@ class Forest(_Forest):
         **func_kwargs,
     ):
         return self.apply(
-            count_leaves,
+            count_tree_leaves,
             **func_kwargs,
             parallel=parallel,
             max_workers=max_workers,
             show_progress=progress,
         )
 
-    def num_nodes(
+    def count_forest_nodes(
         self,
         parallel: bool = True,
         max_workers: int = 4,
@@ -180,15 +185,30 @@ class Forest(_Forest):
         **func_kwargs,
     ):
         return self.apply(
-            count_vertices,
+            count_tree_nodes,
             **func_kwargs,
             parallel=parallel,
             max_workers=max_workers,
             show_progress=progress,
+        )
+
+    def count_forest_transitive_nodes(
+        self,
+        parallel: bool = True,
+        max_workers: int = 4,
+        progress: bool = True,
+        **func_kwargs,
+    ):
+        return self.apply(
+            count_tree_transitive_nodes,
+            **func_kwargs,
+            parallel = parallel,
+            max_workers = max_workers,
+            show_progress=progress
         )
 
     ### coordinates
-    def get_node_coordinates(
+    def forest_node_coordinates(
         self,
         parallel: bool = True,
         max_workers: int = 4,
@@ -196,14 +216,14 @@ class Forest(_Forest):
         **func_kwargs,
     ):
         return self.apply(
-            vertex_coordinates,
+            tree_node_coordinates,
             **func_kwargs,
             parallel=parallel,
             max_workers=max_workers,
             show_progress=progress,
         )
 
-    def get_edge_coordinates(
+    def forest_edge_coordinates(
         self,
         parallel: bool = True,
         max_workers: int = 4,
@@ -211,7 +231,7 @@ class Forest(_Forest):
         **func_kwargs,
     ):
         return self.apply(
-            edge_coordinates,
+            tree_edge_coordinates,
             **func_kwargs,
             parallel=parallel,
             max_workers=max_workers,
@@ -219,7 +239,7 @@ class Forest(_Forest):
         )
 
     ### distances
-    def get_edge_lengths(
+    def forest_edge_lengths(
         self,
         parallel: bool = True,
         max_workers: int = 4,
@@ -234,41 +254,25 @@ class Forest(_Forest):
             show_progress=progress,
         )
 
-    ### Traversals
-
-    ### ------------
-    #
-    # For now I am thinking that forest level BFS/DFS is not needed in and of itself
-    # def Breadth_first_search(self, visitor: BFSVisitor, init_properties: dict = {}, root: int | None = None, bind: bool = True, parallel: bool = True,  max_workers: int = 4, progress: bool = True, **func_kwargs):
-    #     return self.apply_fn(BF_search, visitor = visitor, init_properties = init_properties, root = root, bind = bind, **func_kwargs, parallel = parallel, max_workers = max_workers, show_progress = progress)
-    #
-    # def Depth_first_search(self, visitor: DFSVisitor, init_properties: dict = {}, root: int | None = None, bind: bool = True, parallel: bool = True,  max_workers: int = 4, progress: bool = True, **func_kwargs):
-    #     return self.apply_fn(DF_search, visitor = visitor, init_properties = init_properties, root = root, bind = bind, **func_kwargs, parallel = parallel, max_workers = max_workers, show_progress = progress)
-    ### ------------
-
-    def get_post_order_traversal(
+    def forest_total_cable_length(
         self,
-        root: int | None = None,
-        bind: bool = True,
         parallel: bool = True,
         max_workers: int = 4,
         progress: bool = True,
         **func_kwargs,
     ):
         return self.apply(
-            compute_post_order,
-            root=root,
-            bind=bind,
+            total_cable_length,
             **func_kwargs,
-            parallel=parallel,
-            max_workers=max_workers,
-            show_progress=progress,
+            parallel = parallel,
+            max_workers = max_workers,
+            show_progress = progress,
         )
 
     ### Topological bits
 
     # parallelisation not working here? (no speed up)
-    def get_node_depths(
+    def forest_node_depths(
         self,
         root: int | None = None,
         bind: bool = True,
@@ -278,7 +282,7 @@ class Forest(_Forest):
         **func_kwargs,
     ):
         return self.apply(
-            compute_depths,
+            compute_tree_depths,
             root=root,
             bind=bind,
             **func_kwargs,
@@ -288,7 +292,7 @@ class Forest(_Forest):
         )
 
     ### degrees
-    def get_degree_arrays(
+    def forest_degree_arrays(
         self,
         parallel: bool = True,
         max_workers: int = 4,
@@ -296,14 +300,14 @@ class Forest(_Forest):
         **func_kwargs,
     ):
         return self.apply(
-            get_degrees,
+            get_node_degrees,
             **func_kwargs,
             parallel=parallel,
             max_workers=max_workers,
             show_progress=progress,
         )
 
-    def get_degree_distributions(
+    def forest_degree_distributions(
         self,
         parallel: bool = True,
         max_workers: int = 4,
@@ -311,7 +315,7 @@ class Forest(_Forest):
         **func_kwargs,
     ):
         return self.apply(
-            degree_distribution,
+            tree_degree_distribution,
             **func_kwargs,
             parallel=parallel,
             max_workers=max_workers,
@@ -319,11 +323,11 @@ class Forest(_Forest):
         )
 
     ### saving
-    export_swc = _write_swc_func
-    save = _save
+    export_forest_to_swc = export_swc
+    save_forest = save
 
     ### checks
-    def has_property(
+    def forest_has_property(
         self,
         parallel: bool = True,
         max_workers: int = 4,
@@ -331,7 +335,7 @@ class Forest(_Forest):
         **func_kwargs,
     ):
         return self.apply(
-            has_property,
+            tree_has_property,
             **func_kwargs,
             parallel=parallel,
             max_workers=max_workers,
@@ -346,7 +350,7 @@ class Forest(_Forest):
         **func_kwargs,
     ):
         return self.apply(
-            is_Reduced,
+            check_reduced,
             **func_kwargs,
             parallel=parallel,
             max_workers=max_workers,
@@ -354,14 +358,33 @@ class Forest(_Forest):
         )
 
     ### updateing metadata
-    def update_reduced(
-        self, parallel: bool = True, max_workers: int = 4, progress: bool = True
+    def forest_update_reduced(
+        self, 
+        parallel: bool = True, 
+        max_workers: int = 4, 
+        progress: bool = True
     ) -> None:
         return self.apply(
             update_reduced,
             parallel=parallel,
             max_workers=max_workers,
             show_progress=progress,
+        )
+
+    ### Editing trees
+    def reduce_forest(
+        self,
+        parallel: bool = True,
+        max_workers: int = 4,
+        progress: bool = True,
+        **func_kwargs,
+    ):
+        return self.apply(
+            reduce_tree,
+            **func_kwargs,
+            parallel = parallel,
+            max_workers = max_workers,
+            show_progress = progress
         )
 
     ### plotting

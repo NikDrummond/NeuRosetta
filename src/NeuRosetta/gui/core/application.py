@@ -288,9 +288,10 @@ class NeuroGUIApplication:
                 self.neuron_tools.reroot_neuron(selected_indices)
             
             # Update neuron indices
-            import Neurosetta as nr
-            self.neuron_indices = nr.g_lb_inds(self.current_neuron)
-            
+            # import Neurosetta as nr
+            # self.neuron_indices = nr.g_lb_inds(self.current_neuron)
+            self.neuron_indices = self.current_neuron.core_indices()
+
             # Deactivate selection and re-render
             self.deactivate_point_selection()
             self.renderer.render_neuron(self.current_neuron)

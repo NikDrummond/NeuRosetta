@@ -1,72 +1,100 @@
-# functions to get coordinates from graphs
-from typing import Tuple, List
+"""Functions for getting coordinates from trees"""
 
+from typing import List, Tuple
 from numpy import ndarray
 
 from ...core import _Tree
-from ...utils.errors.errors import _raise_internal_property
-from .vertex_inds import get_edges
+from ...utils.graph_utils import (
+    vertex_coordinates,
+    vertex_coordinates_subtree,
+    edge_coordinates,
+    edge_coordinates_subtree,
+)
 
 
-def vertex_coordinates(tree: _Tree, subset: int | List = None, SoA: bool = False) -> ndarray:
-    """Returns an n by 3 np.array of node coordinates within the neuron
+def tree_node_coordinates(
+    tree: _Tree, subset: int | List | None = None, SoA: bool = False
+) -> ndarray:
+    """_summary_
 
     Parameters
     ----------
-    tree : Tree
-        Neuron Tree
-    subset : int | List | bool, optional
-        Subset of node indices, if you only want some of the node coordinates, by default None (which returns all)
+    tree : _Tree
+        _description_
+    subset : int | List | None, optional
+        _description_, by default None
+    SoA : bool, optional
+        _description_, by default False
 
     Returns
     -------
     ndarray
-        Numpy array of node coordinates
+        _description_
     """
-
-    _raise_internal_property(tree.graph, "coordinates")
-
-    coords = tree.graph.vp["coordinates"].get_2d_array()
-
-    if subset is not None:
-        coords = coords[:,subset]
-
-    if ~SoA:
-        coords = coords.T
-    
-    return coords
+    return vertex_coordinates(tree.graph, subset, SoA)
 
 
-def edge_coordinates(
-    tree: _Tree, root: int | None = None, subset: str | None = None, SoA: bool = False
-) -> Tuple[ndarray, ndarray]:
-    """Returns tuple of n by 3 np.arrays with coordinates of source and target nodes for each edge (the start and stop point)
+def subtree_node_coordinates(
+    tree: _Tree, root: int, traversal_order: str = "Breadth", SoA: bool = False
+) -> ndarray:
+    """_summary_
 
     Parameters
     ----------
-    tree : Tree
-        Neuron tree
-    root : int | None, optional
-        If provided, will return all edges downstream of the given root in a breadth first search ordering, If not provided, we default to the root node of the neuron. By default None
-    subset : str | None, optional
-        Can be None (default), 'Internal', or 'External'. Subset is generated after rooting, so if you provide a root the subset will be downstream of this.
-        If None, all edges are returned.
-        If 'Internal' only internal edges are returned (those with no leaf node as the target)
-        if 'External' ony external edges are returned (those terminating in a leaf node)
+    tree : _Tree
+        _description_
+    root : int
+        _description_
+    traversal_order : str, optional
+        _description_, by default "Breadth"
+    SoA : bool, optional
+        _description_, by default False
 
     Returns
     -------
-    Tuple[ndarray,ndarray]
-        Tuple of node coordinates paired for each edge, going parent to child.
+    ndarray
+        _description_
     """
+    return vertex_coordinates_subtree(tree.graph, root, traversal_order, SoA)
 
-    edges = get_edges(tree, root, subset)
-    coords = vertex_coordinates(tree)
-    p1 = coords[edges[:, 0]]
-    p2 = coords[edges[:, 1]]
 
-    # being a bit lazy about handling the transpose here, but I guess it generally wont be used.
-    if SoA:
-        p1, p2 = p1.T, p2.T
+def tree_edge_coordinates(tree: _Tree, SoA: bool = False) -> Tuple[ndarray, ndarray]:
+    """_summary_
 
-    return p1, p2
+    Parameters
+    ----------
+    tree : _Tree
+        _description_
+    SoA : bool, optional
+        _description_, by default False
+
+    Returns
+    -------
+    Tuple[ndarray, ndarray]
+        _description_
+    """
+    return edge_coordinates(tree.graph, SoA)
+
+
+def subtree_edge_coordinates(
+    tree: _Tree, root: int, traversal_order: str = "Breadth", SoA: bool = False
+) -> Tuple[ndarray, ndarray]:
+    """_summary_
+
+    Parameters
+    ----------
+    tree : _Tree
+        _description_
+    root : int
+        _description_
+    traversal_order : str, optional
+        _description_, by default "Breadth"
+    SoA : bool, optional
+        _description_, by default False
+
+    Returns
+    -------
+    Tuple[ndarray, ndarray]
+        _description_
+    """
+    return edge_coordinates_subtree(tree.graph, root, traversal_order, SoA)

@@ -1,9 +1,29 @@
-from graph_tool.all import BFSVisitor, bfs_search, DFSVisitor, dfs_search, Graph
+"""Module for breadth and depth first traversals on graphs"""
 
-### BFS taversals - generic function wrrapper
+from typing import Iterable
+from numpy import ndarray
+
+from graph_tool.all import (
+    BFSVisitor,
+    bfs_search,
+    DFSVisitor,
+    dfs_search,
+    Graph,
+    bfs_iterator,
+    dfs_iterator,
+)
+
+### BFS taversals
 
 
-def _BF_search(g: Graph, visitor: BFSVisitor, init_kwargs: dict = {}, init_properties: dict = {}, root: int = 0, bind: bool = True):
+def bfsearch(
+    g: Graph,
+    visitor: BFSVisitor,
+    init_kwargs: dict | None = None,
+    init_properties: dict | None = None,
+    root: int = 0,
+    bind: bool = True,
+):
     """Wrapper for graph_tool's bfs_search that initialises properties and binds them to the graph if bind = True.
 
     Parameters
@@ -28,6 +48,11 @@ def _BF_search(g: Graph, visitor: BFSVisitor, init_kwargs: dict = {}, init_prope
         For example, {"vdepth": vdepth} where vdepth is a vertex property map containing the depth of each vertex from the root.
     """
 
+    if init_kwargs is None:
+        init_kwargs = {}
+    if init_properties is None:
+        init_properties = {}
+
     # initialised properties
     properties = {name: g.new_vp(ptype) for name, ptype in init_properties.items()}
 
@@ -45,9 +70,31 @@ def _BF_search(g: Graph, visitor: BFSVisitor, init_kwargs: dict = {}, init_prope
     return vis
 
 
-### BFS visitors
-class Tree_depth(BFSVisitor):
+def bf_iterator(g: Graph, root: int = 0, array: bool = True) -> Iterable | ndarray:
+    """return breadth first search iterator or array of visitied edges from root
 
+    Parameters
+    ----------
+    g : Graph
+        Graph object
+    root : int, optional
+        root node index, by default 0
+    array : bool, optional
+        If False, returns iterator over edges, otherwise returns a numpy.ndarray, by default True
+
+    Returns
+    -------
+    Iterable | ndarray
+        Iterator or array of edges in breadth first search traversal order
+    """
+    return bfs_iterator(g, root, array)
+
+
+### BFS visitors
+
+
+class TreeDepthVisitor(BFSVisitor):
+    """Visitor class to obtain node depths in tree"""
     def __init__(self, depth):
         self.depth = depth
 
@@ -58,7 +105,14 @@ class Tree_depth(BFSVisitor):
 ### DFS generic function wrapper
 
 
-def _DF_search(g: Graph, visitor: DFSVisitor, init_kwargs:dict = {}, init_properties: dict = {}, root: int = 0, bind=True):
+def dfsearch(
+    g: Graph,
+    visitor: DFSVisitor,
+    init_kwargs: dict | None = None,
+    init_properties: dict | None = None,
+    root: int = 0,
+    bind=True,
+):
     """Wrapper for graph_tool's dfs_search that initialises properties and binds them to the graph if
     bind = True.
 
@@ -86,6 +140,11 @@ def _DF_search(g: Graph, visitor: DFSVisitor, init_kwargs:dict = {}, init_proper
         vertex from the root.
     """
 
+    if init_kwargs is None:
+        init_kwargs = {}
+    if init_properties is None:
+        init_properties = {}
+
     # initialised properties
     properties = {name: g.new_vp(ptype) for name, ptype in init_properties.items()}
 
@@ -106,38 +165,61 @@ def _DF_search(g: Graph, visitor: DFSVisitor, init_kwargs:dict = {}, init_proper
     return vis
 
 
+def df_iterator(g: Graph, root: int = 0, array: bool = True) -> Iterable | ndarray:
+    """return depth first search iterator or array of visitied edges from root
+
+    Parameters
+    ----------
+    g : Graph
+        Graph object
+    root : int, optional
+        root node index, by default 0
+    array : bool, optional
+        If False, returns iterator over edges, otherwise returns a numpy.ndarray, by default True
+
+    Returns
+    -------
+    Iterable | ndarray
+        Iterator or array of edges in depth first search traversal order
+    """
+    return dfs_iterator(g, root, array)
+
+
 ### DFS visitors
 
 
 class PostOrderVisitor(DFSVisitor):
+    """Visitor class to get post order traversal"""
     def __init__(self):
         self.post_order = []
 
     def finish_vertex(self, v):
         self.post_order.append(int(v))
 
+
 class ReduceVisitor(DFSVisitor):
-    
+    """Visitor class to obtain graph edges removing transitive vertices"""
     def __init__(self, graph, starts, stops):
         self.graph = graph
         self.starts = starts
         self.stops = stops
         self.curr_length = 0.0
         self.edge_source = []
-        self.edge_target = [] 
+        self.edge_target = []
         self.path_lengths = []
-    
+
     # what to do at each edge
     def tree_edge(self, e):
+        """edge behaviour during traversal"""
         # add length
-        self.curr_length += self.graph.ep['Path_length'][e]
-        # if sourse in starts 
+        self.curr_length += self.graph.ep["Path_length"][e]
+        # if sourse in starts
         if e.source() in self.starts:
             # add to starts
             self.edge_source.append(int(e.source()))
-            # set current length back to 0
-            self.curr_length = 0.0
-        # if the target is in stops 
+            # set current length to length of this (starting) edge
+            self.curr_length = self.graph.ep["Path_length"][e]
+        # if the target is in stops
         if e.target() in self.stops:
             # add to targets
             self.edge_target.append(int(e.target()))

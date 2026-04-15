@@ -4,7 +4,7 @@ from graph_tool.all import load_graph
 
 from ..core import _Tree, _Forest
 from .io_utils import _map_with_progress, _bind_core, _foreach_with_progress
-
+# from ..api import Tree, Forest
 
 
 
