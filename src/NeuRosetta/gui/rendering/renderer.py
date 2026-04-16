@@ -1,13 +1,14 @@
 """3D rendering functionality for neuron visualization using VTK and vedo."""
 
 import logging
+from typing import Optional, Any, Tuple
+
 import numpy as np
 import vedo as vd
-import NeuRosetta as nr
-from typing import Optional, Any, Tuple
+# import NeuRosetta as nr
 from ..config import RENDERING_CONSTANTS
 from ...ops.plotting.utils import _build_3d
-
+from ...ops.plotting.plot_subtree import build_3d_subtree
 
 class NeuronRenderer:
     """Handles 3D rendering of neuron data using vedo/VTK."""
@@ -82,7 +83,7 @@ class NeuronRenderer:
             return
         
         # Get subtree visualization from Neurosetta
-        subtree_result = nr.plotting._vd_subtree_lns(neuron)
+        subtree_result = build_3d_subtree(neuron)
         
         # Normalize to list of actors
         if isinstance(subtree_result, (tuple, list)):

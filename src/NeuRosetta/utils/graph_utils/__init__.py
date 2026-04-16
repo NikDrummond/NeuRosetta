@@ -16,6 +16,7 @@ from .traversals import(
     TreeDepthVisitor,
     PostOrderVisitor,
     ReduceVisitor,
+    SubtreeMaskVisitor,
 )
 
 from .vertex_inds import (
@@ -77,6 +78,7 @@ __all__ = [
     "TreeDepthVisitor",
     "PostOrderVisitor",
     "ReduceVisitor",
+    "SubtreeMaskVisitor",
     "vertex_coordinates",
     "vertex_coordinates_subtree",
     "edge_coordinates",

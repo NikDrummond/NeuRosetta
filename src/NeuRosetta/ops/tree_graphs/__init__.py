@@ -55,6 +55,10 @@ from .tree_editing import (
     reroot_tree,
 )
 
+from .subtrees import (
+    mask_subtree_from_root,
+)
+
 __all__ = [
     "get_root",
     "get_leaves",
@@ -87,4 +91,5 @@ __all__ = [
     "tree_degree_distribution",
     "reduce_tree",
     "reroot_tree",
+    "mask_subtree_from_root",
 ]

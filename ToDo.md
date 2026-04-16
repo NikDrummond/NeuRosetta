@@ -130,7 +130,7 @@ Going forward, use this structure
 
  - [x] Neuron reduction
  - [x] reooting
- - [ ] Subtree masking
+ - [x] Subtree masking
  - [ ] Subtree identification
  - [ ] Subtree isolation
 

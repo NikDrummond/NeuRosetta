@@ -66,3 +66,4 @@ def _build_3d(
         tree._plot_dict = plot_dict
     else:
         return plot_dict
+

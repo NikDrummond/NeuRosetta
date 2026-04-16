@@ -22,7 +22,8 @@ def breadth_first_search(
     tree: _Tree,
     visitor: BFSVisitor,
     init_kwargs: dict | None = None,
-    init_properties: dict | None = None,
+    init_vertex_properties: dict | None = None,
+    init_edge_properties: dict = None,
     root: int | None = None,
     bind: bool = True,
 ) -> BFSVisitor:
@@ -55,7 +56,8 @@ def breadth_first_search(
         g=tree.graph,
         visitor=visitor,
         init_kwargs=init_kwargs,
-        init_properties=init_properties,
+        init_vertex_properties=init_vertex_properties,
+        init_edge_properties = init_edge_properties,
         root=root,
         bind=bind,
     )
@@ -93,7 +95,8 @@ def depth_first_search(
     tree: _Tree,
     visitor: DFSVisitor,
     init_kwargs: dict | None = None,
-    init_properties: dict | None = None,
+    init_vertex_properties: dict | None = None,
+    init_edge_properties: dict | None = None,
     root: int | None = None,
     bind: bool = True,
 ) -> DFSVisitor:
@@ -127,7 +130,8 @@ def depth_first_search(
         g=tree.graph,
         visitor=visitor,
         init_kwargs=init_kwargs,
-        init_properties=init_properties,
+        init_vertex_properties=init_vertex_properties,
+        init_edge_properties = init_edge_properties,
         root=root,
         bind=bind,
     )
@@ -171,7 +175,7 @@ def compute_tree_depths(tree: _Tree, root: int | None = 0, bind: bool = True):
     out = breadth_first_search(
         tree=tree,
         visitor=TreeDepthVisitor,
-        init_properties={"depth": "int"},
+        init_vertex_properties={"depth": "int"},
         root=root,
         bind=bind,
     )

@@ -35,6 +35,7 @@ from ..ops.tree_graphs import (
     tree_degree_distribution,
     reduce_tree,
     reroot_tree,
+    mask_subtree_from_root,
 )
 
 from ..ops.plotting import (
@@ -103,6 +104,9 @@ class Tree(_Tree):
     ### Tree Surgery / editing
     get_reduced_tree = reduce_tree
     get_rerooted_tree = reroot_tree
+
+    ### Subtrees
+    subtree_mask_from_root = mask_subtree_from_root
 
     # saving
     export_to_swc = export_swc

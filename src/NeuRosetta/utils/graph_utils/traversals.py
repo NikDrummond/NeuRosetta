@@ -20,7 +20,8 @@ def bfsearch(
     g: Graph,
     visitor: BFSVisitor,
     init_kwargs: dict | None = None,
-    init_properties: dict | None = None,
+    init_vertex_properties: dict | None = None,
+    init_edge_properties: dict | None = None,
     root: int = 0,
     bind: bool = True,
 ):
@@ -34,7 +35,7 @@ def bfsearch(
         visitor object that defines the behaviour of the search
     init_properties : dict
         dictionary of property name and type pairs to initialise before the search.
-        For example, {"depth": "int"} will create a vertex property called "vdepth" of type int and pass it to the visitor.
+        For example, {"depth": "int"} will create a vertex property called "depth" of type int and pass it to the visitor.
     root : int, optional
         index of the root vertex to start the search from, by default 0.
     bind : bool, optional
@@ -50,12 +51,17 @@ def bfsearch(
 
     if init_kwargs is None:
         init_kwargs = {}
-    if init_properties is None:
-        init_properties = {}
+    if init_vertex_properties is None:
+        init_vertex_properties = {}
+    if init_edge_properties is None:
+        init_edge_properties = {}
 
     # initialised properties
-    properties = {name: g.new_vp(ptype) for name, ptype in init_properties.items()}
+    vprops = {name: g.new_vp(ptype) for name, ptype in init_vertex_properties.items()}
+    eprops = {name: g.new_ep(ptype) for name, ptype in init_edge_properties.items()}
+    properties = {**vprops, **eprops}
 
+    # make visitor
     vis = visitor(**init_kwargs, **properties)
     # bfs search
     bfs_search(g, root, vis)
@@ -63,8 +69,10 @@ def bfsearch(
     # bind properties to graph or return them as a dictionary
     if bool(properties):
         if bind:
-            for name, prop in properties.items():
+            for name, prop in vprops.items():
                 g.vertex_properties[name] = prop
+            for name, prop in eprops.items():
+                g.edge_properties[name] = prop
         else:
             return properties
     return vis
@@ -101,6 +109,17 @@ class TreeDepthVisitor(BFSVisitor):
     def tree_edge(self, e):
         self.depth[e.target()] = self.depth[e.source()] + 1
 
+class SubtreeMaskVisitor(BFSVisitor):
+
+    def __init__(self, e_subtree_mask, v_subtree_mask):
+        self.e_subtree_mask = e_subtree_mask
+        self.v_subtree_mask = v_subtree_mask
+
+    def tree_edge(self, e):
+        self.e_subtree_mask[e] = 1
+
+    def discover_vertex(self, u):
+        self.v_subtree_mask[u] = 1
 
 ### DFS generic function wrapper
 
@@ -109,7 +128,8 @@ def dfsearch(
     g: Graph,
     visitor: DFSVisitor,
     init_kwargs: dict | None = None,
-    init_properties: dict | None = None,
+    init_vertex_properties: dict | None = None,
+    init_edge_properties: dict | None = None,
     root: int = 0,
     bind=True,
 ):
@@ -142,11 +162,15 @@ def dfsearch(
 
     if init_kwargs is None:
         init_kwargs = {}
-    if init_properties is None:
-        init_properties = {}
+    if init_vertex_properties is None:
+        init_vertex_properties = {}
+    if init_edge_properties is None:
+        init_edge_properties = {}
 
     # initialised properties
-    properties = {name: g.new_vp(ptype) for name, ptype in init_properties.items()}
+    vprops = {name: g.new_vp(ptype) for name, ptype in init_vertex_properties.items()}
+    eprops = {name: g.new_ep(ptype) for name, ptype in init_edge_properties.items()}
+    properties = {**vprops, **eprops}
 
     # initialise visitor
     vis = visitor(**init_kwargs, **properties)
@@ -157,8 +181,10 @@ def dfsearch(
     if bool(properties):
         # bind properties to graph or return them as a dictionary
         if bind:
-            for name, prop in properties.items():
+            for name, prop in vprops.items():
                 g.vertex_properties[name] = prop
+            for name, prop in eprops.items():
+                g.edge_properties[name] = prop
         # may need to change this to return visitor?
         else:
             return properties
