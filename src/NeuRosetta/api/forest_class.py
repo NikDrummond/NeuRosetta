@@ -25,6 +25,8 @@ from ..ops.tree_graphs import (
     get_node_degrees,
     tree_degree_distribution,
     reduce_tree,
+    score_subtrees,
+    max_subtree_ind,
 )
 
 from ..ops.plotting.utils import _build_3d
@@ -381,6 +383,37 @@ class Forest(_Forest):
     ):
         return self.apply(
             reduce_tree,
+            **func_kwargs,
+            parallel = parallel,
+            max_workers = max_workers,
+            show_progress = progress
+        )
+    
+    ### subtrees
+    def get_forest_subtree_scores(
+        self,
+        parallel: bool = True,
+        max_workers: int = 4,
+        progress: bool = True,
+        **func_kwargs
+    ):
+        return self.apply(
+            score_subtrees,
+            **func_kwargs,
+            parallel = parallel,
+            max_workers = max_workers,
+            show_progress = progress
+        )
+    
+    def get_forest_max_subtree_index(
+        self,
+        parallel: bool = True,
+        max_workers: int = 4,
+        progress: bool = True,
+        **func_kwargs
+    ):
+        return self.apply(
+            max_subtree_ind,
             **func_kwargs,
             parallel = parallel,
             max_workers = max_workers,

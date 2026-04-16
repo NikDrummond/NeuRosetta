@@ -48,6 +48,11 @@ from .graph_editing import (
     reroot_graph
 )
 
+from .subgraphs import(
+    subgraph_score,
+    max_subgraph_ind,
+)
+
 from .degrees import (
     get_vertex_degrees,
     degree_distribution
@@ -85,6 +90,8 @@ __all__ = [
     "edge_coordinates_subtree",
     "reduce_graph",
     "reroot_graph",
+    "subgraph_score",
+    "max_subgraph_ind",
     "get_vertex_degrees",
     "degree_distribution",
 ]

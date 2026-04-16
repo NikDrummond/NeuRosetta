@@ -82,6 +82,10 @@ class NeuronRenderer:
             logging.warning("Cannot render subtree: neuron is None")
             return
         
+        # if we do not have a subtree estimate, generate it
+        if not neuron.check_property("e_subtree_mask","e"):
+            neuron.subtree_mask_from_root(root = neuron.get_max_subtree_index(), bind = True)
+
         # Get subtree visualization from Neurosetta
         subtree_result = build_3d_subtree(neuron)
         

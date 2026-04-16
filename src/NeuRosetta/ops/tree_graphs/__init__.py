@@ -55,8 +55,10 @@ from .tree_editing import (
     reroot_tree,
 )
 
-from .subtrees import (
+from .subtrees import(
     mask_subtree_from_root,
+    score_subtrees,
+    max_subtree_ind,
 )
 
 __all__ = [
@@ -92,4 +94,6 @@ __all__ = [
     "reduce_tree",
     "reroot_tree",
     "mask_subtree_from_root",
+    "score_subtrees",
+    "max_subtree_ind",
 ]
