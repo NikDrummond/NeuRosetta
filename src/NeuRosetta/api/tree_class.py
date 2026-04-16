@@ -38,6 +38,7 @@ from ..ops.tree_graphs import (
     mask_subtree_from_root,
     score_subtrees,
     max_subtree_ind,
+    extract_subtree,
 )
 
 from ..ops.plotting import (
@@ -111,6 +112,7 @@ class Tree(_Tree):
     subtree_mask_from_root = mask_subtree_from_root
     get_subtree_scores = score_subtrees
     get_max_subtree_index = max_subtree_ind
+    convert_to_subtree = extract_subtree
 
     # saving
     export_to_swc = export_swc

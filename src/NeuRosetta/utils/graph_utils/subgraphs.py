@@ -9,10 +9,13 @@ from numpy import (
     ndarray,
 )
 
-from graph_tool.all import Graph
+from graph_tool.all import Graph, GraphView
 from graph_tool.topology import topological_sort
 
-from .gt_properties import raise_internal_property_missing, g_has_property
+from .gt_properties import (raise_internal_property_missing, 
+        g_has_property,
+        revert_core_properties,
+)
 
 
 def subgraph_score(g: Graph, bind: bool = True) -> None | ndarray:
@@ -99,3 +102,32 @@ def max_subgraph_ind(g: Graph) -> int:
         return argmax(g.vp["subgraph_score"].a)
 
     return argmax(subgraph_score(g, bind=False))
+
+def extract_subgraph(g: Graph, revert_properties: bool = True) -> Graph:
+    """_summary_
+
+    Parameters
+    ----------
+    g : Graph
+        _description_
+
+    Returns
+    -------
+    Graph
+        _description_
+    """
+
+    # make sure we have needed masks
+    raise_internal_property_missing(g, "v_subtree_mask", "v")
+    raise_internal_property_missing(g, "e_subtree_mask", "e")
+
+
+    g.set_vertex_filter(g.vp["v_subtree_mask"])
+    g.set_edge_filter(g.ep['e_subtree_mask'])
+
+    # purge
+    g.purge_vertices()
+    g.purge_edges()
+
+    if revert_properties:
+        revert_core_properties(g)

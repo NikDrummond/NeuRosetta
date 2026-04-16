@@ -59,6 +59,7 @@ from .subtrees import(
     mask_subtree_from_root,
     score_subtrees,
     max_subtree_ind,
+    extract_subtree,
 )
 
 __all__ = [
@@ -96,4 +97,5 @@ __all__ = [
     "mask_subtree_from_root",
     "score_subtrees",
     "max_subtree_ind",
+    "extract_subtree",
 ]

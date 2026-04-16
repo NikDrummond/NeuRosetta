@@ -6,6 +6,7 @@ from .gt_properties import (
     bind_vertex_property,
     bind_edge_property,
     bind_graph_property,
+    revert_core_properties
 )
 
 from .traversals import(
@@ -51,6 +52,7 @@ from .graph_editing import (
 from .subgraphs import(
     subgraph_score,
     max_subgraph_ind,
+    extract_subgraph,
 )
 
 from .degrees import (
@@ -64,6 +66,7 @@ __all__ = [
     "bind_vertex_property",
     "bind_edge_property",
     "bind_graph_property",
+    "revert_core_properties",
     "root_index",
     "leaf_indices",
     "branch_indices",
@@ -92,6 +95,7 @@ __all__ = [
     "reroot_graph",
     "subgraph_score",
     "max_subgraph_ind",
+    "extract_subgraph",
     "get_vertex_degrees",
     "degree_distribution",
 ]

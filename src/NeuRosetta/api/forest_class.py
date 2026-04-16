@@ -27,6 +27,7 @@ from ..ops.tree_graphs import (
     reduce_tree,
     score_subtrees,
     max_subtree_ind,
+    extract_subtree,
 )
 
 from ..ops.plotting.utils import _build_3d
@@ -36,6 +37,7 @@ from ..io import (
     export_swc,
     save,
 )
+
 
 class Forest(_Forest):
 
@@ -204,9 +206,9 @@ class Forest(_Forest):
         return self.apply(
             count_tree_transitive_nodes,
             **func_kwargs,
-            parallel = parallel,
-            max_workers = max_workers,
-            show_progress=progress
+            parallel=parallel,
+            max_workers=max_workers,
+            show_progress=progress,
         )
 
     ### coordinates
@@ -266,9 +268,9 @@ class Forest(_Forest):
         return self.apply(
             total_cable_length,
             **func_kwargs,
-            parallel = parallel,
-            max_workers = max_workers,
-            show_progress = progress,
+            parallel=parallel,
+            max_workers=max_workers,
+            show_progress=progress,
         )
 
     ### Topological bits
@@ -361,10 +363,7 @@ class Forest(_Forest):
 
     ### updateing metadata
     def forest_update_reduced(
-        self, 
-        parallel: bool = True, 
-        max_workers: int = 4, 
-        progress: bool = True
+        self, parallel: bool = True, max_workers: int = 4, progress: bool = True
     ) -> None:
         return self.apply(
             update_reduced,
@@ -384,50 +383,70 @@ class Forest(_Forest):
         return self.apply(
             reduce_tree,
             **func_kwargs,
-            parallel = parallel,
-            max_workers = max_workers,
-            show_progress = progress
+            parallel=parallel,
+            max_workers=max_workers,
+            show_progress=progress,
         )
-    
+
     ### subtrees
     def get_forest_subtree_scores(
         self,
         parallel: bool = True,
         max_workers: int = 4,
         progress: bool = True,
-        **func_kwargs
+        **func_kwargs,
     ):
         return self.apply(
             score_subtrees,
             **func_kwargs,
-            parallel = parallel,
-            max_workers = max_workers,
-            show_progress = progress
+            parallel=parallel,
+            max_workers=max_workers,
+            show_progress=progress,
         )
-    
+
     def get_forest_max_subtree_index(
         self,
         parallel: bool = True,
         max_workers: int = 4,
         progress: bool = True,
-        **func_kwargs
+        **func_kwargs,
     ):
         return self.apply(
             max_subtree_ind,
             **func_kwargs,
-            parallel = parallel,
-            max_workers = max_workers,
-            show_progress = progress
+            parallel=parallel,
+            max_workers=max_workers,
+            show_progress=progress,
+        )
+
+    def convert_forest_to_subtrees(
+        self,
+        parallel: bool = True,
+        max_workers: int = 4,
+        progress: bool = True,
+        **func_kwargs,
+    ):
+        self.apply(
+            extract_subtree,
+            **func_kwargs,
+            parallel=parallel,
+            max_workers=max_workers,
+            show_progress=progress,
         )
 
     ### plotting
     def _gen_3d(
-        self, parallel: bool = True, max_workers: int = 4, progress: bool = True
+        self,
+        parallel: bool = True,
+        max_workers: int = 4,
+        progress: bool = True,
+        # force_refresh: bool = False,
     ) -> None:
         return self.apply(
             _build_3d,
+            # force_refresh = force_refresh,
             cache=True,
-            random_c = True,
+            random_c=True,
             parallel=parallel,
             max_workers=max_workers,
             show_progress=progress,

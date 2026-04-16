@@ -131,6 +131,7 @@ class Viewer:
         cache: bool = False,
         line_kwargs: dict | None = None,
         root_kwargs: dict | None = None,
+        force_refresh: bool = False,
     ) -> None:
         """_summary_
 
@@ -146,7 +147,7 @@ class Viewer:
             _description_, by default {}
         """
         # get the plottable objects
-        if not hasattr(tree, "_plot_dict"):
+        if force_refresh or not hasattr(tree, "_plot_dict"):
             plot_dict = _build_3d(
                 tree=tree, line_kwargs=line_kwargs, root_kwargs=root_kwargs, cache=False
             )
@@ -158,18 +159,22 @@ class Viewer:
             tree._plot_dict = plot_dict
 
         self.add([plot_dict["lns"], plot_dict["root"]])
-    
+
     def add_forest(
         self,
         forest: _Forest,
         parallel: bool = True,
         max_workers: int = 4,
         progress: bool = True,
+        force_refresh: bool = False,
     ) -> None:
-        """ Add all neurons in a forest"""
+        """Add all neurons in a forest"""
 
-        # build and cache 
-        forest._gen_3d(parallel = parallel, max_workers = max_workers, progress = progress)
+        # build and cache
+        forest._gen_3d(
+            parallel=parallel,
+            max_workers=max_workers,
+            progress=progress,
+        )
         for tree in forest:
-            self.add_neuron(tree)
-
+            self.add_neuron(tree, force_refresh = force_refresh)

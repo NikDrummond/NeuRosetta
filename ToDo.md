@@ -55,6 +55,7 @@ Going forward, use this structure
 - [ ] Not currently happy with how radii are handled with reduced trees, but not currently important.
 - [ ] Re-work aspect and scaling of dendrogram layouts.
 - [x] Fix the annoying GUI bug which generates a random coulour every F***ING time a neuron is reloaded. (default kwargs to `renderer.NeuronRenderer.render_neuron`)
+- [ ] converting to a subtree breaks plotting unless saved and reloaded. Plotting needs a fix anyway.
 
 
 ## Functionality
@@ -124,7 +125,7 @@ Going forward, use this structure
  - [x] Load swc
  - [x] GUI core port
  - [x] Mesh loading - use thin wrapper around vedo as patch fix
- - [ ] Point selection (works, but has not functionality to call yet)
+ - [x] Point selection
 
 ### Tree Surgery
 
@@ -132,7 +133,7 @@ Going forward, use this structure
  - [x] reooting
  - [x] Subtree masking
  - [x] Subtree identification
- - [ ] Subtree isolation
+ - [x] Subtree isolation
 
 ### Topology
 

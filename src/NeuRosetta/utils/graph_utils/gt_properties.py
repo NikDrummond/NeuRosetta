@@ -32,6 +32,30 @@ def _get_properties(g: Graph, level: str | List = "all") -> List | dict:
         return prop_keys[level]
     return {k:prop_keys[k] for k in level if k in accepted_levels and k != "all"}
 
+def revert_core_properties(g):
+    """Revert bound properties to core"""
+
+    # remove unecessary properties 
+    core_vps = ["coordinates","ids","node_type","radius"]
+    core_gps = ["ID","metadata"]
+    core_eps = ["Path_length", "Euclidean_length"]
+
+    levels = ["e","v","g"]
+    prop_dict = _get_properties(g, level = levels)
+
+    # remove vps
+    for p in prop_dict['v']:
+        if p not in core_vps:
+            del g.vp[p]
+    # remove eps
+    for p in prop_dict['e']:
+        if p not in core_eps:
+            del g.ep[p]
+    # remove gps
+    for p in prop_dict['g']:
+        if p not in core_gps:
+            del g.gp[p]
+
 ### checking properties
 
 def g_has_property(g: Graph, prop: str, level: str | List = "all"):
