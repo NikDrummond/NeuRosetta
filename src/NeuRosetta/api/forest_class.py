@@ -394,6 +394,7 @@ class Forest(_Forest):
         return self.apply(
             _build_3d,
             cache=True,
+            random_c = True,
             parallel=parallel,
             max_workers=max_workers,
             show_progress=progress,

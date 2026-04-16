@@ -54,7 +54,7 @@ Going forward, use this structure
 - [ ] move `_Forest` subsetting and co to `Forest`, otherwise we return the sub class instance, not the user exposed one.
 - [ ] Not currently happy with how radii are handled with reduced trees, but not currently important.
 - [ ] Re-work aspect and scaling of dendrogram layouts.
-- [ ] Fix the annoying GUI bug which generates a random coulour every FUCKING time a neuron is reloaded. (default kwargs to `renderer.NeuronRenderer.render_neuron`)
+- [x] Fix the annoying GUI bug which generates a random coulour every F***ING time a neuron is reloaded. (default kwargs to `renderer.NeuronRenderer.render_neuron`)
 
 
 ## Functionality
@@ -123,7 +123,7 @@ Going forward, use this structure
  - [x] Load nr
  - [x] Load swc
  - [x] GUI core port
- - [ ] Mesh loading - use thin wrapper around vedo as patch fix
+ - [x] Mesh loading - use thin wrapper around vedo as patch fix
  - [ ] Point selection (works, but has not functionality to call yet)
 
 ### Tree Surgery

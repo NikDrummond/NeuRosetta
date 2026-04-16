@@ -41,12 +41,17 @@ def _build_3d(
     cache: bool = True,
     line_kwargs: dict | None= None,
     root_kwargs: dict | None = None,
+    random_c: bool = False,
 ) -> dict | None:
 
     if hasattr(tree, "_plot_dict"):
         return
 
-    c = _random_c()
+    if random_c:
+        c = _random_c()
+    else:
+        c = 'k'
+    
     if line_kwargs is None:
         line_kwargs = {"c": c, "lw": 1, "alpha": 1.0}
     if root_kwargs is None:
