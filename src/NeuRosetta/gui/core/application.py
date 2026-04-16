@@ -12,6 +12,8 @@ from ..file_io import FileManager
 from ..rendering import NeuronRenderer, PointSelector
 from ..tools import NeuronTools
 
+from ...io import load_mesh
+
 
 class NeuroGUIApplication:
     """Core application logic that manages the neuron visualization application."""
@@ -500,7 +502,7 @@ class NeuroGUIApplication:
         try:
             # import os
             # from pathlib import Path
-            import Neurosetta
+            # import Neurosetta
             
             # Get current filename without extension
             current_file = self.files[self.current_file_index]
@@ -520,8 +522,8 @@ class NeuroGUIApplication:
                     break
             
             if mesh_path:
-                # Load mesh using Neurosetta.load_mesh
-                mesh = Neurosetta.load_mesh(mesh_path)
+                # Load mesh
+                mesh = load_mesh(mesh_path)
                 
                 # Hide previous mesh if it exists
                 self._hide_current_mesh()
