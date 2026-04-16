@@ -1,8 +1,12 @@
 """Core application logic that coordinates all components."""
 
+import pathlib
 import logging
-import numpy as np
+import os
 from typing import List, Optional, Any
+
+import numpy as np
+
 from ..config import AppSettings
 from ..file_io import FileManager
 from ..rendering import NeuronRenderer, PointSelector
@@ -194,7 +198,6 @@ class NeuroGUIApplication:
     def get_current_filename(self) -> str:
         """Get the current filename."""
         if self.files and 0 <= self.current_file_index < len(self.files):
-            import pathlib
             return pathlib.Path(self.files[self.current_file_index]).name
         return ""
     
@@ -238,7 +241,7 @@ class NeuroGUIApplication:
         if not self.files:
             return False
             
-        import pathlib
+        # import pathlib
         
         # Search for file with matching name (case-insensitive)
         filename_lower = filename.lower()
@@ -495,17 +498,17 @@ class NeuroGUIApplication:
             return
         
         try:
-            import os
-            from pathlib import Path
+            # import os
+            # from pathlib import Path
             import Neurosetta
             
             # Get current filename without extension
             current_file = self.files[self.current_file_index]
-            filename_stem = Path(current_file).stem
+            filename_stem = pathlib.Path(current_file).stem
             
             # Try to find mesh file with same name in mesh directory
             mesh_path = None
-            mesh_dir = Path(self.mesh_directory)
+            mesh_dir = pathlib.Path(self.mesh_directory)
             
             # Common mesh file extensions supported by vedo
             mesh_extensions = ['.obj', '.ply', '.stl', '.vtk', '.vtp', '.vtu', '.off', '.3ds']

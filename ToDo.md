@@ -28,6 +28,7 @@
 │  functions applying utils/ to core/ classes             │  :                    :
 └───────────────────────┬─────────────────────────────────┘  : numpy_utils.py     :
                         │                                    : graph_utils.py     :
+                        |                                    : vedo_utils.py(todo):
 ┌───────────────────────▼─────────────────────────────────┐  : other_utils.py     :
 │  core/         layer 1                                  │  - - - - - - - - - - -
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐      │
@@ -43,7 +44,8 @@ Going forward, use this structure
 - [x] `graph_utils` needs to be its own contained graph_tool toolbox.
 - [x] same with `numpy_utils`
 - [x] `ops/` integrates `core/` and `utils/`
-- [ ] Fix the annoying GUI bug which generates a random coulour every FUCKING time a neuron is reloaded. (default kwargs to `renderer.NeuronRenderer.render_neuron`)
+- [ ] make `utils/vedo_utils` and rearange some plotting bits, you will thank yourself later    
+
 
 ## Geneal Fixes
 
@@ -52,6 +54,7 @@ Going forward, use this structure
 - [ ] move `_Forest` subsetting and co to `Forest`, otherwise we return the sub class instance, not the user exposed one.
 - [ ] Not currently happy with how radii are handled with reduced trees, but not currently important.
 - [ ] Re-work aspect and scaling of dendrogram layouts.
+- [ ] Fix the annoying GUI bug which generates a random coulour every FUCKING time a neuron is reloaded. (default kwargs to `renderer.NeuronRenderer.render_neuron`)
 
 
 ## Functionality
@@ -60,7 +63,7 @@ Going forward, use this structure
 
  - [x] Neuron class
  - [x] Forest
- - [ ] Mesh Class
+ - [ ] Mesh Class (`_Forest` container can be re-used)
  - [x] Threaded Parallelisation
  - [ ] Subsetting by metadata values
 
@@ -68,6 +71,7 @@ Going forward, use this structure
 
  - [x] Read / Write swc
  - [x] Read / Write nr
+ - [ ] Read / Write meshes (use vedo)
 
 ### Basic Descriptives
 
@@ -119,12 +123,13 @@ Going forward, use this structure
  - [x] Load nr
  - [x] Load swc
  - [x] GUI core port
+ - [ ] Mesh loading - use thin wrapper around vedo as patch fix
  - [ ] Point selection (works, but has not functionality to call yet)
 
 ### Tree Surgery
 
  - [x] Neuron reduction
- - [ ] reooting
+ - [x] reooting
  - [ ] Subtree masking
  - [ ] Subtree identification
  - [ ] Subtree isolation
