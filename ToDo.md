@@ -49,13 +49,15 @@ Going forward, use this structure
 
 ## Geneal Fixes
 
-- [x] Streamline paallelisation by merging `forrest.apply`, `forest.for_each` and `foest.apply_fn` into one, handling binding.   
+- [x] Streamline parallelisation by merging `forrest.apply`, `forest.for_each` and `foest.apply_fn` into one, handling binding.   
 - [ ] Remove 'metadata' as core attribute and update function to always call _Tree.graph.gp['metadata]. Make sure metadata updating works frorm the graph directly (ensurers consistent behaviour when updating metadata) 
 - [ ] move `_Forest` subsetting and co to `Forest`, otherwise we return the sub class instance, not the user exposed one.
 - [ ] Not currently happy with how radii are handled with reduced trees, but not currently important.
 - [ ] Re-work aspect and scaling of dendrogram layouts.
 - [x] Fix the annoying GUI bug which generates a random coulour every F***ING time a neuron is reloaded. (default kwargs to `renderer.NeuronRenderer.render_neuron`)
 - [ ] converting to a subtree breaks plotting unless saved and reloaded. Plotting needs a fix anyway.
+- [ ] GUI doesn't track edges properly from `.swc` files.
+- [x] rooting doesn't automatically show subtree when viewing the subtree, but stays selected.
 
 
 ## Functionality

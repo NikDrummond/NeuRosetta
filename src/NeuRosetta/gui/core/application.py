@@ -12,7 +12,7 @@ from ..file_io import FileManager
 from ..rendering import NeuronRenderer, PointSelector
 from ..tools import NeuronTools
 
-from ...io import load_mesh
+from ...io import import_mesh
 
 
 class NeuroGUIApplication:
@@ -299,7 +299,10 @@ class NeuroGUIApplication:
 
             # Deactivate selection and re-render
             self.deactivate_point_selection()
-            self.renderer.render_neuron(self.current_neuron)
+            if self.show_subtree:
+                self.renderer.render_subtree(self.current_neuron)
+            else:
+                self.renderer.render_neuron(self.current_neuron)
             
             return True
             
@@ -523,7 +526,9 @@ class NeuroGUIApplication:
             
             if mesh_path:
                 # Load mesh
-                mesh = load_mesh(mesh_path)
+                mesh = import_mesh(mesh_path).mesh
+                mesh.alpha(0.3)
+                mesh.c('gray')
                 
                 # Hide previous mesh if it exists
                 self._hide_current_mesh()
