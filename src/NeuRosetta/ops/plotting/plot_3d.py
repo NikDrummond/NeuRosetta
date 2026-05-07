@@ -9,7 +9,7 @@ def plot_3d(
     line_kwargs: dict = {"c": "k4", "lw": 1, "alpha": 1.0},
     root_kwargs: dict = {"r": 12, "c": "k4", "alpha": 1.0},
     plot_kwargs: dict = {},
-    cache: bool = True,
+    cache: bool = False,
     force_refresh: bool = False
 ) -> Viewer:
     """On the fly 3D neuron plotting. Opens an interactive vedo.Plotter instance with the neuron.

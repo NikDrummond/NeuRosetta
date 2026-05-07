@@ -38,7 +38,7 @@ def _random_c() -> ndarray:
 
 def _build_3d(
     tree: _Tree,
-    cache: bool = True,
+    cache: bool = False,
     line_kwargs: dict | None= None,
     root_kwargs: dict | None = None,
     random_c: bool = False,
