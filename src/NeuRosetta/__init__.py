@@ -6,7 +6,7 @@ spatial coordinates, and graph-based morphological data.
 """
 
 from .api import Tree, Forest, Tree_mesh, Neuropil, Forest_mesh, Neuropils
-from .io import import_swc, load
+from .io import import_swc, load, import_mesh
 from .ops.plotting import Viewer
 from .gui import start_GUI
 from .analysis import reconstruct_neuropil_surface
@@ -44,6 +44,7 @@ __all__ = [
     "Tree",
     "Forest",
     "import_swc",
+    "import_mesh",
     "load",
     "Viewer",
     "start_GUI",
