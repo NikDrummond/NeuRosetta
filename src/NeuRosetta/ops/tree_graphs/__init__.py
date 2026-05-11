@@ -60,6 +60,7 @@ from .subtrees import(
     score_subtrees,
     max_subtree_ind,
     extract_subtree,
+    node_partition_asymmetry,
 )
 
 __all__ = [
@@ -98,4 +99,5 @@ __all__ = [
     "score_subtrees",
     "max_subtree_ind",
     "extract_subtree",
+    "node_partition_asymmetry",
 ]

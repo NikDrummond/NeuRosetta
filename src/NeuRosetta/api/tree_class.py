@@ -39,6 +39,7 @@ from ..ops.tree_graphs import (
     score_subtrees,
     max_subtree_ind,
     extract_subtree,
+    node_partition_asymmetry,
 )
 
 from ..ops.plotting import (
@@ -113,6 +114,7 @@ class Tree(_Tree):
     get_subtree_scores = score_subtrees
     get_max_subtree_index = max_subtree_ind
     convert_to_subtree = extract_subtree
+    get_node_partition_asymmetry = node_partition_asymmetry
 
     # saving
     export_to_swc = export_swc

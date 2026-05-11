@@ -10,6 +10,7 @@ from ...utils.graph_utils import (
     subgraph_score,
     max_subgraph_ind,
     extract_subgraph,
+    partition_asymmetry,
 )
 from .tree_checks import tree_has_property
 from .path_lengths import euclidean_edge_length
@@ -107,3 +108,43 @@ def extract_subtree(
         mask_subtree_from_root(tree, max_subtree_ind(tree), bind=True)
 
     extract_subgraph(tree.graph, revert_properties = revert_properties)
+
+def node_partition_asymmetry(tree: _Tree, weighted: bool = True, bind: bool = False) -> None | ndarray:
+    """
+    Compute partition asymmetry at each branching node in a directed tree graph.
+
+    For a binary branching node with downstream leaf counts r and s (one per child
+    subtree), the unweighted partition asymmetry is:
+
+        PA = |r - s| / (r + s - 1)
+
+    For non-binary nodes the score is the mean over all C(k, 2) child-pair
+    combinations, where each pair is evaluated with the formula above.
+
+    In the weighted variant, each node's score is additionally multiplied by the
+    fraction of total cable length contained in its subtree:
+
+        PA_weighted = PA * (subtree_cable[v] / total_cable)
+
+    Parameters
+    ----------
+    tree : Tree
+        Neuron Tree graph
+    weighted : bool, optional
+        If True compute the cable-weighted version.  Requires the "Path_length"
+        edge property.  By default False.
+    bind : bool, optional
+        If True attach the result as vertex property ``g.vp["partition_asymmetry"]``
+        and return None.  If False return the raw ndarray.  By default True.
+
+    Returns
+    -------
+    None | ndarray
+        Array of partition-asymmetry scores, one per vertex.  Leaf nodes and the
+        root receive a score of 0.  Non-NaN values exist only for branching nodes
+        (out-degree >= 2).
+    """
+    if bind:
+        partition_asymmetry(tree.graph, weighted = weighted, bind = bind)
+        return
+    return partition_asymmetry(tree.graph, weighted = weighted, bind = bind)

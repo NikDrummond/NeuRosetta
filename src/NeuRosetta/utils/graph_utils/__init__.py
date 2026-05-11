@@ -53,6 +53,7 @@ from .subgraphs import(
     subgraph_score,
     max_subgraph_ind,
     extract_subgraph,
+    partition_asymmetry,
 )
 
 from .degrees import (
@@ -96,6 +97,7 @@ __all__ = [
     "subgraph_score",
     "max_subgraph_ind",
     "extract_subgraph",
+    "partition_asymmetry",
     "get_vertex_degrees",
     "degree_distribution",
 ]

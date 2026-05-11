@@ -30,6 +30,7 @@ from ..ops.tree_graphs import (
     score_subtrees,
     max_subtree_ind,
     extract_subtree,
+    node_partition_asymmetry,
 )
 
 from ..ops.plotting.utils import _build_3d
@@ -116,6 +117,7 @@ class Forest(_Forest):
     get_forest_subtree_scores = _forest_op(score_subtrees)
     get_forest_max_subtree_index = _forest_op(max_subtree_ind)
     convert_forest_to_subtrees = _forest_op(extract_subtree)
+    get_forest_node_partition_asymmetry = _forest_op(node_partition_asymmetry)
 
     # --- saving ---
     export_forest_to_swc = export_swc
