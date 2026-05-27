@@ -2,12 +2,12 @@
 from pathlib import Path
 from typing import overload
 
-from vedo import Mesh
+from vedo import Mesh, write
 from vedo import load as vd_load_mesh
 
 
 from ..core import _Mesh, _Forest
-from .io_utils import _base_meta
+from .io_utils import _base_meta, _foreach_with_progress
 
 @overload
 def import_mesh(
@@ -70,3 +70,82 @@ def import_mesh(
         
     meshes = [Neuropil(ID = ids[i], metadata = {}, mesh = meshes[i]) for i in range(len(ids))]
     return Neuropils(meshes)
+
+@overload
+def export_mesh(
+    tree: _Mesh,
+    fpath: str | Path | None = None,
+) -> Path: ...
+
+@overload
+def export_mesh(
+    tree: _Forest,
+    fpath: str | Path,
+    *,
+    parallel: bool = False,
+    max_workers: int | None = None,
+    progress: bool = False,
+) -> list[Path]: ...
+
+def export_mesh(
+    mesh: _Mesh | _Forest,
+    fpath: str | Path | None = None,
+    fileoutput: str = '.ply',
+    *,
+    binary: bool = True,
+    parallel: bool = False,
+    max_workers: int | None = None,
+    progress: bool = False,
+):
+
+    def _save_one(t, base: Path) -> Path:
+        out = base / f"{t.ID}{fileoutput}"
+        write(t.mesh, str(out), binary=binary)
+        return out
+
+    # ---- Single Mesh ----
+    if not isinstance(mesh, _Forest):
+        if fpath is None:
+            out = Path.cwd() / f"{mesh.ID}{fileoutput}"
+        else:
+            p = Path(fpath)
+            if p.exists() and p.is_dir():
+                out = p / f"{mesh.ID}{fileoutput}"
+            else:
+                if p.suffix:
+                    out = p
+                else:
+                    p.mkdir(parents=True, exist_ok=True)
+                    out = p / f"{mesh.ID}{fileoutput}"
+
+        write(mesh.mesh, str(out), binary=binary)
+        return out
+
+    # ---- Forest ----
+    if fpath is None:
+        base = Path.cwd()
+    else:
+        base = Path(fpath)
+
+    if base.suffix:
+        raise ValueError("Cannot export a Forest to a single file path")
+
+    base.mkdir(parents=True, exist_ok=True)
+
+    items = list(mesh)
+    out_paths: list[Path] = []
+
+    def _wrapped_save(t):
+        p = _save_one(t, base)
+        out_paths.append(p)
+
+    _foreach_with_progress(
+        _wrapped_save,
+        items,
+        parallel=parallel,
+        max_workers=max_workers,
+        progress=progress,
+        desc="Exporting mesh files",
+    )
+
+    return out_paths

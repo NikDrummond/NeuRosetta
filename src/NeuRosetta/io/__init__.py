@@ -1,5 +1,5 @@
 from .swc_utils import import_swc, export_swc
 from .nr_utils import save, load
-from .mesh_utils import import_mesh
+from .mesh_utils import import_mesh, export_mesh
 
-__all__ = ["import_swc", "export_swc", "save", "load", "import_mesh"]
+__all__ = ["import_swc", "export_swc", "save", "load", "import_mesh", "export_mesh"]
