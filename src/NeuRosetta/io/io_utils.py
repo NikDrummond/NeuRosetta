@@ -200,6 +200,49 @@ def _bind_core(tree: _Tree):
 
 ### parallel utils
 
+# def _map_with_progress(
+#     fn: Callable[[T], T],
+#     items: list[T],
+#     *,
+#     parallel: bool,
+#     max_workers: int | None,
+#     progress: bool,
+#     desc: str,
+# ):
+#     if parallel:
+#         with ThreadPoolExecutor(max_workers=max_workers) as ex:
+#             it = ex.map(fn, items)
+#             if progress:
+#                 it = tqdm(it, total=len(items), desc=desc)
+#             return list(it)
+#     else:
+#         it = items
+#         if progress:
+#             it = tqdm(it, total=len(items), desc=desc)
+#         return [fn(x) for x in it]
+
+# def _foreach_with_progress(
+#     fn: Callable[[T], None],
+#     items: list[T],
+#     *,
+#     parallel: bool,
+#     max_workers: int | None,
+#     progress: bool,
+#     desc: str,
+# ) -> None:
+#     if parallel:
+#         with ThreadPoolExecutor(max_workers=max_workers) as ex:
+#             it = ex.map(fn, items)
+#             if progress:
+#                 it = tqdm(it, total=len(items), desc=desc)
+#             list(it)
+#     else:
+#         it = items
+#         if progress:
+#             it = tqdm(it, total=len(items), desc=desc)
+#         for x in it:
+#             fn(x)
+
 def _map_with_progress(
     fn: Callable[[T], T],
     items: list[T],
@@ -208,18 +251,16 @@ def _map_with_progress(
     max_workers: int | None,
     progress: bool,
     desc: str,
-):
+) -> list[T]:
     if parallel:
         with ThreadPoolExecutor(max_workers=max_workers) as ex:
-            it = ex.map(fn, items)
-            if progress:
-                it = tqdm(it, total=len(items), desc=desc)
-            return list(it)
+            futures = [ex.submit(fn, item) for item in items]
+            it = tqdm(futures, total=len(items), desc=desc) if progress else futures
+            return [fut.result() for fut in it]
     else:
-        it = items
-        if progress:
-            it = tqdm(it, total=len(items), desc=desc)
+        it = tqdm(items, total=len(items), desc=desc) if progress else items
         return [fn(x) for x in it]
+
 
 def _foreach_with_progress(
     fn: Callable[[T], None],
@@ -232,13 +273,11 @@ def _foreach_with_progress(
 ) -> None:
     if parallel:
         with ThreadPoolExecutor(max_workers=max_workers) as ex:
-            it = ex.map(fn, items)
-            if progress:
-                it = tqdm(it, total=len(items), desc=desc)
-            list(it)
+            futures = [ex.submit(fn, item) for item in items]
+            it = tqdm(futures, total=len(items), desc=desc) if progress else futures
+            for fut in it:
+                fut.result()
     else:
-        it = items
-        if progress:
-            it = tqdm(it, total=len(items), desc=desc)
+        it = tqdm(items, total=len(items), desc=desc) if progress else items
         for x in it:
             fn(x)
