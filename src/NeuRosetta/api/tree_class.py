@@ -129,8 +129,3 @@ class Tree(_Tree):
     is_reduced = check_reduced
     update_reduced = update_reduced
     check_property = tree_has_property
-
-    # list properties (temp implementation)
-    def list_properties(self):
-        """List internal (bound) graph properties"""
-        self.graph.list_properties()

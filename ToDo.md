@@ -39,25 +39,20 @@
 └─────────────────────────────────────────────────────────┘
 ```
 
-Going forward, use this structure
-- [x] Need to refactor old (Specifically, `tree_graphs/`)
-- [x] `graph_utils` needs to be its own contained graph_tool toolbox.
-- [x] same with `numpy_utils`
-- [x] `ops/` integrates `core/` and `utils/`
-- [ ] make `utils/vedo_utils` and rearange some plotting bits, you will thank yourself later    
+## Features to add
+- [ ] Global settings / defaults (Pydantic?)
+- [ ] Units handling (Pint/ounce?)
+- [ ] switch to slotted class definitions. should give slight memory improvement at the cost of the user being able to set arbritary atributes to trees, but we have metadata and graph properties. (possibly part of pydantic integration)
+- [ ] Review / optimise imports
 
 
 ## Geneal Fixes
 
-- [x] Streamline parallelisation by merging `forrest.apply`, `forest.for_each` and `foest.apply_fn` into one, handling binding.   
-- [ ] Remove 'metadata' as core attribute and update function to always call _Tree.graph.gp['metadata]. Make sure metadata updating works frorm the graph directly (ensurers consistent behaviour when updating metadata) 
-- [ ] move `_Forest` subsetting and co to `Forest`, otherwise we return the sub class instance, not the user exposed one.
+- [x] Remove 'metadata' as core attribute and update function to always call _Tree.graph.gp['metadata]. Make sure metadata updating works frorm the graph directly (ensurers consistent behaviour when updating metadata) 
 - [ ] Not currently happy with how radii are handled with reduced trees, but not currently important.
 - [ ] Re-work aspect and scaling of dendrogram layouts.
-- [x] Fix the annoying GUI bug which generates a random coulour every F***ING time a neuron is reloaded. (default kwargs to `renderer.NeuronRenderer.render_neuron`)
 - [ ] converting to a subtree breaks plotting unless saved and reloaded. Plotting needs a fix anyway.
 - [ ] GUI doesn't track edges properly from `.swc` files.
-- [x] rooting doesn't automatically show subtree when viewing the subtree, but stays selected.
 
 
 ## Functionality
@@ -66,15 +61,15 @@ Going forward, use this structure
 
  - [x] Neuron class
  - [x] Forest
- - [ ] Mesh Class (`_Forest` container can be re-used)
+ - [x] Mesh Class (`_Forest` container can be re-used)
  - [x] Threaded Parallelisation
- - [ ] Subsetting by metadata values
+ - [x] Subsetting by metadata values
 
 ### I/O
 
  - [x] Read / Write swc
  - [x] Read / Write nr
- - [ ] Read / Write meshes (use vedo)
+ - [x] Read / Write meshes (use vedo)
 
 ### Basic Descriptives
 
@@ -141,11 +136,9 @@ Going forward, use this structure
 
  - [x] Node Depth
 
-### Paper Reproduction
+### Meshes
 
-...
-
------
+    - [ ] mesh method to set colour/alpha etc rather than setting through mesh.mesh
 
 
 

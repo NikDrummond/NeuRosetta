@@ -10,7 +10,7 @@ settings.default_backend = "vtk"
 settings.use_parallel_projection = True
 
 from ...core import _Tree, _Forest
-from .utils import _build_3d
+from .utils import TreePlot3D
 
 
 Actor = Any
@@ -125,56 +125,91 @@ class Viewer:
         return getattr(self._plotter, name)
 
     ### Add neuron
+    # def add_neuron(
+    #     self,
+    #     tree: _Tree,
+    #     cache: bool = False,
+    #     line_kwargs: dict | None = None,
+    #     root_kwargs: dict | None = None,
+    #     force_refresh: bool = False,
+    # ) -> None:
+    #     """_summary_
+
+    #     Parameters
+    #     ----------
+    #     tree : _Tree
+    #         _description_
+    #     cache : bool, optional
+    #         _description_, by default False
+    #     line_kwargs : dict, optional
+    #         _description_, by default {}
+    #     root_kwargs : dict, optional
+    #         _description_, by default {}
+    #     """
+    #     # get the plottable objects
+    #     if force_refresh or not hasattr(tree, "_3d_plot"):
+    #         plot_dict = _build_3d(
+    #             tree=tree, line_kwargs=line_kwargs, root_kwargs=root_kwargs
+    #         )
+    #     else:
+    #         plot_dict = tree._plot_dict
+
+    #     # if we want to cache them do so
+    #     if cache:
+    #         tree._plot_dict = plot_dict
+
+    #     self.add([plot_dict["lns"], plot_dict["root"]])
+
     def add_neuron(
         self,
         tree: _Tree,
+        show_root: bool = True,
         cache: bool = False,
         line_kwargs: dict | None = None,
         root_kwargs: dict | None = None,
         force_refresh: bool = False,
     ) -> None:
-        """_summary_
-
+        """
         Parameters
         ----------
         tree : _Tree
-            _description_
+            The tree to plot.
         cache : bool, optional
-            _description_, by default False
+            Cache the TreePlot3D object on the tree as `tree._3d_plot`, by default False.
         line_kwargs : dict, optional
-            _description_, by default {}
+            Keyword arguments passed to the vedo Lines constructor, by default None.
         root_kwargs : dict, optional
-            _description_, by default {}
+            Keyword arguments passed to the vedo Point constructor, by default None.
+        force_refresh : bool, optional
+            Force a rebuild of the plot objects even if a cached version exists, by default False.
         """
-        # get the plottable objects
-        if force_refresh or not hasattr(tree, "_plot_dict"):
-            plot_dict = _build_3d(
-                tree=tree, line_kwargs=line_kwargs, root_kwargs=root_kwargs, cache=False
-            )
+        # Use cached plot if available and no refresh forced
+        if not force_refresh and tree._plot3d is not None:
+            plot = tree._plot3d
         else:
-            plot_dict = tree._plot_dict
+            plot = TreePlot3D(tree=tree, line_kwargs=line_kwargs, root_kwargs=root_kwargs)
 
-        # if we want to cache them do so
         if cache:
-            tree._plot_dict = plot_dict
+            tree._plot3d = plot
 
-        self.add([plot_dict["lns"], plot_dict["root"]])
+        # set soma
+        plot.show_root = show_root
+
+        self.add(plot.actors)
 
     def add_forest(
         self,
         forest: _Forest,
-        parallel: bool = True,
-        max_workers: int = 4,
-        progress: bool = True,
         force_refresh: bool = False,
+        **build_kwargs,
     ) -> None:
-        """Add all neurons in a forest"""
+        """Add all neurons in a forest to the viewer."""
+        forest.build_3d(force_refresh=force_refresh, **build_kwargs, show_progress = True)
 
-        # build and cache
-        forest._gen_3d(
-            parallel=parallel,
-            max_workers=max_workers,
-            progress=progress,
-        )
+        # Batch all actors into a single add call
+        all_actors = []
         for tree in forest:
-            self.add_neuron(tree, force_refresh = force_refresh)
+            if tree._plot3d is not None:
+                all_actors.extend(tree._plot3d.actors)
+
+        self.add(all_actors)

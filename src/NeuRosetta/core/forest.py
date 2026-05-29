@@ -242,6 +242,7 @@ class _Forest(Sequence):
             if bind and accepts_bind:
                 for i in it:
                     call(i)
+                # can remove this return?
                 return None
             return [call(i) for i in it]
 
@@ -252,5 +253,29 @@ class _Forest(Sequence):
             if bind and accepts_bind:
                 for _ in results:
                     pass
+                # and this one?
                 return None
             return list(results)
+
+    def build_3d(
+        self,
+        force_refresh: bool = False,
+        parallel: bool = False,
+        show_root: bool = False,
+        random_c: bool = True,
+        **kwargs,
+    ):
+        """Build and cache TreePlot3D for all trees."""
+
+        if force_refresh:
+            for tree in self:
+                tree._plot3d = None
+
+        self.apply(
+            lambda t, **kw: t.make_plot3d(**kw),
+            parallel=parallel,
+            cache=True,
+            random_c=random_c,
+            show_root=show_root,
+            **kwargs,
+        )

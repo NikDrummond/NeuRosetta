@@ -7,7 +7,7 @@ import numpy as np
 import vedo as vd
 # import NeuRosetta as nr
 from ..config import RENDERING_CONSTANTS
-from ...ops.plotting.utils import _build_3d
+from ...ops.plotting.utils import TreePlot3D
 from ...ops.plotting.plot_subtree import build_3d_subtree
 
 class NeuronRenderer:
@@ -60,14 +60,15 @@ class NeuronRenderer:
         #     c=RENDERING_CONSTANTS['SOMA_COLOR'], 
         #     r=RENDERING_CONSTANTS['SOMA_RADIUS']
         # )
-        plot_dict = _build_3d(tree = neuron, cache = False)
+        # plot_dict = _build_3d(tree = neuron, cache = False)
+        plot = TreePlot3D(tree=neuron)
         
         # Store references
-        self.current_lines = plot_dict['lns']
-        self.soma = plot_dict['root']
+        self.current_lines = plot.lines
+        self.soma = plot.root
         
         # Display as assembly
-        assembly = vd.Assembly([plot_dict['lns'], plot_dict['root']])
+        assembly = vd.Assembly([plot.lines, plot.root])
         self._display(assembly)
         
         logging.info("Rendered neuron with lines and soma")

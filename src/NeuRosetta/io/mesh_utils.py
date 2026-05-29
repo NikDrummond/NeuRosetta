@@ -37,7 +37,7 @@ def import_mesh(
     """"""
 
     if mesh_type not in ['Neuron', 'Neuropil']:
-        raise AttributeError(f"mesh_type must be Neuron or Neuropil, not f{mesh_type}")
+        raise AttributeError(f"mesh_type must be Neuron or Neuropil, not {mesh_type}")
 
     # When I make api classes for this I import them here
     from ..api import Tree_mesh, Neuropil, Forest_mesh, Neuropils
@@ -50,7 +50,7 @@ def import_mesh(
         meta = _base_meta()
         meta['ID'] = mesh_id
         meta['file_path'] = str(path)
-        if mesh_type is 'Neuron':
+        if mesh_type == 'Neuron':
             return Tree_mesh(ID = mesh_id, metadata = meta, mesh = mesh)
         
         return Neuropil(ID = mesh_id, metadata = meta, mesh = mesh)

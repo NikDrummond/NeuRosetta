@@ -1,16 +1,17 @@
 import vedo as vd
 from ...core import _Tree
-from .utils import _build_3d
+# from .utils import _build_3d
 from .viewer import Viewer
 
 
 def plot_3d(
     tree: _Tree,
+    show_root: bool = True,
+    cache: bool = False,
     line_kwargs: dict = {"c": "k4", "lw": 1, "alpha": 1.0},
     root_kwargs: dict = {"r": 12, "c": "k4", "alpha": 1.0},
     plot_kwargs: dict = {},
-    cache: bool = False,
-    force_refresh: bool = False
+    force_refresh: bool = False,
 ) -> Viewer:
     """On the fly 3D neuron plotting. Opens an interactive vedo.Plotter instance with the neuron.
 
@@ -31,19 +32,28 @@ def plot_3d(
     """
 
     # get the plottable objects
-    if force_refresh or not hasattr(tree, "_plot_dict"):
-        plot_dict = _build_3d(
-            tree=tree, line_kwargs=line_kwargs, root_kwargs=root_kwargs, cache=False
-        )
-    else:
-        plot_dict = tree._plot_dict
+    # if force_refresh or not hasattr(tree, "_plot_dict"):
+    #     plot_dict = _build_3d(
+    #         tree=tree,
+    #         line_kwargs=line_kwargs,
+    #         root_kwargs=root_kwargs,
+    #         cache=False
+    #     )
+    # else:
+    #     plot_dict = tree._plot_dict
 
-    # if we want to cache them do so
-    if cache:
-        tree._plot_dict = plot_dict
+    # # if we want to cache them do so
+    # if cache:
+    #     tree._plot_dict = plot_dict
 
     # set up viewer
     view = Viewer()
-    view.add([plot_dict["lns"], plot_dict["root"]])
+    view.add_neuron(
+        tree,
+        show_root=show_root,
+        cache=cache,
+        line_kwargs=line_kwargs,
+        root_kwargs=root_kwargs,
+    )
     # show and set to close upon close
     view.show(**plot_kwargs).close()

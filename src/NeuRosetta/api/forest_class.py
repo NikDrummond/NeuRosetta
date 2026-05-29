@@ -33,7 +33,7 @@ from ..ops.tree_graphs import (
     node_partition_asymmetry,
 )
 
-from ..ops.plotting.utils import _build_3d
+# from ..ops.plotting.utils import _build_3d
 from ..ops.plotting import Viewer
 
 from ..io import (
@@ -124,15 +124,15 @@ class Forest(_Forest):
     save_forest = save
 
     # --- plotting ---
-    def _gen_3d(self, parallel=True, max_workers=4, progress=True) -> None:
-        return self.apply(
-            _build_3d,
-            cache=True,
-            random_c=True,
-            parallel=parallel,
-            max_workers=max_workers,
-            show_progress=progress,
-        )
+    # def _gen_3d(self, parallel=True, max_workers=4, progress=True) -> None:
+    #     return self.apply(
+    #         _build_3d,
+    #         cache=True,
+    #         random_c=True,
+    #         parallel=parallel,
+    #         max_workers=max_workers,
+    #         show_progress=progress,
+    #     )
 
     def show_3d(self, return_viewer: bool = False, **kwargs) -> "Viewer":
         v = Viewer()
