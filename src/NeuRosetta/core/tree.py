@@ -36,7 +36,7 @@ class _Tree(_Stone):
         line_kwargs: dict | None = None,
         root_kwargs: dict | None = None,
         random_c: bool = False,
-        cache: bool = False,
+        cache: bool = True,
     ) -> TreePlot3D:
         """Build a TreePlot3D for this tree.
 

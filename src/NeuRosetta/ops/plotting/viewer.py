@@ -164,7 +164,7 @@ class Viewer:
         self,
         tree: _Tree,
         show_root: bool = True,
-        cache: bool = False,
+        cache: bool = True,
         line_kwargs: dict | None = None,
         root_kwargs: dict | None = None,
         force_refresh: bool = False,
