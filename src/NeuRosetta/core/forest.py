@@ -154,12 +154,14 @@ class _Forest(Sequence):
         **conditions,
     ) -> "_Forest":
         """
-        Return a new _Forest containing only trees whose metadata satisfies the given conditions.
-
-        Two modes (mutually exclusive):
+        Return a new _Forest containing only trees whose metadata satisfies
+        the given conditions. Two modes (mutually exclusive):
 
         1. Keyword equality — all conditions must match (AND logic):
             forest.filter(Neuron_type='T4', Neuron_subtype='a')
+
+        Values can also be lists/sets/tuples for membership checks (OR within a key):
+            forest.filter(Neuron_type=['T4', 'T5'])
 
         2. Callable predicate — full control over the logic:
             forest.filter(lambda m: m.get('Neuron_type') == 'T4' or m.get('score', 0) > 5)
@@ -167,15 +169,20 @@ class _Forest(Sequence):
         Missing metadata keys are treated as non-matching (no KeyError raised).
         """
         if predicate is not None and conditions:
-            raise ValueError(
-                "Provide either a predicate or keyword conditions, not both."
-            )
+            raise ValueError("Provide either a predicate or keyword conditions, not both.")
+
         if predicate is not None:
             return type(self)(t for t in self._trees if predicate(t.metadata))
+
+        def _matches(metadata_value, condition) -> bool:
+            if isinstance(condition, (list, tuple, set)):
+                return metadata_value in condition
+            return metadata_value == condition
+
         return type(self)(
             t
             for t in self._trees
-            if all(t.metadata.get(k) == v for k, v in conditions.items())
+            if all(_matches(t.metadata.get(k), v) for k, v in conditions.items())
         )
 
     ### parallel mapping
