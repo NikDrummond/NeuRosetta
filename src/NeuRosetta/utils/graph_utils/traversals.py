@@ -1,4 +1,5 @@
-"""Module for breadth and depth first traversals on graphs"""
+"""Module for breadth and depth first traversals on graphs."""
+from __future__ import annotations
 
 from typing import Iterable
 from numpy import ndarray
@@ -13,7 +14,8 @@ from graph_tool.all import (
     dfs_iterator,
 )
 
-### BFS taversals
+
+### BFS traversals
 
 
 def bfsearch(
@@ -25,30 +27,40 @@ def bfsearch(
     root: int = 0,
     bind: bool = True,
 ):
-    """Wrapper for graph_tool's bfs_search that initialises properties and binds them to the graph if bind = True.
+    """Wrapper for graph_tool's bfs_search that initializes properties and binds
+    them to the graph if bind = True.
 
     Parameters
     ----------
     g : graph_tool.Graph
-        graph to search
+        Graph to search.
     visitor : graph_tool.BFSVisitor
-        visitor object that defines the behaviour of the search
-    init_properties : dict
-        dictionary of property name and type pairs to initialise before the search.
-        For example, {"depth": "int"} will create a vertex property called "depth" of type int and pass it to the visitor.
+        Visitor object that defines the behaviour of the search.
+    init_kwargs : dict, optional
+        Keyword arguments passed to the visitor constructor.
+    init_vertex_properties : dict, optional
+        Dictionary of vertex property name and type pairs to initialize before
+        the search. For example, {"depth": "int"} will create a vertex property
+        called "depth" of type int and pass it to the visitor.
+    init_edge_properties : dict, optional
+        Dictionary of edge property name and type pairs to initialize before
+        the search.
     root : int, optional
-        index of the root vertex to start the search from, by default 0.
+        Index of the root vertex to start the search from, by default 0.
     bind : bool, optional
-        whether to bind the initialised properties to the graph after the search, by default True.
-        If False, the properties are not bound to the graph and instead returned as a dictionary.
+        Whether to bind the initialized properties to the graph after the search,
+        by default True. If False, the properties are not bound to the graph and
+        instead returned as a dictionary.
 
     Returns
     -------
-    dict (if bind = False)
-        A dictionary of property name and property pairs for all initialised properties.
-        For example, {"vdepth": vdepth} where vdepth is a vertex property map containing the depth of each vertex from the root.
+    visitor : BFSVisitor
+        The visitor instance after the search.
+    dict (if bind = False and properties were initialized)
+        A dictionary of property name and property pairs for all initialized
+        properties. For example, {"depth": vdepth} where vdepth is a vertex
+        property map containing the depth of each vertex from the root.
     """
-
     if init_kwargs is None:
         init_kwargs = {}
     if init_vertex_properties is None:
@@ -56,7 +68,7 @@ def bfsearch(
     if init_edge_properties is None:
         init_edge_properties = {}
 
-    # initialised properties
+    # initialized properties
     vprops = {name: g.new_vp(ptype) for name, ptype in init_vertex_properties.items()}
     eprops = {name: g.new_ep(ptype) for name, ptype in init_edge_properties.items()}
     properties = {**vprops, **eprops}
@@ -79,21 +91,22 @@ def bfsearch(
 
 
 def bf_iterator(g: Graph, root: int = 0, array: bool = True) -> Iterable | ndarray:
-    """return breadth first search iterator or array of visitied edges from root
+    """Return breadth first search iterator or array of visited edges from root.
 
     Parameters
     ----------
     g : Graph
-        Graph object
+        Graph object.
     root : int, optional
-        root node index, by default 0
+        Root node index, by default 0.
     array : bool, optional
-        If False, returns iterator over edges, otherwise returns a numpy.ndarray, by default True
+        If False, returns iterator over edges, otherwise returns a numpy.ndarray,
+        by default True.
 
     Returns
     -------
     Iterable | ndarray
-        Iterator or array of edges in breadth first search traversal order
+        Iterator or array of edges in breadth first search traversal order.
     """
     return bfs_iterator(g, root, array)
 
@@ -102,16 +115,35 @@ def bf_iterator(g: Graph, root: int = 0, array: bool = True) -> Iterable | ndarr
 
 
 class TreeDepthVisitor(BFSVisitor):
-    """Visitor class to obtain node depths in tree"""
+    """Visitor class to obtain node depths in tree."""
+
     def __init__(self, depth):
+        """Initialize visitor with depth property map.
+
+        Parameters
+        ----------
+        depth : graph_tool.VertexPropertyMap
+            Vertex property map to store depth values.
+        """
         self.depth = depth
 
     def tree_edge(self, e):
         self.depth[e.target()] = self.depth[e.source()] + 1
 
+
 class SubtreeMaskVisitor(BFSVisitor):
+    """Visitor class to mark edges and vertices in a subtree."""
 
     def __init__(self, e_subtree_mask, v_subtree_mask):
+        """Initialize visitor with edge and vertex mask property maps.
+
+        Parameters
+        ----------
+        e_subtree_mask : graph_tool.EdgePropertyMap
+            Edge property map to mark edges in subtree.
+        v_subtree_mask : graph_tool.VertexPropertyMap
+            Vertex property map to mark vertices in subtree.
+        """
         self.e_subtree_mask = e_subtree_mask
         self.v_subtree_mask = v_subtree_mask
 
@@ -120,6 +152,7 @@ class SubtreeMaskVisitor(BFSVisitor):
 
     def discover_vertex(self, u):
         self.v_subtree_mask[u] = 1
+
 
 ### DFS generic function wrapper
 
@@ -131,33 +164,41 @@ def dfsearch(
     init_vertex_properties: dict | None = None,
     init_edge_properties: dict | None = None,
     root: int = 0,
-    bind=True,
+    bind: bool = True,
 ):
-    """Wrapper for graph_tool's dfs_search that initialises properties and binds them to the graph if
-    bind = True.
+    """Wrapper for graph_tool's dfs_search that initializes properties and binds
+    them to the graph if bind = True.
 
     Parameters
     ----------
     g : graph_tool.Graph
-        graph to search
+        Graph to search.
     visitor : graph_tool.DFSVisitor
-        visitor object that defines the behaviour of the search
-    init_properties : dict
-        dictionary of property name and type pairs to initialise before the search.
-        For example, {"depth": "int"} will create a vertex property called "vdepth" of type int and pass it to the
-        visitor.
+        Visitor object that defines the behaviour of the search.
+    init_kwargs : dict, optional
+        Keyword arguments passed to the visitor constructor.
+    init_vertex_properties : dict, optional
+        Dictionary of vertex property name and type pairs to initialize before
+        the search. For example, {"depth": "int"} will create a vertex property
+        called "depth" of type int and pass it to the visitor.
+    init_edge_properties : dict, optional
+        Dictionary of edge property name and type pairs to initialize before
+        the search.
     root : int, optional
-        index of the root vertex to start the search from, by default 0.
+        Index of the root vertex to start the search from, by default 0.
     bind : bool, optional
-        whether to bind the initialised properties to the graph after the search, by default True.
-        If False, the properties are not bound to the graph and instead returned as a dictionary.
+        Whether to bind the initialized properties to the graph after the search,
+        by default True. If False, the properties are not bound to the graph and
+        instead returned as a dictionary.
 
     Returns
     -------
-    dict (if bind = False)
-        A dictionary of property name and property pairs for all initialised properties.
-        For example, {"vdepth": vdepth} where vdepth is a vertex property map containing the depth of each
-        vertex from the root.
+    visitor : DFSVisitor
+        The visitor instance after the search.
+    dict (if bind = False and properties were initialized)
+        A dictionary of property name and property pairs for all initialized
+        properties. For example, {"depth": vdepth} where vdepth is a vertex
+        property map containing the depth of each vertex from the root.
     """
 
     if init_kwargs is None:
@@ -167,12 +208,12 @@ def dfsearch(
     if init_edge_properties is None:
         init_edge_properties = {}
 
-    # initialised properties
+    # initialized properties
     vprops = {name: g.new_vp(ptype) for name, ptype in init_vertex_properties.items()}
     eprops = {name: g.new_ep(ptype) for name, ptype in init_edge_properties.items()}
     properties = {**vprops, **eprops}
 
-    # initialise visitor
+    # initialize visitor
     vis = visitor(**init_kwargs, **properties)
 
     # dfs search
@@ -192,21 +233,22 @@ def dfsearch(
 
 
 def df_iterator(g: Graph, root: int = 0, array: bool = True) -> Iterable | ndarray:
-    """return depth first search iterator or array of visitied edges from root
+    """Return depth first search iterator or array of visited edges from root.
 
     Parameters
     ----------
     g : Graph
-        Graph object
+        Graph object.
     root : int, optional
-        root node index, by default 0
+        Root node index, by default 0.
     array : bool, optional
-        If False, returns iterator over edges, otherwise returns a numpy.ndarray, by default True
+        If False, returns iterator over edges, otherwise returns a numpy.ndarray,
+        by default True.
 
     Returns
     -------
     Iterable | ndarray
-        Iterator or array of edges in depth first search traversal order
+        Iterator or array of edges in depth first search traversal order.
     """
     return dfs_iterator(g, root, array)
 
@@ -215,8 +257,10 @@ def df_iterator(g: Graph, root: int = 0, array: bool = True) -> Iterable | ndarr
 
 
 class PostOrderVisitor(DFSVisitor):
-    """Visitor class to get post order traversal"""
+    """Visitor class to get post order traversal."""
+
     def __init__(self):
+        """Initialize visitor with empty post-order list."""
         self.post_order = []
 
     def finish_vertex(self, v):
@@ -224,8 +268,20 @@ class PostOrderVisitor(DFSVisitor):
 
 
 class ReduceVisitor(DFSVisitor):
-    """Visitor class to obtain graph edges removing transitive vertices"""
+    """Visitor class to obtain graph edges removing transitive vertices."""
+
     def __init__(self, graph, starts, stops):
+        """Initialize visitor for graph reduction.
+
+        Parameters
+        ----------
+        graph : graph_tool.Graph
+            Input graph with 'Path_length' edge property.
+        starts : array-like
+            Vertex indices to start new edges from (branches and root).
+        stops : array-like
+            Vertex indices to end edges at (branches and leaves, excluding root).
+        """
         self.graph = graph
         self.starts = starts
         self.stops = stops
@@ -234,12 +290,11 @@ class ReduceVisitor(DFSVisitor):
         self.edge_target = []
         self.path_lengths = []
 
-    # what to do at each edge
     def tree_edge(self, e):
-        """edge behaviour during traversal"""
+        """Edge behaviour during traversal."""
         # add length
         self.curr_length += self.graph.ep["Path_length"][e]
-        # if sourse in starts
+        # if source in starts
         if e.source() in self.starts:
             # add to starts
             self.edge_source.append(int(e.source()))

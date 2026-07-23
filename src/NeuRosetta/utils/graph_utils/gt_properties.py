@@ -1,22 +1,60 @@
-"""Check and get graph property names"""
+"""Check and get graph property names."""
+from __future__ import annotations
 
 from typing import List
 import itertools
 
 from graph_tool.all import Graph
 
+
 ### getting properties
-def _property_dict(g:Graph) -> dict:
-    """Dictionary of propertiess"""
-    return {"g":list(g.graph_properties.keys()),
-            "v": list(g.vertex_properties.keys()),
-            "e": list(g.edge_properties.keys())}
 
-def _get_properties(g: Graph, level: str | List = "all") -> List | dict:
-    """Get list of property names at given level """
 
+def _property_dict(g: Graph) -> dict:
+    """Return dictionary of property names by level.
+
+    Parameters
+    ----------
+    g : Graph
+        Graph to inspect.
+
+    Returns
+    -------
+    dict
+        Dictionary with keys 'g', 'v', 'e' mapping to lists of graph, vertex,
+        and edge property names respectively.
+    """
+    return {
+        "g": list(g.graph_properties.keys()),
+        "v": list(g.vertex_properties.keys()),
+        "e": list(g.edge_properties.keys()),
+    }
+
+
+def _get_properties(g: Graph, level: str | List[str] = "all") -> List[str] | dict:
+    """Get list of property names at given level.
+
+    Parameters
+    ----------
+    g : Graph
+        Graph to inspect.
+    level : str | List[str], optional
+        Property level to retrieve. Can be "g" (graph), "v" (vertex), "e" (edge),
+        "all" (all levels), or a list of levels. By default "all".
+
+    Returns
+    -------
+    List[str] | dict
+        If level is a string, returns list of property names at that level.
+        If level is a list, returns dict mapping level to property names.
+
+    Raises
+    ------
+    AttributeError
+        If level is a string not in {"g", "v", "e", "all"}.
+    """
     # accepted levels
-    accepted_levels = ["g","v","e","all"]
+    accepted_levels = ["g", "v", "e", "all"]
     # raise if wrong value passed
     if isinstance(level, str):
         if level not in accepted_levels:
@@ -30,72 +68,166 @@ def _get_properties(g: Graph, level: str | List = "all") -> List | dict:
         return list(itertools.chain.from_iterable(list(prop_keys.values())))
     if isinstance(level, str):
         return prop_keys[level]
-    return {k:prop_keys[k] for k in level if k in accepted_levels and k != "all"}
+    return {k: prop_keys[k] for k in level if k in accepted_levels and k != "all"}
 
-def revert_core_properties(g):
-    """Revert bound properties to core"""
 
-    # remove unecessary properties 
-    core_vps = ["coordinates","ids","node_type","radius"]
-    core_gps = ["ID","metadata"]
+def revert_core_properties(g: Graph) -> None:
+    """Remove non-core properties from a graph, keeping only essential ones.
+
+    Core vertex properties: "coordinates", "ids", "node_type", "radius"
+    Core graph properties: "ID", "metadata"
+    Core edge properties: "Path_length", "Euclidean_length"
+
+    Parameters
+    ----------
+    g : Graph
+        Graph to revert to core properties.
+    """
+    # remove unnecessary properties
+    core_vps = ["coordinates", "ids", "node_type", "radius"]
+    core_gps = ["ID", "metadata"]
     core_eps = ["Path_length", "Euclidean_length"]
 
-    levels = ["e","v","g"]
-    prop_dict = _get_properties(g, level = levels)
+    levels = ["e", "v", "g"]
+    prop_dict = _get_properties(g, level=levels)
 
     # remove vps
-    for p in prop_dict['v']:
+    for p in prop_dict["v"]:
         if p not in core_vps:
             del g.vp[p]
     # remove eps
-    for p in prop_dict['e']:
+    for p in prop_dict["e"]:
         if p not in core_eps:
             del g.ep[p]
     # remove gps
-    for p in prop_dict['g']:
+    for p in prop_dict["g"]:
         if p not in core_gps:
             del g.gp[p]
 
+
 ### checking properties
 
-def g_has_property(g: Graph, prop: str, level: str | List = "all"):
-    """Check if a graph has aproperty"""
-    
+
+def g_has_property(g: Graph, prop: str, level: str | List[str] = "all") -> bool:
+    """Check if a graph has a property at the specified level.
+
+    Parameters
+    ----------
+    g : Graph
+        Graph to check.
+    prop : str
+        Property name to search for.
+    level : str | List[str], optional
+        Property level(s) to search. Can be "g", "v", "e", "all", or list
+        thereof. By default "all".
+
+    Returns
+    -------
+    bool
+        True if property exists at the specified level(s), False otherwise.
+    """
     # get properties
     props = _get_properties(g, level)
 
     # if we passed a list to _get_properties we will have a dictionary, change this
     if isinstance(props, dict):
         props = list(itertools.chain.from_iterable(list(props.values())))
-    
+
     return prop in props
+
 
 # property missing error
 class _InternalPropertyMissingError(Exception):
-    """Raised when a required internal property is missing from a graph_tool.Graph object."""
+    """Raised when a required internal property is missing from a
+    graph_tool.Graph object."""
 
-    def __init__(self, missing_property, level):
+    def __init__(self, missing_property: str, level: str | List[str]):
         message = f"Internal Property Missing: {missing_property} at level(s) {level}"
         super().__init__(message)
         self.missing_property = missing_property
 
-def raise_internal_property_missing(g: Graph, prop: str, level: str | List = "all") -> None:
-    """raise if property is missing"""
+
+def raise_internal_property_missing(
+    g: Graph, prop: str, level: str | List[str] = "all"
+) -> None:
+    """Raise an exception if a required property is missing from the graph.
+
+    Parameters
+    ----------
+    g : Graph
+        Graph to check.
+    prop : str
+        Required property name.
+    level : str | List[str], optional
+        Property level(s) to check. By default "all".
+
+    Raises
+    ------
+    _InternalPropertyMissingError
+        If the property is not found at the specified level(s).
+    """
     # get internal properties
     props = _get_properties(g, level)
 
     if prop not in props:
         raise _InternalPropertyMissingError(prop, level)
 
-### Binding properties (internalising to graph)
-def bind_vertex_property(g, property_name, property_dtype, property_data):
-    """ Bind property to vertices"""
-    g.vp[property_name] = g.new_vp(property_dtype,property_data)
 
-def bind_edge_property(g: Graph, property_name, property_dtype, property_data):
-    """ Bind property to edges"""
+### Binding properties (internalising to graph)
+
+
+def bind_vertex_property(
+    g: Graph, property_name: str, property_dtype: str, property_data
+) -> None:
+    """Bind a property array to graph vertices.
+
+    Parameters
+    ----------
+    g : Graph
+        Graph to bind property to.
+    property_name : str
+        Name of the vertex property.
+    property_dtype : str
+        Data type string for the property (e.g., "double", "int", "vector<double>").
+    property_data : array-like
+        Data array to bind, must have length equal to number of vertices.
+    """
+    g.vp[property_name] = g.new_vp(property_dtype, property_data)
+
+
+def bind_edge_property(
+    g: Graph, property_name: str, property_dtype: str, property_data
+) -> None:
+    """Bind a property array to graph edges.
+
+    Parameters
+    ----------
+    g : Graph
+        Graph to bind property to.
+    property_name : str
+        Name of the edge property.
+    property_dtype : str
+        Data type string for the property (e.g., "double", "int").
+    property_data : array-like
+        Data array to bind, must have length equal to number of edges.
+    """
     g.ep[property_name] = g.new_ep(property_dtype, property_data)
 
-def bind_graph_property(g, property_name, property_dtype, property_data):
-    """Bind property to Graph"""
+
+def bind_graph_property(
+    g: Graph, property_name: str, property_dtype: str, property_data
+) -> None:
+    """Bind a property value to the graph.
+
+    Parameters
+    ----------
+    g : Graph
+        Graph to bind property to.
+    property_name : str
+        Name of the graph property.
+    property_dtype : str
+        Data type string for the property (e.g., "double", "int", "object").
+    property_data : object
+        Value to bind as the graph property.
+    """
     g.gp[property_name] = g.new_gp(property_dtype, property_data)

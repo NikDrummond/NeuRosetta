@@ -1,4 +1,5 @@
-"""Functions for handling subgraphs"""
+"""Functions for handling subgraphs and computing subgraph metrics."""
+from __future__ import annotations
 
 from numpy import (
     zeros,
@@ -21,21 +22,28 @@ from .gt_properties import (
 
 
 def subgraph_score(g: Graph, bind: bool = True) -> None | ndarray:
-    """_summary_
+    """Compute subgraph score for each vertex in a directed tree.
+
+    The score combines two terms for branch points (out-degree >= 2):
+    - Cable fraction: 1 - (subtree_cable / total_cable)
+    - Leaf fraction: subtree_leaves / total_leaves
+
+    Non-branch vertices receive a score of 0.
 
     Parameters
     ----------
     g : Graph
-        _description_
+        Directed tree graph with edge property "Path_length".
     bind : bool, optional
-        _description_, by default True
+        If True, bind the result as vertex property "subgraph_score" and return
+        None. If False, return the score array. By default True.
 
     Returns
     -------
     None | ndarray
-        _description_
+        If bind=False, returns array of scores with shape (n_vertices,).
+        Otherwise returns None and adds "subgraph_score" vertex property.
     """
-
     # make sure we have path length
     raise_internal_property_missing(g, "Path_length", "e")
 
@@ -87,19 +95,19 @@ def subgraph_score(g: Graph, bind: bool = True) -> None | ndarray:
 
 
 def max_subgraph_ind(g: Graph) -> int:
-    """_summary_
+    """Return the vertex index with the maximum subgraph score.
 
     Parameters
     ----------
     g : Graph
-        _description_
+        Directed tree graph. If "subgraph_score" vertex property exists, it is
+        used. Otherwise, the score is computed internally.
 
     Returns
     -------
     int
-        _description_
+        Vertex index with the maximum subgraph score.
     """
-
     if g_has_property(g, "subgraph_score", "v"):
         return argmax(g.vp["subgraph_score"].a)
 
@@ -107,19 +115,23 @@ def max_subgraph_ind(g: Graph) -> int:
 
 
 def extract_subgraph(g: Graph, revert_properties: bool = True) -> Graph:
-    """_summary_
+    """Extract a subgraph using vertex and edge filters.
+
+    Requires the graph to have "v_subtree_mask" (vertex) and "e_subtree_mask"
+    (edge) properties set as boolean filters.
 
     Parameters
     ----------
     g : Graph
-        _description_
+        Graph with vertex filter "v_subtree_mask" and edge filter "e_subtree_mask".
+    revert_properties : bool, optional
+        If True, remove non-core properties after extraction. By default True.
 
     Returns
     -------
     Graph
-        _description_
+        The filtered and purged graph (modified in place and returned).
     """
-
     # make sure we have needed masks
     raise_internal_property_missing(g, "v_subtree_mask", "v")
     raise_internal_property_missing(g, "e_subtree_mask", "e")
@@ -134,12 +146,13 @@ def extract_subgraph(g: Graph, revert_properties: bool = True) -> Graph:
     if revert_properties:
         revert_core_properties(g)
 
+    return g
+
 
 def partition_asymmetry(
     g: Graph, weighted: bool = False, bind: bool = True
 ) -> None | ndarray:
-    """
-    Compute partition asymmetry at each branching node in a directed tree graph.
+    """Compute partition asymmetry at each branching node in a directed tree graph.
 
     For a binary branching node with downstream leaf counts r and s (one per child
     subtree), the unweighted partition asymmetry is:
@@ -157,23 +170,23 @@ def partition_asymmetry(
     Parameters
     ----------
     g : Graph
-        A graph-tool Graph object representing a directed tree.  Must carry an
+        A graph-tool Graph object representing a directed tree. Must carry an
         edge property "Path_length" when ``weighted=True``.
     weighted : bool, optional
-        If True compute the cable-weighted version.  Requires the "Path_length"
-        edge property.  By default False.
+        If True compute the cable-weighted version. Requires the "Path_length"
+        edge property. By default False.
     bind : bool, optional
-        If True attach the result as vertex property ``g.vp["partition_asymmetry"]``
-        and return None.  If False return the raw ndarray.  By default True.
+        If True attach the result as vertex property
+        ``g.vp["partition_asymmetry"]`` and return None. If False return the
+        raw ndarray. By default True.
 
     Returns
     -------
     None | ndarray
-        Array of partition-asymmetry scores, one per vertex.  Leaf nodes and the
-        root receive a score of 0.  Non-NaN values exist only for branching nodes
+        Array of partition-asymmetry scores, one per vertex. Leaf nodes and the
+        root receive a score of 0. Non-NaN values exist only for branching nodes
         (out-degree >= 2).
     """
-
     if weighted:
         raise_internal_property_missing(g, "Path_length", "e")
 

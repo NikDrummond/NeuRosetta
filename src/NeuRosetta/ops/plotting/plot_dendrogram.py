@@ -1,4 +1,5 @@
-# import matplotlib.pyplot as plt
+"""Dendrogram plotting for neuron trees."""
+
 from matplotlib.collections import LineCollection
 from numpy import stack, vstack, arange
 from matplotlib.pyplot import Axes, subplots
@@ -7,7 +8,6 @@ from ...core import _Tree
 from ..tree_graphs import compute_tree_depths, compute_post_order
 
 
-### compute x coordinate
 def compute_dend_x(
     tree: _Tree,
     root: int,
@@ -15,9 +15,27 @@ def compute_dend_x(
     post_order,  # PostOrderVisitor (has .post_order list)
     x_spacing: float = 1.0,
 ) -> dict[int, float]:
-    """
-    Derive x coordinates from depth and the post-order visit list.
+    """Derive x coordinates from depth and the post-order visit list.
+
     Children of v are simply its neighbours at depth depth[v] + 1.
+
+    Parameters
+    ----------
+    tree : _Tree
+        Neuron tree.
+    root : int
+        Root vertex index.
+    depth : graph_tool.VertexPropertyMap
+        Vertex property map containing depth values.
+    post_order : PostOrderVisitor
+        PostOrderVisitor instance with post_order list.
+    x_spacing : float, optional
+        Spacing between leaves on x-axis. By default 1.0.
+
+    Returns
+    -------
+    dict[int, float]
+        Dictionary mapping vertex index to x-coordinate.
     """
     x = {}
     counter = 0
@@ -29,7 +47,7 @@ def compute_dend_x(
         if not ch.size > 0:
             x[v] = counter * x_spacing
             counter += 1
-        # v aint no leaf
+        # v is not a leaf
         else:
             x[v] = sum([x[c] for c in ch]) / ch.size
 
@@ -38,12 +56,36 @@ def compute_dend_x(
 
 def plot_dendrogram(
     tree: _Tree,
-    ax_pad=1,
-    root_possition="bottom",
-    x_spacing=0.3,
+    ax_pad: float = 1,
+    root_position: str = "bottom",
+    x_spacing: float = 0.3,
     axes: Axes | None = None,
-):
-    """Plot tree as dendrogram"""
+) -> Axes:
+    """Plot tree as a dendrogram.
+
+    Parameters
+    ----------
+    tree : _Tree
+        Neuron tree.
+    ax_pad : float, optional
+        Padding for axis limits. By default 1.
+    root_position : str, optional
+        Position of root: "bottom" or "top". By default "bottom".
+    x_spacing : float, optional
+        Spacing between leaves on x-axis. By default 0.3.
+    axes : Axes | None, optional
+        Matplotlib axes to plot on. If None, creates new figure. By default None.
+
+    Returns
+    -------
+    Axes
+        The matplotlib Axes object with the dendrogram plot.
+
+    Raises
+    ------
+    ValueError
+        If root_position is not "top" or "bottom".
+    """
     depth = compute_tree_depths(tree, bind=False)
     post_order = compute_post_order(tree, bind=False)
 
@@ -66,13 +108,13 @@ def plot_dendrogram(
         fig, axes = subplots()
 
     # sort out y inversion
-    if root_possition == "bottom":
+    if root_position == "bottom":
         pass
-    elif root_possition == "top":
+    elif root_position == "top":
         axes.yaxis.set_inverted(True)
     else:
         raise ValueError(
-            f"root_position must be 'top' or 'bottom', got {root_possition}"
+            f"root_position must be 'top' or 'bottom', got {root_position}"
         )
 
     lc = LineCollection(segments, color="gray", linewidth=1, alpha=1)
@@ -95,3 +137,5 @@ def plot_dendrogram(
     axes.set_ylabel("Tree Depth")
     axes.set_aspect("equal")
     axes.set_yticks(arange(0, depth.max() + 1, 2))
+
+    return axes

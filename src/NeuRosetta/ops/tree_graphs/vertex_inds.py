@@ -1,4 +1,5 @@
-""" functions to get node indicies from graphs """
+"""Functions to get node indices from graphs."""
+
 from numpy import ndarray
 
 from ...core import _Tree
@@ -11,117 +12,119 @@ from ...utils.graph_utils import (
     subtree_indices,
 )
 
+
 def get_root(tree: _Tree) -> int:
-    """
-    Get index of root node
+    """Get index of root node.
+
     Parameters
     ----------
-    tree : Tree
-        Neuron tree
+    tree : _Tree
+        Neuron tree.
 
     Returns
     -------
     int
-        Index of root node
+        Index of root node.
     """
     return root_index(tree.graph)
 
 
 def get_leaves(tree: _Tree) -> ndarray:
-    """
-    Get index of leaves nodes
+    """Get indices of leaf nodes.
+
     Parameters
     ----------
-    tree : Tree
-        Neuron tree
+    tree : _Tree
+        Neuron tree.
 
     Returns
     -------
     np.ndarray
-        Index of leaves nodes
+        Indices of leaf nodes (out-degree == 0).
     """
     return leaf_indices(tree.graph)
 
 
 def get_branches(tree: _Tree) -> ndarray:
-    """
-    Get index of branches nodes
+    """Get indices of branch nodes.
+
     Parameters
     ----------
-    tree : Tree
-        Neuron tree
+    tree : _Tree
+        Neuron tree.
 
     Returns
     -------
     np.ndarray
-        Index of branches nodes
+        Indices of branch nodes (out-degree > 1).
     """
     return branch_indices(tree.graph)
 
 
 def get_core_indices(tree: _Tree, include_root: bool = True) -> ndarray:
-    """
-    Get index of core nodes (branch and leaf nodes, optionally including root)
-    Parameters
-    ----------
-    tree : Tree
-        Neuron tree
-    include_root : bool, optional
-        If True, includes root node index
-    Returns
-    -------
-    np.ndarray
-        Index of core nodes
-    """
-
-    return core_indices(tree.graph, include_root)
-
-def get_subtree_nodes(tree: _Tree, root: int , traversal_order: str = "Breadth") -> ndarray:
-    """_summary_
+    """Get indices of core nodes (branch and leaf nodes, optionally including root).
 
     Parameters
     ----------
     tree : _Tree
-        _description_
-    root : int
-        _description_
-    traversal_order : str, optional
-        _description_, by default "Breadth"
-
-    Returns
-    -------
-    ndarray
-        _description_
-    """
-    return subtree_indices(tree.graph, root, traversal_order)
-
-def get_edges(
-    tree: _Tree, root: int | None = None, traversal_order: str = "Breadth"
-) -> ndarray:
-    """
-    Returns nx2 array of edge indices going parent -> child.
-
-    Parameters
-    ----------
-    tree : Tree
-        Neuron tree
-    root : int | None, optional
-        If provided, will return all edges downstream of the given root in a breadth first search ordering, If not provided, we default to the root node of the neuron. By default None
-    subset : str | None, optional
-        Can be None (default), 'Internal', or 'External'. Subset is generated after rooting, so if you provide a root the subset will be downstream of this.
-        If None, all edges are returned.
-        If 'Internal' only internal edges are returned (those with no leaf node as the target)
-        if 'External' ony external edges are returned (those terminating in a leaf node)
+        Neuron tree.
+    include_root : bool, optional
+        If True, includes root node index. By default True.
 
     Returns
     -------
     np.ndarray
-        nx2 array of node index pairs for each edge.
+        Indices of core nodes.
+    """
+    return core_indices(tree.graph, include_root)
+
+
+def get_subtree_nodes(tree: _Tree, root: int, traversal_order: str = "Breadth") -> ndarray:
+    """Get node indices of subtree rooted at specified vertex.
+
+    Parameters
+    ----------
+    tree : _Tree
+        Neuron tree.
+    root : int
+        Root vertex index of the subtree.
+    traversal_order : str, optional
+        Traversal order for subtree extraction, must be "Breadth" or "Depth".
+        By default "Breadth".
+
+    Returns
+    -------
+    ndarray
+        Sorted array of vertex indices in the subtree.
+    """
+    return subtree_indices(tree.graph, root, traversal_order)
+
+
+def get_edges(
+    tree: _Tree, root: int | None = None, traversal_order: str = "Breadth"
+) -> ndarray:
+    """Return n x 2 array of edge indices going parent -> child.
+
+    Parameters
+    ----------
+    tree : _Tree
+        Neuron tree.
+    root : int | None, optional
+        If provided, returns all edges downstream of the given root in a
+        breadth-first search ordering. If None, defaults to the root node
+        of the neuron. By default None.
+    traversal_order : str, optional
+        Traversal order for subtree extraction, must be "Breadth" or "Depth".
+        By default "Breadth".
+
+    Returns
+    -------
+    np.ndarray
+        n x 2 array of node index pairs for each edge.
 
     Raises
     ------
     ValueError
-        If a subset is passed which is not 'Internal' or 'External' or None.
+        If traversal_order is not "Breadth" or "Depth".
     """
-
     return edge_indices(tree.graph, root, traversal_order)

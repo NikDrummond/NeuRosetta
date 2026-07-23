@@ -7,25 +7,33 @@ name = "NeuRosetta"
 version = "0.1.0"
 description = "Tools for morphological analysis of EM neuron reconstructions"
 readme = "README.md"
-requires-python = "==3.11.*"
-license = "MIT"
+requires-python = ">=3.11,<3.13"
+license = "LGPL-3.0-only"
 authors = [{ name = "Nik Drummond", email = "nikolasdrummond@gmail.com" }]
-keywords = ["Morphology","Connectomics","topology", "geometry", "graphs"]
+keywords = ["Morphology", "Connectomics", "topology", "geometry", "graphs"]
 dependencies = [
   "numpy",
   "pandas",
   "scipy",
+  "matplotlib",
   "vedo",
   "jax",
   "tqdm",
   "trimesh",
-  "pydantic>=2",
-  # Note: graph-tool and gudhi are required but only available via conda-forge
-  # Install with: conda install -c conda-forge graph-tool gudhi
+  "scikit-learn",
+  "scikit-image",
+  "PySide6",
+  # graph-tool is required but only available via conda-forge:
+  #   conda install -c conda-forge graph-tool
 ]
 
+[project.urls]
+Homepage = "https://github.com/NikDrummond/NeuRosetta"
+Documentation = "https://nikdrummond.github.io/NeuRosetta/"
+Repository = "https://github.com/NikDrummond/NeuRosetta"
+Issues = "https://github.com/NikDrummond/NeuRosetta/issues"
+
 [project.optional-dependencies]
-# For dev installs: pip install -e .[dev]
 dev = [
   "pytest",
   "mypy",
@@ -33,32 +41,34 @@ dev = [
   "pytest-cov",
   "types-tqdm",
 ]
+docs = [
+  "sphinx>=7",
+  "myst-parser>=2",
+  "sphinx-autodoc-typehints>=2",
+  "furo>=2024",
+  "sphinx-copybutton>=0.5",
+]
+
+[project.scripts]
+run_neuro_GUI = "NeuRosetta.gui.main:start_GUI"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/NeuRosetta"]
 
-[tool.harch.scripts]
-test = "pytest"
-
 [tool.ruff]
 target-version = "py311"
 line-length = 100
-lint.select = ["E","F","I","UP","B","SIM"] # example: pycodestyle, pyflakes, isort, pyupgrade, bugbear, simplify
-lint.ignore = ["E203","W503"]
+lint.select = ["E", "F", "I", "UP", "B", "SIM"]
+lint.ignore = ["E203", "W503"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["NeuRosetta"]
 
 [tool.mypy]
 python_version = "3.11"
-plugins = ["pydantic.mypy"]
 strict = true
 warn_unreachable = true
 warn_unused_ignores = true
-
-[tool.pydantic-mypy]
-init_forbid_extra = true
-warn_required_dynamic_aliases = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -76,6 +86,3 @@ markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "integration: marks tests as integration tests",
 ]
-
-[project.scripts]
-run_neuro_GUI = "NeuRosetta.gui.main:start_GUI"

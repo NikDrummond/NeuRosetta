@@ -1,0 +1,88 @@
+# Configuration file for the Sphinx documentation builder.
+from __future__ import annotations
+
+import os
+import sys
+from datetime import datetime
+
+sys.path.insert(0, os.path.abspath("../src"))
+
+project = "NeuRosetta"
+author = "Nik Drummond"
+copyright = f"{datetime.now():%Y}, {author}"
+release = "0.1.0"
+version = "0.1.0"
+
+extensions = [
+    "myst_parser",
+    "sphinx.ext.autodoc",
+    "sphinx.ext.autosummary",
+    "sphinx.ext.napoleon",
+    "sphinx.ext.viewcode",
+    "sphinx.ext.intersphinx",
+    "sphinx_autodoc_typehints",
+    "sphinx_copybutton",
+]
+
+templates_path = ["_templates"]
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "data/README.md"]
+
+html_theme = "furo"
+html_static_path = ["_static"]
+html_title = "NeuRosetta"
+html_theme_options = {
+    "source_repository": "https://github.com/NikDrummond/NeuRosetta",
+    "source_branch": "main",
+    "source_directory": "docs/",
+}
+
+myst_enable_extensions = [
+    "colon_fence",
+    "deflist",
+    "fieldlist",
+]
+myst_heading_anchors = 3
+
+autosummary_generate = True
+autoclass_content = "both"
+autodoc_member_order = "bysource"
+autodoc_typehints = "description"
+autodoc_default_options = {
+    "members": True,
+    "undoc-members": False,
+    "show-inheritance": True,
+    "inherited-members": False,
+}
+
+# Document class-level function bindings (Tree/Forest method aliases).
+autodoc_preserve_defaults = True
+
+napoleon_google_docstring = False
+napoleon_numpy_docstring = True
+napoleon_include_init_with_doc = True
+napoleon_attr_annotations = True
+
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+    "numpy": ("https://numpy.org/doc/stable/", None),
+    "scipy": ("https://docs.scipy.org/doc/scipy/", None),
+    "pandas": ("https://pandas.pydata.org/docs/", None),
+}
+
+copybutton_prompt_text = r">>> |\.\.\. |\$ "
+copybutton_prompt_is_regexp = True
+
+nitpicky = False
+
+
+def _callable_class_attrs(app, what, name, obj, skip, options):
+    """Include bound ops functions assigned as class attributes on Tree/Forest."""
+    if what == "class" and hasattr(obj, "__dict__"):
+        # Never skip documented callables assigned on the class body.
+        if name in obj.__dict__ and callable(obj.__dict__[name]):
+            return False
+    return None
+
+
+def setup(app):
+    app.connect("autodoc-skip-member", _callable_class_attrs)

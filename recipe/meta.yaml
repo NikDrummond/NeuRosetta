@@ -7,42 +7,59 @@ package:
 
 source:
   path: ..
+  # Feedstock releases should use:
+  # url: https://github.com/NikDrummond/NeuRosetta/archive/refs/tags/v{{ version }}.tar.gz
+  # sha256: <sha256>
 
 build:
   noarch: python
-  script: {{ PYTHON }} -m pip install . -vv
+  script: {{ PYTHON }} -m pip install . -vv --no-deps
+  entry_points:
+    - run_neuro_GUI = NeuRosetta.gui.main:start_GUI
 
 requirements:
   host:
-    - python =3.11
+    - python >=3.11,<3.13
     - pip
-    - hatchling
+    - hatchling >=1.25
   run:
-    - python =3.11
+    - python >=3.11,<3.13
     - numpy
     - pandas
     - scipy
+    - matplotlib
     - jax
     - tqdm
     - trimesh
     - vedo
-    - pydantic >=2
-    # Conda-forge-only / C++-backed deps:
+    - scikit-learn
+    - scikit-image
+    - pyside6
     - graph-tool
-    - gudhi
 
 test:
+  imports:
+    - NeuRosetta
   requires:
     - pytest
+    - pytest-cov
+  source_files:
+    - tests
   commands:
-    - pytest -q
+    - python -c "import NeuRosetta; print(NeuRosetta.__version__)"
+    - pytest -q -o addopts= tests/test_core.py tests/test_errors.py tests/test_tree_graphs/test_counting.py
 
 about:
-  home: https://github.com/your-org/NeuRosetta
-  license: MIT
-  summary: ""
-  dev_url: https://github.com/your-org/NeuRosetta
-  doc_url: https://your-org.github.io/NeuRosetta
+  home: https://github.com/NikDrummond/NeuRosetta
+  license: LGPL-3.0-only
+  license_file: LICENSE.md
+  summary: Tools for morphological analysis of EM neuron reconstructions
+  description: |
+    NeuRosetta provides Tree and Forest APIs for EM neuron morphologies,
+    SWC/NR/mesh I/O, 2D/3D plotting, neuropil surface reconstruction, and a
+    PySide6 GUI.
+  dev_url: https://github.com/NikDrummond/NeuRosetta
+  doc_url: https://nikdrummond.github.io/NeuRosetta/
 
 extra:
   recipe-maintainers:

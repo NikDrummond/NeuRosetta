@@ -1,4 +1,4 @@
-"""distance from mesh surface function"""
+"""Functions for computing distances from points to mesh surfaces."""
 
 from numpy import asarray, ndarray, unique, cross, where, zeros, einsum
 from numpy.linalg import norm
@@ -7,19 +7,20 @@ from vedo import Mesh
 
 
 def build_submesh(mesh: Mesh, face_indices=None) -> Mesh:
-    """_summary_
+    """Build a submesh from a subset of faces.
 
     Parameters
     ----------
     mesh : vedo.Mesh
-        _description_
-    face_indices : _type_, optional
-        _description_, by default None
+        Input mesh.
+    face_indices : array-like, optional
+        Indices of faces to include in the submesh. If None, return the
+        original mesh. By default None.
 
     Returns
     -------
     vedo.Mesh
-        _description_
+        Submesh containing only the specified faces with remapped vertices.
     """
     if face_indices is None:
         return mesh
@@ -43,21 +44,23 @@ def surface_distance(
     mesh: Mesh,
     face_indices=None,
 ) -> tuple[ndarray, ndarray]:
-    """_summary_
+    """Compute distances from points to the closest vertices on a mesh.
 
     Parameters
     ----------
-    points : np.ndarray
-        _description_
+    points : ndarray
+        Query points with shape (N, 3).
     mesh : vedo.Mesh
-        _description_
-    face_indices : _type_, optional
-        _description_, by default None
+        Target mesh.
+    face_indices : array-like, optional
+        Indices of faces to restrict the search to. If None, use all faces.
+        By default None.
 
     Returns
     -------
-    tuple[np.ndarray, np.ndarray]
-        _description_
+    tuple[ndarray, ndarray]
+        - dists: Array of distances with shape (N,).
+        - closest_pts: Array of closest vertex coordinates with shape (N, 3).
     """
     target = build_submesh(mesh, face_indices)
     verts = asarray(target.vertices)  # (V, 3)
@@ -71,8 +74,21 @@ def surface_distance(
 
 
 def _compute_face_centroids_and_normals(mesh: Mesh, face_indices=None):
-    """"""
+    """Compute centroids and normals for mesh faces.
 
+    Parameters
+    ----------
+    mesh : vedo.Mesh
+        Input mesh.
+    face_indices : array-like, optional
+        Indices of faces to compute for. If None, use all faces.
+
+    Returns
+    -------
+    tuple[ndarray, ndarray]
+        - centroids: Face centroids with shape (F, 3).
+        - normals: Face normals with shape (F, 3), normalized to unit length.
+    """
     all_faces = asarray(mesh.cells)  # (F, 3)
     all_verts = asarray(mesh.vertices)  # (V, 3)
 
@@ -98,34 +114,36 @@ def _compute_face_centroids_and_normals(mesh: Mesh, face_indices=None):
 def _get_face_subset_from_dot(
     mesh: Mesh, t: float, face: str = "both", origin: ndarray = None
 ) -> ndarray | tuple[ndarray, ndarray]:
-    """_summary_
+    """Get face indices based on dot product of normal with vector from origin.
 
     Parameters
     ----------
-    mesh : vd.Mesh
-        _description_
+    mesh : vedo.Mesh
+        Input mesh.
     t : float
-        _description_
+        Threshold for dot product.
     face : str, optional
-        _description_, by default 'both'
-    origin : np.ndarray, optional
-        _description_, by default None
+        Which faces to return: "inner" (dot < -t), "outer" (dot > t),
+        or "both" (return both). By default "both".
+    origin : ndarray, optional
+        Origin point for vector computation. By default [0, 0, 0].
 
     Returns
     -------
-    _type_
-        _description_
+    ndarray | tuple[ndarray, ndarray]
+        Face indices matching the criteria. If face="both", returns a tuple
+        of (inner_indices, outer_indices).
 
     Raises
     ------
     AttributeError
-        _description_
+        If face is not one of "inner", "outer", or "both".
     """
     # set origin to [0,0,0] if not provided
     if origin is None:
         origin = zeros(3)
 
-    # get face cenrtoids and notmals
+    # get face centroids and normals
     centroids, normals = _compute_face_centroids_and_normals(mesh)
 
     # Unit vectors from origin to each centroid
@@ -149,35 +167,39 @@ def _get_face_subset_from_dot(
 def mesh_surface_depth(
     mesh: Mesh, points: ndarray, t: float, surface: str = "inner", norm: bool = True
 ) -> ndarray:
-    """_summary_
+    """Compute normalized depth of points relative to mesh surfaces.
+
+    Computes distance from points to inner and/or outer surfaces of a mesh,
+    optionally normalized by the sum of distances to both surfaces.
 
     Parameters
     ----------
     mesh : Mesh
-        _description_
+        Input mesh with well-defined inner/outer faces.
     points : ndarray
-        _description_
+        Query points with shape (N, 3).
     t : float
-        _description_
+        Dot product threshold for classifying inner/outer faces.
     surface : str, optional
-        _description_, by default 'inner'
+        Which surface to compute depth for: "inner" or "outer". By default "inner".
     norm : bool, optional
-        _description_, by default True
+        If True, normalize distances by sum of inner and outer distances.
+        By default True.
 
     Returns
     -------
     ndarray
-        _description_
+        Array of depth values with shape (N,). Values in [0, 1] if normalized.
 
     Raises
     ------
     AttributeError
-        _description_
+        If surface is not "inner" or "outer".
     """
     # get subsets of inner and outer faces
     inner, outer = _get_face_subset_from_dot(mesh, t=t)
 
-    # duistancess from inner and outer surfaces
+    # distances from inner and outer surfaces
     in_dists, _ = surface_distance(points, mesh, face_indices=inner)
     out_dists, _ = surface_distance(points, mesh, face_indices=outer)
 

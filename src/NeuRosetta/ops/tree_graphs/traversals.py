@@ -1,4 +1,6 @@
-# from numpy import concatenate, vstack
+"""Tree graph traversal functions."""
+from __future__ import annotations
+
 from typing import Iterable
 from numpy import ndarray
 from graph_tool.all import BFSVisitor, DFSVisitor, Graph
@@ -15,6 +17,7 @@ from ...utils.graph_utils import (
     root_index,
 )
 
+
 ### Generic BF Search
 
 
@@ -23,31 +26,38 @@ def breadth_first_search(
     visitor: BFSVisitor,
     init_kwargs: dict | None = None,
     init_vertex_properties: dict | None = None,
-    init_edge_properties: dict = None,
+    init_edge_properties: dict | None = None,
     root: int | None = None,
     bind: bool = True,
 ) -> BFSVisitor:
-    """_summary_
+    """Wrapper for breadth-first search on a tree.
 
     Parameters
     ----------
     tree : _Tree
-        _description_
+        Neuron tree.
     visitor : BFSVisitor
-        _description_
+        Visitor object that defines the behaviour of the search.
     init_kwargs : dict, optional
-        _description_, by default {}
-    init_properties : dict, optional
-        _description_, by default {}
+        Keyword arguments passed to the visitor constructor. By default None.
+    init_vertex_properties : dict, optional
+        Dictionary of vertex property name and type pairs to initialize before
+        the search. For example, {"depth": "int"} creates a vertex property
+        called "depth" of type int and passes it to the visitor. By default None.
+    init_edge_properties : dict, optional
+        Dictionary of edge property name and type pairs to initialize before
+        the search. By default None.
     root : int | None, optional
-        _description_, by default None
+        Index of the root vertex to start the search from. If None, uses the
+        tree's root index. By default None.
     bind : bool, optional
-        _description_, by default True
+        Whether to bind the initialized properties to the graph after the search.
+        By default True.
 
     Returns
     -------
-    _type_
-        _description_
+    BFSVisitor
+        The visitor instance after the search.
     """
     if root is None:
         root = root_index(tree.graph)
@@ -57,7 +67,7 @@ def breadth_first_search(
         visitor=visitor,
         init_kwargs=init_kwargs,
         init_vertex_properties=init_vertex_properties,
-        init_edge_properties = init_edge_properties,
+        init_edge_properties=init_edge_properties,
         root=root,
         bind=bind,
     )
@@ -66,21 +76,22 @@ def breadth_first_search(
 def breadth_first_iterator(
     tree: _Tree, root: int | None = None, array: bool = True
 ) -> Iterable | ndarray:
-    """_summary_
+    """Return breadth-first search iterator or array of visited edges from root.
 
     Parameters
     ----------
     tree : _Tree
-        _description_
+        Neuron tree.
     root : int | None, optional
-        _description_, by default None
+        Root node index. If None, uses the tree's root index. By default None.
     array : bool, optional
-        _description_, by default True
+        If False, returns iterator over edges. If True, returns numpy.ndarray.
+        By default True.
 
     Returns
     -------
     Iterable | ndarray
-        _description_
+        Iterator or array of edges in breadth-first search traversal order.
     """
     if root is None:
         root = root_index(tree.graph)
@@ -100,29 +111,34 @@ def depth_first_search(
     root: int | None = None,
     bind: bool = True,
 ) -> DFSVisitor:
-    """_summary_
+    """Wrapper for depth-first search on a tree.
 
     Parameters
     ----------
     tree : _Tree
-        _description_
+        Neuron tree.
     visitor : DFSVisitor
-        _description_
+        Visitor object that defines the behaviour of the search.
     init_kwargs : dict | None, optional
-        _description_, by default None
-    init_properties : dict | None, optional
-        _description_, by default None
+        Keyword arguments passed to the visitor constructor. By default None.
+    init_vertex_properties : dict | None, optional
+        Dictionary of vertex property name and type pairs to initialize before
+        the search. By default None.
+    init_edge_properties : dict | None, optional
+        Dictionary of edge property name and type pairs to initialize before
+        the search. By default None.
     root : int | None, optional
-        _description_, by default None
+        Index of the root vertex to start the search from. If None, uses the
+        tree's root index. By default None.
     bind : bool, optional
-        _description_, by default True
+        Whether to bind the initialized properties to the graph after the search.
+        By default True.
 
     Returns
     -------
     DFSVisitor
-        _description_
+        The visitor instance after the search.
     """
-
     if root is None:
         root = root_index(tree.graph)
 
@@ -131,7 +147,7 @@ def depth_first_search(
         visitor=visitor,
         init_kwargs=init_kwargs,
         init_vertex_properties=init_vertex_properties,
-        init_edge_properties = init_edge_properties,
+        init_edge_properties=init_edge_properties,
         root=root,
         bind=bind,
     )
@@ -140,21 +156,22 @@ def depth_first_search(
 def depth_first_iterator(
     tree: _Tree, root: int | None = None, array: bool = True
 ) -> Iterable | ndarray:
-    """_summary_
+    """Return depth-first search iterator or array of visited edges from root.
 
     Parameters
     ----------
     tree : _Tree
-        _description_
+        Neuron tree.
     root : int | None, optional
-        _description_, by default None
+        Root node index. If None, uses the tree's root index. By default None.
     array : bool, optional
-        _description_, by default True
+        If False, returns iterator over edges. If True, returns numpy.ndarray.
+        By default True.
 
     Returns
     -------
     Iterable | ndarray
-        _description_
+        Iterator or array of edges in depth-first search traversal order.
     """
     if root is None:
         root = root_index(tree.graph)
@@ -162,13 +179,28 @@ def depth_first_iterator(
     return df_iterator(tree.graph, root, array)
 
 
-### Specific Implementations - This is quite useful, so maybe worth splitting later
+### Specific Implementations
 
 
 # depths
-def compute_tree_depths(tree: _Tree, root: int | None = 0, bind: bool = True):
-    """get node/edge depth from root"""
+def compute_tree_depths(tree: _Tree, root: int | None = None, bind: bool = True):
+    """Compute node depths from root using breadth-first search.
 
+    Parameters
+    ----------
+    tree : _Tree
+        Neuron tree.
+    root : int | None, optional
+        Root vertex index. If None, uses the tree's root index. By default None.
+    bind : bool, optional
+        If True, binds the "depth" vertex property to the graph and returns None.
+        If False, returns the depth array. By default True.
+
+    Returns
+    -------
+    ndarray | None
+        Array of node depths if bind=False, otherwise None.
+    """
     if root is None:
         root = tree.root_index()
 
@@ -186,10 +218,25 @@ def compute_tree_depths(tree: _Tree, root: int | None = 0, bind: bool = True):
 ### Specific DF searches
 
 
-# post-order taversal
+# post-order traversal
 def compute_post_order(tree: _Tree, root: int | None = None, bind: bool = True):
-    """get post-order traversal of tree"""
+    """Get post-order traversal of tree using depth-first search.
 
+    Parameters
+    ----------
+    tree : _Tree
+        Neuron tree.
+    root : int | None, optional
+        Root vertex index. If None, uses the tree's root index. By default None.
+    bind : bool, optional
+        If True, binds the "post_order" vertex property to the graph and returns
+        None. If False, returns the PostOrderVisitor. By default True.
+
+    Returns
+    -------
+    PostOrderVisitor | None
+        Visitor with post_order list if bind=False, otherwise None.
+    """
     if root is None:
         root = tree.root_index()
 
@@ -201,70 +248,3 @@ def compute_post_order(tree: _Tree, root: int | None = None, bind: bool = True):
         )
     else:
         return vis
-
-
-# def reduce_graph(tree: _Tree) -> Graph:
-#     """Generate a reduced version of the given tree
-
-#     Parameters
-#     ----------
-#     tree : _Tree
-#         _description_
-#     starts : ndarray
-#         _description_
-#     stops : ndarray
-#         _description_
-#     root : int | None, optional
-#         _description_, by default 0
-
-#     Returns
-#     -------
-#     DFSVisitor
-#         _description_
-#     """
-#     # set root
-
-#     # check that we have path lengths
-#     if not tree.check_property("Path_length"):
-#         tree.get_edge_lengths(bind=True)
-
-#     root = tree.root_index()
-
-#     ### stops are all leaves and branches excluding the root
-#     stops = tree.core_indices(include_root=False)
-#     # starts are all branches including the root
-#     starts = tree.branch_indices()
-#     # make sure we have the root
-#     if tree.root_index() not in starts:
-#         starts = concatenate([starts, [tree.root_index()]])
-#     # generate visitor
-#     vis = _DF_search(
-#         tree.graph,
-#         ReduceVisitor,
-#         {"graph": tree.graph, "starts": starts, "stops": stops},
-#         root=root,
-#         bind=False,
-#     )
-
-#     # create edge list
-#     edges = vstack((vis.edge_source, vis.edge_target)).T
-#     # make graph from edge list
-#     g = Graph(edges, hashed=True, hash_type=int)
-#     # add path lengths to edges
-#     g.ep["Path_length"] = g.new_ep("float", vis.path_lengths)
-#     # add coordinates to verts
-#     coords = tree.get_node_coordinates()[g.vp["ids"].a]
-#     g.vp["coordinates"] = g.new_vp("vector<double>", coords)
-#     # add ID (from original)
-#     g.gp["ID"] = g.new_gp("long", tree.ID)
-#     # add metadata and update reduced
-#     meta = tree.graph.gp["metadata"].copy()
-#     meta["file_path"] = ""
-#     meta["isReduced"] = True
-#     g.gp["metadata"] = g.new_gp("object", meta)
-#     # radius
-#     g.vp["radius"] = g.new_vp("double", tree.graph.vp["radius"].a[g.vp["ids"].a])
-#     # node type
-#     g.vp["node_type"] = g.new_vp("int", tree.graph.vp["node_type"].a[g.vp["ids"].a])
-
-#     return g

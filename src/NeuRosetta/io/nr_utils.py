@@ -41,14 +41,9 @@ def load(
 
     Load serialized tree graphs stored in `.nr` files. If a
     single file is provided, a single ``Tree`` instance is returned. If a
-    directory is provided, the behavior depends on its contents and the
-    ``tree_id`` argument:
-
-    * If ``tree_id`` is specified, only the corresponding `<tree_id>.nr` file
-      is loaded.
-    * If exactly one `.nr` file exists in the directory, that tree is loaded.
-    * If multiple `.nr` files exist, all are loaded and returned as a
-      ``Forest``.
+    directory is provided, behaviour depends on ``tree_id``: when set, only
+    ``<tree_id>.nr`` is loaded; when one ``.nr`` file exists, that tree is
+    loaded; when multiple exist, all are loaded as a ``Forest``.
 
     Parameters
     ----------
@@ -177,17 +172,10 @@ def save(
     tree : Tree or Forest
         The tree or forest to save.
     fpath : str or pathlib.Path or None, optional
-        Output path. Behavior depends on the input type:
-
-        * For a single ``Tree``:
-          - If None, the file is written to the current working directory
-            as `<tree_id>.nr`.
-          - If a directory, the file is written inside it as `<tree_id>.nr`.
-          - If a file path (with suffix), that path is used directly.
-        * For a ``Forest``:
-          - Must be a directory path or None.
-          - Each tree is saved as `<tree_id>.nr` inside the directory.
-
+        Output path. For a single ``Tree``, ``None`` writes ``<tree_id>.nr`` in
+        the current working directory; a directory writes inside it; a file path
+        is used directly. For a ``Forest``, use a directory (or ``None`` for
+        the current working directory); each tree is saved as ``<tree_id>.nr``.
         Default is None.
     parallel : bool, optional
         If True, save multiple trees in parallel when ``tree`` is a ``Forest``.

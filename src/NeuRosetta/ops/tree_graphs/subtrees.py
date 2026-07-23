@@ -1,7 +1,7 @@
-"""Functions for handling / finding subtrees"""
+"""Functions for handling and finding subtrees."""
 
 from numpy import ndarray
-from graph_tool.all import GraphView
+# from graph_tool.all import GraphView
 
 from ...core import _Tree
 from ...utils.graph_utils import (
@@ -17,16 +17,22 @@ from .path_lengths import euclidean_edge_length
 
 
 def mask_subtree_from_root(tree: _Tree, root: int, bind: bool = True):
-    """_summary_
+    """Create vertex and edge masks for a subtree rooted at the given vertex.
 
     Parameters
     ----------
     tree : _Tree
-        _description_
+        Neuron tree.
     root : int
-        _description_
+        Root vertex index of the subtree.
     bind : bool, optional
-        _description_, by default True
+        If True, bind the masks as vertex/edge properties to the graph and return
+        None. If False, return the SubtreeMaskVisitor. By default True.
+
+    Returns
+    -------
+    SubtreeMaskVisitor | None
+        Visitor with mask properties if bind=False, otherwise None.
     """
     vis = bfsearch(
         g=tree.graph,
@@ -40,22 +46,22 @@ def mask_subtree_from_root(tree: _Tree, root: int, bind: bool = True):
     return vis if not bind else None
 
 
-def score_subtrees(tree: _Tree, bind: bool = True) -> None | ndarray:
-    """_summary_
+def score_subtrees(tree: _Tree, bind: bool = True) -> ndarray | None:
+    """Compute subgraph scores for all vertices in the tree.
 
     Parameters
     ----------
     tree : _Tree
-        _description_
+        Neuron tree.
     bind : bool, optional
-        _description_, by default True
+        If True, bind the scores as a vertex property and return None.
+        If False, return the score array. By default True.
 
     Returns
     -------
-    None | ndarray
-        _description_
+    ndarray | None
+        Array of subgraph scores if bind=False, otherwise None.
     """
-
     if not tree_has_property(tree, "Path_length", "e"):
         euclidean_edge_length(tree, bind=True)
 
@@ -65,19 +71,18 @@ def score_subtrees(tree: _Tree, bind: bool = True) -> None | ndarray:
 
 
 def max_subtree_ind(tree: _Tree) -> int:
-    """_summary_
+    """Get the vertex index with the maximum subgraph score.
 
     Parameters
     ----------
     tree : _Tree
-        _description_
+        Neuron tree.
 
     Returns
     -------
     int
-        _description_
+        Vertex index with the maximum subgraph score.
     """
-
     # make sure we have Path_length
     if not tree_has_property(tree, "subgraph_score", "v"):
         score_subtrees(tree, bind=True)
@@ -88,35 +93,35 @@ def max_subtree_ind(tree: _Tree) -> int:
 def extract_subtree(
     tree: _Tree, revert_properties: bool = True
 ) -> None:
-    """_summary_
+    """Extract the masked subtree from the tree.
 
     Parameters
     ----------
     tree : _Tree
-        _description_
+        Neuron tree with vertex and edge subtree masks.
     revert_properties : bool, optional
-        _description_, by default True
+        If True, remove non-core properties after extraction. By default True.
 
     Returns
     -------
-    None | Graph
-        _description_
+    None
     """
-
     # make sure we have a mask
     if not tree_has_property(tree, "v_subtree_mask", "v"):
         mask_subtree_from_root(tree, max_subtree_ind(tree), bind=True)
 
-    extract_subgraph(tree.graph, revert_properties = revert_properties)
+    extract_subgraph(tree.graph, revert_properties=revert_properties)
 
-def node_partition_asymmetry(tree: _Tree, weighted: bool = True, bind: bool = False) -> None | ndarray:
-    """
-    Compute partition asymmetry at each branching node in a directed tree graph.
+
+def node_partition_asymmetry(
+    tree: _Tree, weighted: bool = True, bind: bool = False
+) -> ndarray | None:
+    """Compute partition asymmetry at each branching node in a directed tree graph.
 
     For a binary branching node with downstream leaf counts r and s (one per child
     subtree), the unweighted partition asymmetry is:
 
-        PA = |r - s| / (r + s - 1)
+        PA = \|r - s\| / (r + s - 1)
 
     For non-binary nodes the score is the mean over all C(k, 2) child-pair
     combinations, where each pair is evaluated with the formula above.
@@ -128,23 +133,24 @@ def node_partition_asymmetry(tree: _Tree, weighted: bool = True, bind: bool = Fa
 
     Parameters
     ----------
-    tree : Tree
-        Neuron Tree graph
+    tree : _Tree
+        Neuron tree graph.
     weighted : bool, optional
-        If True compute the cable-weighted version.  Requires the "Path_length"
-        edge property.  By default False.
+        If True compute the cable-weighted version. Requires the "Path_length"
+        edge property. By default False.
     bind : bool, optional
-        If True attach the result as vertex property ``g.vp["partition_asymmetry"]``
-        and return None.  If False return the raw ndarray.  By default True.
+        If True attach the result as vertex property
+        ``g.vp["partition_asymmetry"]`` and return None. If False return the
+        raw ndarray. By default False.
 
     Returns
     -------
-    None | ndarray
-        Array of partition-asymmetry scores, one per vertex.  Leaf nodes and the
-        root receive a score of 0.  Non-NaN values exist only for branching nodes
+    ndarray | None
+        Array of partition-asymmetry scores, one per vertex. Leaf nodes and the
+        root receive a score of 0. Non-zero values exist only for branching nodes
         (out-degree >= 2).
     """
     if bind:
-        partition_asymmetry(tree.graph, weighted = weighted, bind = bind)
+        partition_asymmetry(tree.graph, weighted=weighted, bind=bind)
         return
-    return partition_asymmetry(tree.graph, weighted = weighted, bind = bind)
+    return partition_asymmetry(tree.graph, weighted=weighted, bind=bind)

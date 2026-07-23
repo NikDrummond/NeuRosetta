@@ -1,4 +1,5 @@
-"""Functions for grabbing vertex coordinates"""
+"""Functions for extracting vertex and edge coordinates from graphs."""
+from __future__ import annotations
 
 from typing import List, Tuple
 from numpy import ndarray
@@ -9,26 +10,28 @@ from .vertex_inds import edge_indices, subtree_indices
 
 
 def vertex_coordinates(
-    g: Graph, subset: int | List | None = None, SoA: bool = False
+    g: Graph, subset: int | List[int] | None = None, SoA: bool = False
 ) -> ndarray:
-    """Get coordinates of vertices
+    """Get coordinates of vertices.
 
     Parameters
     ----------
     g : Graph
-        Graph object
-    subset : int | List | None, optional
-        Subset of ndoe indicies if only a subset of coordinates is wanted, by default None
+        Graph object with vertex property 'coordinates'.
+    subset : int | List[int] | None, optional
+        Subset of node indices if only a subset of coordinates is wanted.
+        If int, treated as a single index. If list, treated as array of indices.
+        By default None (all vertices).
     SoA : bool, optional
-        Whether to return in Sequence of Arrays format (Dimensions by vertices). 
-        If false return vertices by dimensions, by default False
+        Whether to return in Structure of Arrays format (dimensions by vertices).
+        If False, return vertices by dimensions (vertices x 3), by default False.
 
     Returns
     -------
     ndarray
-        Array of vertex coordinates
+        Array of vertex coordinates with shape (3, N) if SoA=True,
+        or (N, 3) if SoA=False, where N is the number of vertices.
     """
-
     # Make sure we have coordinates
     raise_internal_property_missing(g, "coordinates", "v")
 
@@ -49,26 +52,27 @@ def vertex_coordinates(
 def vertex_coordinates_subtree(
     g: Graph, root: int, traversal_order: str = "Breadth", SoA: bool = False
 ) -> ndarray:
-    """Get coordinates of vertices for subtree defined by a given root vertex
+    """Get coordinates of vertices for subtree defined by a given root vertex.
 
     Parameters
     ----------
     g : Graph
-        Graph object
+        Graph object with vertex property 'coordinates'.
     root : int
-        root vertex index
+        Root vertex index defining the subtree.
     traversal_order : str, optional
-        Specifies traversal order, must be Breadth or Depth, by default "Breadth"
+        Traversal order for subtree extraction, must be "Breadth" or "Depth",
+        by default "Breadth".
     SoA : bool, optional
-        Whether to return in Sequence of Arrays format (Dimensions by vertices). 
-        If false return vertices by dimensions, by default False
+        Whether to return in Structure of Arrays format (dimensions by vertices).
+        If False, return vertices by dimensions, by default False.
 
     Returns
     -------
     ndarray
-        Array of vertex coordinates in subtree
+        Array of vertex coordinates in subtree with shape (3, N) if SoA=True,
+        or (N, 3) if SoA=False, where N is the number of vertices in the subtree.
     """
-
     # Make sure we have coordinates
     raise_internal_property_missing(g, "coordinates", "v")
     # get subtree vert. inds
@@ -78,22 +82,22 @@ def vertex_coordinates_subtree(
 
 
 def edge_coordinates(g: Graph, SoA: bool = False) -> Tuple[ndarray, ndarray]:
-    """Get source - target coordinates for edges.
+    """Get source and target coordinates for all edges.
 
     Parameters
     ----------
     g : Graph
-        graph object
+        Graph object with vertex property 'coordinates'.
     SoA : bool, optional
-        Whether to return in Sequence of Arrays format (Dimensions by vertices). 
-        If false return vertices by dimensions, by default False.
+        Whether to return in Structure of Arrays format (dimensions by vertices).
+        If False, return vertices by dimensions, by default False.
 
     Returns
     -------
-    Tuple[ndarray,ndarray]
-        Source and Target coordinate arrays over edges.
+    Tuple[ndarray, ndarray]
+        Source and target coordinate arrays over edges, each with shape (3, E)
+        if SoA=True, or (E, 3) if SoA=False, where E is the number of edges.
     """
-
     # Make sure we have coordinates
     raise_internal_property_missing(g, "coordinates", "v")
 
@@ -113,26 +117,28 @@ def edge_coordinates(g: Graph, SoA: bool = False) -> Tuple[ndarray, ndarray]:
 def edge_coordinates_subtree(
     g: Graph, root: int, traversal_order: str = "Breadth", SoA: bool = False
 ) -> Tuple[ndarray, ndarray]:
-    """get Source Target coordinates for a subtree specified by root vertex.
+    """Get source and target coordinates for edges in a subtree.
 
     Parameters
     ----------
     g : Graph
-        Graph object
+        Graph object with vertex property 'coordinates'.
     root : int
-        root vertex index
+        Root vertex index defining the subtree.
     traversal_order : str, optional
-        Specifies traversal order, must be Breadth or Depth, by default "Breadth"
+        Traversal order for subtree extraction, must be "Breadth" or "Depth",
+        by default "Breadth".
     SoA : bool, optional
-        Whether to return in Sequence of Arrays format (Dimensions by vertices). 
-        If false return vertices by dimensions, by default False
+        Whether to return in Structure of Arrays format (dimensions by vertices).
+        If False, return vertices by dimensions, by default False.
 
     Returns
     -------
     Tuple[ndarray, ndarray]
-        Source and Target coordinate arrays over edges in subtree defined by root.
+        Source and target coordinate arrays over edges in subtree, each with
+        shape (3, E) if SoA=True, or (E, 3) if SoA=False, where E is the
+        number of edges in the subtree.
     """
-
     # Make sure we have coordinates
     raise_internal_property_missing(g, "coordinates", "v")
 

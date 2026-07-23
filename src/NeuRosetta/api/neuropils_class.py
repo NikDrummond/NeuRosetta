@@ -1,8 +1,20 @@
-""""""
+"""Neuropil container class.
+
+This module provides the Neuropils class for managing collections of Neuropil
+objects.
+"""
 
 from ..core import _Forest
 
+
 class Neuropils(_Forest):
-    """API collection of neuropil meshes """
+    """API collection of neuropil meshes.
+
+    Parameters
+    ----------
+    meshes : list[Neuropil]
+        List of Neuropil objects to include in the collection.
+    """
+
     def __init__(self, meshes):
-        super().__init__(trees = meshes)
+        super().__init__(trees=meshes)

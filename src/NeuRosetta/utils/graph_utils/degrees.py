@@ -1,12 +1,24 @@
-"""Get verterx degree info from graphs"""
+"""Get vertex degree information from graphs."""
+from __future__ import annotations
 
 from typing import Tuple
 from numpy import ndarray, unique
 from graph_tool.all import Graph, EdgePropertyMap
 
 
-def _check_deg_type_input(deg):
+def _check_deg_type_input(deg: str) -> None:
+    """Validate degree type input.
 
+    Parameters
+    ----------
+    deg : str
+        Degree type to validate.
+
+    Raises
+    ------
+    ValueError
+        If deg is not one of {"total", "in", "out"}.
+    """
     accepted_degs = ["total", "in", "out"]
     if deg not in accepted_degs:
         raise ValueError(f"deg must be one of {accepted_degs}, not {deg}")
@@ -15,21 +27,22 @@ def _check_deg_type_input(deg):
 def get_vertex_degrees(
     g: Graph, deg: str = "total", weight: EdgePropertyMap | str | None = None
 ) -> ndarray:
-    """_summary_
+    """Get vertex degrees for all vertices in a graph.
 
     Parameters
     ----------
     g : Graph
-        _description_
+        Input graph.
     deg : str, optional
-        _description_, by default "total"
+        Degree type to compute. One of "total", "in", "out". By default "total".
     weight : EdgePropertyMap | str | None, optional
-        _description_, by default None
+        Edge property map or property name to use as edge weights. If None,
+        unweighted degrees are computed. By default None.
 
     Returns
     -------
     ndarray
-        _description_
+        Array of vertex degrees with length equal to number of vertices.
     """
     _check_deg_type_input(deg)
 
@@ -42,21 +55,23 @@ def get_vertex_degrees(
 def degree_distribution(
     g: Graph, deg: str = "total", mass: bool = True
 ) -> Tuple[ndarray, ndarray]:
-    """_summary_
+    """Compute the degree distribution of a graph.
 
     Parameters
     ----------
     g : Graph
-        _description_
+        Input graph.
     deg : str, optional
-        _description_, by default "total"
+        Degree type to compute. One of "total", "in", "out". By default "total".
     mass : bool, optional
-        _description_, by default True
+        If True, normalize counts to sum to 1 (probability mass function).
+        If False, return raw counts. By default True.
 
     Returns
     -------
     Tuple[ndarray, ndarray]
-        _description_
+        Tuple of (degrees, counts) where degrees are the unique degree values
+        and counts are their frequencies (normalized if mass=True).
     """
     _check_deg_type_input(deg)
 

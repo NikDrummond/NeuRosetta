@@ -1,46 +1,109 @@
 # NeuRosetta
 
-### Create a usable environment (quick version while I'm re-building)
+Tools for morphological analysis of EM neuron reconstructions.
 
-If you have a CUDA enable GPU, make sure CUDA is usable!
+NeuRosetta provides `Tree` and `Forest` APIs for neuron morphologies, SWC/NR/mesh
+I/O, 2D/3D plotting, neuropil surface reconstruction, and a PySide6 GUI.
 
-- make sure you have miniconda available. install instructions can be found [here](https://www.anaconda.com/docs/getting-started/miniconda/install)
-- I've used `mamba` for faster install, so run `conda install -n base -c conda-forge mamba -y` if you do NOT have mamba
-- Build your environment, i've called this one `nr`:
+**Documentation:** [https://nikdrummond.github.io/NeuRosetta/](https://nikdrummond.github.io/NeuRosetta/)
 
-```bash
-mamba create -n nr python=3.11 -y \
-  numpy pandas scipy trimesh vedo gudhi ipython \
-  -c conda-forge \
-  graph-tool
-```
+**License:** LGPL-3.0-only
 
-This creates an environment with `numpy`, `pandas`, `scipy`, `trimesh`, `vedo`, `gudhi`, and `graph-tool`.
+## Requirements
 
- - Activate the environment:
+- Python 3.11 or 3.12
+- [conda-forge](https://conda-forge.org/) packages, especially **graph-tool**
+  (not available on PyPI)
 
- ```bash
- conda activate nr
-```
-
-- install Jax with GPU using pip:
+## Install (recommended: conda / mamba)
 
 ```bash
-python3 -m pip install --upgrade
-python3 -m pip install "jax[cuda13]"
+# optional: faster solver
+conda install -n base -c conda-forge mamba -y
+
+mamba create -n nr -c conda-forge python=3.11 \
+  numpy pandas scipy matplotlib jax tqdm trimesh vedo \
+  scikit-learn scikit-image pyside6 graph-tool \
+  pip hatchling
+mamba activate nr
+python -m pip install NeuRosetta
 ```
 
-- ALTERNATIVE Jax without a GPU:
+Once published on conda-forge:
 
 ```bash
-python3 -m pip install --upgrade
-python3 -m pip install jax
+mamba create -n nr -c conda-forge neurosetta
+mamba activate nr
 ```
 
-### Running tests
+### Editable / development install
 
-from root folder:
+From a clone of this repository:
+
 ```bash
-python3 -m pytest
-``
+mamba env create -f environment.yml
+mamba activate nr
+# environment.yml already installs the package in editable mode
+```
 
+Or, in an existing env with dependencies available:
+
+```bash
+python -m pip install -e ".[dev,docs]"
+```
+
+### GPU JAX (optional)
+
+CPU JAX from conda-forge is enough for most workflows. For a CUDA build, follow
+the current [JAX installation notes](https://jax.readthedocs.io/en/latest/installation.html)
+*after* creating the conda environment, for example:
+
+```bash
+python -m pip install --upgrade "jax[cuda13]"
+```
+
+## Quick start
+
+```python
+import NeuRosetta as nr
+
+tree = nr.import_swc("path/to/1.swc")
+print(tree.count_nodes(), tree.get_cable_length())
+tree.show_2d()
+```
+
+Launch the GUI:
+
+```bash
+run_neuro_GUI
+```
+
+or:
+
+```python
+import NeuRosetta as nr
+nr.start_GUI()
+```
+
+## Build documentation locally
+
+```bash
+mamba activate nr
+python -m pip install -e ".[docs]"   # if docs extras are not already installed
+cd docs
+make html
+# open _build/html/index.html
+```
+
+## Run tests
+
+From the repository root:
+
+```bash
+python -m pytest
+```
+
+## Citation / links
+
+- Source: [https://github.com/NikDrummond/NeuRosetta](https://github.com/NikDrummond/NeuRosetta)
+- Docs: [https://nikdrummond.github.io/NeuRosetta/](https://nikdrummond.github.io/NeuRosetta/)

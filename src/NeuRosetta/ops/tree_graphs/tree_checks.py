@@ -1,44 +1,59 @@
-""" various checks for tree graphs """
+"""Various checks for tree graphs."""
 
 from ...core import _Tree
 from ...utils.graph_utils import g_has_property, count_transitive_vertices
 
 
-def check_reduced(tree: _Tree):
-    """Check if the given tree has no nodes with in-deg == out_deg == 1"""
-    return count_transitive_vertices(tree.graph) == 0
-
-def update_reduced(tree: _Tree):
-    """Update isReduced in metadata"""
-    if check_reduced(tree):
-        tree.graph.gp['metadata']['isReduced'] = True
-    else:
-        tree.graph.gp['metadata']['isReduced'] = False
-
-def tree_has_property(tree: _Tree, prop: str, level: str = "all"):
-    """_summary_
+def check_reduced(tree: _Tree) -> bool:
+    """Check if the given tree has no transitive vertices (in-degree == out-degree == 1).
 
     Parameters
     ----------
-    g : Graph
-        graph
-    prop : str
-        string name of internal property map
-    level : str | None, optional
-        If none, all graph vertex and edge properties are checked (default).
-        If 'g', only check graph level internal properties.
-        If 'v', only check vertex level internal properties.
-        If 'e', only check edge level internal properties.
+    tree : _Tree
+        Neuron tree.
 
     Returns
     -------
     bool
-        True if graph has property
+        True if the tree has no transitive vertices (is reduced), False otherwise.
+    """
+    return count_transitive_vertices(tree.graph) == 0
+
+
+def update_reduced(tree: _Tree) -> None:
+    """Update the 'isReduced' flag in the tree's metadata.
+
+    Parameters
+    ----------
+    tree : _Tree
+        Neuron tree.
+    """
+    if check_reduced(tree):
+        tree.graph.gp["metadata"]["isReduced"] = True
+    else:
+        tree.graph.gp["metadata"]["isReduced"] = False
+
+
+def tree_has_property(tree: _Tree, prop: str, level: str = "all") -> bool:
+    """Check if the tree has a specific internal property.
+
+    Parameters
+    ----------
+    tree : _Tree
+        Neuron tree.
+    prop : str
+        String name of internal property map.
+    level : str, optional
+        Level to check: "all" (default), "g" (graph), "v" (vertex), or "e" (edge).
+
+    Returns
+    -------
+    bool
+        True if graph has property.
 
     Raises
     ------
-    AttibuteError
-        if level not None or one of ['g', 'v', 'e']
+    AttributeError
+        If level is not None or one of ['g', 'v', 'e'].
     """
-
     return g_has_property(tree.graph, prop, level)

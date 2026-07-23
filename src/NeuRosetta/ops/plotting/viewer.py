@@ -1,7 +1,9 @@
+"""3D viewer for neuron trees and forests."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Iterable, Sequence
+from typing import Any, Sequence
 
 from vedo.plotter import Plotter
 from vedo import settings
@@ -18,6 +20,26 @@ Actor = Any
 
 @dataclass(slots=True)
 class Viewer:
+    """Interactive 3D viewer for neuron trees and forests using vedo.
+
+    Parameters
+    ----------
+    size : tuple[int, int], optional
+        Window size in pixels (width, height). By default (1200, 800).
+    bg : str | Sequence[float], optional
+        Background color. By default "white".
+    bg2 : str | Sequence[float] | None, optional
+        Second background color for gradient. By default None.
+    axes : int | bool | str, optional
+        Axes style. By default 0 (no axes).
+    title : str, optional
+        Window title. By default "".
+    offscreen : bool, optional
+        Whether to render offscreen. By default False.
+    interactive : bool, optional
+        Whether to run in interactive mode. By default True.
+    """
+
     # ---- user-facing defaults ----
     size: tuple[int, int] = (1200, 800)
     bg: str | Sequence[float] = "white"
@@ -35,6 +57,7 @@ class Viewer:
     ### lifecycle
 
     def __post_init__(self) -> None:
+        """Initialize the vedo Plotter."""
         self._plotter = Plotter(
             size=self.size,
             bg=self.bg,
@@ -45,11 +68,13 @@ class Viewer:
         )
 
     def close(self) -> None:
+        """Close the plotter window."""
         if not self._closed:
             self._plotter.close()
             self._closed = True
 
     def clear(self) -> None:
+        """Remove all actors from the scene."""
         if not self._actors:
             return
 
@@ -65,19 +90,34 @@ class Viewer:
         self._actors.clear()
 
     def reset_camera(self) -> None:
+        """Reset the camera to default position."""
         self._plotter.reset_camera()
 
     ### context manager
 
-    def __enter__(self) -> Viewer:
+    def __enter__(self) -> "Viewer":
+        """Enter the context manager."""
         return self
 
     def __exit__(self, exc_type, exc, tb) -> None:
+        """Exit the context manager and close the viewer."""
         self.close()
 
     ### scene construction
 
-    def add(self, *actors: Actor) -> Viewer:
+    def add(self, *actors: Actor) -> "Viewer":
+        """Add one or more actors to the scene.
+
+        Parameters
+        ----------
+        *actors : Actor
+            Vedo actors to add.
+
+        Returns
+        -------
+        Viewer
+            Self for method chaining.
+        """
         if not actors:
             return self
 
@@ -94,6 +134,25 @@ class Viewer:
         zoom: float | None = None,
         **kwargs: Any,
     ):
+        """Show the scene.
+
+        Parameters
+        ----------
+        *actors : Actor
+            Additional actors to add before showing.
+        interactive : bool | None, optional
+            Override interactive mode. By default uses viewer's setting.
+        resetcam : bool, optional
+            If True, reset camera before showing. By default False.
+        zoom : float | None, optional
+            Camera zoom factor. By default None.
+        **kwargs : Any
+            Additional keyword arguments passed to vedo show.
+
+        Returns
+        -------
+        The vedo Plotter show return value.
+        """
         if actors:
             self.add(*actors)
 
@@ -109,6 +168,20 @@ class Viewer:
         )
 
     def screenshot(self, path: str, scale: float = 1.0) -> str:
+        """Save a screenshot to file.
+
+        Parameters
+        ----------
+        path : str
+            Output file path.
+        scale : float, optional
+            Scale factor for screenshot. By default 1.0.
+
+        Returns
+        -------
+        str
+            The saved file path.
+        """
         self._plotter.screenshot(path, scale=scale)
         return path
 
@@ -125,40 +198,6 @@ class Viewer:
         return getattr(self._plotter, name)
 
     ### Add neuron
-    # def add_neuron(
-    #     self,
-    #     tree: _Tree,
-    #     cache: bool = False,
-    #     line_kwargs: dict | None = None,
-    #     root_kwargs: dict | None = None,
-    #     force_refresh: bool = False,
-    # ) -> None:
-    #     """_summary_
-
-    #     Parameters
-    #     ----------
-    #     tree : _Tree
-    #         _description_
-    #     cache : bool, optional
-    #         _description_, by default False
-    #     line_kwargs : dict, optional
-    #         _description_, by default {}
-    #     root_kwargs : dict, optional
-    #         _description_, by default {}
-    #     """
-    #     # get the plottable objects
-    #     if force_refresh or not hasattr(tree, "_3d_plot"):
-    #         plot_dict = _build_3d(
-    #             tree=tree, line_kwargs=line_kwargs, root_kwargs=root_kwargs
-    #         )
-    #     else:
-    #         plot_dict = tree._plot_dict
-
-    #     # if we want to cache them do so
-    #     if cache:
-    #         tree._plot_dict = plot_dict
-
-    #     self.add([plot_dict["lns"], plot_dict["root"]])
 
     def add_neuron(
         self,
@@ -169,19 +208,24 @@ class Viewer:
         root_kwargs: dict | None = None,
         force_refresh: bool = False,
     ) -> None:
-        """
+        """Add a neuron tree to the viewer.
+
         Parameters
         ----------
         tree : _Tree
             The tree to plot.
+        show_root : bool, optional
+            Whether to show the root (soma) marker. By default True.
         cache : bool, optional
-            Cache the TreePlot3D object on the tree as `tree._3d_plot`, by default False.
-        line_kwargs : dict, optional
-            Keyword arguments passed to the vedo Lines constructor, by default None.
-        root_kwargs : dict, optional
-            Keyword arguments passed to the vedo Point constructor, by default None.
+            Cache the TreePlot3D object on the tree as `tree._3d_plot`.
+            By default True.
+        line_kwargs : dict | None, optional
+            Keyword arguments passed to the vedo Lines constructor. By default None.
+        root_kwargs : dict | None, optional
+            Keyword arguments passed to the vedo Point constructor. By default None.
         force_refresh : bool, optional
-            Force a rebuild of the plot objects even if a cached version exists, by default False.
+            Force a rebuild of the plot objects even if a cached version exists.
+            By default False.
         """
         # Use cached plot if available and no refresh forced
         if not force_refresh and tree._plot3d is not None:
@@ -203,8 +247,18 @@ class Viewer:
         force_refresh: bool = False,
         **build_kwargs,
     ) -> None:
-        """Add all neurons in a forest to the viewer."""
-        forest.build_3d(force_refresh=force_refresh, **build_kwargs, show_progress = True)
+        """Add all neurons in a forest to the viewer.
+
+        Parameters
+        ----------
+        forest : _Forest
+            Forest containing trees to plot.
+        force_refresh : bool, optional
+            Force rebuild of 3D objects. By default False.
+        **build_kwargs : dict
+            Additional keyword arguments passed to forest.build_3d().
+        """
+        forest.build_3d(force_refresh=force_refresh, **build_kwargs, show_progress=True)
 
         # Batch all actors into a single add call
         all_actors = []

@@ -1,21 +1,30 @@
 name: nr
-channels: [conda-forge]
+channels:
+  - conda-forge
 dependencies:
   - python=3.11
   - pip
   - numpy
   - pandas
   - scipy
+  - matplotlib
   - jax
   - tqdm
   - trimesh
-  - ipykernel
   - vedo
-  - gudhi
   - graph-tool
+  - scikit-learn
+  - scikit-image
+  - pyside6
+  - ipykernel
   - pytest
+  - pytest-cov
   - mypy
   - ruff
-  - pyside6
+  - sphinx >=7
+  - myst-parser
+  - sphinx-autodoc-typehints
+  - furo
+  - sphinx-copybutton
   - pip:
-      - pydantic>=2
+      - -e .

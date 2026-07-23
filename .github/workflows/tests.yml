@@ -1,0 +1,28 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: mamba-org/setup-micromamba@v2
+        with:
+          environment-file: environment.yml
+          environment-name: nr
+          create-args: >-
+            -y
+
+      - name: Run smoke import
+        shell: bash -l {0}
+        run: python -c "import NeuRosetta as nr; print(nr.__version__)"
+
+      - name: Run tests
+        shell: bash -l {0}
+        run: pytest -q -o addopts= tests/test_core.py tests/test_errors.py tests/test_tree_graphs/test_counting.py

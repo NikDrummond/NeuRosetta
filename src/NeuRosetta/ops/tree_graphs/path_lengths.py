@@ -1,4 +1,4 @@
-"""functions for distance calculations on trees"""
+"""Functions for distance calculations on trees."""
 
 from numpy import ndarray
 
@@ -13,29 +13,26 @@ from ...utils.numpy_utils import pairwise_distance
 
 from .tree_checks import check_reduced
 
-# from ...utils.graph_utils.gt_properties import _bind_edge_property
-# from .coordinates import edge_coordinates
 
+def euclidean_edge_length(tree: _Tree, bind: bool = True) -> ndarray | None:
+    """Get length of edges.
 
-def euclidean_edge_length(tree: _Tree, bind: bool = True) -> ndarray:
-    """Get length of edges. If a non-reduced neuron is provided, this is the "path length" of each edge in the graph.
-    If a reduced neuron is provided, this is the euclidean distance between nodes.
+    For a non-reduced neuron, this is the "path length" of each edge in the graph.
+    For a reduced neuron, this is the Euclidean distance between nodes.
 
     Parameters
     ----------
-    tree : Tree
-        _description_
-    subset : str | None, optional
-        _description_, by default None
+    tree : _Tree
+        Neuron tree.
     bind : bool, optional
-        _description_, by default True
+        If True, bind the lengths as an edge property and return None.
+        If False, return the lengths array. By default True.
 
     Returns
     -------
-    ndarray
-        _description_
+    ndarray | None
+        If bind=False, returns array of edge lengths. Otherwise returns None.
     """
-
     pairs = edge_coordinates(tree.graph)
     lengths = pairwise_distance(pairs[0], pairs[1])
 
@@ -54,25 +51,26 @@ def euclidean_edge_length(tree: _Tree, bind: bool = True) -> ndarray:
         return None
     return lengths
 
+
 def total_cable_length(tree: _Tree) -> float:
-    """_summary_
+    """Compute total cable length of the tree.
 
     Parameters
     ----------
     tree : _Tree
-        _description_
+        Neuron tree.
 
     Returns
     -------
     float
-        _description_
+        Total cable length (sum of all edge lengths).
     """
     # if we don't have path lengths add them
     if g_has_property(tree.graph, "Path_length", "e"):
-        lengths = tree.graph.ep['Path_length'].a
+        lengths = tree.graph.ep["Path_length"].a
     elif g_has_property(tree.graph, "Euclidean_length", "e"):
-        lengths = tree.graph.ep['Euclidean_length'].a
+        lengths = tree.graph.ep["Euclidean_length"].a
     else:
-        lengths = euclidean_edge_length(tree, bind = False)
+        lengths = euclidean_edge_length(tree, bind=False)
 
     return float(lengths.sum())

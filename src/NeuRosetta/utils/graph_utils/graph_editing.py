@@ -1,4 +1,5 @@
 """Functions to modify structure of graphs"""
+from __future__ import annotations
 
 from numpy import concatenate, vstack
 from graph_tool.all import Graph, GraphView
@@ -9,21 +10,21 @@ from .vertex_inds import root_index, core_indices, branch_indices
 from .coordinates import vertex_coordinates
 
 
-### reduce
 def reduce_graph(g: Graph) -> Graph:
-    """_summary_
+    """Reduce a graph by collapsing transitive vertices.
 
     Parameters
     ----------
     g : Graph
-        Graph object
+        Input graph with vertex properties 'coordinates', 'radius', 'node_type',
+        edge property 'Path_length', and graph properties 'ID' and 'metadata'.
 
     Returns
     -------
     Graph
-        _description_
+        Reduced graph with only branch and leaf vertices (plus root), preserving
+        path lengths, coordinates, radii, node types, and graph metadata.
     """
-
     # we need path a bunch of properties
     raise_internal_property_missing(g, "metadata", "g")
     raise_internal_property_missing(g, "ID", "g")
@@ -76,20 +77,23 @@ def reduce_graph(g: Graph) -> Graph:
 
     return g_red
 
-### reroot
 
-
-def reroot_graph(g: Graph, root: int) -> None:
-    """_summary_
+def reroot_graph(g: Graph, root: int) -> Graph:
+    """Reroot a graph at a specified vertex.
 
     Parameters
     ----------
     g : Graph
-        _description_
+        Input graph with vertex properties 'coordinates', 'radius', 'node_type',
+        edge property 'Path_length', and graph properties 'ID' and 'metadata'.
     root : int
-        _description_
-    """
+        Vertex index to use as new root.
 
+    Returns
+    -------
+    Graph
+        New graph rooted at the specified vertex with all properties migrated.
+    """
     # we need path a bunch of properties
     raise_internal_property_missing(g, "metadata", "g")
     raise_internal_property_missing(g, "ID", "g")
@@ -97,7 +101,7 @@ def reroot_graph(g: Graph, root: int) -> None:
     raise_internal_property_missing(g, "radius", "v")
     raise_internal_property_missing(g, "node_type", "v")
 
-    # Undirected Graphview to get edge list from new root
+    # Undirected GraphView to get edge list from new root
     g_view = GraphView(g, directed=False)
     # edge list from new root (BFS)
     edges = bf_iterator(g_view, root, array=True)

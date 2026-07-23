@@ -1,4 +1,5 @@
-"""functions to get degree info from trees"""
+"""Functions to get degree information from trees."""
+from __future__ import annotations
 
 from typing import Tuple
 from numpy import ndarray
@@ -13,45 +14,45 @@ def get_node_degrees(
     deg: str = "total",
     weight: EdgePropertyMap | str | None = None,
 ) -> ndarray:
-    """_summary_
+    """Get vertex degrees for all nodes in a tree.
 
     Parameters
     ----------
     tree : _Tree
-        _description_
+        Neuron tree.
     deg : str, optional
-        _description_, by default 'total'
-    p : bool, optional
-        _description_, by default False
+        Degree type to compute. One of "total", "in", "out". By default "total".
     weight : EdgePropertyMap | str | None, optional
-        _description_, by default None
+        Edge property map or property name to use as edge weights. If None,
+        unweighted degrees are computed. By default None.
 
     Returns
     -------
     ndarray
-        _description_
+        Array of vertex degrees with length equal to number of vertices.
     """
-
     return get_vertex_degrees(tree.graph, deg, weight)
 
 
 def tree_degree_distribution(
     tree: _Tree, deg: str = "total", mass: bool = True
 ) -> Tuple[ndarray, ndarray]:
-    """_summary_
+    """Compute the degree distribution of a tree.
 
     Parameters
     ----------
     tree : _Tree
-        _description_
+        Neuron tree.
     deg : str, optional
-        _description_, by default "total"
+        Degree type to compute. One of "total", "in", "out". By default "total".
     mass : bool, optional
-        _description_, by default True
+        If True, normalize counts to sum to 1 (probability mass function).
+        If False, return raw counts. By default True.
 
     Returns
     -------
-    _type_
-        _description_
+    Tuple[ndarray, ndarray]
+        Tuple of (degrees, counts) where degrees are the unique degree values
+        and counts are their frequencies (normalized if mass=True).
     """
     return degree_distribution(tree.graph, deg, mass)

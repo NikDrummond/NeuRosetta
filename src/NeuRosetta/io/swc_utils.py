@@ -1,6 +1,8 @@
 """Functions for reading and writing .swc files"""
 
 ### Imports
+from __future__ import annotations
+
 from pathlib import Path
 from typing import overload, TypeVar
 
@@ -193,15 +195,10 @@ def export_swc(
     tree : Tree or Forest
         The tree or forest to export.
     fpath : str or pathlib.Path
-        Output file or directory path. Behavior depends on the input type:
-
-        * For a single ``Tree``:
-          - If ``fpath`` is a directory, the file `<tree_id>.swc` is written
-            inside it.
-          - If ``fpath`` is a file path, that path is used directly.
-        * For a ``Forest``:
-          - ``fpath`` must be a directory path.
-          - Each tree is written as `<tree_id>.swc` inside the directory.
+        Output file or directory path. For a single ``Tree``, if ``fpath`` is a
+        directory the file ``<tree_id>.swc`` is written inside it; if it is a
+        file path, that path is used directly. For a ``Forest``, ``fpath`` must
+        be a directory and each tree is written as ``<tree_id>.swc`` inside it.
     header : str or None, optional
         Custom header text to include at the top of each SWC file. If None,
         a default header identifying the generator and column names is used.

@@ -54,6 +54,7 @@
 - [ ] converting to a subtree breaks plotting unless saved and reloaded. Plotting needs a fix anyway.
 - [ ] GUI doesn't track edges properly from `.swc` files.
 - [ ] vedo is not threadsafe and gt is no multiprocessing safe, so currently we cannot easily parallelise plotting of forests. I should separate out the threadsafe logic (getting coordinates etc) and multithread that.
+- [ ] Use 'get', 'set' language consistently?
 
 
 ## Functionality
