@@ -62,16 +62,6 @@ Or, with dependencies already present:
 python -m pip install -e ".[dev,docs]"
 ```
 
-## Optional: GPU JAX
-
-CPU JAX from conda-forge is enough for tutorials and most analysis. For CUDA,
-follow the current JAX install instructions *after* activating the env, for
-example:
-
-```bash
-python -m pip install --upgrade "jax[cuda13]"
-```
-
 ## Verify the install
 
 ```python

@@ -17,6 +17,10 @@ class _Tree(_Stone):
         super().__init__(ID, metadata)
         self.graph = graph
 
+        ### improve this, placeholder for now
+    def __repr__(self) -> str:
+        return f"Tree(ID={self.ID}) with {self.count_nodes()} nodes"
+
     # list properties (temp implementation)
     def list_properties(self):
         """List internal (bound) graph properties"""
