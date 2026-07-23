@@ -22,7 +22,7 @@ I/O, 2D/3D plotting, neuropil surface reconstruction, and a PySide6 GUI.
 conda install -n base -c conda-forge mamba -y
 
 mamba create -n nr -c conda-forge python=3.11 \
-  numpy pandas scipy matplotlib jax tqdm trimesh vedo \
+  numpy pandas scipy matplotlib tqdm trimesh vedo \
   scikit-learn scikit-image pyside6 graph-tool \
   pip hatchling
 mamba activate nr
@@ -52,7 +52,7 @@ Or, in an existing env with dependencies available:
 python -m pip install -e ".[dev,docs]"
 ```
 
-### GPU JAX (optional)
+<!-- ### GPU JAX (optional)
 
 CPU JAX from conda-forge is enough for most workflows. For a CUDA build, follow
 the current [JAX installation notes](https://jax.readthedocs.io/en/latest/installation.html)
@@ -60,7 +60,7 @@ the current [JAX installation notes](https://jax.readthedocs.io/en/latest/instal
 
 ```bash
 python -m pip install --upgrade "jax[cuda13]"
-```
+``` -->
 
 ## Quick start
 

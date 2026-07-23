@@ -17,7 +17,6 @@ dependencies = [
   "scipy",
   "matplotlib",
   "vedo",
-  "jax",
   "tqdm",
   "trimesh",
   "scikit-learn",

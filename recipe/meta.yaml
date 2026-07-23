@@ -28,7 +28,7 @@ requirements:
     - pandas
     - scipy
     - matplotlib
-    - jax
+    # - jax
     - tqdm
     - trimesh
     - vedo

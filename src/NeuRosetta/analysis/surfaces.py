@@ -7,8 +7,8 @@ and mesh cleaning operations.
 
 import vedo as vd
 import numpy as np
-import jax.numpy as jnp
-from jax.ops import segment_sum
+# import jax.numpy as jnp
+# from jax.ops import segment_sum
 from sklearn.neighbors import NearestNeighbors
 import trimesh
 from skimage.measure import marching_cubes
@@ -57,32 +57,50 @@ def is_point_inside_mesh(
     return result
 
 
-def downsample_points_voxel_grid(points: jnp.ndarray, voxel_size: float) -> jnp.ndarray:
+# def downsample_points_voxel_grid(points: jnp.ndarray, voxel_size: float) -> jnp.ndarray:
+
+#     voxel_indices = jnp.floor(points / voxel_size).astype(jnp.int32)
+#     factor = jnp.array([1_000_000, 1_000, 1], dtype=jnp.int32)
+#     voxel_hash = jnp.dot(voxel_indices, factor)
+#     unique_hashes, inv = jnp.unique(voxel_hash, return_inverse=True)
+#     n_segments = unique_hashes.shape[0]
+#     sums = segment_sum(points, inv, num_segments=n_segments)
+#     counts = segment_sum(jnp.ones(points.shape[0]), inv, num_segments=n_segments).reshape(
+#         -1, 1
+#     )
+#     return sums / counts
+
+
+def downsample_points_voxel_grid(points: np.ndarray, voxel_size: float) -> np.ndarray:
     """Downsample points using voxel grid averaging.
 
     Parameters
     ----------
-    points : jnp.ndarray
+    points : np.ndarray
         Input points, shape (N, 3).
     voxel_size : float
         Size of each voxel.
 
     Returns
     -------
-    jnp.ndarray
+    np.ndarray
         Downsampled points, shape (M, 3) where M <= N.
     """
-    voxel_indices = jnp.floor(points / voxel_size).astype(jnp.int32)
-    factor = jnp.array([1_000_000, 1_000, 1], dtype=jnp.int32)
-    voxel_hash = jnp.dot(voxel_indices, factor)
-    unique_hashes, inv = jnp.unique(voxel_hash, return_inverse=True)
-    n_segments = unique_hashes.shape[0]
-    sums = segment_sum(points, inv, num_segments=n_segments)
-    counts = segment_sum(jnp.ones(points.shape[0]), inv, num_segments=n_segments).reshape(
-        -1, 1
-    )
-    return sums / counts
+    voxel_indices = np.floor(points / voxel_size).astype(np.int32)
 
+    factor = np.array([1_000_000, 1_000, 1], dtype=np.int64)
+    voxel_hash = voxel_indices @ factor
+
+    unique_hashes, inv = np.unique(
+        voxel_hash, return_inverse=True
+    )
+
+    sums = np.zeros((len(unique_hashes), 3), dtype=points.dtype)
+    np.add.at(sums, inv, points)
+
+    counts = np.bincount(inv)
+
+    return sums / counts[:, None]
 
 def remove_point_cloud_outliers(
     points: np.ndarray, k: int = 10, quantile: int = 95
