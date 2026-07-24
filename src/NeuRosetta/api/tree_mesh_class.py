@@ -14,7 +14,7 @@ class Tree_mesh(_Mesh):
 
     Parameters
     ----------
-    ID : int
+    ID : int | str
         Unique identifier for the neuron.
     metadata : dict
         Metadata dictionary containing information about the neuron.
@@ -22,5 +22,7 @@ class Tree_mesh(_Mesh):
         The vedo mesh object representing the neuron surface.
     """
 
-    def __init__(self, ID: int, metadata: dict, mesh: Mesh) -> None:
+    __slots__ = ()
+
+    def __init__(self, ID: int | str, metadata: dict, mesh: Mesh) -> None:
         super().__init__(ID=ID, metadata=metadata, mesh=mesh)

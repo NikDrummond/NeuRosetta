@@ -1,9 +1,13 @@
-""" Base class, every single object inherits from this"""
+"""Base class — every singleton object inherits from this."""
 
-class _Stone():
-    """Core single item class"""
+from typing import Hashable
 
-    # constructor
-    def __init__(self, ID: int, metadata: dict) -> None:
+
+class _Stone:
+    """Core single-item class with identity and metadata."""
+
+    __slots__ = ("ID", "metadata")
+
+    def __init__(self, ID: Hashable, metadata: dict) -> None:
         self.ID = ID
         self.metadata = metadata

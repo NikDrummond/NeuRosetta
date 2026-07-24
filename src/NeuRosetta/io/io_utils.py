@@ -178,26 +178,19 @@ def _swc_table(tree: _Tree) -> DataFrame:
 
 
 def _base_meta():
-    """Basic metadata info"""
-    meta = {"ID": 1, "units": "Undefined", "file_path": "", "isReduced": False}
-
-    return meta
+    """Basic metadata info (identity lives on ``tree.ID`` / ``gp['ID']``, not here)."""
+    return {"units": "Undefined", "file_path": "", "isReduced": False}
 
 
 ### nr utils
 
 def _bind_core(tree: _Tree):
-    """
-    Make sure ID and metadata are bound to the graph
-    """
-
-    # check if we have bound ID
-    if not has_property(tree, "ID", "g"):
-        tree.graph.gp["ID"] = tree.graph.new_gp("long", tree.ID)
-
-    # check if we have bound metadata
-    if not has_property(tree, "metadata","g"):
-        tree.graph.gp["metadata"] = tree.graph.new_gp("object", tree.metadata)
+    """Assert core identity gps are bound (Tree.__init__ always binds them)."""
+    if not has_property(tree, "ID", "g") or not has_property(tree, "metadata", "g"):
+        raise RuntimeError(
+            "Tree graph is missing core gps ('ID', 'metadata'); "
+            "construct via Tree(...) so they are bound."
+        )
 
 
 ### parallel utils

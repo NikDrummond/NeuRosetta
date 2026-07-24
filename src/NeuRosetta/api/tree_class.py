@@ -80,10 +80,12 @@ class Tree(_Tree):
     graph : graph_tool.Graph
         The neuron graph.
     metadata : dict
-        Metadata dictionary.
+        Metadata dictionary (backed by ``graph.gp['metadata']``).
     ID : int
-        Tree identifier.
+        Tree identifier (backed by ``graph.gp['ID']``).
     """
+
+    __slots__ = ()
 
     def __init__(self, ID: int, metadata: dict, graph: Graph) -> None:
         super().__init__(ID=ID, metadata=metadata, graph=graph)

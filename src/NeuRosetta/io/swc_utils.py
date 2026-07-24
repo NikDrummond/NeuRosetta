@@ -116,7 +116,6 @@ def import_swc(
 
         tree_id = int(path.stem)
         meta = _base_meta()
-        meta["ID"] = tree_id
         meta["units"] = "undefined"
         meta["file_path"] = str(path)
         meta["isReduced"] = False

@@ -28,7 +28,6 @@ def reduce_tree(tree: _Tree, inplace: bool = False) -> Graph | None:
 
     if inplace:
         tree.graph = g
-        tree.metadata = g.gp["metadata"]
         return None
     return g
 

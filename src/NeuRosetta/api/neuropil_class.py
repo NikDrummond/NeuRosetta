@@ -22,5 +22,7 @@ class Neuropil(_Mesh):
         The vedo mesh object representing the neuropil surface.
     """
 
+    __slots__ = ()
+
     def __init__(self, ID: str, metadata: dict, mesh: Mesh) -> None:
         super().__init__(ID=ID, metadata=metadata, mesh=mesh)

@@ -98,6 +98,8 @@ class Forest(_Forest):
     tree operation to every tree in the forest (optionally in parallel).
     """
 
+    __slots__ = ()
+
     def __init__(self, trees):
         super().__init__(trees=trees)
 

@@ -1,17 +1,40 @@
-# Tree basics
+# The Tree Class
 
-The {class}`~NeuRosetta.api.Tree` class is the primary object for a single
-neuron morphology. It wraps a directed graph-tool graph plus an integer `ID`
-and a `metadata` dictionary.
+The {class}`~NeuRosetta.api.Tree` class, and its big brother, {class}`~NeuRosetta.api.Forest`, is the way to handle and manipulate neurons within NeuRosetta. 
 
-## Load a tree
+## Basic Tree Poperties
+
+All Trees have three main properties: ID, metadata, and graph. As the Tree class makes use of __slots__, you cannot add arbritray attributes to Trees, but rather have to store them within either metadata, or on the graph. This is easy to do howeve, and when done you can save these elements with the `.nr` file, giving you a persistent state across sessions. You can look at the basis attributes as follows:
 
 ```python
 from pathlib import Path
 import NeuRosetta as nr
 
 tree = nr.import_swc(Path("docs/data/1.swc"))
+print(tree)
+print(tree.ID)
+print(tree.metadata)
+print(tree.graph)
+
 ```
+
+As explained in {doc}`02_io`, the `ID`of a neuron comes from the file name / identification number within the dataset this neuron comes from. Metadata is a place to keep track of information about this neuron. Finally, graph is the core graph representation of the neuron tree graph and is a `graph_tool.Graph` object. It is pottentially very useful to have a working understanding of how graph_tool works, documentation for which can be found [here](https://graph-tool.skewed.de/), however I will cover some important bits throughout these tutorials.
+
+### Understanding Graphs
+
+
+
+### Understanding Metadata
+
+The base metadata dictionary is like so:
+
+| Key | Value |
+|--------|-----------|
+| 'units'| Assumed to be undefined at import |
+| 'file_path'| The location of the `.swc` file|
+| 'isReduced'| This is a bool flag, explained {doc}`here <03_tree_basics>`|
+
+
 
 ## Topology queries
 

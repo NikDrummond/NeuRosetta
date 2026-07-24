@@ -228,13 +228,13 @@ class Viewer:
             By default False.
         """
         # Use cached plot if available and no refresh forced
-        if not force_refresh and tree._plot3d is not None:
-            plot = tree._plot3d
+        if not force_refresh and tree.plot3d is not None:
+            plot = tree.plot3d
         else:
             plot = TreePlot3D(tree=tree, line_kwargs=line_kwargs, root_kwargs=root_kwargs)
 
         if cache:
-            tree._plot3d = plot
+            tree.plot3d = plot
 
         # set soma
         plot.show_root = show_root

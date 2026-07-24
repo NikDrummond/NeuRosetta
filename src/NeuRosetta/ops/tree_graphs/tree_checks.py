@@ -29,9 +29,9 @@ def update_reduced(tree: _Tree) -> None:
         Neuron tree.
     """
     if check_reduced(tree):
-        tree.graph.gp["metadata"]["isReduced"] = True
+        tree.metadata["isReduced"] = True
     else:
-        tree.graph.gp["metadata"]["isReduced"] = False
+        tree.metadata["isReduced"] = False
 
 
 def has_property(tree: _Tree, prop: str, level: str = "all") -> bool:

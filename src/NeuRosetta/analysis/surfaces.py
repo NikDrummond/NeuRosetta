@@ -403,6 +403,6 @@ def reconstruct_neuropil_surface(
             smooth_kwargs = {}
         mesh.smooth(**smooth_kwargs)
 
-    metadata = {"ID": name, "units": "microns"}
+    metadata = {"units": "microns"}
     # neuropil object
     return Neuropil(ID=name, metadata=metadata, mesh=mesh)

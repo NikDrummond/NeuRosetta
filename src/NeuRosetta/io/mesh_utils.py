@@ -79,7 +79,6 @@ def import_mesh(
         mesh = vd_load_mesh(path)
         mesh_id = path.stem
         meta = _base_meta()
-        meta["ID"] = mesh_id
         meta["file_path"] = str(path)
         if mesh_type == "Neuron":
             return Tree_mesh(ID=mesh_id, metadata=meta, mesh=mesh)

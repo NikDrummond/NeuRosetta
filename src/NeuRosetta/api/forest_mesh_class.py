@@ -16,5 +16,7 @@ class Forest_mesh(_Forest):
         List of Tree_mesh objects to include in the collection.
     """
 
+    __slots__ = ()
+
     def __init__(self, meshes):
         super().__init__(trees=meshes)

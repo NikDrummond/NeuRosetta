@@ -79,7 +79,7 @@ def load(
     Notes
     -----
     Each loaded graph has its source file path recorded in
-    ``graph.gp["metadata"]["file_path"]``.
+    ``tree.metadata["file_path"]`` (backed by ``graph.gp["metadata"]``).
 
     Examples
     --------
@@ -103,7 +103,7 @@ def load(
     def _load_one(path: Path) -> _Tree:
         g = load_graph(str(path), fmt="gt")
         g.gp["metadata"]["file_path"] = str(path)
-        return Tree(ID=g.gp["ID"], metadata=g.gp["metadata"], graph=g)
+        return Tree.from_graph(g)
 
     if p.is_file():
         return _load_one(p)

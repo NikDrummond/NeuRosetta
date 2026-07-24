@@ -51,10 +51,12 @@ def test_swc_read_write(simple_tree):
 
     # assert metadata and ID
     assert result.ID == 1
-    assert result.metadata['ID'] == 1
+    assert "ID" not in result.metadata
     assert result.metadata['units'] == 'undefined'
     assert result.metadata['isReduced'] == False
-    assert result.metadata['file_path'] == path
+    assert result.metadata['file_path'] == str(path)
+    assert result.metadata is result.graph.gp["metadata"]
+    assert int(result.graph.gp["ID"]) == 1
 
     # assert graph is the same
 
