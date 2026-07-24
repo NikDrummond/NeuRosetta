@@ -4,7 +4,7 @@ The {class}`~NeuRosetta.api.Tree` class, and its big brother, {class}`~NeuRosett
 
 ## Basic Tree Poperties
 
-All Trees have three main properties: ID, metadata, and graph. As the Tree class makes use of __slots__, you cannot add arbritray attributes to Trees, but rather have to store them within either metadata, or on the graph. This is easy to do howeve, and when done you can save these elements with the `.nr` file, giving you a persistent state across sessions. You can look at the basis attributes as follows:
+All Trees have three main properties: ID, metadata, and graph. As the Tree class makes use of __slots__, you cannot add arbritray attributes to Trees, but rather have to store them within either metadata, or bound to the graph. This is easy to do however, and when done you can save these elements with the `.nr` file, giving you a persistent state across sessions. You can look at the basis attributes as follows:
 
 ```python
 from pathlib import Path
@@ -18,11 +18,11 @@ print(tree.graph)
 
 ```
 
-As explained in {doc}`02_io`, the `ID`of a neuron comes from the file name / identification number within the dataset this neuron comes from. Metadata is a place to keep track of information about this neuron. Finally, graph is the core graph representation of the neuron tree graph and is a `graph_tool.Graph` object. It is pottentially very useful to have a working understanding of how graph_tool works, documentation for which can be found [here](https://graph-tool.skewed.de/), however I will cover some important bits throughout these tutorials.
+As explained in {doc}`02_io`, the `ID`of a neuron comes from the file name / identification number within the dataset this neuron comes from. Metadata is a place to keep track of information about this neuron. Finally, graph is the core graph representation of the neuron tree graph and is a `graph_tool.Graph` object.
 
 ### Understanding Graphs
 
-
+Each neuron is treated as a directed tree graph within NeuRosetta. This is done using [graph_tool](https://graph-tool.skewed.de/), which under the hood is a C++ libray which gives us some nice speed in some places. There are a few elements which are key to understanding how this works within NeuRosetta, possibly most importantly the idea of properties. 
 
 ### Understanding Metadata
 

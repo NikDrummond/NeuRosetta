@@ -6,7 +6,11 @@ from .gt_properties import (
     bind_vertex_property,
     bind_edge_property,
     bind_graph_property,
-    revert_core_properties
+    revert_core_properties,
+    list_properties,
+    get_property,
+    set_property,
+    del_property,
 )
 
 from .traversals import(
@@ -68,6 +72,10 @@ __all__ = [
     "bind_edge_property",
     "bind_graph_property",
     "revert_core_properties",
+    "list_properties",
+    "get_property",
+    "set_property",
+    "del_property",
     "root_index",
     "leaf_indices",
     "branch_indices",

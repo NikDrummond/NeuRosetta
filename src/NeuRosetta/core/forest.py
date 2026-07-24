@@ -136,6 +136,10 @@ class _Forest(Sequence):
     def ids(self) -> list[Hashable]:
         return [tree.ID for tree in self._trees]
 
+    def list_properties(self, level: str = "all") -> list:
+        """List properties for each member (sequential)."""
+        return [t.list_properties(level) for t in self._trees]
+
     def map(self, fn: Callable[[Any], Any]) -> list[Any]:
         """Sequential map over trees (convenience alias for apply with parallel=False)."""
         return self.apply(fn, parallel=False)
@@ -261,7 +265,7 @@ class _Forest(Sequence):
 
         if force_refresh:
             for tree in self:
-                tree._plot3d = None
+                tree.plot3d = None
 
         self.apply(
             lambda t, **kw: t.make_plot3d(**kw),

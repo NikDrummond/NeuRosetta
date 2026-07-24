@@ -73,14 +73,88 @@ class _Tree(_Stone):
 
     clone = copy
 
-    # --- repr / props ---
+    # --- repr / graph properties ---
 
     def __repr__(self) -> str:
         return f"Tree(ID={self.ID}) with {self.graph.num_vertices()} nodes"
 
-    def list_properties(self):
-        """List internal (bound) graph properties."""
-        self.graph.list_properties()
+    def list_properties(self, level: str = "all") -> list | dict:
+        """List bound property names.
+
+        Parameters
+        ----------
+        level : str, optional
+            ``"all"`` returns ``{"g": [...], "v": [...], "e": [...]}``.
+            ``"g"`` / ``"v"`` / ``"e"`` returns a list of names at that level.
+        """
+        from ..utils.graph_utils import list_properties as _list_properties
+
+        return _list_properties(self.graph, level)
+
+    def has_property(self, prop: str, level: str = "all") -> bool:
+        """Return True if ``prop`` exists at ``level`` (``g``/``v``/``e``/``all``)."""
+        from ..utils.graph_utils import g_has_property
+
+        return g_has_property(self.graph, prop, level)
+
+    def get_property(
+        self,
+        name: str,
+        level: str,
+        *,
+        as_array: bool = False,
+        SoA: bool = False,
+    ):
+        """Get a property map or its array values from the underlying graph.
+
+        Vector properties (e.g. ``coordinates`` / ``vector<double>``) use
+        ``get_2d_array()``, not ``.a``. With ``as_array=True`` and ``SoA=False``
+        (default) returns shape ``(N, d)``; ``SoA=True`` returns ``(d, N)``.
+        """
+        from ..utils.graph_utils import get_property as _get_property
+
+        return _get_property(
+            self.graph, name, level, as_array=as_array, SoA=SoA
+        )
+
+    def set_property(
+        self,
+        name: str,
+        data,
+        level: str,
+        *,
+        dtype: str | None = None,
+        create: bool = False,
+        SoA: bool = False,
+    ) -> None:
+        """Set an existing graph property, or create one with ``create=True``.
+
+        Vector properties are written with ``set_2d_array``. Pass ``data`` as
+        ``(N, d)`` (``SoA=False``, default) or ``(d, N)`` (``SoA=True``).
+        """
+        from ..utils.graph_utils import set_property as _set_property
+
+        _set_property(
+            self.graph,
+            name,
+            data,
+            level,
+            dtype=dtype,
+            create=create,
+            SoA=SoA,
+        )
+
+    def del_property(self, name: str, level: str) -> None:
+        """Delete a property from the underlying graph."""
+        from ..utils.graph_utils import del_property as _del_property
+
+        _del_property(self.graph, name, level)
+
+    def revert_core_properties(self) -> None:
+        """Drop non-core vertex/edge/graph properties from the graph."""
+        from ..utils.graph_utils import revert_core_properties as _revert
+
+        _revert(self.graph)
 
     # --- 3d plot cache ---
 

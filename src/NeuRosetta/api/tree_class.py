@@ -34,7 +34,6 @@ from ..ops.tree_graphs import (
     get_subtree_edge_coordinates,
     check_reduced,
     update_reduced,
-    has_property,
     get_edge_length,
     get_total_cable_length,
     get_degrees,
@@ -222,5 +221,5 @@ class Tree(_Tree):
     update_reduced = update_reduced
     """Update isReduced flag in metadata."""
 
-    has_property = has_property
-    """Check if tree has a specific internal property."""
+    # has_property / list_properties / get_property / set_property /
+    # del_property / revert_core_properties inherited from _Tree
