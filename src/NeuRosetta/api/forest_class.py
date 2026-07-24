@@ -10,32 +10,32 @@ from typing import Callable
 from ..core import _Forest
 
 from ..ops.tree_graphs import (
-    get_root,
-    get_leaves,
-    get_branches,
+    get_root_index,
+    get_leaf_indices,
+    get_branch_indices,
     get_core_indices,
-    get_edges,
-    count_tree_roots,
-    count_tree_nodes,
-    count_tree_edges,
-    count_tree_leaves,
-    count_tree_branches,
-    count_tree_transitive_nodes,
-    compute_tree_depths,
-    tree_node_coordinates,
-    tree_edge_coordinates,
+    get_edge_indices,
+    count_roots,
+    count_nodes,
+    count_edges,
+    count_leaves,
+    count_branches,
+    count_transitive_nodes,
+    get_node_depth,
+    get_node_coordinates,
+    get_edge_coordinates,
     check_reduced,
     update_reduced,
-    tree_has_property,
-    euclidean_edge_length,
-    total_cable_length,
-    get_node_degrees,
-    tree_degree_distribution,
+    has_property,
+    get_edge_length,
+    get_total_cable_length,
+    get_degrees,
+    get_degree_distribution,
     reduce_tree,
-    score_subtrees,
-    max_subtree_ind,
-    extract_subtree,
-    node_partition_asymmetry,
+    get_subtree_scores,
+    get_max_subtree_node,
+    get_subtree,
+    get_partition_asymmetry,
 )
 
 from ..ops.plotting import Viewer
@@ -94,98 +94,97 @@ class Forest(_Forest):
 
     Notes
     -----
-    All methods prefixed with `get_forest_` or `count_forest_` apply the
-    corresponding tree operation to every tree in the forest and can run
-    in parallel.
+    Batch methods mirror the Tree API names and apply the corresponding
+    tree operation to every tree in the forest (optionally in parallel).
     """
 
     def __init__(self, trees):
         super().__init__(trees=trees)
 
     # --- node indices ---
-    get_forest_roots = _forest_op(get_root)
+    get_root_index = _forest_op(get_root_index)
     """Get root indices for all trees."""
 
-    get_forest_leaves = _forest_op(get_leaves)
+    get_leaf_indices = _forest_op(get_leaf_indices)
     """Get leaf indices for all trees."""
 
-    get_forest_branches = _forest_op(get_branches)
+    get_branch_indices = _forest_op(get_branch_indices)
     """Get branch indices for all trees."""
 
-    get_forest_core_indices = _forest_op(get_core_indices)
+    get_core_indices = _forest_op(get_core_indices)
     """Get core indices for all trees."""
 
-    get_forest_edge_indices = _forest_op(get_edges)
+    get_edge_indices = _forest_op(get_edge_indices)
     """Get edge indices for all trees."""
 
     # --- counts ---
-    count_forest_roots = _forest_op(count_tree_roots)
+    count_roots = _forest_op(count_roots)
     """Count roots in all trees."""
 
-    count_forest_edges = _forest_op(count_tree_edges)
+    count_edges = _forest_op(count_edges)
     """Count edges in all trees."""
 
-    count_forest_nodes = _forest_op(count_tree_nodes)
+    count_nodes = _forest_op(count_nodes)
     """Count nodes in all trees."""
 
-    count_forest_leaves = _forest_op(count_tree_leaves)
+    count_leaves = _forest_op(count_leaves)
     """Count leaves in all trees."""
 
-    count_forest_branches = _forest_op(count_tree_branches)
+    count_branches = _forest_op(count_branches)
     """Count branches in all trees."""
 
-    count_forest_transitive_nodes = _forest_op(count_tree_transitive_nodes)
+    count_transitive_nodes = _forest_op(count_transitive_nodes)
     """Count transitive nodes in all trees."""
 
     # --- coordinates ---
-    forest_node_coordinates = _forest_op(tree_node_coordinates)
+    get_node_coordinates = _forest_op(get_node_coordinates)
     """Get node coordinates for all trees."""
 
-    forest_edge_coordinates = _forest_op(tree_edge_coordinates)
+    get_edge_coordinates = _forest_op(get_edge_coordinates)
     """Get edge coordinates for all trees."""
 
     # --- distances ---
-    forest_edge_lengths = _forest_op(euclidean_edge_length)
+    get_edge_length = _forest_op(get_edge_length)
     """Get edge lengths for all trees."""
 
-    forest_total_cable_length = _forest_op(total_cable_length)
+    get_total_cable_length = _forest_op(get_total_cable_length)
     """Get total cable length for all trees."""
 
     # --- topology ---
-    forest_node_depths = _forest_op(compute_tree_depths)
+    get_node_depth = _forest_op(get_node_depth)
     """Get node depths for all trees."""
 
-    forest_degree_arrays = _forest_op(get_node_degrees)
+    get_degrees = _forest_op(get_degrees)
     """Get degree arrays for all trees."""
 
-    forest_degree_distributions = _forest_op(tree_degree_distribution)
+    get_degree_distribution = _forest_op(get_degree_distribution)
     """Get degree distributions for all trees."""
 
     # --- checks / updates ---
-    forest_has_property = _forest_op(tree_has_property)
+    has_property = _forest_op(has_property)
     """Check if all trees have a property."""
 
     is_reduced = _forest_op(check_reduced)
     """Check if all trees are reduced."""
 
-    forest_update_reduced = _forest_op(update_reduced)
+    update_reduced = _forest_op(update_reduced)
     """Update reduced flag for all trees."""
 
     # --- editing ---
-    reduce_forest = _forest_op(reduce_tree)
+    reduce_tree = _forest_op(reduce_tree)
     """Reduce all trees in the forest."""
 
     # --- subtrees ---
-    get_forest_subtree_scores = _forest_op(score_subtrees)
+    get_subtree_scores = _forest_op(get_subtree_scores)
     """Get subtree scores for all trees."""
 
-    get_forest_max_subtree_index = _forest_op(max_subtree_ind)
+    get_max_subtree_node = _forest_op(get_max_subtree_node)
     """Get max subtree index for all trees."""
 
-    convert_forest_to_subtrees = _forest_op(extract_subtree)
+    get_subtree = _forest_op(get_subtree)
     """Extract subtrees for all trees."""
 
-    get_forest_node_partition_asymmetry = _forest_op(node_partition_asymmetry)
+    get_partition_asymmetry = _forest_op(get_partition_asymmetry)
     """Get partition asymmetry for all trees."""
 
     # --- saving ---

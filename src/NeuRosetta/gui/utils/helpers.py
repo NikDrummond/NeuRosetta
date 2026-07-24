@@ -20,7 +20,7 @@ def n_pnt_coords(neuron: Any) -> np.ndarray:
     np.ndarray
         Array of point coordinates for core vertices with shape (N, 3).
     """
-    return neuron.get_node_coordinates()[neuron.core_indices()]
+    return neuron.get_node_coordinates()[neuron.get_core_indices()]
 
 
 def make_pnts(coords: np.ndarray, mask: np.ndarray) -> Tuple[vd.Points, vd.Points]:
@@ -59,7 +59,7 @@ def get_mask_node_ind(neuron: Any, mask: np.ndarray) -> np.ndarray:
     np.ndarray
         Array of node indices for masked points.
     """
-    return neuron.core_indices()[mask]
+    return neuron.get_core_indices()[mask]
 
 
 def validate_csv_data(df) -> bool:

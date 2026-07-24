@@ -1,7 +1,7 @@
 # from graph_tool.all import GraphView, bfs_iterator, Graph
 
 # from NeuRosetta.utils.graph_utils.properties import g_has_property
-# from NeuRosetta.ops.tree_graphs.path_lengths import euclidean_edge_length
+# from NeuRosetta.ops.tree_graphs.path_lengths import get_edge_length
 
 # from NeuRosetta.core import _Tree
 
@@ -44,4 +44,4 @@
 #     ### optionally add path length
 #     if g_has_property(g_view, 'Path_length', 'e'):
 #         # add lengths
-#         euclidean_edge_length(tree, bind = True)
+#         get_edge_length(tree, bind = True)

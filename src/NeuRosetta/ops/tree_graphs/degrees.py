@@ -9,7 +9,7 @@ from ...core import _Tree
 from ...utils.graph_utils import get_vertex_degrees, degree_distribution
 
 
-def get_node_degrees(
+def get_degrees(
     tree: _Tree,
     deg: str = "total",
     weight: EdgePropertyMap | str | None = None,
@@ -34,7 +34,7 @@ def get_node_degrees(
     return get_vertex_degrees(tree.graph, deg, weight)
 
 
-def tree_degree_distribution(
+def get_degree_distribution(
     tree: _Tree, deg: str = "total", mass: bool = True
 ) -> Tuple[ndarray, ndarray]:
     """Compute the degree distribution of a tree.

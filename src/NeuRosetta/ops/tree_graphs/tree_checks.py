@@ -34,7 +34,7 @@ def update_reduced(tree: _Tree) -> None:
         tree.graph.gp["metadata"]["isReduced"] = False
 
 
-def tree_has_property(tree: _Tree, prop: str, level: str = "all") -> bool:
+def has_property(tree: _Tree, prop: str, level: str = "all") -> bool:
     """Check if the tree has a specific internal property.
 
     Parameters

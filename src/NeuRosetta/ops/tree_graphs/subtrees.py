@@ -12,8 +12,8 @@ from ...utils.graph_utils import (
     extract_subgraph,
     partition_asymmetry,
 )
-from .tree_checks import tree_has_property
-from .path_lengths import euclidean_edge_length
+from .tree_checks import has_property
+from .path_lengths import get_edge_length
 
 
 def mask_subtree_from_root(tree: _Tree, root: int, bind: bool = True):
@@ -46,7 +46,7 @@ def mask_subtree_from_root(tree: _Tree, root: int, bind: bool = True):
     return vis if not bind else None
 
 
-def score_subtrees(tree: _Tree, bind: bool = True) -> ndarray | None:
+def get_subtree_scores(tree: _Tree, bind: bool = True) -> ndarray | None:
     """Compute subgraph scores for all vertices in the tree.
 
     Parameters
@@ -62,15 +62,15 @@ def score_subtrees(tree: _Tree, bind: bool = True) -> ndarray | None:
     ndarray | None
         Array of subgraph scores if bind=False, otherwise None.
     """
-    if not tree_has_property(tree, "Path_length", "e"):
-        euclidean_edge_length(tree, bind=True)
+    if not has_property(tree, "Path_length", "e"):
+        get_edge_length(tree, bind=True)
 
     score = subgraph_score(tree.graph, bind)
 
     return score if not bind else None
 
 
-def max_subtree_ind(tree: _Tree) -> int:
+def get_max_subtree_node(tree: _Tree) -> int:
     """Get the vertex index with the maximum subgraph score.
 
     Parameters
@@ -84,13 +84,13 @@ def max_subtree_ind(tree: _Tree) -> int:
         Vertex index with the maximum subgraph score.
     """
     # make sure we have Path_length
-    if not tree_has_property(tree, "subgraph_score", "v"):
-        score_subtrees(tree, bind=True)
+    if not has_property(tree, "subgraph_score", "v"):
+        get_subtree_scores(tree, bind=True)
 
     return max_subgraph_ind(tree.graph)
 
 
-def extract_subtree(
+def get_subtree(
     tree: _Tree, revert_properties: bool = True
 ) -> None:
     """Extract the masked subtree from the tree.
@@ -107,13 +107,13 @@ def extract_subtree(
     None
     """
     # make sure we have a mask
-    if not tree_has_property(tree, "v_subtree_mask", "v"):
-        mask_subtree_from_root(tree, max_subtree_ind(tree), bind=True)
+    if not has_property(tree, "v_subtree_mask", "v"):
+        mask_subtree_from_root(tree, get_max_subtree_node(tree), bind=True)
 
     extract_subgraph(tree.graph, revert_properties=revert_properties)
 
 
-def node_partition_asymmetry(
+def get_partition_asymmetry(
     tree: _Tree, weighted: bool = True, bind: bool = False
 ) -> ndarray | None:
     """Compute partition asymmetry at each branching node in a directed tree graph.

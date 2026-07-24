@@ -368,7 +368,7 @@ def reconstruct_neuropil_surface(
         If forest metadata does not specify units as "nm".
     """
     # get coordinates
-    coords = np.vstack(forest.forest_node_coordinates(progress=False))
+    coords = np.vstack(forest.get_node_coordinates(progress=False))
 
     if forest[0].metadata["units"] == "nm":
         coords = coords * 0.001

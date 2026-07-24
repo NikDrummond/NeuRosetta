@@ -84,8 +84,8 @@ class NeuronRenderer:
             return
         
         # if we do not have a subtree estimate, generate it
-        if not neuron.check_property("e_subtree_mask","e"):
-            neuron.subtree_mask_from_root(root = neuron.get_max_subtree_index(), bind = True)
+        if not neuron.has_property("e_subtree_mask","e"):
+            neuron.subtree_mask_from_root(root = neuron.get_max_subtree_node(), bind = True)
 
         # Get subtree visualization from Neurosetta
         subtree_result = build_3d_subtree(neuron)
@@ -98,7 +98,7 @@ class NeuronRenderer:
         
         # soma
         # root_coords = nr.g_vert_coords(neuron, nr.g_root_ind(neuron))[0]
-        root_coords = neuron.get_node_coordinates(subset = neuron.root_index())
+        root_coords = neuron.get_node_coordinates(subset = neuron.get_root_index())
         soma = vd.Point(
             root_coords, 
             c=RENDERING_CONSTANTS['SOMA_COLOR'], 

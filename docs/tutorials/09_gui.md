@@ -38,7 +38,7 @@ nr.start_GUI()
 | Load SWC / NR | `import_swc`, `load` |
 | Save NR | `save` / `Tree.save_tree` |
 | Reroot | `Tree.get_rerooted_tree` |
-| Subtree from point | mask + `convert_to_subtree` |
+| Subtree from point | mask + `get_subtree` |
 | Mesh overlay | `import_mesh` + vedo actors |
 
 Scripting remains the better path for batch analysis; the GUI is for

@@ -12,7 +12,7 @@ from ...utils.graph_utils import (
 )
 
 
-def tree_node_coordinates(
+def get_node_coordinates(
     tree: _Tree, subset: int | List | None = None, SoA: bool = False
 ) -> ndarray:
     """Get coordinates of tree nodes.
@@ -38,7 +38,7 @@ def tree_node_coordinates(
     return vertex_coordinates(tree.graph, subset, SoA)
 
 
-def subtree_node_coordinates(
+def get_subtree_node_coordinates(
     tree: _Tree, root: int, traversal_order: str = "Breadth", SoA: bool = False
 ) -> ndarray:
     """Get coordinates of nodes in a subtree.
@@ -65,7 +65,7 @@ def subtree_node_coordinates(
     return vertex_coordinates_subtree(tree.graph, root, traversal_order, SoA)
 
 
-def tree_edge_coordinates(tree: _Tree, SoA: bool = False) -> Tuple[ndarray, ndarray]:
+def get_edge_coordinates(tree: _Tree, SoA: bool = False) -> Tuple[ndarray, ndarray]:
     """Get source and target coordinates for all edges.
 
     Parameters
@@ -86,7 +86,7 @@ def tree_edge_coordinates(tree: _Tree, SoA: bool = False) -> Tuple[ndarray, ndar
     return edge_coordinates(tree.graph, SoA)
 
 
-def subtree_edge_coordinates(
+def get_subtree_edge_coordinates(
     tree: _Tree, root: int, traversal_order: str = "Breadth", SoA: bool = False
 ) -> Tuple[ndarray, ndarray]:
     """Get source and target coordinates for edges in a subtree.

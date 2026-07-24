@@ -13,7 +13,7 @@ from ...utils.graph_utils import (
 )
 
 
-def get_root(tree: _Tree) -> int:
+def get_root_index(tree: _Tree) -> int:
     """Get index of root node.
 
     Parameters
@@ -29,7 +29,7 @@ def get_root(tree: _Tree) -> int:
     return root_index(tree.graph)
 
 
-def get_leaves(tree: _Tree) -> ndarray:
+def get_leaf_indices(tree: _Tree) -> ndarray:
     """Get indices of leaf nodes.
 
     Parameters
@@ -45,7 +45,7 @@ def get_leaves(tree: _Tree) -> ndarray:
     return leaf_indices(tree.graph)
 
 
-def get_branches(tree: _Tree) -> ndarray:
+def get_branch_indices(tree: _Tree) -> ndarray:
     """Get indices of branch nodes.
 
     Parameters
@@ -79,7 +79,7 @@ def get_core_indices(tree: _Tree, include_root: bool = True) -> ndarray:
     return core_indices(tree.graph, include_root)
 
 
-def get_subtree_nodes(tree: _Tree, root: int, traversal_order: str = "Breadth") -> ndarray:
+def get_subtree_indices(tree: _Tree, root: int, traversal_order: str = "Breadth") -> ndarray:
     """Get node indices of subtree rooted at specified vertex.
 
     Parameters
@@ -100,7 +100,7 @@ def get_subtree_nodes(tree: _Tree, root: int, traversal_order: str = "Breadth") 
     return subtree_indices(tree.graph, root, traversal_order)
 
 
-def get_edges(
+def get_edge_indices(
     tree: _Tree, root: int | None = None, traversal_order: str = "Breadth"
 ) -> ndarray:
     """Return n x 2 array of edge indices going parent -> child.

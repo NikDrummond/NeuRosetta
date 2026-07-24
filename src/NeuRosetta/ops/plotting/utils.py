@@ -40,7 +40,7 @@ class TreePlot3D:
     @staticmethod
     def _make_root(tree: _Tree, kwargs: dict) -> Point:
         """Build a vedo Point object at the tree root."""
-        r_coords = tree.get_node_coordinates(subset=tree.root_index())
+        r_coords = tree.get_node_coordinates(subset=tree.get_root_index())
         return Point(r_coords, **kwargs)
 
     @staticmethod

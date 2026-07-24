@@ -106,7 +106,7 @@ class NeuronTools:
 
         try:
             vertex_coords = self.current_neuron.get_node_coordinates()
-            root_idx = self.current_neuron.root_index()
+            root_idx = self.current_neuron.get_root_index()
 
             return {
                 "status": "Loaded",
@@ -141,7 +141,7 @@ class NeuronTools:
 
     def set_flag_state(self) -> None:
         """Boolian graph property for neurons to flag"""
-        if not self.current_neuron.check_property("flag", "g"):
+        if not self.current_neuron.has_property("flag", "g"):
             self.current_neuron.graph.gp["flag"] = self.current_neuron.graph.new_gp(
                 "bool", False
             )
@@ -165,7 +165,7 @@ class NeuronTools:
         if self.current_neuron is None:
             return False
 
-        if not self.current_neuron.check_property("flag", "g"):
+        if not self.current_neuron.has_property("flag", "g"):
             raise AttributeError("Flag property not found")
 
         return self.current_neuron.graph.gp["flag"]

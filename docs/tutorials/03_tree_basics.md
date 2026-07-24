@@ -11,19 +11,16 @@ from pathlib import Path
 import NeuRosetta as nr
 
 tree = nr.import_swc(Path("docs/data/1.swc"))
-print(tree.ID)
-print(tree.metadata)
-print(tree.graph)  # graph_tool.Graph
 ```
 
 ## Topology queries
 
 ```python
-print("root:", tree.root_index())
-print("leaves:", tree.leaf_indices())
-print("branches:", tree.branch_indices())
-print("core:", tree.core_indices())
-print("edges:", tree.edge_indices()[:3], "...")
+print("root:", tree.get_root_index())
+print("leaves:", tree.get_leaf_indices())
+print("branches:", tree.get_branch_indices())
+print("core:", tree.get_core_indices())
+print("edges:", tree.get_edge_indices()[:3], "...")
 ```
 
 ## Counts
@@ -46,18 +43,18 @@ Transitive nodes are the chain vertices with in-degree = out-degree = 1
 coords = tree.get_node_coordinates()
 print(coords.shape)  # (n_nodes, 3)
 
-edge_lengths = tree.get_edge_lengths()
-cable = tree.get_cable_length()
+edge_lengths = tree.get_edge_length()
+cable = tree.get_total_cable_length()
 print(float(cable))
 ```
 
 ## Degrees and depths
 
 ```python
-degrees = tree.get_degree_array()
+degrees = tree.get_degrees()
 print(tree.get_degree_distribution())
 
-depths = tree.get_node_depths()
+depths = tree.get_node_depth()
 print(depths.min(), depths.max())
 ```
 
@@ -67,7 +64,7 @@ Trees store analysis caches and flags as graph / metadata properties:
 
 ```python
 print(tree.list_properties())
-print(tree.check_property("coordinates"))
+print(tree.has_property("coordinates"))
 print(tree.is_reduced())
 tree.metadata["Neuron_type"] = "example"
 print(tree.metadata["Neuron_type"])
@@ -91,9 +88,9 @@ Every tree method is a thin bind of a function in
 {mod}`NeuRosetta.ops.tree_graphs`. These are equivalent:
 
 ```python
-from NeuRosetta.ops.tree_graphs import count_tree_nodes
+from NeuRosetta.ops.tree_graphs import count_nodes
 
-assert tree.count_nodes() == count_tree_nodes(tree)
+assert tree.count_nodes() == count_nodes(tree)
 ```
 
 Use the method API for everyday work; use the functional API when writing

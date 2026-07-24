@@ -14,7 +14,7 @@ from ...utils.numpy_utils import pairwise_distance
 from .tree_checks import check_reduced
 
 
-def euclidean_edge_length(tree: _Tree, bind: bool = True) -> ndarray | None:
+def get_edge_length(tree: _Tree, bind: bool = True) -> ndarray | None:
     """Get length of edges.
 
     For a non-reduced neuron, this is the "path length" of each edge in the graph.
@@ -52,7 +52,7 @@ def euclidean_edge_length(tree: _Tree, bind: bool = True) -> ndarray | None:
     return lengths
 
 
-def total_cable_length(tree: _Tree) -> float:
+def get_total_cable_length(tree: _Tree) -> float:
     """Compute total cable length of the tree.
 
     Parameters
@@ -71,6 +71,6 @@ def total_cable_length(tree: _Tree) -> float:
     elif g_has_property(tree.graph, "Euclidean_length", "e"):
         lengths = tree.graph.ep["Euclidean_length"].a
     else:
-        lengths = euclidean_edge_length(tree, bind=False)
+        lengths = get_edge_length(tree, bind=False)
 
     return float(lengths.sum())

@@ -5,7 +5,7 @@ from numpy import array
 from vedo import Lines
 
 from ...core import _Tree
-from ..tree_graphs import tree_has_property
+from ..tree_graphs import has_property
 
 
 def build_3d_subtree(
@@ -43,13 +43,13 @@ def build_3d_subtree(
     AttributeError
         If the tree does not have bound subtree masks for vertices and edges.
     """
-    if tree_has_property(tree, "v_subtree_mask", "v") & tree_has_property(
+    if has_property(tree, "v_subtree_mask", "v") & has_property(
         tree, "e_subtree_mask", "e"
     ):
 
         # get coordinates, edges, and masks
         coords = tree.get_node_coordinates()
-        edges = tree.edge_indices()
+        edges = tree.get_edge_indices()
         mask = array(tree.graph.ep["e_subtree_mask"].a, dtype=bool)
 
         # get lines in subtree

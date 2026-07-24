@@ -17,6 +17,7 @@ from graph_tool.all import Graph
 from tqdm import tqdm
 
 from ..core import _Tree
+from ..ops.tree_graphs import has_property
 
 T = TypeVar("T")
 
@@ -191,11 +192,11 @@ def _bind_core(tree: _Tree):
     """
 
     # check if we have bound ID
-    if not tree.check_property("ID", "g"):
+    if not has_property(tree, "ID", "g"):
         tree.graph.gp["ID"] = tree.graph.new_gp("long", tree.ID)
 
     # check if we have bound metadata
-    if not tree.check_property("metadata","g"):
+    if not has_property(tree, "metadata","g"):
         tree.graph.gp["metadata"] = tree.graph.new_gp("object", tree.metadata)
 
 

@@ -61,9 +61,9 @@ Forest methods apply tree ops across all members (often with optional
 docstrings):
 
 ```python
-print(forest.count_forest_nodes())
-print(forest.count_forest_leaves())
-print(forest.forest_total_cable_length())
+print(forest.count_nodes())
+print(forest.count_leaves())
+print(forest.get_total_cable_length())
 ```
 
 ## Custom `apply`
@@ -88,7 +88,7 @@ import tempfile
 out = Path(tempfile.mkdtemp())
 
 # reduce each tree in place via the batch wrapper
-forest.reduce_forest(inplace=True)
+forest.reduce_tree(inplace=True)
 
 forest.export_forest_to_swc(out / "swc")
 forest.save_forest(out / "nr")

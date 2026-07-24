@@ -39,7 +39,7 @@ api/index
 import NeuRosetta as nr
 
 tree = nr.import_swc("docs/data/1.swc")
-print(tree.count_nodes(), tree.count_leaves(), tree.get_cable_length())
+print(tree.count_nodes(), tree.count_leaves(), tree.get_total_cable_length())
 tree.show_2d()
 ```
 

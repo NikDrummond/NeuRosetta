@@ -74,7 +74,7 @@ def plot_2d(
     if show_root:
         # generate mask to subset out root
         mask = ones(coords.shape[0], dtype=bool)
-        mask[tree.root_index()] = False
+        mask[tree.get_root_index()] = False
         axes.scatter(coords[mask, 0], coords[mask, 1], **point_kwargs)
         axes.scatter(coords[~mask, 0], coords[~mask, 1], **root_kwargs)
     else:

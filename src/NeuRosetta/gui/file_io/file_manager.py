@@ -134,7 +134,7 @@ class FileManager:
             vertex_coords = neuron.get_node_coordinates()
             
             # Get point coordinates for interaction
-            point_coords = vertex_coords[neuron.core_indices()]
+            point_coords = vertex_coords[neuron.get_core_indices()]
             
             logging.info(f"Loaded {file_ext.upper().lstrip('.')} file with {len(vertex_coords)} vertices")
             

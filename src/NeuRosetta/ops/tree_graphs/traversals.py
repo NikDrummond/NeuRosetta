@@ -183,7 +183,7 @@ def depth_first_iterator(
 
 
 # depths
-def compute_tree_depths(tree: _Tree, root: int | None = None, bind: bool = True):
+def get_node_depth(tree: _Tree, root: int | None = None, bind: bool = True):
     """Compute node depths from root using breadth-first search.
 
     Parameters
@@ -202,7 +202,7 @@ def compute_tree_depths(tree: _Tree, root: int | None = None, bind: bool = True)
         Array of node depths if bind=False, otherwise None.
     """
     if root is None:
-        root = tree.root_index()
+        root = root_index(tree.graph)
 
     out = breadth_first_search(
         tree=tree,
@@ -219,7 +219,7 @@ def compute_tree_depths(tree: _Tree, root: int | None = None, bind: bool = True)
 
 
 # post-order traversal
-def compute_post_order(tree: _Tree, root: int | None = None, bind: bool = True):
+def get_post_order(tree: _Tree, root: int | None = None, bind: bool = True):
     """Get post-order traversal of tree using depth-first search.
 
     Parameters
@@ -238,7 +238,7 @@ def compute_post_order(tree: _Tree, root: int | None = None, bind: bool = True):
         Visitor with post_order list if bind=False, otherwise None.
     """
     if root is None:
-        root = tree.root_index()
+        root = root_index(tree.graph)
 
     vis = depth_first_search(tree=tree, visitor=PostOrderVisitor, root=root)
 

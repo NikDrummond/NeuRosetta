@@ -295,7 +295,7 @@ class NeuroGUIApplication:
             # Update neuron indices
             # import Neurosetta as nr
             # self.neuron_indices = nr.g_lb_inds(self.current_neuron)
-            self.neuron_indices = self.current_neuron.core_indices()
+            self.neuron_indices = self.current_neuron.get_core_indices()
 
             # Deactivate selection and re-render
             self.deactivate_point_selection()
@@ -427,7 +427,7 @@ class NeuroGUIApplication:
             if neuron is not None:
                 # Neuron file
 
-                self.neuron_indices = neuron.core_indices()
+                self.neuron_indices = neuron.get_core_indices()
                 self.neuron_tools.set_neuron(neuron)
                 # Initialize and get flag state for the new neuron
                 self.neuron_tools.set_flag_state()

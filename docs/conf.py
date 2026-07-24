@@ -34,6 +34,33 @@ html_theme_options = {
     "source_repository": "https://github.com/NikDrummond/NeuRosetta",
     "source_branch": "main",
     "source_directory": "docs/",
+    "light_css_variables": {
+        # Main colors
+        "color-brand-primary": "#7c3aed",
+        "color-brand-content": "#9333ea",
+
+        # Page background
+        "color-background-primary": "#ffffff",
+        "color-background-secondary": "#f5f3ff",
+
+        # Text
+        "color-foreground-primary": "#1f2937",
+        "color-foreground-secondary": "#4b5563",
+
+        # Admonitions
+        "color-admonition-background": "#fef3c7",
+    },
+
+    "dark_css_variables": {
+        "color-brand-primary": "#c084fc",
+        "color-brand-content": "#d8b4fe",
+
+        "color-background-primary": "#111827",
+        "color-background-secondary": "#1f2937",
+
+        "color-foreground-primary": "#f9fafb",
+        "color-foreground-secondary": "#d1d5db",
+    },
 }
 
 myst_enable_extensions = [

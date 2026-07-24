@@ -10,42 +10,42 @@ from graph_tool.all import Graph
 
 from ..core import _Tree
 from ..ops.tree_graphs import (
-    get_root,
-    get_leaves,
-    get_branches,
+    get_root_index,
+    get_leaf_indices,
+    get_branch_indices,
     get_core_indices,
-    get_subtree_nodes,
-    get_edges,
-    count_tree_roots,
-    count_tree_nodes,
-    count_tree_edges,
-    count_tree_leaves,
-    count_tree_branches,
-    count_tree_transitive_nodes,
+    get_subtree_indices,
+    get_edge_indices,
+    count_roots,
+    count_nodes,
+    count_edges,
+    count_leaves,
+    count_branches,
+    count_transitive_nodes,
     breadth_first_search,
     breadth_first_iterator,
     depth_first_search,
     depth_first_iterator,
-    compute_tree_depths,
-    compute_post_order,
-    tree_node_coordinates,
-    subtree_node_coordinates,
-    tree_edge_coordinates,
-    subtree_edge_coordinates,
+    get_node_depth,
+    get_post_order,
+    get_node_coordinates,
+    get_subtree_node_coordinates,
+    get_edge_coordinates,
+    get_subtree_edge_coordinates,
     check_reduced,
     update_reduced,
-    tree_has_property,
-    euclidean_edge_length,
-    total_cable_length,
-    get_node_degrees,
-    tree_degree_distribution,
+    has_property,
+    get_edge_length,
+    get_total_cable_length,
+    get_degrees,
+    get_degree_distribution,
     reduce_tree,
     reroot_tree,
     mask_subtree_from_root,
-    score_subtrees,
-    max_subtree_ind,
-    extract_subtree,
-    node_partition_asymmetry,
+    get_subtree_scores,
+    get_max_subtree_node,
+    get_subtree,
+    get_partition_asymmetry,
 )
 
 from ..ops.plotting import (
@@ -89,68 +89,68 @@ class Tree(_Tree):
         super().__init__(ID=ID, metadata=metadata, graph=graph)
 
     # --- node indices ---
-    root_index = get_root
+    get_root_index = get_root_index
     """Get the root node index."""
 
-    leaf_indices = get_leaves
+    get_leaf_indices = get_leaf_indices
     """Get indices of leaf nodes (out-degree == 0)."""
 
-    branch_indices = get_branches
+    get_branch_indices = get_branch_indices
     """Get indices of branch nodes (out-degree > 1)."""
 
-    core_indices = get_core_indices
+    get_core_indices = get_core_indices
     """Get indices of core nodes (branches and leaves, optionally root)."""
 
-    edge_indices = get_edges
+    get_edge_indices = get_edge_indices
     """Get edge indices as (source, target) pairs."""
 
-    subtree_indices = get_subtree_nodes
+    get_subtree_indices = get_subtree_indices
     """Get node indices of subtree rooted at given vertex."""
 
     # --- counting ---
-    count_roots = count_tree_roots
+    count_roots = count_roots
     """Count root nodes."""
 
-    count_nodes = count_tree_nodes
+    count_nodes = count_nodes
     """Count total nodes."""
 
-    count_edges = count_tree_edges
+    count_edges = count_edges
     """Count total edges."""
 
-    count_branches = count_tree_branches
+    count_branches = count_branches
     """Count branch nodes."""
 
-    count_leaves = count_tree_leaves
+    count_leaves = count_leaves
     """Count leaf nodes."""
 
-    count_transitive_nodes = count_tree_transitive_nodes
+    count_transitive_nodes = count_transitive_nodes
     """Count transitive nodes (in-degree == out-degree == 1)."""
 
     # --- coordinates ---
-    get_node_coordinates = tree_node_coordinates
+    get_node_coordinates = get_node_coordinates
     """Get coordinates of all nodes."""
 
-    get_subtree_node_coordinates = subtree_node_coordinates
+    get_subtree_node_coordinates = get_subtree_node_coordinates
     """Get coordinates of nodes in a subtree."""
 
-    get_edge_coordinates = tree_edge_coordinates
+    get_edge_coordinates = get_edge_coordinates
     """Get source and target coordinates for all edges."""
 
-    get_subtree_edge_coordinates = subtree_edge_coordinates
+    get_subtree_edge_coordinates = get_subtree_edge_coordinates
     """Get source and target coordinates for edges in a subtree."""
 
     # --- degrees ---
-    get_degree_array = get_node_degrees
+    get_degrees = get_degrees
     """Get degree array for all nodes."""
 
-    get_degree_distribution = tree_degree_distribution
+    get_degree_distribution = get_degree_distribution
     """Get degree distribution of the tree."""
 
     # --- distances ---
-    get_edge_lengths = euclidean_edge_length
+    get_edge_length = get_edge_length
     """Get Euclidean edge lengths."""
 
-    get_cable_length = total_cable_length
+    get_total_cable_length = get_total_cable_length
     """Get total cable length of the tree."""
 
     # --- Traversals ---
@@ -166,11 +166,11 @@ class Tree(_Tree):
     tree_depth_first_iterator = depth_first_iterator
     """Get DFS iterator or edge array."""
 
-    get_post_order_traversal = compute_post_order
+    get_post_order = get_post_order
     """Compute post-order traversal."""
 
     # --- Topological bits ---
-    get_node_depths = compute_tree_depths
+    get_node_depth = get_node_depth
     """Compute node depths from root."""
 
     # --- Tree Surgery / editing ---
@@ -184,16 +184,16 @@ class Tree(_Tree):
     subtree_mask_from_root = mask_subtree_from_root
     """Create vertex/edge masks for subtree from root."""
 
-    get_subtree_scores = score_subtrees
+    get_subtree_scores = get_subtree_scores
     """Compute subgraph scores for all vertices."""
 
-    get_max_subtree_index = max_subtree_ind
+    get_max_subtree_node = get_max_subtree_node
     """Get vertex index with maximum subgraph score."""
 
-    convert_to_subtree = extract_subtree
+    get_subtree = get_subtree
     """Extract masked subtree as new tree."""
 
-    get_node_partition_asymmetry = node_partition_asymmetry
+    get_partition_asymmetry = get_partition_asymmetry
     """Compute partition asymmetry at branch points."""
 
     # --- saving ---
@@ -220,5 +220,5 @@ class Tree(_Tree):
     update_reduced = update_reduced
     """Update isReduced flag in metadata."""
 
-    check_property = tree_has_property
+    has_property = has_property
     """Check if tree has a specific internal property."""

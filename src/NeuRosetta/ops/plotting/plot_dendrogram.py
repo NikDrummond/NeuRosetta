@@ -5,7 +5,7 @@ from numpy import stack, vstack, arange
 from matplotlib.pyplot import Axes, subplots
 
 from ...core import _Tree
-from ..tree_graphs import compute_tree_depths, compute_post_order
+from ..tree_graphs import get_node_depth, get_post_order
 
 
 def compute_dend_x(
@@ -86,8 +86,8 @@ def plot_dendrogram(
     ValueError
         If root_position is not "top" or "bottom".
     """
-    depth = compute_tree_depths(tree, bind=False)
-    post_order = compute_post_order(tree, bind=False)
+    depth = get_node_depth(tree, bind=False)
+    post_order = get_post_order(tree, bind=False)
 
     x = compute_dend_x(tree, 0, depth, post_order, x_spacing=x_spacing)
 
@@ -97,7 +97,7 @@ def plot_dendrogram(
         pos[v] = [x[int(v)], depth[int(v)]]
 
     coords = pos.get_2d_array().T
-    edges = tree.edge_indices()
+    edges = tree.get_edge_indices()
 
     starts = coords[edges[:, 0]]
     stops = coords[edges[:, 1]]
