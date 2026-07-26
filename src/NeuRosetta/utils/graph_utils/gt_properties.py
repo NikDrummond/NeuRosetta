@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from typing import List, Any, Literal
 import itertools
+import warnings
 
 from numpy import asarray, ndarray
 from graph_tool.all import Graph
@@ -254,16 +255,11 @@ def _bind_vector_property(
     level: Literal["v", "e"],
     property_name: str,
     property_dtype: str,
-    property_data: ndarray,
-    *,
-    SoA: bool,
+    property_data,
 ) -> None:
-    """Create a vector<> property via ``set_2d_array``.
-
-    ``property_data`` is (N, d) if ``SoA=False``, or (d, N) if ``SoA=True``.
-    """
-    data = asarray(property_data)
-    arr = data if SoA else data.T
+    """Create a vector<> property via ``set_2d_array`` (layout ``(d, n)``)."""
+    n = g.num_vertices() if level == "v" else g.num_edges()
+    arr = _coerce_to_dims_by_n(property_data, n, name=property_name)
     if level == "v":
         prop = g.new_vp(property_dtype)
         prop.set_2d_array(arr)
@@ -272,6 +268,42 @@ def _bind_vector_property(
         prop = g.new_ep(property_dtype)
         prop.set_2d_array(arr)
         g.ep[property_name] = prop
+
+
+def _coerce_to_dims_by_n(data, n: int, *, name: str) -> ndarray:
+    """Coerce array data to graph-tool ``set_2d_array`` layout ``(d, n)``.
+
+    ``n`` is the number of vertices or edges at the target level.
+
+    - ``(d, n)`` with ``d != n``: already SoA, returned as-is
+    - ``(n, d)`` with ``d != n``: AoS, transposed
+    - ``(n, n)``: ambiguous; warn and assume SoA (no transpose)
+    """
+    arr = asarray(data)
+    if arr.ndim != 2:
+        raise ValueError(
+            f"Property {name!r}: vector<> properties require a 2d array "
+            f"(d, n) or (n, d); got ndim={arr.ndim}, shape={getattr(arr, 'shape', None)}"
+        )
+
+    a, b = arr.shape
+    if b == n and a != n:
+        return arr  # (d, n)
+    if a == n and b != n:
+        return arr.T  # (n, d) → (d, n)
+    if a == n and b == n:
+        warnings.warn(
+            f"Property {name!r}: square array shape {arr.shape} is ambiguous "
+            f"(could be (d, n) or (n, d) with n={n}); "
+            "assuming SoA (d, n) for set_2d_array",
+            UserWarning,
+            stacklevel=3,
+        )
+        return arr  # assume already (d, n)
+    raise ValueError(
+        f"Property {name!r}: array shape {arr.shape} does not match level "
+        f"size n={n} on either axis (need (d, n) or (n, d))"
+    )
 
 
 def list_properties(
@@ -293,36 +325,16 @@ def list_properties(
     return _get_properties(g, level)
 
 
-def get_property(
+def _property_value(
     g: Graph,
     name: str,
     level: Level,
     *,
-    as_array: bool = False,
-    SoA: bool = False,
+    as_array: bool,
+    SoA: bool,
 ) -> Any:
-    """Get a property map (or its array values) from a graph.
-
-    Parameters
-    ----------
-    g : Graph
-        Graph to read from.
-    name : str
-        Property name.
-    level : {"g", "v", "e"}
-        Property level.
-    as_array : bool, optional
-        If True, return numpy data instead of the PropertyMap.
-        Scalar v/e props use ``.a``. Vector props use ``get_2d_array()``.
-        Graph props return the scalar/object value (same as PropertyMap access).
-    SoA : bool, optional
-        Only for vector<> props with ``as_array=True``. If True, return
-        shape ``(d, N)``; if False (default), return ``(N, d)``.
-    """
+    """Read one property at a known level (must exist)."""
     maps = _property_maps(g, level)
-    if name not in maps:
-        raise KeyError(f"Property {name!r} not found at level {level!r}")
-
     prop = maps[name]
     if not as_array:
         return prop
@@ -338,6 +350,62 @@ def get_property(
     return prop.a
 
 
+def get_property(
+    g: Graph,
+    name: str,
+    level: Level | None = None,
+    *,
+    as_array: bool = False,
+    SoA: bool = False,
+) -> Any:
+    """Get a property map (or its array values) from a graph.
+
+    Parameters
+    ----------
+    g : Graph
+        Graph to read from.
+    name : str
+        Property name.
+    level : {"g", "v", "e"} or None, optional
+        Property level. If ``None`` (default), search all levels. A single
+        match is returned directly; if the name exists at multiple levels,
+        warn and return ``{level: value, ...}``.
+    as_array : bool, optional
+        If True, return numpy data instead of the PropertyMap.
+        Scalar v/e props use ``.a``. Vector props use ``get_2d_array()``.
+        Graph props return the scalar/object value (same as PropertyMap access).
+    SoA : bool, optional
+        Only for vector<> props with ``as_array=True``. If True, return
+        shape ``(d, N)``; if False (default), return ``(N, d)``.
+    """
+    if level is not None:
+        maps = _property_maps(g, level)
+        if name not in maps:
+            raise KeyError(f"Property {name!r} not found at level {level!r}")
+        return _property_value(g, name, level, as_array=as_array, SoA=SoA)
+
+    found: dict[str, Any] = {}
+    for lvl in ("g", "v", "e"):
+        if name in _property_maps(g, lvl):
+            found[lvl] = _property_value(
+                g, name, lvl, as_array=as_array, SoA=SoA
+            )
+
+    if not found:
+        raise KeyError(f"Property {name!r} not found at any level (g/v/e)")
+
+    if len(found) == 1:
+        return next(iter(found.values()))
+
+    warnings.warn(
+        f"Property {name!r} found at multiple levels {list(found)}; "
+        "returning dict keyed by level",
+        UserWarning,
+        stacklevel=2,
+    )
+    return found
+
+
 def set_property(
     g: Graph,
     name: str,
@@ -346,7 +414,6 @@ def set_property(
     *,
     dtype: str | None = None,
     create: bool = False,
-    SoA: bool = False,
 ) -> None:
     """Set an existing property, or create one with ``create=True``.
 
@@ -357,8 +424,10 @@ def set_property(
     name : str
         Property name.
     data : array-like or scalar
-        Values to write. For vector<> props: ``(N, d)`` if ``SoA=False``,
-        or ``(d, N)`` if ``SoA=True``. Written via ``set_2d_array``.
+        Values to write. For vector<> props, pass a 2d array as either
+        ``(d, n)`` (dimensions × vertices/edges, graph-tool SoA) or
+        ``(n, d)`` (AoS); layout is inferred from ``n`` at ``level``.
+        Written via ``set_2d_array``.
     level : {"g", "v", "e"}
         Property level.
     dtype : str, optional
@@ -366,8 +435,6 @@ def set_property(
     create : bool, optional
         If True and the property is missing, bind a new one. If False and
         missing, raise ``KeyError``.
-    SoA : bool, optional
-        Layout of ``data`` for vector<> properties.
     """
     maps = _property_maps(g, level)
     exists = name in maps
@@ -384,7 +451,14 @@ def set_property(
         if level == "g":
             bind_graph_property(g, name, dtype, data)
         elif dtype.startswith("vector"):
-            _bind_vector_property(g, level, name, dtype, asarray(data), SoA=SoA)
+            if level not in ("v", "e"):
+                raise ValueError("vector<> properties require level 'v' or 'e'")
+            _bind_vector_property(g, level, name, dtype, data)
+        elif asarray(data).ndim == 2:
+            raise ValueError(
+                f"Property {name!r}: 2d data requires a vector<> dtype "
+                f"(got dtype={dtype!r})"
+            )
         elif level == "v":
             bind_vertex_property(g, name, dtype, data)
         else:
@@ -399,10 +473,22 @@ def set_property(
     prop = maps[name]
     if _is_vector_property(prop):
         arr = asarray(data)
-        prop.set_2d_array(arr if SoA else arr.T)
+        if arr.ndim != 2:
+            raise ValueError(
+                f"Property {name!r} at level {level!r} is vector<>, but data is "
+                f"{arr.ndim}d with shape {arr.shape}; pass a 2d array (d, n) or (n, d)"
+            )
+        n = g.num_vertices() if level == "v" else g.num_edges()
+        prop.set_2d_array(_coerce_to_dims_by_n(data, n, name=name))
         return
 
-    prop.a = asarray(data)
+    arr = asarray(data)
+    if arr.ndim == 2:
+        raise ValueError(
+            f"Property {name!r} at level {level!r} is scalar, but data is 2d "
+            f"with shape {arr.shape}"
+        )
+    prop.a = arr
 
 
 def del_property(g: Graph, name: str, level: Level) -> None:

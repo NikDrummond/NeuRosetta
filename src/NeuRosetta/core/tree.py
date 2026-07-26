@@ -100,12 +100,16 @@ class _Tree(_Stone):
     def get_property(
         self,
         name: str,
-        level: str,
+        level: str | None = None,
         *,
-        as_array: bool = False,
+        as_array: bool = True,
         SoA: bool = False,
     ):
         """Get a property map or its array values from the underlying graph.
+
+        If ``level`` is omitted, all of ``g``/``v``/``e`` are searched. A single
+        match is returned directly; if the name exists at multiple levels, a
+        warning is issued and ``{level: value, ...}`` is returned.
 
         Vector properties (e.g. ``coordinates`` / ``vector<double>``) use
         ``get_2d_array()``, not ``.a``. With ``as_array=True`` and ``SoA=False``
@@ -125,12 +129,12 @@ class _Tree(_Stone):
         *,
         dtype: str | None = None,
         create: bool = False,
-        SoA: bool = False,
     ) -> None:
         """Set an existing graph property, or create one with ``create=True``.
 
-        Vector properties are written with ``set_2d_array``. Pass ``data`` as
-        ``(N, d)`` (``SoA=False``, default) or ``(d, N)`` (``SoA=True``).
+        Vector properties are written with ``set_2d_array`` as ``(d, n)``.
+        Pass ``(d, n)`` or ``(n, d)`` — layout is inferred from the level size
+        ``n`` (vertices or edges). Square ``(n, n)`` warns and assumes SoA.
         """
         from ..utils.graph_utils import set_property as _set_property
 
@@ -141,7 +145,6 @@ class _Tree(_Stone):
             level,
             dtype=dtype,
             create=create,
-            SoA=SoA,
         )
 
     def del_property(self, name: str, level: str) -> None:
