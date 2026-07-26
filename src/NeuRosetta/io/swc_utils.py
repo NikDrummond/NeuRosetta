@@ -16,9 +16,17 @@ from .io_utils import (
     _graph_from_table,
     _swc_table,
     _base_meta,
+    _apply_import_units,
     _foreach_with_progress,
     _map_with_progress
 )
+from .swc_meta import (
+    parse_swc_header,
+    swc_header_for_tree,
+    units_from_swc_header,
+    warn_if_export_dimensionless,
+)
+from ..utils.units import apply_voxel_metadata, is_voxel_units, normalize_units_str
 
 
 T = TypeVar("T")
@@ -30,6 +38,9 @@ T = TypeVar("T")
 def import_swc(
     fpath: str | Path,
     *,
+    set_units: str | None = None,
+    voxel_size: float | None = None,
+    voxel_unit: str | None = None,
     parallel: bool = False,
     max_workers: int | None = None,
     progress: bool = False,
@@ -40,6 +51,9 @@ def import_swc(
 def import_swc(
     fpath: str | Path,
     *,
+    set_units: str | None = None,
+    voxel_size: float | None = None,
+    voxel_unit: str | None = None,
     parallel: bool = False,
     max_workers: int | None = None,
     progress: bool = False,
@@ -49,6 +63,9 @@ def import_swc(
 def import_swc(
     fpath: str | Path,
     *,
+    set_units: str | None = None,
+    voxel_size: float | None = None,
+    voxel_unit: str | None = None,
     parallel: bool = False,
     max_workers: int | None = None,
     progress: bool = False,
@@ -66,6 +83,15 @@ def import_swc(
     ----------
     fpath : str or pathlib.Path
         Path to a `.swc` file or to a directory containing `.swc` files.
+    set_units : str or None, optional
+        Spatial units of coordinates in the imported file(s), e.g. ``"nm"``,
+        ``"micron"``, or ``"voxel"``. When provided, ``metadata["units"]`` is
+        set without rescaling geometry. Default is None (dimensionless).
+    voxel_size : float or None, optional
+        Edge length of one voxel when ``set_units="voxel"``. Required together
+        with ``voxel_unit`` for voxel coordinates.
+    voxel_unit : str or None, optional
+        Spatial unit for the voxel edge length, e.g. ``"nm"``.
     parallel : bool, optional
         If True, import multiple SWC files in parallel when loading from a
         directory. Default is False.
@@ -92,14 +118,19 @@ def import_swc(
     Notes
     -----
     The tree identifier is inferred from the file stem and converted to
-    an integer. Imported trees are assigned default metadata, including
-    the source file path and undefined units.
+    an integer.     Imported trees are assigned default metadata, including the source file
+    path and dimensionless units. Units may be read from SWC ``# Meta:`` header
+    comments when present; ``set_units`` overrides header values.
 
     Examples
     --------
     Import a single SWC file::
 
         tree = import_swc("42.swc")
+
+    Import with voxel units assigned::
+
+        tree = import_swc("42.swc", set_units="voxel", voxel_size=8, voxel_unit="nm")
 
     Import all SWC files from a directory::
 
@@ -115,12 +146,28 @@ def import_swc(
         graph = _graph_from_table(df)
 
         tree_id = int(path.stem)
+        header_meta = parse_swc_header(path)
         meta = _base_meta()
-        meta["units"] = "undefined"
+        if header_units := units_from_swc_header(header_meta):
+            meta["units"] = normalize_units_str(header_units)
+        if is_voxel_units(meta.get("units")):
+            if "voxel_size" in header_meta and "voxel_unit" in header_meta:
+                apply_voxel_metadata(
+                    meta,
+                    header_meta["voxel_size"],
+                    header_meta["voxel_unit"],
+                )
         meta["file_path"] = str(path)
         meta["isReduced"] = False
 
-        return Tree(ID=tree_id, metadata=meta, graph=graph)
+        tree = Tree(ID=tree_id, metadata=meta, graph=graph)
+        _apply_import_units(
+            tree,
+            set_units,
+            voxel_size=voxel_size,
+            voxel_unit=voxel_unit,
+        )
+        return tree
 
     if p.is_file():
         return _import_one(p)
@@ -200,8 +247,8 @@ def export_swc(
         be a directory and each tree is written as ``<tree_id>.swc`` inside it.
     header : str or None, optional
         Custom header text to include at the top of each SWC file. If None,
-        a default header identifying the generator and column names is used.
-        Default is None.
+        a default header identifying the generator and serialized metadata
+        (including units) is used. Default is None.
     parallel : bool, optional
         If True, export multiple trees in parallel when ``tree`` is a
         ``Forest``. Default is False.
@@ -250,11 +297,8 @@ def export_swc(
 
     def _write_one(t):
         df = _swc_table(t)
-        header_txt = (
-            header
-            if header is not None
-            else "SWC Generated using NeuRosetta\nColumns\n" + str(df.columns)
-        )
+        warn_if_export_dimensionless(t)
+        header_txt = swc_header_for_tree(t, header=header)
         out = p / f"{t.ID}.swc"
         savetxt(out, df, header=header_txt)
 
@@ -266,11 +310,8 @@ def export_swc(
             out = p
 
         df = _swc_table(tree)
-        header_txt = (
-            header
-            if header is not None
-            else "SWC Generated using NeuRosetta\nColumns\n" + str(df.columns)
-        )
+        warn_if_export_dimensionless(tree)
+        header_txt = swc_header_for_tree(tree, header=header)
         savetxt(out, df, header=header_txt)
         return
 

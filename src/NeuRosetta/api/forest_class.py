@@ -40,6 +40,8 @@ from ..ops.tree_graphs import (
 
 from ..ops.plotting import Viewer
 
+from ..ops.units import get_units, harmonize_forest_units, ensure_forest_units
+
 from ..io import (
     export_swc,
     save,
@@ -188,6 +190,16 @@ class Forest(_Forest):
 
     get_partition_asymmetry = _forest_op(get_partition_asymmetry)
     """Get partition asymmetry for all trees."""
+
+    # --- units ---
+    get_units = _forest_op(get_units)
+    """Get spatial units for all trees."""
+
+    harmonize_forest_units = harmonize_forest_units
+    """Convert all trees to a common unit system, warning on mixed units."""
+
+    ensure_forest_units = ensure_forest_units
+    """Harmonize units and require spatial units on every tree."""
 
     # --- saving ---
     export_forest_to_swc = export_swc

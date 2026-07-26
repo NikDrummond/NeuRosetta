@@ -1,6 +1,6 @@
 # The Tree Class
 
-The {class}`~NeuRosetta.api.Tree` class, and its big brother, {class}`~NeuRosetta.api.Forest`, is the way to handle and manipulate neurons within NeuRosetta. 
+The {class}`~NeuRosetta.api.Tree` class, and its big brother, {class}`~NeuRosetta.api.Forest`, is the way to handle and manipulate neurons within NeuRosetta.
 
 ## Tree Basics
 
@@ -156,8 +156,9 @@ Much like when looking at the indices of edges, the same thing can be done for c
 ```python
 source_c, target_c = tree.get_edge_coordinates()
 ```
-This returns a tupple of coordinates arrays, which we are splitting into source and target above. Currenty, subsetting doesn't work here as an argument, although this will likely change in the future! 
+This returns a tupple of coordinates arrays, which we are splitting into source and target above. Currenty, subsetting doesn't work here as an argument, although this will likely change in the future! A full list of Tree methods can be found in the API documentation on trees.
 
+---
 
 ### Understanding Metadata
 
@@ -165,80 +166,51 @@ The base metadata dictionary is like so:
 
 | Key | Value |
 |--------|-----------|
-| 'units'| Assumed to be undefined at import |
+| 'units'| Assumed to be 'dimensionless' at import unless specified|
 | 'file_path'| The location of the `.swc` file|
 | 'isReduced'| This is a bool flag, explained {doc}`here <03_tree_basics>`|
 
-Metadata is a graph-level property, so will be saved alongside any edits made to it when using the `.nr` file format.  
+Metadata is a graph-level property, so will be saved alongside any edits made to it when using the `.nr` file format. When we look at the {class}`~NeuRosetta.api.Forest` the metadata is particularly useful, as you can add information on neuron types, for example, and use it to filter your forest for different neurons. It is also how NeuRosetta keeps track of a neurons spatial units, which is covered bellow, or the reduced of flagged nature of a neuron, which will be relevant later.
 
-## Basic Neuron Information
+---
 
-```python
-print("root:", tree.get_root_index())
-print("leaves:", tree.get_leaf_indices())
-print("branches:", tree.get_branch_indices())
-print("core:", tree.get_core_indices())
-print("edges:", tree.get_edge_indices()[:3], "...")
-```
+### Tree Spatial Units
 
-## Counts
+By default, spatial units of your neurons are dimensionless unless they have been set previously in a neurons metadata, or at import using the `set_units` argument.
+
+You can check if the units of a neuron have been defined using:
 
 ```python
-print(tree.count_nodes())
-print(tree.count_edges())
-print(tree.count_roots())
-print(tree.count_leaves())
-print(tree.count_branches())
-print(tree.count_transitive_nodes())
+tree.check_units_defined()
 ```
-
-Transitive nodes are the chain vertices with in-degree = out-degree = 1
-(removed by tree reduction; see {doc}`04_tree_surgery`).
-
-## Geometry
+Which will return an ValueError if they haven't been, or nothing. You can also have a look at whatever it says in the neurons metadata. As we use [Pint](https://pint.readthedocs.io/en/stable/) for unit handling, you can set your neurons units using a string:
 
 ```python
-coords = tree.get_node_coordinates()
-print(coords.shape)  # (n_nodes, 3)
-
-edge_lengths = tree.get_edge_length()
-cable = tree.get_total_cable_length()
-print(float(cable))
+tree.set_units('nm')
 ```
 
-## Degrees and depths
+Which sets the neuron as being in nanometer units. You can also convert between units using:
+```python
+tree.convert_units('um')
+```
+Which converts the neurons units in place to microns. NeuRosetta can also hande data in isotropic voxels, which can be set and saved within the metadata. To set voxel units:
 
 ```python
-degrees = tree.get_degrees()
-print(tree.get_degree_distribution())
-
-depths = tree.get_node_depth()
-print(depths.min(), depths.max())
+tree.set_voxel_units(voxel_size = 8, voxel_unit = 'nm')
+tree.get_voxel_spec()
 ```
+This tells NeuRosetta that the spatial units of this neuron are in voxel units and each voxel is 8x8x8nm. Using this, you can convert voxel units to nanometers or microns easily using the same `tree.convert_units` functionality above. For specifying spatial units, there are a few aliases and options for strings, some useful ones for connectomics data are as follows:
 
-## Properties and metadata
+|Canonical|Aliases|
+|-|-|
+|`dimensionless`|`undefined`, `Undefined`, `1 dimensionless`|
+|`nanometer`|`nm`,`Nanometer`|
+|`micron`|`Micron`,`micrometer`,`Micrometer`,`microns`,`Microns`,`um`|
+|`voxel`|`voxel`(+`voxel_size`/`voxel_unit` metadata)|
 
-Trees store analysis caches and flags as graph / metadata properties:
+Keep in mind with voxel units, you should use on of the other spatial units, such as 'nm'. 
 
-```python
-print(tree.list_properties())
-print(tree.has_property("coordinates"))
-print(tree.is_reduced())
-tree.metadata["Neuron_type"] = "example"
-print(tree.metadata["Neuron_type"])
-```
-
-Set `units` when you know them (important for surface reconstruction):
-
-```python
-tree.metadata["units"] = "nm"  # or "µm" / "um" depending on your data
-```
-
-```{note}
-`reconstruct_neuropil_surface` currently expects forest metadata
-`units == "nm"` and converts coordinates to microns internally. See
-{doc}`08_surface_reconstruction`.
-```
+---
 
 ## Functional vs method API
 
@@ -246,9 +218,9 @@ Every tree method is a thin bind of a function in
 {mod}`NeuRosetta.ops.tree_graphs`. These are equivalent:
 
 ```python
-from NeuRosetta.ops.tree_graphs import count_nodes
+import NeuRosetta as nr
 
-assert tree.count_nodes() == count_nodes(tree)
+assert tree.count_nodes() == nr.count_nodes(tree)
 ```
 
 Use the method API for everyday work; use the functional API when writing

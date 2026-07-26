@@ -22,6 +22,7 @@ dependencies = [
   "scikit-learn",
   "scikit-image",
   "PySide6",
+  "pint",
   # graph-tool is required but only available via conda-forge:
   #   conda install -c conda-forge graph-tool
 ]

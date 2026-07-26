@@ -52,7 +52,7 @@ def test_swc_read_write(simple_tree):
     # assert metadata and ID
     assert result.ID == 1
     assert "ID" not in result.metadata
-    assert result.metadata['units'] == 'undefined'
+    assert result.metadata['units'] == 'dimensionless'
     assert result.metadata['isReduced'] == False
     assert result.metadata['file_path'] == str(path)
     assert result.metadata is result.graph.gp["metadata"]
@@ -66,3 +66,12 @@ def test_swc_read_write(simple_tree):
     assert array_equal(tree.graph.get_edges(),result.graph.get_edges())
     assert array_equal(n_types, result.graph.vp['node_type'].a)
     assert array_equal(radius, result.graph.vp['radius'].a)
+
+
+def test_import_swc_set_units(tmp_path, simple_tree):
+    swc_file = tmp_path / "1.swc"
+    swc_file.write_text("1 1 0.0 0.0 0.0 0.5 -1\n")
+
+    result = import_swc(swc_file, set_units="nm")
+
+    assert result.metadata["units"] == "nanometer"

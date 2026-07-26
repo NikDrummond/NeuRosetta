@@ -54,6 +54,15 @@ from ..ops.plotting import (
     plot_dendrogram,
 )
 
+from ..ops.units import (
+    get_units,
+    set_units,
+    set_voxel_units,
+    convert_units,
+    check_units_defined,
+    get_voxel_spec,
+)
+
 from ..io import (
     export_swc,
     save,
@@ -224,6 +233,25 @@ class Tree(_Tree):
 
     update_reduced = update_reduced
     """Update isReduced flag in metadata."""
+
+    # --- units ---
+    get_units = get_units
+    """Get canonical spatial units from metadata."""
+
+    set_units = set_units
+    """Set spatial units, optionally converting geometry."""
+
+    set_voxel_units = set_voxel_units
+    """Tag coordinates as voxel indices with a cubic edge length."""
+
+    get_voxel_spec = get_voxel_spec
+    """Return voxel edge length metadata when units are voxels."""
+
+    convert_units = convert_units
+    """Convert coordinates and radii to target units."""
+
+    check_units_defined = check_units_defined
+    """Raise when tree units are dimensionless."""
 
     # has_property / list_properties / get_property / set_property /
     # del_property / revert_core_properties inherited from _Tree

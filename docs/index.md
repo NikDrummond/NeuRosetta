@@ -28,6 +28,13 @@ tutorials/09_gui
 
 ```{toctree}
 :maxdepth: 2
+:caption: Reference
+
+reference/units
+```
+
+```{toctree}
+:maxdepth: 2
 :caption: API reference
 
 api/index

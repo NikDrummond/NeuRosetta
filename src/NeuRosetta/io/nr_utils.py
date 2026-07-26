@@ -3,7 +3,7 @@ from typing import overload
 from graph_tool.all import load_graph
 
 from ..core import _Tree, _Forest
-from .io_utils import _map_with_progress, _bind_core, _foreach_with_progress
+from .io_utils import _map_with_progress, _bind_core, _foreach_with_progress, _apply_import_units
 
 
 @overload
@@ -11,6 +11,9 @@ def load(
     fpath: str | Path,
     *,
     tree_id: int | None = None,
+    set_units: str | None = None,
+    voxel_size: float | None = None,
+    voxel_unit: str | None = None,
     parallel: bool = False,
     max_workers: int | None = None,
     progress: bool = False,
@@ -21,6 +24,9 @@ def load(
     fpath: str | Path,
     *,
     tree_id: int | None = None,
+    set_units: str | None = None,
+    voxel_size: float | None = None,
+    voxel_unit: str | None = None,
     parallel: bool = False,
     max_workers: int | None = None,
     progress: bool = False,
@@ -31,6 +37,9 @@ def load(
     fpath: str | Path,
     *,
     tree_id: int | None = None,
+    set_units: str | None = None,
+    voxel_size: float | None = None,
+    voxel_unit: str | None = None,
     parallel: bool = False,
     max_workers: int | None = None,
     progress: bool = False,
@@ -53,6 +62,13 @@ def load(
         Identifier of the tree to load when ``fpath`` points to a directory.
         If provided, the file `<tree_id>.nr` is loaded directly.
         Default is None.
+    set_units : str or None, optional
+        Override ``metadata["units"]`` after loading, without rescaling geometry.
+        Default is None (keep units stored in the file).
+    voxel_size : float or None, optional
+        Voxel edge length when overriding units to ``"voxel"``.
+    voxel_unit : str or None, optional
+        Spatial unit for the voxel edge length when overriding to voxels.
     parallel : bool, optional
         If True, load multiple `.nr` files in parallel when loading a
         directory containing more than one tree. Default is False.
@@ -103,7 +119,14 @@ def load(
     def _load_one(path: Path) -> _Tree:
         g = load_graph(str(path), fmt="gt")
         g.gp["metadata"]["file_path"] = str(path)
-        return Tree.from_graph(g)
+        tree = Tree.from_graph(g)
+        _apply_import_units(
+            tree,
+            set_units,
+            voxel_size=voxel_size,
+            voxel_unit=voxel_unit,
+        )
+        return tree
 
     if p.is_file():
         return _load_one(p)

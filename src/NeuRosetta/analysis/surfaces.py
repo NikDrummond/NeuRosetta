@@ -15,6 +15,7 @@ from skimage.measure import marching_cubes
 from scipy.ndimage import binary_dilation, label
 
 from ..api import Forest, Neuropil
+from ..ops.units import ensure_forest_units
 
 
 def is_point_inside_mesh(
@@ -364,18 +365,11 @@ def reconstruct_neuropil_surface(
 
     Raises
     ------
-    AttributeError
-        If forest metadata does not specify units as "nm".
+    ValueError
+        If any tree in the forest has dimensionless units after harmonization.
     """
-    # get coordinates
+    ensure_forest_units(forest)
     coords = np.vstack(forest.get_node_coordinates(progress=False))
-
-    if forest[0].metadata["units"] == "nm":
-        coords = coords * 0.001
-    else:
-        raise AttributeError(
-            "We are not sure about units but need nm inputs to convert to microns"
-        )
 
     # downsample
     coords = downsample_points_voxel_grid(coords, voxel_size)
@@ -403,6 +397,6 @@ def reconstruct_neuropil_surface(
             smooth_kwargs = {}
         mesh.smooth(**smooth_kwargs)
 
-    metadata = {"units": "microns"}
+    metadata = {"units": "micron"}
     # neuropil object
     return Neuropil(ID=name, metadata=metadata, mesh=mesh)

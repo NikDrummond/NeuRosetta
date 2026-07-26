@@ -18,6 +18,7 @@ from tqdm import tqdm
 
 from ..core import _Tree
 from ..ops.tree_graphs import has_property
+from ..utils.units import DEFAULT_UNITS
 
 T = TypeVar("T")
 
@@ -179,7 +180,28 @@ def _swc_table(tree: _Tree) -> DataFrame:
 
 def _base_meta():
     """Basic metadata info (identity lives on ``tree.ID`` / ``gp['ID']``, not here)."""
-    return {"units": "Undefined", "file_path": "", "isReduced": False}
+    return {"units": DEFAULT_UNITS, "file_path": "", "isReduced": False}
+
+
+def _apply_import_units(
+    tree: _Tree,
+    set_units: str | None,
+    *,
+    voxel_size: float | None = None,
+    voxel_unit: str | None = None,
+) -> None:
+    """Assign spatial units to an imported tree without rescaling geometry."""
+    if set_units is None:
+        return
+    from ..ops.units import set_units as assign_tree_units
+
+    assign_tree_units(
+        tree,
+        set_units,
+        convert=False,
+        voxel_size=voxel_size,
+        voxel_unit=voxel_unit,
+    )
 
 
 ### nr utils
