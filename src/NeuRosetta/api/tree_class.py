@@ -29,6 +29,7 @@ from ..ops.tree_graphs import (
     get_node_depth,
     get_post_order,
     get_node_coordinates,
+    get_root_coordinate,
     get_subtree_node_coordinates,
     get_edge_coordinates,
     get_subtree_edge_coordinates,
@@ -130,6 +131,9 @@ class Tree(_Tree):
     # --- coordinates ---
     get_node_coordinates = get_node_coordinates
     """Get coordinates of all nodes."""
+
+    get_root_coordinate = get_root_coordinate
+    """Get coordinates of the root node"""
 
     get_subtree_node_coordinates = get_subtree_node_coordinates
     """Get coordinates of nodes in a subtree."""

@@ -29,6 +29,7 @@ from .traversals import (
 
 from .coordinates import (
     get_node_coordinates,
+    get_root_coordinate,
     get_subtree_node_coordinates,
     get_edge_coordinates,
     get_subtree_edge_coordinates
@@ -83,6 +84,7 @@ __all__ = [
     "get_node_depth",
     "get_post_order",
     "get_node_coordinates",
+    "get_root_coordinate",
     "get_subtree_node_coordinates",
     "get_edge_coordinates",
     "get_subtree_edge_coordinates",

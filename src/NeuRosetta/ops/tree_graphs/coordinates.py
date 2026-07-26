@@ -37,6 +37,26 @@ def get_node_coordinates(
     """
     return vertex_coordinates(tree.graph, subset, SoA)
 
+def get_root_coordinate(
+    tree: _Tree, SoA: bool = False
+) -> ndarray:
+    """Get coordinates of the tree root node.
+
+    Parameters
+    ----------
+    tree : _Tree
+        Neuron tree.
+    SoA : bool, optional
+        Whether to return in Structure of Arrays format (dimensions by vertices).
+        If False, return vertices by dimensions (N, 3). By default False.
+
+    Returns
+    -------
+    ndarray
+        Array of vertex coordinates with shape (3, N) if SoA=True,
+        or (N, 3) if SoA=False, where N is the number of roots.
+    """
+    return vertex_coordinates(tree.graph, subset = tree.get_root_index(), SoA = SoA)
 
 def get_subtree_node_coordinates(
     tree: _Tree, root: int, traversal_order: str = "Breadth", SoA: bool = False

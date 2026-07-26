@@ -20,7 +20,9 @@ print(tree.graph)
 
 As explained in {doc}`02_io`, the `ID`of a neuron comes from the file name / identification number within the dataset this neuron comes from. Metadata is a place to keep track of information about this neuron. Finally, graph is the core graph representation of the neuron tree graph and is a `graph_tool.Graph` object.
 
-### Understanding Graphs Properties.
+---
+
+### Understanding Graph Properties.
 
 As much as possible. NeuRosetta aims to be as easy to use as possible, but understanding properties will helps a little. NeuRosetta tries to handle as much of this under the hood as possible, so in theory you never need to fullly understand this. What is important, is knowing that and bound property - a property that shows up when you look at the list of properties a neuron has, is savable, and can be persistenty attached to the neuron.
 
@@ -102,6 +104,61 @@ Will not work, nor will trying to set a 1-d array top a property which is a 2-d 
 
 ````
 
+---
+
+### Getting Basic Neuron Information.
+
+You can get counts of various things from your neuron like so:
+
+```python
+print(f"This neuron has {tree.count_nodes()} nodes")
+print(f"This neuron has {tree.count_branches()} branching nodes")
+print(f"This neuron has {tree.count_leaves()} terminal nodes")
+print(f"This neuron has {tree.count_roots()} root node")
+```
+The above tels you how many nodes the neuron is made up of, the number of branching nodes (those with an out degree > 1), the number of terminal nodes (or leaves, nodes with an out degree = 0), and the number of root nodes (nodes with an in-degree = 0). Stricktly speaking, you should only ever have a single root node. If you have multiple, you have multiple disjoined graphs in your graph representation of your neuron, and something is wrong.
+
+Additionally, we have various functions to get the indices of nodes in the graph representation of your neuron:
+
+```python
+print(tree.get_root_index())
+print(tree.get_branch_indices())
+print(tree.get_leaf_indices())
+print(tree.get_edge_indices())
+```
+NeuRosetta will aim for the root node index to *always* be at the 0 index. You will see that `tree.get_edge_indices()` returns a 2-dimensiona array. The first column is the source node index and the second the target node index for each edge. 
+
+Having access to the index of specific nodes is important, as the node ordering in all your node level properties is consistent, meaning you can use these indices to subset. For example, if you want to know the radius of nodes at each branch point:
+
+```python
+radii = tree.get_property('radius')
+print(radii[tree.get_branch_indices()])
+```
+
+You can also easily get the coordinates of nodes and edges. To get the coordinates of all nodes as a numpy array:
+
+```python
+coord = tree.get_node_coordinates(subset = None)
+```
+Note here that we used the `subset = None` argument. This is the default behaviour, and gives you the coordinates of all nodes in your neurons. You can pass a subset of node indices, or one of the above index functions, to subset the coordinates you are grabbing:
+
+```python
+branch_coordinates = tree.get_node_coordinates(subset = tree.get_branch_indices())
+```
+You also have a useful helper to just get the coordinate of the root node:
+
+```python
+root_coordinate = tree.get_root_coordinate()
+```
+
+Much like when looking at the indices of edges, the same thing can be done for coordinates, if you would like that source and target coordinates of each edge within your neuron:
+
+```python
+source_c, target_c = tree.get_edge_coordinates()
+```
+This returns a tupple of coordinates arrays, which we are splitting into source and target above. Currenty, subsetting doesn't work here as an argument, although this will likely change in the future! 
+
+
 ### Understanding Metadata
 
 The base metadata dictionary is like so:
@@ -112,9 +169,9 @@ The base metadata dictionary is like so:
 | 'file_path'| The location of the `.swc` file|
 | 'isReduced'| This is a bool flag, explained {doc}`here <03_tree_basics>`|
 
+Metadata is a graph-level property, so will be saved alongside any edits made to it when using the `.nr` file format.  
 
-
-## Topology queries
+## Basic Neuron Information
 
 ```python
 print("root:", tree.get_root_index())
