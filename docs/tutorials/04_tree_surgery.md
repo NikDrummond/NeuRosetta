@@ -16,7 +16,7 @@ Several editing helpers take ``inplace`` / ``bind`` flags.
 ## Reduce a tree
 
 Reduction collapses transitive (chain) vertices while preserving branch
-points, leaves, and the root:
+points, leaves, and the root. This removes any nodes in the neuron with out degree = in degree = 1, reducing your graph representation to only the core elements of the neurons morphoplogy - the root, branch nodes and terminal nodes. 
 
 ```python
 from pathlib import Path
@@ -38,6 +38,18 @@ g = tree.get_reduced_tree(inplace=False)
 reduced = nr.Tree(ID=tree.ID, metadata=dict(tree.metadata), graph=g)
 print(reduced.count_nodes())
 ```
+
+This damatically reduces the memory footprint of single neurons, at the expence of the curvature in the neuronal sections. NeuRosetta keeps track of if a neuron is reduces of not within its metadata under the `isReduced` key. You can check if a neuron has been reduced:
+
+```python
+tree.is_reduced()
+```
+Which returns True if the neuron has no transitive nodes. NeuRosetta will assume that a neuron has not been reduced on import, unless the metadata says otherwise. If you have a neuron which has been reduced and, for whetever reason, the metadata says it has not, you can use:
+
+```python
+tree.update_reduced()
+```
+Which will update the `isReduced` key in the neurons metadata if, and only if, the neuron does infact have no transitive nodes. 
 
 ## Reroot
 
