@@ -1,11 +1,7 @@
 """Shared utility subpackages."""
 
-# from .graph_utils import *
-# from .numpy_utils import *
+from .numpy_utils import euclidean_distance
 
-# __all__ = [
-#     "_raise_internal_property",
-#     "_InternalPropertyMissingError",
-#     "g_has_property",
-#     "pairwise_distance",
-# ]
+__all__ = [
+    "euclidean_distance",
+]

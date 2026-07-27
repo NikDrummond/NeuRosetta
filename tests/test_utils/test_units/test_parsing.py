@@ -2,12 +2,12 @@
 
 import pytest
 
+from NeuRosetta.utils.units.equality import units_are_equal
 from NeuRosetta.utils.units.parsing import (
     DEFAULT_UNITS,
     is_dimensionless,
     normalize_units_str,
     parse_units,
-    units_are_equal,
 )
 
 

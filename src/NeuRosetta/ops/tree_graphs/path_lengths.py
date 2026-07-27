@@ -9,7 +9,7 @@ from ...utils.graph_utils import (
     g_has_property,
 )
 
-from ...utils.numpy_utils import pairwise_distance
+from ...utils.numpy_utils import euclidean_distance
 
 from .tree_checks import check_reduced
 
@@ -34,7 +34,7 @@ def get_edge_length(tree: _Tree, bind: bool = True) -> ndarray | None:
         If bind=False, returns array of edge lengths. Otherwise returns None.
     """
     pairs = edge_coordinates(tree.graph)
-    lengths = pairwise_distance(pairs[0], pairs[1])
+    lengths = euclidean_distance(pairs[0], pairs[1])
 
     if bind:
         # base property name on if this is a reduced graph

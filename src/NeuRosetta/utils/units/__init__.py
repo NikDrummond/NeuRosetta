@@ -9,12 +9,12 @@ from .aliases import (
 )
 from .backend import DEFAULT_UNITS, TARGET_MICROMETER, VOXEL_UNITS, ureg
 from .conversion import scale_factor
+from .equality import units_are_equal
 from .parsing import (
     is_dimensionless,
     is_voxel_units,
     normalize_units_str,
     parse_units,
-    units_are_equal,
 )
 from .voxel import (
     VOXEL_SIZE_KEY,

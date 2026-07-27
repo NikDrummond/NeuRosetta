@@ -49,26 +49,6 @@ def is_dimensionless(units: str | None) -> bool:
     return normalize_units_str(units) == DEFAULT_UNITS
 
 
-def units_are_equal(
-    a: str | None,
-    b: str | None,
-    metadata_a: dict | None = None,
-    metadata_b: dict | None = None,
-) -> bool:
-    """Return True when two metadata unit strings refer to the same quantity."""
-    norm_a = normalize_units_str(a)
-    norm_b = normalize_units_str(b)
-    if norm_a != norm_b:
-        return False
-    if is_voxel_units(norm_a):
-        if metadata_a is None or metadata_b is None:
-            return False
-        from .voxel import validate_voxel_metadata
-
-        return validate_voxel_metadata(metadata_a) == validate_voxel_metadata(metadata_b)
-    return True
-
-
 __all__ = [
     "Unit",
     "DEFAULT_UNITS",
@@ -76,5 +56,4 @@ __all__ = [
     "parse_units",
     "is_voxel_units",
     "is_dimensionless",
-    "units_are_equal",
 ]

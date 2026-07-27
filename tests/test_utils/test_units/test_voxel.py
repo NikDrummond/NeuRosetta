@@ -4,7 +4,8 @@ import pytest
 
 from NeuRosetta.utils.units import is_voxel_units
 from NeuRosetta.utils.units.conversion import scale_factor
-from NeuRosetta.utils.units.parsing import normalize_units_str, units_are_equal
+from NeuRosetta.utils.units.equality import units_are_equal
+from NeuRosetta.utils.units.parsing import normalize_units_str
 from NeuRosetta.utils.units.voxel import apply_voxel_metadata, validate_voxel_metadata
 
 

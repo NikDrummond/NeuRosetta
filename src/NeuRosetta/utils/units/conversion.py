@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from .equality import units_are_equal
 from .parsing import is_dimensionless, normalize_units_str
 from .voxel import meters_per_coordinate_unit
 
@@ -20,7 +21,6 @@ def scale_factor(
     if from_norm == to_norm:
         if from_metadata is None or to_metadata is None:
             return 1.0
-        from .parsing import units_are_equal
 
         if units_are_equal(from_norm, to_norm, from_metadata, to_metadata):
             return 1.0
