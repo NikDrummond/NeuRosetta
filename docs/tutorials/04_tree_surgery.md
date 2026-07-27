@@ -49,7 +49,13 @@ Which returns True if the neuron has no transitive nodes. NeuRosetta will assume
 ```python
 tree.update_reduced()
 ```
-Which will update the `isReduced` key in the neurons metadata if, and only if, the neuron does infact have no transitive nodes. 
+Which will update the `isReduced` key in the neurons metadata if, and only if, the neuron does infact have no transitive nodes.
+
+```{note}
+The `tree.get_edge_length()` method gives you the length of edges within your neuron, either as an array or by adding the `Path_length` edge property if `bind = True` is used. If a neuron has been reduced, you implicitly some of the detail in this measurement - You can only measure the euclidean distance between your 'core' points. However, NeuRosetta handles this. When using `bind = True` (which is the recomended approach generally) the edge property created will be called `Euclidean_length`, not `Path_length`. 
+
+Importantly, you should calculate your `Path_length` **BEFORE** reducing the neuron. When doing so, `Path_length` remains an edge property, keeping the length of cable between your core points, and   Euclidean_length` is then an additional property you can use. 
+```
 
 ## Reroot
 

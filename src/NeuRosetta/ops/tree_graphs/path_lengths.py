@@ -33,22 +33,28 @@ def get_edge_length(tree: _Tree, bind: bool = True) -> ndarray | None:
     ndarray | None
         If bind=False, returns array of edge lengths. Otherwise returns None.
     """
-    pairs = edge_coordinates(tree.graph)
-    lengths = euclidean_distance(pairs[0], pairs[1])
 
-    if bind:
-        # base property name on if this is a reduced graph
-        if check_reduced(tree):
-            p_name = "Euclidean_length"
-        else:
-            p_name = "Path_length"
-        bind_edge_property(
-            tree.graph,
-            property_name=p_name,
-            property_dtype="double",
-            property_data=lengths,
-        )
-        return None
+    # check we don't have a length property alread
+    if g_has_property(tree.graph, "Path_length", "e"):
+        lengths = tree.graph.ep["Path_length"].a
+    elif g_has_property(tree.graph, "Euclidean_length", "e"):
+        lengths = tree.graph.ep["Euclidean_length"].a
+    else:
+        pairs = edge_coordinates(tree.graph)
+        lengths = euclidean_distance(pairs[0], pairs[1])
+
+        if bind:
+            # base property name on if this is a reduced graph
+            if check_reduced(tree):
+                p_name = "Euclidean_length"
+            else:
+                p_name = "Path_length"
+            bind_edge_property(
+                tree.graph,
+                property_name=p_name,
+                property_dtype="double",
+                property_data=lengths,
+            )
     return lengths
 
 
