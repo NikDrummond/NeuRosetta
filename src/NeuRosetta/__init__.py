@@ -62,24 +62,6 @@ from .utils.units import format_units_reference_table, list_unit_definitions
 from .gui import start_GUI
 from .analysis import reconstruct_neuropil_surface
 
-
-def _check_conda_deps():
-    """Check if required conda packages are installed."""
-    try:
-        import graph_tool  # noqa: F401
-    except ImportError as exc:
-        raise ImportError(
-            "Missing required package: graph-tool. "
-            "Install with: conda install -c conda-forge graph-tool"
-        ) from exc
-
-
-_check_conda_deps()
-
-from graph_tool.all import openmp_set_num_threads
-
-openmp_set_num_threads(1)
-
 # Public API
 __all__ = [
     "Tree",
