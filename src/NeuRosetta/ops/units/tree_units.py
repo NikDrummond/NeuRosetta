@@ -90,8 +90,9 @@ def set_units(
     old_meta = dict(tree.metadata)
     current = normalize_units_str(old_meta.get("units"))
 
+    if current != 'dimensionless':
+        return
     # make sure units are currently not set
-    assert current == 'dimensionless', f"Current units must be dimensionless not {current}. \n To convert units use convert_units "
 
     pending, _ = _pending_units_metadata(
         tree.metadata,

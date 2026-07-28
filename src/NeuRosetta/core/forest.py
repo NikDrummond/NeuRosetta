@@ -5,6 +5,7 @@ from collections.abc import Sequence
 from concurrent.futures import ThreadPoolExecutor
 import inspect
 from functools import lru_cache
+from itertools import chain
 import warnings
 
 from tqdm import tqdm
@@ -40,6 +41,29 @@ def _accepts_bind(fn: Callable) -> bool:
         # some built-ins don't support inspect.signature
         return False
 
+def _merge_results(results: list[Any], merge) -> Any:
+    if merge is None or merge is False:
+        return results
+    # drop Nones unless you want strict mode
+    items = [r for r in results if r is not None]
+    if not items:
+        return None
+    if callable(merge):
+        return merge(items)
+    if merge is True or merge == "concat":
+        first = items[0]
+        if isinstance(first, list):
+            return list(chain.from_iterable(items))
+        import numpy as np
+        if isinstance(first, np.ndarray):
+            return np.concatenate(items) if first.ndim == 1 else np.vstack(items)
+        raise TypeError(f"Don't know how to merge {type(first)!r}")
+    if merge == "vstack":
+        import numpy as np
+        return np.vstack(items)
+    if merge == "sum":
+        return sum(items)
+    raise ValueError(f"Unknown merge strategy: {merge!r}")
 
 class _Forest(Sequence):
     """Ordered, mutable container of Tree (or other Stone) objects."""
@@ -190,6 +214,7 @@ class _Forest(Sequence):
         max_workers: int | None = None,
         show_progress: bool = False,
         bind: bool = False,
+        merge: bool | str | Callable[[list[Any]], Any] | None = None,
         **kwargs,
     ) -> list[T] | None:
         """Apply fn to all trees, in parallel or sequentially."""
@@ -251,7 +276,7 @@ class _Forest(Sequence):
             return None
         if all(r is None for r in results):
             return None
-        return results
+        return _merge_results(results, merge)
 
     def build_3d(
         self,

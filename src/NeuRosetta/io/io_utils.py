@@ -207,7 +207,6 @@ def _apply_import_units(
     assign_tree_units(
         tree,
         set_units,
-        convert=False,
         voxel_size=voxel_size,
         voxel_unit=voxel_unit,
     )
