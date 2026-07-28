@@ -57,8 +57,7 @@ def nearest(from_points, to_point, ret_index=False):
 
 
 def farthest(from_points, to_point, ret_index=False):
-    # Fixed: now routed through the shared check() helper instead of a
-    # hand-rolled shape check with its own (inconsistent) error message.
+
     check(locals(), "from_points", (-1, 3))
     check(locals(), "to_point", (3,))
 
@@ -74,9 +73,7 @@ def farthest(from_points, to_point, ret_index=False):
 
 
 def within(points, radius, of_point, atol=1e-08, ret_indices=False):
-    # Fixed: isinstance(radius, float) rejected plain ints and numpy scalar
-    # types (e.g. np.float64), which is what most numpy pipelines actually
-    # produce. numbers.Real covers int, float, and numpy numeric scalars.
+
     check(locals(), "points", (-1, 3))
     if not isinstance(radius, numbers.Real):
         raise ValueError("radius should be a real number")
@@ -92,8 +89,7 @@ def within(points, radius, of_point, atol=1e-08, ret_indices=False):
 
 
 def average(values, weights=None, ret_sum_of_weights=False):
-    # Fixed: calling with ret_sum_of_weights=True and weights=None used to
-    # crash on np.sum(None). The sum of k implicit unit weights is just k.
+
     k = check(locals(), "values", (-1, 3))
     if weights is not None:
         weights = np.array(weights)

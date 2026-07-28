@@ -101,16 +101,6 @@ def set_units(
         voxel_unit=voxel_unit,
     )
 
-    # if convert and not units_are_equal(current, target, old_meta, pending):
-    #     factor = scale_factor(
-    #         current,
-    #         target,
-    #         from_metadata=old_meta,
-    #         to_metadata=pending,
-    #     )
-    #     _scale_tree_geometry(tree, factor)
-    #     _set_edge_lengths(tree)
-
     _commit_units_metadata(tree, pending)
 
 
@@ -118,8 +108,6 @@ def set_voxel_units(
     tree: _Tree,
     voxel_size: float,
     voxel_unit: str,
-    *,
-    convert: bool = True,
 ) -> None:
     """Tag coordinates as voxel indices with a cubic edge length."""
     set_units(

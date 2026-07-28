@@ -1,6 +1,5 @@
 from .basis import basis
 from .algebra import (
-    broadcast,
     normalize,
     magnitude,
     dot,
@@ -8,7 +7,6 @@ from .algebra import (
     scalar_projection,
     project,
     reject,
-    reject_axis,
     perpendicular,
     scale_factor,
 )
@@ -24,7 +22,7 @@ from .points import (
     within,
     average,
 )
-from .pca import principal_components, major_axis
+from .pca import eig_decomp
 from ._validation import (
     check_value,
     check_value_any,
@@ -35,7 +33,6 @@ from ._validation import (
 
 __all__ = [
     "basis",
-    "broadcast",
     "normalize",
     "magnitude",
     "dot",
@@ -43,7 +40,6 @@ __all__ = [
     "scalar_projection",
     "project",
     "reject",
-    "reject_axis",
     "perpendicular",
     "angle",
     "signed_angle",
@@ -62,8 +58,7 @@ __all__ = [
     "farthest",
     "within",
     "average",
-    "principal_components",
-    "major_axis",
+    "eig_decomp",
     "check_value",
     "check_value_any",
     "check",
