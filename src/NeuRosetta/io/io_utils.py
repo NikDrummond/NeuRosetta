@@ -130,15 +130,21 @@ def _graph_from_table(df: DataFrame) -> Graph:
     # add some attributed from node table
     # initilise vertex properties - radius, coordinates
     vprop_rad = g.new_vp("double")
-    vprop_coords = g.new_vp("vector<double>")
+    vprop_x = g.new_vp("double")
+    vprop_y = g.new_vp("double")
+    vprop_z = g.new_vp("double")
 
     # populate them
     vprop_rad.a = df.radius.values[inds]
-    vprop_coords.set_2d_array(df[["x", "y", "z"]].values[inds].T)
+    vprop_x.a = df["x"].values[inds]
+    vprop_y.a = df["y"].values[inds]
+    vprop_z.a = df["z"].values[inds]
 
     # add them
     g.vp["radius"] = vprop_rad
-    g.vp["coordinates"] = vprop_coords
+    g.vp["x"] = vprop_x
+    g.vp["y"] = vprop_y
+    g.vp["z"] = vprop_z
     g.vp["node_type"] = g.new_vp("int", _infer_node_types(g))
 
     return g
@@ -149,7 +155,10 @@ def _swc_table(tree: _Tree) -> DataFrame:
     # get node ids, radius and cooridnates
     # ids = tree.graph.vp["ids"].a
     radius = tree.graph.vp["radius"].a
-    coords = tree.graph.vp["coordinates"].get_2d_array().T
+    # coords = tree.graph.vp["coordinates"].get_2d_array().T
+    x = tree.graph.vp['x'].a
+    y = tree.graph.vp['y'].a
+    z = tree.graph.vp['z'].a
     # get edges - reorder columns so node to parent
     edges = tree.graph.get_edges()[:, [1, 0]]
 
@@ -164,9 +173,9 @@ def _swc_table(tree: _Tree) -> DataFrame:
             {
                 "node_id": edges[:, 0],
                 "type": node_types,
-                "x": coords[:, 0],
-                "y": coords[:, 1],
-                "z": coords[:, 2],
+                "x": x,
+                "y": y,
+                "z": z,
                 "radius": radius,
                 "parent_id": edges[:, 1],
             }

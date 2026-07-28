@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from typing import List, Tuple
-from numpy import ndarray
+from numpy import ndarray, stack
 from graph_tool.all import Graph
 
 from .gt_properties import raise_internal_property_missing
@@ -32,11 +32,13 @@ def vertex_coordinates(
         Array of vertex coordinates with shape (3, N) if SoA=True,
         or (N, 3) if SoA=False, where N is the number of vertices.
     """
-    # Make sure we have coordinates
-    raise_internal_property_missing(g, "coordinates", "v")
+    # Make sure we have x,y,z
+    raise_internal_property_missing(g, "x", "v")
+    raise_internal_property_missing(g, "y", "v")
+    raise_internal_property_missing(g, "z", "v")
 
     # get coordinates
-    coords = g.vp["coordinates"].get_2d_array()
+    coords = stack([g.vp[p].a for p in ["x","y","z"]], axis = 0)
 
     # subset if needed
     if subset is not None:
@@ -74,7 +76,9 @@ def vertex_coordinates_subtree(
         or (N, 3) if SoA=False, where N is the number of vertices in the subtree.
     """
     # Make sure we have coordinates
-    raise_internal_property_missing(g, "coordinates", "v")
+    raise_internal_property_missing(g, "x", "v")
+    raise_internal_property_missing(g, "y", "v")
+    raise_internal_property_missing(g, "z", "v")
     # get subtree vert. inds
     sub_inds = subtree_indices(g, root, traversal_order)
     # get coordinates with subset
@@ -99,7 +103,9 @@ def edge_coordinates(g: Graph, SoA: bool = False) -> Tuple[ndarray, ndarray]:
         if SoA=True, or (E, 3) if SoA=False, where E is the number of edges.
     """
     # Make sure we have coordinates
-    raise_internal_property_missing(g, "coordinates", "v")
+    raise_internal_property_missing(g, "x", "v")
+    raise_internal_property_missing(g, "y", "v")
+    raise_internal_property_missing(g, "z", "v")
 
     # get edges
     edges = edge_indices(g)
@@ -140,7 +146,9 @@ def edge_coordinates_subtree(
         number of edges in the subtree.
     """
     # Make sure we have coordinates
-    raise_internal_property_missing(g, "coordinates", "v")
+    raise_internal_property_missing(g, "x", "v")
+    raise_internal_property_missing(g, "y", "v")
+    raise_internal_property_missing(g, "z", "v")
 
     # get coordinates
     coords = vertex_coordinates(g)

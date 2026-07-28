@@ -42,7 +42,7 @@
 ## Features to add
 - [ ] Global settings / defaults (Pydantic?)
 - [ ] Units handling (Pint/ounce?)
-- [ ] switch to slotted class definitions. should give slight memory improvement at the cost of the user being able to set arbritary atributes to trees, but we have metadata and graph properties. (possibly part of pydantic integration)
+- [x] switch to slotted class definitions. should give slight memory improvement at the cost of the user being able to set arbritary atributes to trees, but we have metadata and graph properties. (possibly part of pydantic integration)
 - [ ] Review / optimise imports
 
 
@@ -55,6 +55,8 @@
 - [ ] GUI doesn't track edges properly from `.swc` files.
 - [ ] vedo is not threadsafe and gt is no multiprocessing safe, so currently we cannot easily parallelise plotting of forests. I should separate out the threadsafe logic (getting coordinates etc) and multithread that.
 - [ ] Use 'get', 'set' language consistently?
+- [ ] Using 3 1-d arrays instead of one 2d is ~60x faster to access coordinates when implemented, should do.
+- [ ] Numba and refine numpy backend?
 
 
 ## Functionality

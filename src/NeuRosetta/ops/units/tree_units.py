@@ -33,8 +33,10 @@ def _set_edge_lengths(tree: _Tree) -> None:
 
 
 def _scale_tree_geometry(tree: _Tree, factor: float) -> None:
-    coords = tree.graph.vp['coordinates'].get_2d_array() * factor
-    tree.graph.vp['coordinates'].set_2d_array(coords)
+    coords = tree.get_node_coordinates() * factor
+    tree.graph.vp['x'].a = coords[:,0]
+    tree.graph.vp['y'].a = coords[:,1]
+    tree.graph.vp['z'].a = coords[:,2]
     tree.graph.vp["radius"].a *= factor
 
 
@@ -81,29 +83,32 @@ def set_units(
     tree: _Tree,
     units: str,
     *,
-    convert: bool = True,
     voxel_size: float | None = None,
     voxel_unit: str | None = None,
 ) -> None:
-    """Set tree metadata units, optionally rescaling geometry from the current units."""
+    """Set tree metadata units"""
     old_meta = dict(tree.metadata)
     current = normalize_units_str(old_meta.get("units"))
-    pending, target = _pending_units_metadata(
+
+    # make sure units are currently not set
+    assert current == 'dimensionless', f"Current units must be dimensionless not {current}. \n To convert units use convert_units "
+
+    pending, _ = _pending_units_metadata(
         tree.metadata,
         units,
         voxel_size=voxel_size,
         voxel_unit=voxel_unit,
     )
 
-    if convert and not units_are_equal(current, target, old_meta, pending):
-        factor = scale_factor(
-            current,
-            target,
-            from_metadata=old_meta,
-            to_metadata=pending,
-        )
-        _scale_tree_geometry(tree, factor)
-        _set_edge_lengths(tree)
+    # if convert and not units_are_equal(current, target, old_meta, pending):
+    #     factor = scale_factor(
+    #         current,
+    #         target,
+    #         from_metadata=old_meta,
+    #         to_metadata=pending,
+    #     )
+    #     _scale_tree_geometry(tree, factor)
+    #     _set_edge_lengths(tree)
 
     _commit_units_metadata(tree, pending)
 
@@ -119,7 +124,6 @@ def set_voxel_units(
     set_units(
         tree,
         VOXEL_UNITS,
-        convert=convert,
         voxel_size=voxel_size,
         voxel_unit=voxel_unit,
     )
