@@ -45,6 +45,6 @@ def test_is_dimensionless():
     assert not is_dimensionless("nm")
 
 
-def test_parse_units_returns_pint_unit():
-    unit = parse_units("nm")
-    assert str(unit) == "nanometer"
+def test_parse_units_voxel_raises():
+    with pytest.raises(ValueError, match="Voxel units are metadata-backed"):
+        parse_units("voxel")

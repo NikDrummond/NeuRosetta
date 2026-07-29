@@ -1,95 +1,634 @@
 # angles.py
-
-import math
 import numpy as np
+from numba import njit
 
-from ._validation import check, check_value_any
-from .algebra import magnitude, reject, scale_factor
+from .algebra import (
+    dot_scalar,
+    magnitude_scalar,
+    cross_scalar,
+    reject_scalar,
+    normalize_scalar,
+)
+from ._validation import _check_vector_broadcast, _broadcast_vectors, _check_scalar
+
+### Numba
+
+_JIT = dict(nogil=True, fastmath=True, cache=True, inline="always")
 
 
-def angle(v1, v2, look=None, assume_normalized=False, units="deg"):
-    if units not in ["deg", "rad"]:
-        raise ValueError(f"Unrecognized units {units}; expected deg or rad")
+@njit(**_JIT)
+def clamp(x, xmin, xmax):
+    if x < xmin:
+        return xmin
+    if x > xmax:
+        return xmax
+    return x
 
-    # Previously unvalidated -- mismatched shapes fell straight through to a
-    # raw einsum/broadcasting error instead of a clear ValueError.
-    k = check_value_any(v1, (3,), (-1, 3), name="v1")
-    check_value_any(v2, (3,), (-1 if k is None else k, 3), name="v2")
-    if look is not None:
-        check_value_any(look, (3,), (-1 if k is None else k, 3), name="look")
-        v1, v2 = [reject(v, from_v=look) for v in (v1, v2)]
 
-    dot_products = np.einsum("ij,ij->i", v1.reshape(-1, 3), v2.reshape(-1, 3))
+### Scalar kernels
+
+
+@njit(**_JIT)
+def angle_scalar(
+    x1,
+    y1,
+    z1,
+    x2,
+    y2,
+    z2,
+    assume_normalized=False,
+    degrees=True,
+):
+    """
+    Unsigned angle between two 3D vectors.
+    """
+
+    d = dot_scalar(
+        x1,
+        y1,
+        z1,
+        x2,
+        y2,
+        z2,
+    )
 
     if assume_normalized:
-        cosines = dot_products
+        c = d
     else:
-        cosines = dot_products / magnitude(v1) / magnitude(v2)
 
-    # Clip, because the dot product can slip past 1 or -1 due to rounding and
-    # we can't compute arccos(-1.00001).
-    angles = np.arccos(np.clip(cosines, -1.0, 1.0))
-    if units == "deg":
-        angles = np.degrees(angles)
+        m1 = magnitude_scalar(x1, y1, z1)
+        m2 = magnitude_scalar(x2, y2, z2)
 
-    return angles[0] if v1.ndim == 1 and v2.ndim == 1 else angles
+        if m1 == 0.0 or m2 == 0.0:
+            return np.nan
 
+        c = d / (m1 * m2)
 
-def signed_angle(v1, v2, look, units="deg"):
-    # The sign of (A x B) dot look gives the sign of the angle.
-    # > 0 means clockwise, < 0 is counterclockwise.
-    sign = np.array(np.sign(np.cross(v1, v2).dot(look)))
+    c = clamp(c, -1.0, 1.0)
 
-    # 0 means collinear: 0 or 180. Let's call that clockwise.
-    sign[sign == 0] = 1
+    angle = np.arccos(c)
 
-    return sign * angle(v1, v2, look, units=units)
+    if degrees:
+        angle *= 180.0 / np.pi
+
+    return angle
 
 
-def rotate(vector, around_axis, angle, units="deg", assume_normalized=False):
-    # Previously unvalidated, same rationale as angle() above.
-    check_value_any(vector, (3,), (-1, 3), name="vector")
-    check(locals(), "around_axis", (3,))
+@njit(**_JIT)
+def planar_angle_scalar(
+    x1,
+    y1,
+    z1,
+    x2,
+    y2,
+    z2,
+    lx,
+    ly,
+    lz,
+    degrees=True,
+):
+    """
+    Angle after projecting both vectors into the plane
+    perpendicular to the look vector.
+    """
 
-    if units == "deg":
-        angle = math.radians(angle)
-    elif units != "rad":
-        raise ValueError(f'Unknown units "{units}"; expected "deg" or "rad"')
+    x1, y1, z1 = reject_scalar(
+        x1,
+        y1,
+        z1,
+        lx,
+        ly,
+        lz,
+    )
 
-    cosine = math.cos(angle)
-    sine = math.sin(angle)
+    x2, y2, z2 = reject_scalar(
+        x2,
+        y2,
+        z2,
+        lx,
+        ly,
+        lz,
+    )
 
-    if not assume_normalized:
-        from .algebra import normalize
-        around_axis = normalize(around_axis)
-
-    if vector.ndim == 1:
-        dot_products = np.inner(around_axis, vector)
-    elif vector.ndim == 2:
-        dot_products = np.inner(around_axis, vector)[:, np.newaxis]
-    else:
-        from ._validation import raise_dimension_error
-        raise_dimension_error(vector)
-
-    # Rodrigues' rotation formula.
-    return (
-        cosine * vector
-        + sine * np.cross(around_axis, vector)
-        + (1 - cosine) * dot_products * around_axis
+    return angle_scalar(
+        x1,
+        y1,
+        z1,
+        x2,
+        y2,
+        z2,
+        False,
+        degrees,
     )
 
 
-def aligned_with(vector, along, reverse=False):
-    from .algebra import project
+@njit(**_JIT)
+def signed_angle_scalar(
+    x1,
+    y1,
+    z1,
+    x2,
+    y2,
+    z2,
+    lx,
+    ly,
+    lz,
+    degrees=True,
+):
+    """
+    Signed angle in the plane perpendicular
+    to the supplied look vector.
+    """
 
-    check(locals(), "vector", (3,))
-    check(locals(), "along", (3,))
+    #
+    # Project into plane
+    #
 
-    projected = project(vector, onto=along)
-    computed_scale_factor = scale_factor(projected, along)
-    if not reverse and computed_scale_factor < 0:
-        return -vector
-    elif reverse and computed_scale_factor > 0:
-        return -vector
+    x1, y1, z1 = reject_scalar(
+        x1,
+        y1,
+        z1,
+        lx,
+        ly,
+        lz,
+    )
+
+    x2, y2, z2 = reject_scalar(
+        x2,
+        y2,
+        z2,
+        lx,
+        ly,
+        lz,
+    )
+
+    angle = angle_scalar(
+        x1,
+        y1,
+        z1,
+        x2,
+        y2,
+        z2,
+        False,
+        degrees,
+    )
+
+    #
+    # Orientation
+    #
+
+    cx, cy, cz = cross_scalar(
+        x1,
+        y1,
+        z1,
+        x2,
+        y2,
+        z2,
+    )
+
+    orient = dot_scalar(
+        cx,
+        cy,
+        cz,
+        lx,
+        ly,
+        lz,
+    )
+
+    if orient < 0.0:
+        angle = -angle
+
+    return angle
+
+
+@njit(**_JIT)
+def rotate_scalar(
+    x,
+    y,
+    z,
+    ax,
+    ay,
+    az,
+    angle,
+    assume_normalized=False,
+):
+    """
+    Rotate a vector about an axis using Rodrigues' rotation formula.
+
+    Angle is in radians.
+    """
+
+    if not assume_normalized:
+        ax, ay, az = normalize_scalar(ax, ay, az)
+
+    c = np.cos(angle)
+    s = np.sin(angle)
+
+    #
+    # cross(axis, vector)
+    #
+
+    cx, cy, cz = cross_scalar(
+        ax,
+        ay,
+        az,
+        x,
+        y,
+        z,
+    )
+
+    #
+    # dot(axis, vector)
+    #
+
+    d = dot_scalar(
+        ax,
+        ay,
+        az,
+        x,
+        y,
+        z,
+    )
+
+    return (
+        c * x + s * cx + (1.0 - c) * d * ax,
+        c * y + s * cy + (1.0 - c) * d * ay,
+        c * z + s * cz + (1.0 - c) * d * az,
+    )
+
+
+@njit(**_JIT)
+def align_with_scalar(
+    x,
+    y,
+    z,
+    ax,
+    ay,
+    az,
+    reverse=False,
+):
+    """
+    Flip a vector so that it points along (or opposite)
+    another vector.
+    """
+
+    d = dot_scalar(
+        x,
+        y,
+        z,
+        ax,
+        ay,
+        az,
+    )
+
+    if reverse:
+
+        if d > 0.0:
+            return -x, -y, -z
+
     else:
-        return vector
+
+        if d < 0.0:
+            return -x, -y, -z
+
+    return x, y, z
+
+
+### Array Kernels
+
+
+@njit(**_JIT)
+def angle_xyz(
+    x1,
+    y1,
+    z1,
+    x2,
+    y2,
+    z2,
+    assume_normalized=False,
+    degrees=True,
+):
+
+    n = x1.size
+
+    out = np.empty(n, dtype=np.float64)
+
+    for i in range(n):
+
+        out[i] = angle_scalar(
+            x1[i],
+            y1[i],
+            z1[i],
+            x2[i],
+            y2[i],
+            z2[i],
+            assume_normalized,
+            degrees,
+        )
+
+    return out
+
+
+@njit(**_JIT)
+def planar_angle_xyz(
+    x1,
+    y1,
+    z1,
+    x2,
+    y2,
+    z2,
+    lx,
+    ly,
+    lz,
+    degrees=True,
+):
+
+    n = x1.size
+
+    out = np.empty(n, dtype=np.float64)
+
+    for i in range(n):
+
+        out[i] = planar_angle_scalar(
+            x1[i],
+            y1[i],
+            z1[i],
+            x2[i],
+            y2[i],
+            z2[i],
+            lx[i],
+            ly[i],
+            lz[i],
+            degrees,
+        )
+
+    return out
+
+
+@njit(**_JIT)
+def signed_angle_xyz(
+    x1,
+    y1,
+    z1,
+    x2,
+    y2,
+    z2,
+    lx,
+    ly,
+    lz,
+    degrees=True,
+):
+
+    n = x1.size
+
+    out = np.empty(n, dtype=np.float64)
+
+    for i in range(n):
+
+        out[i] = signed_angle_scalar(
+            x1[i],
+            y1[i],
+            z1[i],
+            x2[i],
+            y2[i],
+            z2[i],
+            lx[i],
+            ly[i],
+            lz[i],
+            degrees,
+        )
+
+    return out
+
+
+@njit(**_JIT)
+def rotate_xyz(
+    x,
+    y,
+    z,
+    ax,
+    ay,
+    az,
+    angle,
+    assume_normalized=False,
+):
+
+    n = x.size
+
+    xr = np.empty(n)
+    yr = np.empty(n)
+    zr = np.empty(n)
+
+    for i in range(n):
+
+        xr[i], yr[i], zr[i] = rotate_scalar(
+            x[i],
+            y[i],
+            z[i],
+            ax[i],
+            ay[i],
+            az[i],
+            angle,
+            assume_normalized,
+        )
+
+    return xr, yr, zr
+
+
+@njit(**_JIT)
+def align_with_xyz(
+    x,
+    y,
+    z,
+    ax,
+    ay,
+    az,
+    reverse=False,
+):
+
+    n = x.size
+
+    xo = np.empty(n)
+    yo = np.empty(n)
+    zo = np.empty(n)
+
+    for i in range(n):
+
+        xo[i], yo[i], zo[i] = align_with_scalar(
+            x[i],
+            y[i],
+            z[i],
+            ax[i],
+            ay[i],
+            az[i],
+            reverse,
+        )
+
+    return xo, yo, zo
+
+
+### Python wrappers
+
+
+def angle(x1, y1, z1, x2, y2, z2, assume_normalized=False, degrees=False):
+    """
+    Unsigned angle between two 3D vectors.
+
+    Parameters
+    ----------
+    x1, y1, z1 : float or ndarray
+        Components of the first vector.
+    x2, y2, z2 : float or ndarray
+        Components of the second vector. A scalar vector may be broadcast
+        against an array vector.
+    assume_normalized : bool, default False
+        If True, skip magnitude normalization before taking the arccosine.
+    degrees : bool, default False
+        If True, return the angle in degrees; otherwise radians.
+
+    Returns
+    -------
+    float or ndarray
+        Angle in ``[0, pi]`` (radians) or ``[0, 180]`` (degrees). Returns
+        ``nan`` for zero-length vectors when ``assume_normalized`` is False.
+    """
+
+    if _check_vector_broadcast(x1, y1, z1, x2, y2, z2):
+        x1, y1, z1, x2, y2, z2 = _broadcast_vectors(x1, y1, z1, x2, y2, z2)
+
+    if _check_scalar(x1, y1, z1):
+        return angle_scalar(x1, y1, z1, x2, y2, z2, assume_normalized, degrees)
+
+    return angle_xyz(x1, y1, z1, x2, y2, z2, assume_normalized, degrees)
+
+
+def planar_angle(x1, y1, z1, x2, y2, z2, l1, l2, l3, degrees=False):
+    """
+    Angle between two vectors after projecting into a plane.
+
+    Both vectors are rejected from the look vector ``(l1, l2, l3)`` before
+    computing the unsigned angle.
+
+    Parameters
+    ----------
+    x1, y1, z1 : float or ndarray
+        Components of the first vector.
+    x2, y2, z2 : float or ndarray
+        Components of the second vector.
+    l1, l2, l3 : float or ndarray
+        Components of the look vector defining the plane normal. Scalar
+        vectors may be broadcast against array vectors.
+    degrees : bool, default False
+        If True, return the angle in degrees; otherwise radians.
+
+    Returns
+    -------
+    float or ndarray
+        Planar angle after projection.
+    """
+
+    if _check_vector_broadcast(x1, y1, z1, x2, y2, z2, l1, l2, l3):
+        x1, y1, z1, x2, y2, z2, l1, l2, l3 = _broadcast_vectors(
+            x1, y1, z1, x2, y2, z2, l1, l2, l3
+        )
+
+    if _check_scalar(x1, y1, z1):
+        return planar_angle_scalar(x1, y1, z1, x2, y2, z2, l1, l2, l3, degrees)
+
+    return planar_angle_xyz(x1, y1, z1, x2, y2, z2, l1, l2, l3, degrees)
+
+
+def signed_angle(x1, y1, z1, x2, y2, z2, l1, l2, l3, degrees=False):
+    """
+    Signed angle between two vectors in a plane.
+
+    The sign is determined by the orientation of ``v1 x v2`` relative to the
+    look vector ``(l1, l2, l3)``.
+
+    Parameters
+    ----------
+    x1, y1, z1 : float or ndarray
+        Components of the first vector.
+    x2, y2, z2 : float or ndarray
+        Components of the second vector.
+    l1, l2, l3 : float or ndarray
+        Components of the look vector defining the plane normal. Scalar
+        vectors may be broadcast against array vectors.
+    degrees : bool, default False
+        If True, return the angle in degrees; otherwise radians.
+
+    Returns
+    -------
+    float or ndarray
+        Signed planar angle. Negative when ``(v1 x v2) · look < 0``.
+    """
+
+    if _check_vector_broadcast(x1, y1, z1, x2, y2, z2, l1, l2, l3):
+        x1, y1, z1, x2, y2, z2, l1, l2, l3 = _broadcast_vectors(
+            x1, y1, z1, x2, y2, z2, l1, l2, l3
+        )
+
+    if _check_scalar(x1, y1, z1):
+        return signed_angle_scalar(x1, y1, z1, x2, y2, z2, l1, l2, l3, degrees)
+
+    return signed_angle_xyz(x1, y1, z1, x2, y2, z2, l1, l2, l3, degrees)
+
+
+def rotate(x, y, z, ax, ay, az, angle, assume_normalized=False):
+    """
+    Rotate a 3D vector about an axis.
+
+    Uses Rodrigues' rotation formula. The rotation angle is in radians.
+
+    Parameters
+    ----------
+    x, y, z : float or ndarray
+        Components of the vector to rotate.
+    ax, ay, az : float or ndarray
+        Components of the rotation axis. A scalar axis may be broadcast
+        against an array vector.
+    angle : float
+        Rotation angle in radians.
+    assume_normalized : bool, default False
+        If True, treat ``(ax, ay, az)`` as a unit vector.
+
+    Returns
+    -------
+    xr, yr, zr : float or ndarray
+        Components of the rotated vector.
+    """
+
+    if _check_vector_broadcast(x, y, z, ax, ay, az):
+        x, y, z, ax, ay, az = _broadcast_vectors(x, y, z, ax, ay, az)
+
+    if _check_scalar(x, y, z):
+        return rotate_scalar(x, y, z, ax, ay, az, angle, assume_normalized)
+
+    return rotate_xyz(x, y, z, ax, ay, az, angle, assume_normalized)
+
+
+def align_with(x, y, z, ax, ay, az, reverse=False):
+    """
+    Flip a vector so it points along (or opposite) a reference direction.
+
+    Parameters
+    ----------
+    x, y, z : float or ndarray
+        Components of the vector to align.
+    ax, ay, az : float or ndarray
+        Components of the reference direction. A scalar direction may be
+        broadcast against an array vector.
+    reverse : bool, default False
+        If False, ensure ``v · axis >= 0``. If True, ensure ``v · axis <= 0``.
+
+    Returns
+    -------
+    xo, yo, zo : float or ndarray
+        Original vector, or its negation if a flip was required.
+    """
+
+    if _check_vector_broadcast(x, y, z, ax, ay, az):
+        x, y, z, ax, ay, az = _broadcast_vectors(x, y, z, ax, ay, az)
+    if _check_scalar(x, y, z):
+        return align_with_scalar(x, y, z, ax, ay, az, reverse)
+    return align_with_xyz(x, y, z, ax, ay, az, reverse)

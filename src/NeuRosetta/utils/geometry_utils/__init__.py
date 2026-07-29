@@ -10,7 +10,7 @@ from .algebra import (
     perpendicular,
     scale_factor,
 )
-from .angles import angle, signed_angle, rotate, aligned_with
+from .angles import angle, planar_angle, signed_angle, rotate, align_with
 from .tolerance import almost_zero, almost_unit_length, almost_collinear, almost_equal
 from .points import (
     euclidean_distance,
@@ -19,7 +19,7 @@ from .points import (
     apex_and_opposite,
     nearest,
     farthest,
-    within,
+    within_radius,
     average,
 )
 from .pca import eig_decomp
@@ -41,22 +41,23 @@ __all__ = [
     "project",
     "reject",
     "perpendicular",
+    "scale_factor",
     "angle",
+    "planar_angle",
     "signed_angle",
     "rotate",
-    "aligned_with",
+    "align_with",
     "almost_zero",
     "almost_unit_length",
     "almost_collinear",
     "almost_equal",
     "euclidean_distance",
-    "scale_factor",
     "argapex",
     "apex",
     "apex_and_opposite",
     "nearest",
     "farthest",
-    "within",
+    "within_radius",
     "average",
     "eig_decomp",
     "check_value",

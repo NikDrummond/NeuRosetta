@@ -1,10 +1,12 @@
 import numpy as np
 from numba import njit
 
+from ._validation import _broadcast_vectors, _check_scalar, _check_vector_broadcast
+
 _JIT = dict(nogil=True, fastmath=True, cache=True, inline="always")
 
 ###
-# NUMBA
+# NUMBA - bit extra to have individual kernels for everything, but stops writing of intermediate arrays, so probably a touch faster
 ###
 
 
@@ -313,133 +315,6 @@ def scale_factor_xyz(x1, y1, z1, x2, y2, z2):
 ###
 # Numpy
 ###
-
-
-### Check
-def _check_scalar(x, y, z):
-    """
-    Check whether three vector components represent a scalar 3D vector.
-
-    Parameters
-    ----------
-    x, y, z : scalar or array-like
-        Components of a 3D vector.
-
-    Returns
-    -------
-    bool
-        True if all components are scalar (shape ``()``).
-
-    Raises
-    ------
-    ValueError
-        If the components do not share the same shape.
-    """
-    v_shapes = [np.shape(v) for v in (x, y, z)]
-
-    if not (v_shapes[0] == v_shapes[1] == v_shapes[2]):
-        raise ValueError(f"vector components have inconsistent shapes: {v_shapes}")
-
-    return v_shapes[0] == v_shapes[1] == v_shapes[2] == ()
-
-
-def _check_vector_broadcast(x1, y1, z1, x2, y2, z2):
-    """
-    Check whether two 3D vectors require broadcasting.
-
-    Returns
-    -------
-    bool
-        True if one vector is scalar and the other is array-like.
-
-    Raises
-    ------
-    ValueError
-        If components within a vector have inconsistent shapes.
-        If both vectors are arrays with incompatible shapes.
-    """
-
-    v1_shapes = [np.shape(v) for v in (x1, y1, z1)]
-    v2_shapes = [np.shape(v) for v in (x2, y2, z2)]
-
-    # Check internal consistency of each vector
-    if not (v1_shapes[0] == v1_shapes[1] == v1_shapes[2]):
-        raise ValueError(
-            f"First vector components have inconsistent shapes: {v1_shapes}"
-        )
-
-    if not (v2_shapes[0] == v2_shapes[1] == v2_shapes[2]):
-        raise ValueError(
-            f"Second vector components have inconsistent shapes: {v2_shapes}"
-        )
-
-    shape1 = v1_shapes[0]
-    shape2 = v2_shapes[0]
-
-    scalar1 = shape1 == ()
-    scalar2 = shape2 == ()
-
-    # Both arrays
-    if not scalar1 and not scalar2:
-        if shape1 != shape2:
-            raise ValueError(f"Vector shapes do not match: {shape1} vs {shape2}")
-
-        return False
-
-    # One scalar, one array
-    return scalar1 != scalar2
-
-
-def _broadcast_vectors(x1, y1, z1, x2, y2, z2):
-    """
-    Broadcast two 3D vectors represented as separate components.
-
-    Parameters
-    ----------
-    x1, y1, z1 : scalar or ndarray
-        First vector components.
-    x2, y2, z2 : scalar or ndarray
-        Second vector components.
-
-    Returns
-    -------
-    x1, y1, z1, x2, y2, z2
-        Broadcast-compatible components.
-    """
-
-    v1_array = any(np.ndim(v) > 0 for v in (x1, y1, z1))
-    v2_array = any(np.ndim(v) > 0 for v in (x2, y2, z2))
-
-    # Determine target shape
-    if v1_array and v2_array:
-
-        # Ensure both vectors have matching shapes
-        shape1 = np.shape(x1)
-        shape2 = np.shape(x2)
-
-        if shape1 != shape2:
-            raise ValueError(f"Vector shapes do not match: {shape1} and {shape2}")
-
-        return x1, y1, z1, x2, y2, z2
-
-    elif v1_array:
-
-        shape = np.shape(x1)
-
-        x2 = np.full(shape, x2)
-        y2 = np.full(shape, y2)
-        z2 = np.full(shape, z2)
-
-    elif v2_array:
-
-        shape = np.shape(x2)
-
-        x1 = np.full(shape, x1)
-        y1 = np.full(shape, y1)
-        z1 = np.full(shape, z1)
-
-    return x1, y1, z1, x2, y2, z2
-
 
 def magnitude(x, y, z):
     """
