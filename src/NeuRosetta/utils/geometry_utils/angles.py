@@ -467,6 +467,57 @@ def align_with_xyz(
     return xo, yo, zo
 
 
+### Angular mean and va
+
+
+@njit(**_JIT)
+def _angular_resultant(angles, weights=None):
+
+    c = 0.0
+    s = 0.0
+
+    if weights is None:
+
+        wsum = float(angles.size)
+
+        for i in range(angles.size):
+            a = angles[i]
+            c += np.cos(a)
+            s += np.sin(a)
+
+    else:
+
+        wsum = 0.0
+
+        for i in range(angles.size):
+            w = weights[i]
+            a = angles[i]
+
+            c += w * np.cos(a)
+            s += w * np.sin(a)
+            wsum += w
+
+    return c, s, wsum
+
+
+@njit(cache=True, fastmath=True)
+def angular_mean_nb(angles, weights=None):
+
+    c, s, _ = _angular_resultant(angles, weights)
+    return np.arctan2(s, c)
+
+
+@njit(cache=True, fastmath=True)
+def angular_variance_nb(angles, weights=None):
+
+    c, s, wsum = _angular_resultant(angles, weights)
+
+    if wsum == 0.0:
+        return np.nan
+
+    return 1.0 - np.sqrt(c * c + s * s) / wsum
+
+
 ### Python wrappers
 
 
@@ -632,3 +683,41 @@ def align_with(x, y, z, ax, ay, az, reverse=False):
     if _check_scalar(x, y, z):
         return align_with_scalar(x, y, z, ax, ay, az, reverse)
     return align_with_xyz(x, y, z, ax, ay, az, reverse)
+
+
+def angular_mean(angles, weights=None):
+    """
+    Returns the angular mean of an array of angles IN RADIAN
+
+    Parameters
+    ----------
+    angles : ndarrau
+        1D array of angler. MUST BE IN RADIANS
+    weights : ndarray, optional
+        Array of weights for weighted mean, by default None
+
+    Returns
+    -------
+    float
+        Mean angle of angles in radians.
+    """
+    return angular_mean_nb(angles, weights)
+
+
+def angular_var(angles, weights=None):
+    """
+    Returns the angular variance of an array of angles IN RADIAN
+
+    Parameters
+    ----------
+    angles : ndarrau
+        1D array of angler. MUST BE IN RADIANS
+    weights : ndarray, optional
+        Array of weights for weighted variance, by default None
+
+    Returns
+    -------
+    float
+        Anglular variance of angles in radians.
+    """
+    return angular_variance_nb(angles, weights)
