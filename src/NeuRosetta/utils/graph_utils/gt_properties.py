@@ -91,7 +91,7 @@ def _get_properties(g: Graph, level: str | List[str] = "all") -> List[str] | dic
 def revert_core_properties(g: Graph) -> None:
     """Remove non-core properties from a graph, keeping only essential ones.
 
-    Core vertex properties: "coordinates", "ids", "node_type", "radius"
+    Core vertex properties: "x", "y", "z", "ids", "node_type", "radius"
     Core graph properties: "ID", "metadata"
     Core edge properties: "Path_length", "Euclidean_length"
 
@@ -101,7 +101,7 @@ def revert_core_properties(g: Graph) -> None:
         Graph to revert to core properties.
     """
     # remove unnecessary properties
-    core_vps = ["coordinates", "ids", "node_type", "radius"]
+    core_vps = ["x", "y", "z", "ids", "node_type", "radius"]
     core_gps = ["ID", "metadata"]
     core_eps = ["Path_length", "Euclidean_length"]
 

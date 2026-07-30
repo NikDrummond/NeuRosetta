@@ -3,6 +3,8 @@ from graph_tool.all import Graph
 from NeuRosetta.core import _Tree
 from numpy import array, ones_like
 
+import numba  # noqa: F401 — required by geometry_utils JIT kernels
+
 
 @pytest.fixture
 def simple_tree() -> Graph:
@@ -56,11 +58,11 @@ def simple_tree() -> Graph:
     g = Graph(edges, directed=True, hashed=True)
     
     # add basic properties
-    c_vp = g.new_vp("vector<double>")
-    c_vp.set_2d_array(coords.T)
-    g.vp['coordinates'] = c_vp
-    g.vp['radius'] = g.new_vp('double', radius)
-    g.vp['node_type'] = g.new_vp('int', n_types)
+    g.vp["x"] = g.new_vp("double", coords[:, 0])
+    g.vp["y"] = g.new_vp("double", coords[:, 1])
+    g.vp["z"] = g.new_vp("double", coords[:, 2])
+    g.vp["radius"] = g.new_vp("double", radius)
+    g.vp["node_type"] = g.new_vp("int", n_types)
     
     return g
 

@@ -46,6 +46,12 @@ def test_edge_coordinates_subtree(graph_with_xyz):
     assert p1.shape[0] == 16
 
 
-def test_vertex_coordinates_missing_property_raises(simple_tree):
+def test_vertex_coordinates_missing_property_raises():
+    from graph_tool.all import Graph
+
+    g = Graph(directed=True)
+    g.add_vertex(2)
+    g.add_edge(0, 1)
+    g.vp["radius"] = g.new_vp("double", [0.0, 1.0])
     with pytest.raises(Exception, match="Internal Property Missing"):
-        vertex_coordinates(simple_tree)
+        vertex_coordinates(g)

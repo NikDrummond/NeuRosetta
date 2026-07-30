@@ -13,6 +13,7 @@ authors = [{ name = "Nik Drummond", email = "nikolasdrummond@gmail.com" }]
 keywords = ["Morphology", "Connectomics", "topology", "geometry", "graphs"]
 dependencies = [
   "numpy",
+  "numba",
   "pandas",
   "scipy",
   "matplotlib",

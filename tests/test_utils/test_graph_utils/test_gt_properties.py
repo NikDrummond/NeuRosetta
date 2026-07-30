@@ -22,13 +22,13 @@ from NeuRosetta.utils.graph_utils.gt_properties import (
 
 
 def test_g_has_property(simple_tree):
-    assert g_has_property(simple_tree, "coordinates", "v")
+    assert g_has_property(simple_tree, "x", "v")
     assert not g_has_property(simple_tree, "missing", "v")
 
 
 def test_list_properties(simple_tree):
     props = list_properties(simple_tree, level="v")
-    assert "coordinates" in props
+    assert {"x", "y", "z"}.issubset(props)
 
 
 def test_bind_and_get_vertex_property(simple_tree):
@@ -75,13 +75,15 @@ def test_del_property(simple_tree):
     assert not g_has_property(g, "temp", "v")
 
 
-def test_get_property_vector_soa(simple_tree):
-    arr = get_property(simple_tree, "coordinates", level="v", as_array=True, SoA=True)
-    assert arr.shape[0] == 3
+def test_get_property_xyz_components(simple_tree):
+    x = get_property(simple_tree, "x", level="v", as_array=True)
+    y = get_property(simple_tree, "y", level="v", as_array=True)
+    z = get_property(simple_tree, "z", level="v", as_array=True)
+    assert x.shape == y.shape == z.shape == (17,)
 
 
 def test_get_property_search_all_levels(simple_tree):
-    val = get_property(simple_tree, "coordinates", as_array=False)
+    val = get_property(simple_tree, "x", as_array=False)
     assert val is not None
 
 
@@ -102,12 +104,12 @@ def test_revert_core_properties_removes_extras(simple_tree):
     revert_core_properties(g)
     assert not g_has_property(g, "extra", "v")
     assert not g_has_property(g, "extra_g", "g")
-    assert g_has_property(g, "coordinates", "v")
+    assert g_has_property(g, "x", "v")
 
 
 def test_bind_vector_property_via_set_create(simple_tree):
     g = simple_tree.copy()
-    coords = g.vp["coordinates"].get_2d_array().T
+    coords = np.stack([g.vp["x"].a, g.vp["y"].a, g.vp["z"].a], axis=1)
     set_property(g, "coords_copy", coords, level="v", dtype="vector<double>", create=True)
     out = get_property(g, "coords_copy", level="v", as_array=True)
     assert out.shape == coords.shape

@@ -30,23 +30,26 @@ def test_set_units_normalizes_metadata(simple_tree):
 
 def test_convert_units_scales_geometry(simple_tree):
     tree = Tree(ID=1, metadata={"units": "nm"}, graph=simple_tree)
-    coords_before = tree.graph.vp["coordinates"].get_2d_array().copy()
+    coords_before = tree.get_node_coordinates().copy()
     radius_before = tree.graph.vp["radius"].a.copy()
 
     convert_units(tree, "micron")
 
     assert get_units(tree) == "micron"
-    assert array_equal(tree.graph.vp["coordinates"].get_2d_array(), coords_before * 0.001)
+    assert array_equal(tree.get_node_coordinates(), coords_before * 0.001)
     assert array_equal(tree.graph.vp["radius"].a, radius_before * 0.001)
 
 
-def test_convert_units_clears_edge_lengths(simple_tree):
+def test_convert_units_recreates_edge_lengths(simple_tree):
     tree = Tree(ID=1, metadata={"units": "nm"}, graph=simple_tree)
     tree.get_edge_length()
+    lengths_before = tree.graph.ep["Path_length"].a.copy()
     assert "Path_length" in tree.graph.ep
 
     convert_units(tree, "micron")
-    assert "Path_length" not in tree.graph.ep
+
+    assert "Path_length" in tree.graph.ep
+    assert array_equal(tree.graph.ep["Path_length"].a, lengths_before * 0.001)
 
 
 def test_convert_units_in_place_false_returns_copy(simple_tree):

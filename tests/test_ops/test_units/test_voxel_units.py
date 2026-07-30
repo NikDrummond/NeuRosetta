@@ -19,16 +19,13 @@ def test_set_voxel_units_metadata(simple_tree):
 def test_convert_voxel_units_to_micron(simple_tree):
     tree = Tree(ID=1, metadata={}, graph=simple_tree)
     set_voxel_units(tree, 8, "nm")
-    coords_before = tree.graph.vp["coordinates"].get_2d_array().copy()
+    coords_before = tree.get_node_coordinates().copy()
 
     convert_units(tree, "micron")
 
     assert get_units(tree) == "micron"
     assert get_voxel_spec(tree) is None
-    assert array_equal(
-        tree.graph.vp["coordinates"].get_2d_array(),
-        coords_before * 0.008,
-    )
+    assert array_equal(tree.get_node_coordinates(), coords_before * 0.008)
 
 
 def test_import_swc_voxel_units(tmp_path):

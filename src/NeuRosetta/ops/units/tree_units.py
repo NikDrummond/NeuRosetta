@@ -83,23 +83,30 @@ def set_units(
     tree: _Tree,
     units: str,
     *,
+    convert: bool = False,
     voxel_size: float | None = None,
     voxel_unit: str | None = None,
 ) -> None:
-    """Set tree metadata units"""
+    """Set tree spatial units in metadata, optionally rescaling geometry."""
     old_meta = dict(tree.metadata)
     current = normalize_units_str(old_meta.get("units"))
-
-    if current != 'dimensionless':
-        return
-    # make sure units are currently not set
-
-    pending, _ = _pending_units_metadata(
+    pending, target = _pending_units_metadata(
         tree.metadata,
         units,
         voxel_size=voxel_size,
         voxel_unit=voxel_unit,
     )
+
+    if convert and not units_are_equal(current, target, old_meta, pending):
+        if not is_dimensionless(current):
+            factor = scale_factor(
+                current,
+                target,
+                from_metadata=old_meta,
+                to_metadata=pending,
+            )
+            _scale_tree_geometry(tree, factor)
+            _set_edge_lengths(tree)
 
     _commit_units_metadata(tree, pending)
 

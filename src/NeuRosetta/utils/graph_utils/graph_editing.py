@@ -16,7 +16,7 @@ def reduce_graph(g: Graph) -> Graph:
     Parameters
     ----------
     g : Graph
-        Input graph with vertex properties 'coordinates', 'radius', 'node_type',
+        Input graph with vertex properties 'x', 'y', 'z', 'radius', 'node_type',
         edge property 'Path_length', and graph properties 'ID' and 'metadata'.
 
     Returns
@@ -28,7 +28,9 @@ def reduce_graph(g: Graph) -> Graph:
     # we need path a bunch of properties
     raise_internal_property_missing(g, "metadata", "g")
     raise_internal_property_missing(g, "ID", "g")
-    raise_internal_property_missing(g, "coordinates", "v")
+    raise_internal_property_missing(g, "x", "v")
+    raise_internal_property_missing(g, "y", "v")
+    raise_internal_property_missing(g, "z", "v")
     raise_internal_property_missing(g, "radius", "v")
     raise_internal_property_missing(g, "node_type", "v")
     raise_internal_property_missing(g, "Path_length", "e")
@@ -62,7 +64,9 @@ def reduce_graph(g: Graph) -> Graph:
     g_red.ep["Path_length"] = g_red.new_ep("float", vis.path_lengths)
     # add coordinates to verts
     coords = vertex_coordinates(g)[g_red.vp["ids"].a]
-    g_red.vp["coordinates"] = g_red.new_vp("vector<double>", coords)
+    g_red.vp["x"] = g_red.new_vp("double", coords[:, 0])
+    g_red.vp["y"] = g_red.new_vp("double", coords[:, 1])
+    g_red.vp["z"] = g_red.new_vp("double", coords[:, 2])
     # add ID (from original)
     g_red.gp["ID"] = g_red.new_gp("long", g.gp["ID"])
     # add metadata and update reduced
@@ -84,7 +88,7 @@ def reroot_graph(g: Graph, root: int) -> Graph:
     Parameters
     ----------
     g : Graph
-        Input graph with vertex properties 'coordinates', 'radius', 'node_type',
+        Input graph with vertex properties 'x', 'y', 'z', 'radius', 'node_type',
         edge property 'Path_length', and graph properties 'ID' and 'metadata'.
     root : int
         Vertex index to use as new root.
@@ -97,7 +101,9 @@ def reroot_graph(g: Graph, root: int) -> Graph:
     # we need path a bunch of properties
     raise_internal_property_missing(g, "metadata", "g")
     raise_internal_property_missing(g, "ID", "g")
-    raise_internal_property_missing(g, "coordinates", "v")
+    raise_internal_property_missing(g, "x", "v")
+    raise_internal_property_missing(g, "y", "v")
+    raise_internal_property_missing(g, "z", "v")
     raise_internal_property_missing(g, "radius", "v")
     raise_internal_property_missing(g, "node_type", "v")
 
@@ -115,8 +121,10 @@ def reroot_graph(g: Graph, root: int) -> Graph:
     # metadata
     g_new.gp["metadata"] = g_new.new_gp("object", g_view.gp["metadata"])
     # coordinates
-    coords = g_view.vp["coordinates"].get_2d_array().T[g_new.vp["ids"].a]
-    g_new.vp["coordinates"] = g_new.new_vp("vector<double>", coords)
+    ids = g_new.vp["ids"].a
+    g_new.vp["x"] = g_new.new_vp("double", g_view.vp["x"].a[ids])
+    g_new.vp["y"] = g_new.new_vp("double", g_view.vp["y"].a[ids])
+    g_new.vp["z"] = g_new.new_vp("double", g_view.vp["z"].a[ids])
     # node_type
     g_new.vp["node_type"] = g_new.new_vp(
         "int", g_view.vp["node_type"].a[g_new.vp["ids"].a]
