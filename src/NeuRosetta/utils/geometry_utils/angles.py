@@ -202,62 +202,6 @@ def signed_angle_scalar(
 
 
 @njit(**_JIT)
-def rotate_scalar(
-    x,
-    y,
-    z,
-    ax,
-    ay,
-    az,
-    rotation_angle,
-    assume_normalized=False,
-):
-    """
-    Rotate a vector about an axis using Rodrigues' rotation formula.
-
-    Angle is in radians.
-    """
-
-    if not assume_normalized:
-        ax, ay, az = normalize_scalar(ax, ay, az)
-
-    c = np.cos(rotation_angle)
-    s = np.sin(rotation_angle)
-
-    #
-    # cross(axis, vector)
-    #
-
-    cx, cy, cz = cross_scalar(
-        ax,
-        ay,
-        az,
-        x,
-        y,
-        z,
-    )
-
-    #
-    # dot(axis, vector)
-    #
-
-    d = dot_scalar(
-        ax,
-        ay,
-        az,
-        x,
-        y,
-        z,
-    )
-
-    return (
-        c * x + s * cx + (1.0 - c) * d * ax,
-        c * y + s * cy + (1.0 - c) * d * ay,
-        c * z + s * cz + (1.0 - c) * d * az,
-    )
-
-
-@njit(**_JIT)
 def align_with_scalar(
     x,
     y,
@@ -399,41 +343,6 @@ def signed_angle_xyz(
         )
 
     return out
-
-
-@njit(**_JIT)
-def rotate_xyz(
-    x,
-    y,
-    z,
-    ax,
-    ay,
-    az,
-    rotation_angle,
-    assume_normalized=False,
-):
-
-    n = x.size
-
-    xr = np.empty(n)
-    yr = np.empty(n)
-    zr = np.empty(n)
-
-    for i in range(n):
-
-        xr[i], yr[i], zr[i] = rotate_scalar(
-            x[i],
-            y[i],
-            z[i],
-            ax[i],
-            ay[i],
-            az[i],
-            rotation_angle,
-            assume_normalized,
-        )
-
-    return xr, yr, zr
-
 
 @njit(**_JIT)
 def align_with_xyz(
@@ -623,40 +532,6 @@ def signed_angle(x1, y1, z1, x2, y2, z2, l1, l2, l3, degrees=False):
         return signed_angle_scalar(x1, y1, z1, x2, y2, z2, l1, l2, l3, degrees)
 
     return signed_angle_xyz(x1, y1, z1, x2, y2, z2, l1, l2, l3, degrees)
-
-
-def rotate(x, y, z, ax, ay, az, rotation_angle, assume_normalized=False):
-    """
-    Rotate a 3D vector about an axis.
-
-    Uses Rodrigues' rotation formula. The rotation angle is in radians.
-
-    Parameters
-    ----------
-    x, y, z : float or ndarray
-        Components of the vector to rotate.
-    ax, ay, az : float or ndarray
-        Components of the rotation axis. A scalar axis may be broadcast
-        against an array vector.
-    angle : float
-        Rotation angle in radians.
-    assume_normalized : bool, default False
-        If True, treat ``(ax, ay, az)`` as a unit vector.
-
-    Returns
-    -------
-    xr, yr, zr : float or ndarray
-        Components of the rotated vector.
-    """
-
-    if _check_vector_broadcast(x, y, z, ax, ay, az):
-        x, y, z, ax, ay, az = _broadcast_vectors(x, y, z, ax, ay, az)
-
-    if _check_scalar(x, y, z):
-        return rotate_scalar(x, y, z, ax, ay, az, rotation_angle, assume_normalized)
-
-    return rotate_xyz(x, y, z, ax, ay, az, rotation_angle, assume_normalized)
-
 
 def align_with(x, y, z, ax, ay, az, reverse=False):
     """

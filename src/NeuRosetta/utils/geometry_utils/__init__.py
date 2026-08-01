@@ -10,7 +10,13 @@ from .algebra import (
     perpendicular,
     scale_factor,
 )
-from .angles import angle, planar_angle, signed_angle, rotate, align_with
+from .angles import angle, planar_angle, signed_angle, align_with
+from .rotations import (
+    rotate,
+    minimum_rotation_to_align,
+    compute_alignment_rotation,
+    apply_rotation_steps,
+)
 from .tolerance import almost_zero, almost_unit_length, almost_collinear, almost_equal
 from .points import (
     euclidean_distance,
@@ -46,6 +52,9 @@ __all__ = [
     "planar_angle",
     "signed_angle",
     "rotate",
+    "minimum_rotation_to_align",
+    "compute_alignment_rotation",
+    "apply_rotation_steps",
     "align_with",
     "almost_zero",
     "almost_unit_length",
