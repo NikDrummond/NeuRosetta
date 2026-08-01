@@ -66,12 +66,12 @@ def angle_scalar(
 
     c = clamp(c, -1.0, 1.0)
 
-    angle = np.arccos(c)
+    a = np.arccos(c)
 
     if degrees:
-        angle *= 180.0 / np.pi
+        a *= 180.0 / np.pi
 
-    return angle
+    return a
 
 
 @njit(**_JIT)
@@ -162,7 +162,7 @@ def signed_angle_scalar(
         lz,
     )
 
-    angle = angle_scalar(
+    a = angle_scalar(
         x1,
         y1,
         z1,
@@ -196,9 +196,9 @@ def signed_angle_scalar(
     )
 
     if orient < 0.0:
-        angle = -angle
+        a = -a
 
-    return angle
+    return a
 
 
 @njit(**_JIT)
@@ -209,7 +209,7 @@ def rotate_scalar(
     ax,
     ay,
     az,
-    angle,
+    rotation_angle,
     assume_normalized=False,
 ):
     """
@@ -221,8 +221,8 @@ def rotate_scalar(
     if not assume_normalized:
         ax, ay, az = normalize_scalar(ax, ay, az)
 
-    c = np.cos(angle)
-    s = np.sin(angle)
+    c = np.cos(rotation_angle)
+    s = np.sin(rotation_angle)
 
     #
     # cross(axis, vector)
@@ -409,7 +409,7 @@ def rotate_xyz(
     ax,
     ay,
     az,
-    angle,
+    rotation_angle,
     assume_normalized=False,
 ):
 
@@ -428,7 +428,7 @@ def rotate_xyz(
             ax[i],
             ay[i],
             az[i],
-            angle,
+            rotation_angle,
             assume_normalized,
         )
 
@@ -625,7 +625,7 @@ def signed_angle(x1, y1, z1, x2, y2, z2, l1, l2, l3, degrees=False):
     return signed_angle_xyz(x1, y1, z1, x2, y2, z2, l1, l2, l3, degrees)
 
 
-def rotate(x, y, z, ax, ay, az, angle, assume_normalized=False):
+def rotate(x, y, z, ax, ay, az, rotation_angle, assume_normalized=False):
     """
     Rotate a 3D vector about an axis.
 
@@ -653,9 +653,9 @@ def rotate(x, y, z, ax, ay, az, angle, assume_normalized=False):
         x, y, z, ax, ay, az = _broadcast_vectors(x, y, z, ax, ay, az)
 
     if _check_scalar(x, y, z):
-        return rotate_scalar(x, y, z, ax, ay, az, angle, assume_normalized)
+        return rotate_scalar(x, y, z, ax, ay, az, rotation_angle, assume_normalized)
 
-    return rotate_xyz(x, y, z, ax, ay, az, angle, assume_normalized)
+    return rotate_xyz(x, y, z, ax, ay, az, rotation_angle, assume_normalized)
 
 
 def align_with(x, y, z, ax, ay, az, reverse=False):

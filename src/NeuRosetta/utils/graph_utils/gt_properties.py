@@ -490,6 +490,19 @@ def set_property(
         )
     prop.a = arr
 
+def _set_coords_prop(g, coords: ndarray):
+
+    if coords.ndim != 2:
+        raise ValueError(f"Given coordinate array must be 2 dimensional, not {coords.ndim}")
+
+    if coords.shape[1] == 3:
+        coords = coords.T
+    elif coords.shape[0] != 3:
+        raise ValueError(f"Given coordinate array must have 3 rows or columns (x,y,z)")
+
+    set_property(g, 'x',coords[0],'v')
+    set_property(g, 'y',coords[1],'v')
+    set_property(g, 'z',coords[2],'v')
 
 def del_property(g: Graph, name: str, level: Level) -> None:
     """Delete a property map from the graph."""
@@ -497,3 +510,4 @@ def del_property(g: Graph, name: str, level: Level) -> None:
     if name not in maps:
         raise KeyError(f"Property {name!r} not found at level {level!r}")
     del maps[name]
+

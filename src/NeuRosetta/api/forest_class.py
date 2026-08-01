@@ -40,7 +40,7 @@ from ..ops.tree_graphs import (
 
 from ..ops.plotting import Viewer
 
-from ..ops.units import get_units, harmonize_forest_units, ensure_forest_units
+from ..ops.units import get_units, harmonize_forest_units, ensure_forest_units, convert_units
 
 from ..io import (
     export_swc,
@@ -194,6 +194,9 @@ class Forest(_Forest):
     # --- units ---
     get_units = _forest_op(get_units)
     """Get spatial units for all trees."""
+
+    convert_units = _forest_op(convert_units)
+    """Convert spatial units for all trees."""
 
     harmonize_forest_units = harmonize_forest_units
     """Convert all trees to a common unit system, warning on mixed units."""
