@@ -46,6 +46,7 @@ from ..ops.tree_graphs import (
     get_max_subtree_node,
     get_subtree,
     get_partition_asymmetry,
+    align_tree,
 )
 
 from ..ops.plotting import (
@@ -209,6 +210,10 @@ class Tree(_Tree):
 
     get_partition_asymmetry = get_partition_asymmetry
     """Compute partition asymmetry at branch points."""
+
+    # --- transformations ---
+    align_tree = align_tree
+    """Align neuron pca axis to basis"""
 
     # --- saving ---
     export_to_swc = export_swc

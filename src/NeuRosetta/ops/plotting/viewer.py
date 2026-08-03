@@ -263,7 +263,7 @@ class Viewer:
         # Batch all actors into a single add call
         all_actors = []
         for tree in forest:
-            if tree._plot3d is not None:
-                all_actors.extend(tree._plot3d.actors)
+            if tree.plot3d is not None:
+                all_actors.extend(tree.plot3d.actors)
 
         self.add(all_actors)

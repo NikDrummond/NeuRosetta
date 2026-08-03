@@ -5,6 +5,7 @@ objects, with batch operations that can run in parallel.
 """
 
 from functools import wraps
+from inspect import cleandoc
 from typing import Callable
 
 from ..core import _Forest
@@ -36,6 +37,11 @@ from ..ops.tree_graphs import (
     get_max_subtree_node,
     get_subtree,
     get_partition_asymmetry,
+    align_tree,
+)
+
+from ..ops.forest_ops import (
+    align_forest,
 )
 
 from ..ops.plotting import Viewer
@@ -48,30 +54,126 @@ from ..io import (
 )
 
 
-def _forest_op(fn: Callable) -> Callable:
-    """Create a Forest method that applies `fn` to every tree.
+# def _forest_op(fn: Callable) -> Callable:
+#     """Create a Forest method that applies `fn` to every tree.
 
-    Extra per-tree kwargs are forwarded via **func_kwargs.
+#     Extra per-tree kwargs are forwarded via **func_kwargs.
+
+#     Parameters
+#     ----------
+#     fn : Callable
+#         Function to apply to each tree.
+
+#     Returns
+#     -------
+#     Callable
+#         Wrapped method that applies the function to all trees.
+#     """
+
+#     def method(
+#         self,
+#         parallel: bool = True,
+#         max_workers: int = 4,
+#         progress: bool = True,
+#         bind: bool = False,
+#         **func_kwargs,
+#     ):
+#         return self.apply(
+#             fn,
+#             **func_kwargs,
+#             parallel=parallel,
+#             max_workers=max_workers,
+#             show_progress=progress,
+#             bind=bind,
+#         )
+
+#     method.__name__ = getattr(fn, "__name__", repr(fn))
+#     method.__doc__ = f"Apply :func:`{method.__name__}` to every tree in the forest."
+#     return wraps(fn)(method)
+
+def _add_global_parameter(doc: str | None) -> str:
+    """Add the global_ parameter to a NumPy-style docstring."""
+
+    if not doc:
+        return (
+            "Apply the operation to the forest.\n\n"
+            "Parameters\n"
+            "----------\n"
+            "global_ : bool, default=False\n"
+            "    If False (default), apply independently to each tree.\n"
+            "    If True, use the forest-wide implementation.\n"
+        )
+
+    doc = cleandoc(doc)
+
+    parameter = (
+        "global_ : bool, default=False\n"
+        "    If False (default), apply independently to each tree.\n"
+        "    If True, use the forest-wide implementation.\n"
+    )
+
+    marker = "Parameters\n----------"
+
+    if marker in doc:
+        return doc.replace(
+            marker,
+            marker + "\n" + parameter,
+            1,
+        )
+
+    # No Parameters section exists; append one
+    return (
+        doc
+        + "\n\n"
+        + marker
+        + "\n"
+        + parameter
+    )
+
+
+def _forest_op(
+    fn: Callable,
+    *,
+    global_fn: Callable | None = None,
+) -> Callable:
+    """Create a Forest method that applies ``fn`` to every tree.
 
     Parameters
     ----------
     fn : Callable
-        Function to apply to each tree.
+        Function applied independently to each tree.
+
+    global_fn : Callable, optional
+        Function applied to the whole forest when ``global_=True``.
 
     Returns
     -------
     Callable
-        Wrapped method that applies the function to all trees.
+        Wrapped Forest method.
     """
 
+    @wraps(fn)
     def method(
         self,
+        *,
+        global_: bool = False,
         parallel: bool = True,
         max_workers: int = 4,
         progress: bool = True,
         bind: bool = False,
         **func_kwargs,
     ):
+        if global_:
+            if global_fn is None:
+                raise ValueError(
+                    f"{fn.__name__} does not provide a global implementation."
+                )
+
+            return global_fn(
+                self,
+                **func_kwargs,
+            )
+
         return self.apply(
             fn,
             **func_kwargs,
@@ -81,9 +183,10 @@ def _forest_op(fn: Callable) -> Callable:
             bind=bind,
         )
 
-    method.__name__ = getattr(fn, "__name__", repr(fn))
-    method.__doc__ = f"Apply :func:`{method.__name__}` to every tree in the forest."
-    return wraps(fn)(method)
+    if global_fn is not None:
+        method.__doc__ = _add_global_parameter(fn.__doc__)
+
+    return method
 
 
 class Forest(_Forest):
@@ -190,6 +293,12 @@ class Forest(_Forest):
 
     get_partition_asymmetry = _forest_op(get_partition_asymmetry)
     """Get partition asymmetry for all trees."""
+
+    # --- transformations ---
+    align_forest = _forest_op(
+        align_tree,
+        global_fn=align_forest
+    )
 
     # --- units ---
     get_units = _forest_op(get_units)

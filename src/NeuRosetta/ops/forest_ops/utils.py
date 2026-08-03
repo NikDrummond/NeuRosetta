@@ -1,4 +1,4 @@
-""" utils for global forest operations"""
+"""Internal helpers for global forest operations."""
 from numpy import cumsum, split, ndarray
 
 from ...core import _Forest

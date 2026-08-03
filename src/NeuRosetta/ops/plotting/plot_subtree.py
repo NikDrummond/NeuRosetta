@@ -1,4 +1,4 @@
-"""Get lines to plot subtree."""
+"""Build vedo line primitives for visualising subtrees."""
 
 from typing import Tuple
 from numpy import array

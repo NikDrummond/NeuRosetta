@@ -70,12 +70,35 @@ def _commit_units_metadata(tree: _Tree, pending: dict) -> None:
 
 
 def get_units(tree: _Tree) -> str:
-    """Return canonical spatial units for a tree."""
+    """Return canonical spatial units for a tree.
+
+    Parameters
+    ----------
+    tree : _Tree
+        Neuron tree.
+
+    Returns
+    -------
+    str
+        Canonical unit string.
+    """
     return normalize_units_str(tree.metadata.get("units"))
 
 
 def get_voxel_spec(tree: _Tree) -> tuple[float, str] | None:
-    """Return ``(voxel_size, voxel_unit)`` when the tree uses voxel coordinates."""
+    """Return voxel metadata when the tree uses voxel coordinates.
+
+    Parameters
+    ----------
+    tree : _Tree
+        Neuron tree.
+
+    Returns
+    -------
+    tuple[float, str] | None
+        ``(voxel_size, voxel_unit)`` when the tree uses voxel coordinates;
+        otherwise None.
+    """
     return voxel_spec_from_metadata(tree.metadata)
 
 
@@ -87,7 +110,27 @@ def set_units(
     voxel_size: float | None = None,
     voxel_unit: str | None = None,
 ) -> None:
-    """Set tree spatial units in metadata, optionally rescaling geometry."""
+    """Set spatial units in tree metadata, optionally rescaling geometry.
+
+    Parameters
+    ----------
+    tree : _Tree
+        Target tree.
+    units : str
+        Canonical unit string or ``"voxel"``.
+    convert : bool, optional
+        Rescale coordinates, radii, and edge lengths when changing units.
+        By default False.
+    voxel_size : float | None, optional
+        Cubic edge length when *units* is voxel-based. By default None.
+    voxel_unit : str | None, optional
+        Physical unit of each voxel edge when *units* is voxel-based.
+        By default None.
+
+    Returns
+    -------
+    None
+    """
     old_meta = dict(tree.metadata)
     current = normalize_units_str(old_meta.get("units"))
     pending, target = _pending_units_metadata(
@@ -116,7 +159,21 @@ def set_voxel_units(
     voxel_size: float,
     voxel_unit: str,
 ) -> None:
-    """Tag coordinates as voxel indices with a cubic edge length."""
+    """Tag coordinates as voxel indices with a cubic edge length.
+
+    Parameters
+    ----------
+    tree : _Tree
+        Target tree.
+    voxel_size : float
+        Physical length of one cubic voxel edge.
+    voxel_unit : str
+        Physical unit of *voxel_size*.
+
+    Returns
+    -------
+    None
+    """
     set_units(
         tree,
         VOXEL_UNITS,
@@ -133,9 +190,25 @@ def convert_units(
     voxel_size: float | None = None,
     voxel_unit: str | None = None,
 ) -> _Tree:
-    """Convert tree coordinates and radii to ``target_units``.
+    """Convert tree coordinates and radii to target units.
 
-    By default the tree is mutated in place and returned.
+    Parameters
+    ----------
+    tree : _Tree
+        Tree to convert.
+    target_units : str
+        Destination unit string.
+    in_place : bool, optional
+        Mutate *tree* in place. By default True.
+    voxel_size : float | None, optional
+        Required when converting to or from voxel units. By default None.
+    voxel_unit : str | None, optional
+        Required when converting to or from voxel units. By default None.
+
+    Returns
+    -------
+    _Tree
+        Converted tree (same object when in_place=True).
     """
     if not in_place:
         tree = tree.copy()
@@ -164,7 +237,18 @@ def convert_units(
 
 
 def check_units_defined(tree: _Tree) -> None:
-    """Raise ``ValueError`` when tree units are dimensionless."""
+    """Verify that a tree has non-dimensionless spatial units.
+
+    Parameters
+    ----------
+    tree : _Tree
+        Tree to check.
+
+    Raises
+    ------
+    ValueError
+        If units are dimensionless or voxel metadata is invalid.
+    """
     if is_dimensionless(get_units(tree)):
         raise ValueError(
             "Tree units are dimensionless; assign spatial units before converting."
@@ -188,6 +272,17 @@ def harmonize_forest_units(
 
     Emits a warning when trees carry different spatial units and skips trees
     that remain dimensionless.
+
+    Parameters
+    ----------
+    forest : _Forest
+        Forest to harmonize.
+    target_units : str, optional
+        Target unit for conversion. By default micrometers.
+
+    Returns
+    -------
+    None
     """
     target = normalize_units_str(target_units)
     defined = [
@@ -220,7 +315,20 @@ def ensure_forest_units(
     forest: _Forest,
     target_units: str = TARGET_MICROMETER,
 ) -> None:
-    """Harmonize forest units and require spatial units on every tree."""
+    """Harmonize forest units and require spatial units on every tree.
+
+    Parameters
+    ----------
+    forest : _Forest
+        Forest to validate.
+    target_units : str, optional
+        Target unit for harmonization. By default micrometers.
+
+    Raises
+    ------
+    ValueError
+        If any tree remains dimensionless after harmonization.
+    """
     harmonize_forest_units(forest, target_units=target_units)
     dimensionless_ids = [
         tree.ID for tree in forest if is_dimensionless(get_units(tree))

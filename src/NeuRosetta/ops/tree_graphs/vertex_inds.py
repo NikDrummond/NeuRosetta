@@ -39,7 +39,7 @@ def get_leaf_indices(tree: _Tree) -> ndarray:
 
     Returns
     -------
-    np.ndarray
+    ndarray
         Indices of leaf nodes (out-degree == 0).
     """
     return leaf_indices(tree.graph)
@@ -55,7 +55,7 @@ def get_branch_indices(tree: _Tree) -> ndarray:
 
     Returns
     -------
-    np.ndarray
+    ndarray
         Indices of branch nodes (out-degree > 1).
     """
     return branch_indices(tree.graph)
@@ -73,7 +73,7 @@ def get_core_indices(tree: _Tree, include_root: bool = True) -> ndarray:
 
     Returns
     -------
-    np.ndarray
+    ndarray
         Indices of core nodes.
     """
     return core_indices(tree.graph, include_root)
@@ -119,7 +119,7 @@ def get_edge_indices(
 
     Returns
     -------
-    np.ndarray
+    ndarray
         n x 2 array of node index pairs for each edge.
 
     Raises

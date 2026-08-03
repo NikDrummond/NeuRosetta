@@ -64,6 +64,10 @@ from .subtrees import(
     get_partition_asymmetry,
 )
 
+from .tree_transformations import (
+    align_tree
+)
+
 __all__ = [
     "get_root_index",
     "get_leaf_indices",
@@ -102,4 +106,5 @@ __all__ = [
     "get_max_subtree_node",
     "get_subtree",
     "get_partition_asymmetry",
+    "align_tree",
 ]

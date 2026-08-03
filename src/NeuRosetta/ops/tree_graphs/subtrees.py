@@ -137,7 +137,7 @@ def get_partition_asymmetry(
         Neuron tree graph.
     weighted : bool, optional
         If True compute the cable-weighted version. Requires the "Path_length"
-        edge property. By default False.
+        edge property. By default True.
     bind : bool, optional
         If True attach the result as vertex property
         ``g.vp["partition_asymmetry"]`` and return None. If False return the

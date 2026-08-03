@@ -1,4 +1,4 @@
-
+"""Vedo-based 3D plot helpers for neuron trees."""
 
 from __future__ import annotations
 from numpy.random import choice
@@ -8,7 +8,23 @@ from vedo import Lines, Point
 from ...core import _Tree
 
 class TreePlot3D:
-    """3D plot representation of a neuron tree using vedo primitives."""
+    """3D plot representation of a neuron tree using vedo primitives.
+
+    Parameters
+    ----------
+    tree : _Tree | None
+        Tree to plot. If None, creates an empty plot shell.
+    show_root : bool, optional
+        Include root marker in :attr:`actors`. By default True.
+    line_kwargs : dict | None, optional
+        Keyword arguments forwarded to the vedo Lines constructor.
+        By default None.
+    root_kwargs : dict | None, optional
+        Keyword arguments forwarded to the vedo Point constructor.
+        By default None.
+    random_c : bool, optional
+        Pick a random line colour. By default False.
+    """
 
     def __init__(
         self,
@@ -51,14 +67,17 @@ class TreePlot3D:
     # Read-only properties
     @property
     def lines(self) -> Lines | None:
+        """Vedo Lines actor for tree edges, or None if empty."""
         return self._lines
 
     @property
     def root(self) -> Point | None:
+        """Vedo Point actor at the tree root, or None if empty."""
         return self._root
 
     @property
     def show_root(self) -> bool:
+        """Whether the root marker is included in :attr:`actors`."""
         return self._show_root
 
     @show_root.setter
@@ -67,6 +86,7 @@ class TreePlot3D:
 
     @property
     def color(self):
+        """Current line colour, or None if no lines actor exists."""
         return self._lines.color() if self._lines is not None else None
 
     # Aliases
@@ -75,10 +95,12 @@ class TreePlot3D:
 
     @property
     def lw(self) -> float | None:
+        """Current line width, or None if no lines actor exists."""
         return self._lines.lw() if self._lines is not None else None
 
     @property
     def alpha(self) -> float | None:
+        """Current line opacity, or None if no lines actor exists."""
         return self._lines.alpha() if self._lines is not None else None
 
     # Alias
@@ -86,6 +108,7 @@ class TreePlot3D:
 
     @property
     def root_size(self) -> float | None:
+        """Current root marker radius, or None if no root actor exists."""
         return self._root.ps() if self._root is not None else None
 
     @property
@@ -124,6 +147,12 @@ class TreePlot3D:
             Whether to include the root marker in :attr:`actors`.
         random_c : bool, optional
             When True, pick a random RGB colour (takes priority over *colour*).
+            By default False.
+
+        Returns
+        -------
+        TreePlot3D
+            Self for chaining.
         """
         if random_c:
             colour = self._random_c()
@@ -150,10 +179,24 @@ class TreePlot3D:
         line_kwargs: dict | None = None,
         root_kwargs: dict | None = None,
     ) -> "TreePlot3D":
-        """Regenerate vedo objects from a (possibly updated) tree in place.
+        """Regenerate vedo objects from an updated tree in place.
 
         Preserves the current colour, line width, alpha, and root size unless
         *line_kwargs* / *root_kwargs* override them explicitly.
+
+        Parameters
+        ----------
+        tree : _Tree
+            Updated tree.
+        line_kwargs : dict | None, optional
+            Override kwargs for the vedo Lines constructor. By default None.
+        root_kwargs : dict | None, optional
+            Override kwargs for the vedo Point constructor. By default None.
+
+        Returns
+        -------
+        TreePlot3D
+            Self for chaining.
         """
         # Snapshot current style before rebuilding
         current_colour = self.color
