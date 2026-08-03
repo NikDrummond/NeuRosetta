@@ -32,7 +32,10 @@ from .coordinates import (
     get_root_coordinate,
     get_subtree_node_coordinates,
     get_edge_coordinates,
-    get_subtree_edge_coordinates
+    get_subtree_edge_coordinates,
+    coordinate_pca,
+    get_convex_hull,
+    get_convex_hull_volume,
 )
 
 from .tree_checks import (
@@ -68,6 +71,10 @@ from .tree_transformations import (
     align_tree
 )
 
+from .tree_geometry import (
+    get_mean_edge_angle,
+    get_edge_angle_variance,
+)
 __all__ = [
     "get_root_index",
     "get_leaf_indices",
@@ -92,6 +99,9 @@ __all__ = [
     "get_subtree_node_coordinates",
     "get_edge_coordinates",
     "get_subtree_edge_coordinates",
+    "coordinate_pca",
+    "get_convex_hull",
+    "get_convex_hull_volume",
     "check_reduced",
     "update_reduced",
     "has_property",
@@ -107,4 +117,6 @@ __all__ = [
     "get_subtree",
     "get_partition_asymmetry",
     "align_tree",
+    "get_mean_edge_angle",
+    "get_edge_angle_variance",
 ]

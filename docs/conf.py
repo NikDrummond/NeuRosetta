@@ -103,10 +103,9 @@ nitpicky = False
 
 
 def _callable_class_attrs(app, what, name, obj, skip, options):
-    """Include bound ops functions assigned as class attributes on Tree/Forest."""
-    if what == "class" and hasattr(obj, "__dict__"):
-        # Never skip documented callables assigned on the class body.
-        if name in obj.__dict__ and callable(obj.__dict__[name]):
+    if what == "class":
+        member = getattr(obj, name, None)
+        if callable(member) and name in getattr(obj, "__dict__", {}):
             return False
     return None
 

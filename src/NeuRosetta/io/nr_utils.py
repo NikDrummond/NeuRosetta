@@ -16,7 +16,7 @@ def load(
     voxel_unit: str | None = None,
     parallel: bool = False,
     max_workers: int | None = None,
-    progress: bool = False,
+    show_progress: bool = False,
 ) -> _Tree: ...
 
 @overload
@@ -29,7 +29,7 @@ def load(
     voxel_unit: str | None = None,
     parallel: bool = False,
     max_workers: int | None = None,
-    progress: bool = False,
+    show_progress: bool = False,
 ) -> _Forest: ...
 
 
@@ -42,7 +42,7 @@ def load(
     voxel_unit: str | None = None,
     parallel: bool = False,
     max_workers: int | None = None,
-    progress: bool = False,
+    show_progress: bool = False,
 ):
 
     """
@@ -76,7 +76,7 @@ def load(
         Maximum number of worker processes or threads to use when
         ``parallel=True``. If None, the default executor configuration
         is used. Default is None.
-    progress : bool, optional
+    show_progress : bool, optional
         If True, display a progress indicator while loading multiple trees.
         Default is False.
 
@@ -150,7 +150,7 @@ def load(
         candidates,
         parallel=parallel,
         max_workers=max_workers,
-        progress=progress,
+        show_progress=show_progress,
         desc="Loading .nr files",
     )
 
@@ -180,7 +180,7 @@ def save(
     *,
     parallel: bool = False,
     max_workers: int | None = None,
-    progress: bool = False,
+    show_progress: bool = False,
 ):
 
     """
@@ -207,7 +207,7 @@ def save(
         Maximum number of worker processes or threads to use when
         ``parallel=True``. If None, the default executor configuration
         is used. Default is None.
-    progress : bool, optional
+    show_progress : bool, optional
         If True, display a progress indicator while saving multiple trees.
         Default is False.
 
@@ -291,7 +291,7 @@ def save(
         trees,
         parallel=parallel,
         max_workers=max_workers,
-        progress=progress,
+        show_progress=show_progress,
         desc="Saving .nr files",
     )
 

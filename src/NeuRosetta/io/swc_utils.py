@@ -43,7 +43,7 @@ def import_swc(
     voxel_unit: str | None = None,
     parallel: bool = False,
     max_workers: int | None = None,
-    progress: bool = False,
+    show_progress: bool = False,
 ) -> _Tree: ...
 
 
@@ -56,7 +56,7 @@ def import_swc(
     voxel_unit: str | None = None,
     parallel: bool = False,
     max_workers: int | None = None,
-    progress: bool = False,
+    show_progress: bool = False,
 ) -> _Forest: ...
 
 
@@ -68,7 +68,7 @@ def import_swc(
     voxel_unit: str | None = None,
     parallel: bool = False,
     max_workers: int | None = None,
-    progress: bool = False,
+    show_progress: bool = False,
 ):
     """
     Import one or more SWC morphology files as trees.
@@ -99,7 +99,7 @@ def import_swc(
         Maximum number of worker processes or threads to use when
         ``parallel=True``. If None, the default executor configuration
         is used. Default is None.
-    progress : bool, optional
+    show_progress : bool, optional
         If True, display a progress indicator while importing multiple SWC
         files. Default is False.
 
@@ -188,7 +188,7 @@ def import_swc(
         swcs,
         parallel=parallel,
         max_workers=max_workers,
-        progress=progress,
+        show_progress=show_progress,
         desc="Importing .swc files",
     )
 
@@ -215,7 +215,7 @@ def export_swc(
     header: str | None = None,
     parallel: bool = False,
     max_workers: int | None = None,
-    progress: bool = False,
+    show_progress: bool = False,
 ) -> None: ...
 
 
@@ -226,7 +226,7 @@ def export_swc(
     header: str | None = None,
     parallel: bool = False,
     max_workers: int | None = None,
-    progress: bool = False,
+    show_progress: bool = False,
 ) -> None:
 
     """
@@ -256,7 +256,7 @@ def export_swc(
         Maximum number of worker processes or threads to use when
         ``parallel=True``. If None, the default executor configuration
         is used. Default is None.
-    progress : bool, optional
+    show_progress : bool, optional
         If True, display a progress indicator while exporting multiple trees.
         Default is False.
 
@@ -328,6 +328,6 @@ def export_swc(
         trees,
         parallel=parallel,
         max_workers=max_workers,
-        progress=progress,
+        show_progress=show_progress,
         desc="Writing SWC files",
     )

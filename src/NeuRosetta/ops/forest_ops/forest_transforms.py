@@ -1,6 +1,8 @@
 """Functions for global coordinate transformation of forests."""
 
+from typing import Tuple
 from numpy import array, ndarray
+from scipy.spatial import ConvexHull
 
 from ...core import _Forest
 from ...utils.graph_utils.gt_properties import _set_coords_prop
@@ -59,7 +61,7 @@ def align_forest(
         Rotated (x, y, z) arrays when bind=False; None when bind=True.
     """
 
-    coords = forest.get_node_coordinates(SoA=False, axis=0, progress=False)
+    coords = forest.get_node_coordinates(SoA=False, merge_axis=0, show_progress=False)
     coords -= coords.mean(axis=0, keepdims=True)
     x = coords[:, 0]
     y = coords[:, 1]
@@ -88,3 +90,54 @@ def align_forest(
         zr = _split_array_vertex(zr, s_index)
 
     return xr, yr, zr
+
+def forest_pca(forest: _Forest, robust: bool = False, norm:bool = True) -> Tuple[ndarray, ndarray]:
+    """Perform PCA on pooled node coordinates across a forest.
+
+    Parameters
+    ----------
+    forest : _Forest
+        Forest to analyse.
+    robust : bool, optional
+        Use robust covariance estimation. By default False.
+    norm : bool, optional
+        Normalize eigenvalues to sum to 1. By default True.
+
+    Returns
+    -------
+    tuple[ndarray, ndarray]
+        ``(evals, evecs)`` from :func:`eig_decomp`: eigenvalues in descending
+        order and corresponding eigenvectors as columns.
+    """
+    x,y,z = forest.get_node_coordinates(SoA = True, merge_axis = 1, show_progress = False)
+    return eig_decomp(x,y,z, robust = robust, norm = norm)
+
+def get_forest_convex_hull(forest:_Forest) -> ConvexHull:
+    """Build a convex hull around pooled node coordinates in a forest.
+
+    Parameters
+    ----------
+    forest : _Forest
+        Forest to analyse.
+
+    Returns
+    -------
+    ConvexHull
+        SciPy convex hull of all node coordinates.
+    """
+    return ConvexHull(forest.get_node_coordinates(SoA = False, merge_axis = 0, show_progress = False))
+
+def get_forest_convex_hull_volume(forest:_Forest) -> float:
+    """Return the volume enclosed by the convex hull of forest node coordinates.
+
+    Parameters
+    ----------
+    forest : _Forest
+        Forest to analyse.
+
+    Returns
+    -------
+    float
+        Convex hull volume in cubic tree units.
+    """
+    return ConvexHull(forest.get_node_coordinates(SoA = False, merge_axis = 0, show_progress = False)).volume

@@ -171,20 +171,46 @@ class _Forest(Sequence):
         predicate: Callable[[dict], bool] | None = None,
         **conditions,
     ) -> "_Forest":
-        """
-        Return a new _Forest containing only trees whose metadata satisfies
-        the given conditions. Two modes (mutually exclusive):
+        """Return a new forest containing trees matching metadata conditions.
 
-        1. Keyword equality — all conditions must match (AND logic):
+        Two filtering modes are supported (mutually exclusive):
+
+        1. Keyword equality — all conditions must match (AND logic).
+        2. Callable predicate — custom logic over each tree's metadata dict.
+
+        Missing metadata keys are treated as non-matching; no ``KeyError`` is
+        raised.
+
+        Parameters
+        ----------
+        predicate : Callable[[dict], bool], optional
+            Callable receiving a tree metadata dict and returning whether to
+            keep the tree. By default None.
+        **conditions
+            Metadata key/value pairs for equality filtering. Values may be
+            scalars (exact match) or list/tuple/set (membership test, OR
+            within that key). Ignored when *predicate* is provided.
+
+        Returns
+        -------
+        _Forest
+            New forest containing only matching trees.
+
+        Raises
+        ------
+        ValueError
+            If both *predicate* and keyword conditions are supplied.
+
+        Notes
+        -----
+        Keyword filtering examples::
+
             forest.filter(Neuron_type='T4', Neuron_subtype='a')
-
-        Values can also be lists/sets/tuples for membership checks (OR within a key):
             forest.filter(Neuron_type=['T4', 'T5'])
 
-        2. Callable predicate — full control over the logic:
-            forest.filter(lambda m: m.get('Neuron_type') == 'T4' or m.get('score', 0) > 5)
+        Predicate filtering example::
 
-        Missing metadata keys are treated as non-matching (no KeyError raised).
+            forest.filter(lambda m: m.get('Neuron_type') == 'T4' or m.get('score', 0) > 5)
         """
         if predicate is not None and conditions:
             raise ValueError("Provide either a predicate or keyword conditions, not both.")
@@ -211,10 +237,61 @@ class _Forest(Sequence):
         max_workers: int | None = None,
         show_progress: bool = False,
         bind: bool = False,
-        axis: int | None = None,
+        merge_axis: int | None = None,
         **kwargs,
     ) -> list[T] | None:
-        """Apply fn to all trees, in parallel or sequentially."""
+        """Apply a function to every tree in the forest.
+
+        Positional and keyword arguments are broadcast to all trees unless
+        given as length-*n* iterables (one value per tree). When *fn* accepts
+        a ``bind`` parameter and ``bind=True``, results are written in place
+        and ``None`` is returned.
+
+        Parameters
+        ----------
+        fn : Callable[..., T]
+            Function called as ``fn(tree, *args, **kwargs)`` for each tree.
+        *args
+            Positional arguments broadcast to all trees, or iterables of length
+            ``len(self)`` supplying per-tree values.
+        parallel : bool, optional
+            Run calls in a thread pool. By default True.
+        max_workers : int | None, optional
+            Maximum worker threads when *parallel* is True. By default None
+            (executor default).
+        show_progress : bool, optional
+            Show a tqdm progress bar. By default False.
+        bind : bool, optional
+            Forward ``bind=True`` to *fn* when supported, suppressing the
+            return value. By default False.
+        merge_axis : int | None, optional
+            Axis along which to concatenate ndarray results, or ``0`` to
+            flatten list results. When None, return a plain list of per-tree
+            results. By default None.
+        **kwargs
+            Keyword arguments broadcast to all trees, or iterables of length
+            ``len(self)`` supplying per-tree values.
+
+        Returns
+        -------
+        list | ndarray | None
+            Per-tree results as a list when *merge_axis* is None; concatenated
+            ndarray or flattened list when *merge_axis* is set; ``None`` when
+            all results are ``None`` or when ``bind=True`` and *fn* accepts
+            ``bind``.
+
+        Raises
+        ------
+        ValueError
+            If a per-tree iterable argument does not have length ``len(self)``.
+        TypeError
+            If *merge_axis* is set but result types cannot be merged.
+
+        Warns
+        -----
+        UserWarning
+            If ``bind=True`` but *fn* does not accept a ``bind`` parameter.
+        """
         n = len(self)
 
         # --- normalize positional args
@@ -273,7 +350,7 @@ class _Forest(Sequence):
             return None
         if all(r is None for r in results):
             return None
-        return _merge_results(results, axis)
+        return _merge_results(results, merge_axis)
 
     def build_3d(
         self,

@@ -369,7 +369,7 @@ def reconstruct_neuropil_surface(
         If any tree in the forest has dimensionless units after harmonization.
     """
     ensure_forest_units(forest)
-    coords = np.vstack(forest.get_node_coordinates(progress=False))
+    coords = np.vstack(forest.get_node_coordinates(show_progress=False))
 
     # downsample
     coords = downsample_points_voxel_grid(coords, voxel_size)

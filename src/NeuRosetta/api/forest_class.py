@@ -25,6 +25,9 @@ from ..ops.tree_graphs import (
     get_node_depth,
     get_node_coordinates,
     get_edge_coordinates,
+    coordinate_pca,
+    get_convex_hull,
+    get_convex_hull_volume,
     check_reduced,
     update_reduced,
     has_property,
@@ -38,10 +41,15 @@ from ..ops.tree_graphs import (
     get_subtree,
     get_partition_asymmetry,
     align_tree,
+    get_mean_edge_angle,
+    get_edge_angle_variance,
 )
 
 from ..ops.forest_ops import (
     align_forest,
+    forest_pca,
+    get_forest_convex_hull,
+    get_forest_convex_hull_volume,
 )
 
 from ..ops.plotting import Viewer
@@ -53,31 +61,112 @@ from ..io import (
     save,
 )
 
+# apply and global method doc strings
+_FOREST_EXECUTION_PARAMETERS = """
+parallel : bool
+    Run calls in a thread pool. By default True.
 
-# def _forest_op(fn: Callable) -> Callable:
-#     """Create a Forest method that applies `fn` to every tree.
+max_workers : int | None
+    Maximum worker threads when *parallel* is True. By default None
+    (executor default).
 
-#     Extra per-tree kwargs are forwarded via **func_kwargs.
+show_progress : bool, optional
+    Show a tqdm progress bar. By default False.
+
+merge_axis : int | None, optional
+    Axis along which to concatenate ndarray results, or ``0`` to
+    flatten list results. When None, return a plain list of per-tree
+    results. By default None.
+""".strip()
+
+_GLOBAL_PARAMETER = """
+global_ : bool, default=False
+    If False (default), apply the operation independently to each tree.
+    If True, use the forest-wide implementation.
+""".strip()
+# def _add_global_parameter(doc: str | None) -> str:
+#     """Add the global_ parameter to a NumPy-style docstring."""
+
+#     if not doc:
+#         return (
+#             "Apply the operation to the forest.\n\n"
+#             "Parameters\n"
+#             "----------\n"
+#             "global_ : bool, default=False\n"
+#             "    If False (default), apply independently to each tree.\n"
+#             "    If True, use the forest-wide implementation.\n"
+#         )
+
+#     doc = cleandoc(doc)
+
+#     parameter = (
+#         "global_ : bool, default=False\n"
+#         "    If False (default), apply independently to each tree.\n"
+#         "    If True, use the forest-wide implementation.\n"
+#     )
+
+#     marker = "Parameters\n----------"
+
+#     if marker in doc:
+#         return doc.replace(
+#             marker,
+#             marker + "\n" + parameter,
+#             1,
+#         )
+
+#     # No Parameters section exists; append one
+#     return (
+#         doc
+#         + "\n\n"
+#         + marker
+#         + "\n"
+#         + parameter
+#     )
+
+
+# def _forest_op(
+#     fn: Callable,
+#     *,
+#     global_fn: Callable | None = None,
+# ) -> Callable:
+#     """Create a Forest method that applies ``fn`` to every tree.
 
 #     Parameters
 #     ----------
 #     fn : Callable
-#         Function to apply to each tree.
+#         Function applied independently to each tree.
+
+#     global_fn : Callable, optional
+#         Function applied to the whole forest when ``global_=True``.
 
 #     Returns
 #     -------
 #     Callable
-#         Wrapped method that applies the function to all trees.
+#         Wrapped Forest method.
 #     """
 
+#     @wraps(fn)
 #     def method(
 #         self,
+#         *,
+#         global_: bool = False,
 #         parallel: bool = True,
 #         max_workers: int = 4,
 #         progress: bool = True,
 #         bind: bool = False,
 #         **func_kwargs,
 #     ):
+#         if global_:
+#             if global_fn is None:
+#                 raise ValueError(
+#                     f"{fn.__name__} does not provide a global implementation."
+#                 )
+
+#             return global_fn(
+#                 self,
+#                 **func_kwargs,
+#             )
+
 #         return self.apply(
 #             fn,
 #             **func_kwargs,
@@ -87,47 +176,33 @@ from ..io import (
 #             bind=bind,
 #         )
 
-#     method.__name__ = getattr(fn, "__name__", repr(fn))
-#     method.__doc__ = f"Apply :func:`{method.__name__}` to every tree in the forest."
-#     return wraps(fn)(method)
+#     if global_fn is not None:
+#         method.__doc__ = _add_global_parameter(fn.__doc__)
 
-def _add_global_parameter(doc: str | None) -> str:
-    """Add the global_ parameter to a NumPy-style docstring."""
+#     return method
+
+def _add_forest_parameters(doc: str | None) -> str:
+    """Add Forest-specific parameters to a NumPy-style docstring."""
+
+    parameters = _GLOBAL_PARAMETER + "\n\n" + _FOREST_EXECUTION_PARAMETERS
+    marker = "Parameters\n----------"
 
     if not doc:
         return (
             "Apply the operation to the forest.\n\n"
-            "Parameters\n"
-            "----------\n"
-            "global_ : bool, default=False\n"
-            "    If False (default), apply independently to each tree.\n"
-            "    If True, use the forest-wide implementation.\n"
+            f"{marker}\n"
+            f"{parameters}"
         )
 
     doc = cleandoc(doc)
 
-    parameter = (
-        "global_ : bool, default=False\n"
-        "    If False (default), apply independently to each tree.\n"
-        "    If True, use the forest-wide implementation.\n"
-    )
-
-    marker = "Parameters\n----------"
-
     if marker in doc:
-        return doc.replace(
-            marker,
-            marker + "\n" + parameter,
-            1,
-        )
+        return doc.replace(marker, f"{marker}\n{parameters}", 1)
 
-    # No Parameters section exists; append one
     return (
-        doc
-        + "\n\n"
-        + marker
-        + "\n"
-        + parameter
+        f"{doc}\n\n"
+        f"{marker}\n"
+        f"{parameters}"
     )
 
 
@@ -136,21 +211,7 @@ def _forest_op(
     *,
     global_fn: Callable | None = None,
 ) -> Callable:
-    """Create a Forest method that applies ``fn`` to every tree.
-
-    Parameters
-    ----------
-    fn : Callable
-        Function applied independently to each tree.
-
-    global_fn : Callable, optional
-        Function applied to the whole forest when ``global_=True``.
-
-    Returns
-    -------
-    Callable
-        Wrapped Forest method.
-    """
+    """Create a Forest method that applies ``fn`` to every tree."""
 
     @wraps(fn)
     def method(
@@ -159,7 +220,7 @@ def _forest_op(
         global_: bool = False,
         parallel: bool = True,
         max_workers: int = 4,
-        progress: bool = True,
+        show_progress: bool = True,
         bind: bool = False,
         **func_kwargs,
     ):
@@ -169,22 +230,18 @@ def _forest_op(
                     f"{fn.__name__} does not provide a global implementation."
                 )
 
-            return global_fn(
-                self,
-                **func_kwargs,
-            )
+            return global_fn(self, **func_kwargs)
 
         return self.apply(
             fn,
             **func_kwargs,
             parallel=parallel,
             max_workers=max_workers,
-            show_progress=progress,
+            show_progress=show_progress,
             bind=bind,
         )
 
-    if global_fn is not None:
-        method.__doc__ = _add_global_parameter(fn.__doc__)
+    method.__doc__ = _add_forest_parameters(fn.__doc__)
 
     return method
 
@@ -250,12 +307,35 @@ class Forest(_Forest):
     get_edge_coordinates = _forest_op(get_edge_coordinates)
     """Get edge coordinates for all trees."""
 
+    coordinate_pca = _forest_op(
+        coordinate_pca,
+        global_fn=forest_pca
+    )
+
+    get_convex_hull = _forest_op(
+        get_convex_hull,
+        global_fn=get_forest_convex_hull
+    )
+
+    get_convex_hull_volume = _forest_op(
+        get_convex_hull_volume,
+        global_fn=get_forest_convex_hull_volume
+    )
+
+
     # --- distances ---
     get_edge_length = _forest_op(get_edge_length)
     """Get edge lengths for all trees."""
 
     get_total_cable_length = _forest_op(get_total_cable_length)
     """Get total cable length for all trees."""
+
+    # --- Tree geometry ---
+    get_mean_edge_angle = _forest_op(get_mean_edge_angle)
+    """Get the mean angle of edges in neuron and between vector from perspective vector"""
+
+    get_edge_angle_variance = _forest_op(get_edge_angle_variance)
+    """Get the angle variance of edges in neuron and between vector from perspective vector"""
 
     # --- topology ---
     get_node_depth = _forest_op(get_node_depth)

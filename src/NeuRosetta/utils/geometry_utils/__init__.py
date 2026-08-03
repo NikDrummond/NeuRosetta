@@ -10,7 +10,7 @@ from .algebra import (
     perpendicular,
     scale_factor,
 )
-from .angles import angle, planar_angle, signed_angle, align_with
+from .angles import angle, planar_angle, signed_angle, align_with, angular_mean, angular_var
 from .rotations import (
     rotate,
     minimum_rotation_to_align,
@@ -51,6 +51,8 @@ __all__ = [
     "angle",
     "planar_angle",
     "signed_angle",
+    "angular_mean",
+    "angular_var",
     "rotate",
     "minimum_rotation_to_align",
     "compute_alignment_rotation",

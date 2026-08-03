@@ -33,6 +33,9 @@ from ..ops.tree_graphs import (
     get_subtree_node_coordinates,
     get_edge_coordinates,
     get_subtree_edge_coordinates,
+    coordinate_pca,
+    get_convex_hull,
+    get_convex_hull_volume,
     check_reduced,
     update_reduced,
     get_edge_length,
@@ -47,6 +50,8 @@ from ..ops.tree_graphs import (
     get_subtree,
     get_partition_asymmetry,
     align_tree,
+    get_mean_edge_angle,
+    get_edge_angle_variance,
 )
 
 from ..ops.plotting import (
@@ -68,7 +73,6 @@ from ..io import (
     export_swc,
     save,
 )
-
 
 class Tree(_Tree):
     """Main class for single neuron tree operations.
@@ -154,6 +158,15 @@ class Tree(_Tree):
     get_subtree_edge_coordinates = get_subtree_edge_coordinates
     """Get source and target coordinates for edges in a subtree."""
 
+    coordinate_pca = coordinate_pca
+    """Perform Principal component analysis on Tree node coordinates"""
+
+    get_convex_hull = get_convex_hull
+    """Build a Convex Hull around neuron points using scipy.spatial.ConvexHull"""
+
+    get_convex_hull_volume = get_convex_hull_volume
+    """Get the convex hull volume around neuron points using scipy.spatial.ConvexHull"""
+
     # --- degrees ---
     get_degrees = get_degrees
     """Get degree array for all nodes."""
@@ -167,6 +180,13 @@ class Tree(_Tree):
 
     get_total_cable_length = get_total_cable_length
     """Get total cable length of the tree."""
+
+    # --- Geometry ---
+    get_mean_edge_angle = get_mean_edge_angle
+    """Get the mean angle of edges in Neuron between edges and between vector, from perspective_vector"""
+
+    get_edge_angle_variance = get_edge_angle_variance
+    """Get angular vaiance of edges fom between vector fom perspecitve vector."""
 
     # --- Traversals ---
     tree_breadth_first_search = breadth_first_search

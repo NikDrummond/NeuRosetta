@@ -118,7 +118,7 @@ def export_mesh(
     *,
     parallel: bool = False,
     max_workers: int | None = None,
-    progress: bool = False,
+    show_progress: bool = False,
 ) -> list[Path]: ...
 
 
@@ -130,7 +130,7 @@ def export_mesh(
     binary: bool = True,
     parallel: bool = False,
     max_workers: int | None = None,
-    progress: bool = False,
+    show_progress: bool = False,
 ):
     """
     Export one or more meshes to disk.
@@ -152,7 +152,7 @@ def export_mesh(
         Export collection members in parallel. Default is False.
     max_workers : int or None, optional
         Worker count when ``parallel=True``.
-    progress : bool, optional
+    show_progress : bool, optional
         Show a progress bar for collections. Default is False.
 
     Returns
@@ -222,7 +222,7 @@ def export_mesh(
         items,
         parallel=parallel,
         max_workers=max_workers,
-        progress=progress,
+        show_progress=show_progress,
         desc="Exporting mesh files",
     )
 

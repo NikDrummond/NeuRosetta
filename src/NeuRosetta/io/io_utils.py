@@ -231,16 +231,16 @@ def _map_with_progress(
     *,
     parallel: bool,
     max_workers: int | None,
-    progress: bool,
+    show_progress: bool,
     desc: str,
 ) -> list[T]:
     if parallel:
         with ThreadPoolExecutor(max_workers=max_workers) as ex:
             futures = [ex.submit(fn, item) for item in items]
-            it = tqdm(futures, total=len(items), desc=desc) if progress else futures
+            it = tqdm(futures, total=len(items), desc=desc) if show_progress else futures
             return [fut.result() for fut in it]
     else:
-        it = tqdm(items, total=len(items), desc=desc) if progress else items
+        it = tqdm(items, total=len(items), desc=desc) if show_progress else items
         return [fn(x) for x in it]
 
 
@@ -250,16 +250,16 @@ def _foreach_with_progress(
     *,
     parallel: bool,
     max_workers: int | None,
-    progress: bool,
+    show_progress: bool,
     desc: str,
 ) -> None:
     if parallel:
         with ThreadPoolExecutor(max_workers=max_workers) as ex:
             futures = [ex.submit(fn, item) for item in items]
-            it = tqdm(futures, total=len(items), desc=desc) if progress else futures
+            it = tqdm(futures, total=len(items), desc=desc) if show_progress else futures
             for fut in it:
                 fut.result()
     else:
-        it = tqdm(items, total=len(items), desc=desc) if progress else items
+        it = tqdm(items, total=len(items), desc=desc) if show_progress else items
         for x in it:
             fn(x)
