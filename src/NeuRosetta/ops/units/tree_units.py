@@ -22,14 +22,16 @@ from ...utils.units import (
 )
 
 
-def _set_edge_lengths(tree: _Tree) -> None:
+def _set_edge_lengths(tree: _Tree, factor: float) -> None:
     for prop in ("Path_length", "Euclidean_length"):
         if g_has_property(tree.graph, prop, "e"):
+
+            tree.graph.ep[prop].a = tree.graph.ep[prop].a * factor
             # import here so not circular and re-calculate
-            from ...ops.tree_graphs.path_lengths import get_edge_length
-            # delete existing property and replace ( this could be smoother)
-            del_property(tree.graph, prop, 'e')
-            get_edge_length(tree, bind = True)
+            # from ...ops.tree_graphs.path_lengths import get_edge_length
+            # # delete existing property and replace ( this could be smoother)
+            # del_property(tree.graph, prop, 'e')
+            # get_edge_length(tree, bind = True)
 
 
 def _scale_tree_geometry(tree: _Tree, factor: float) -> None:
@@ -149,7 +151,7 @@ def set_units(
                 to_metadata=pending,
             )
             _scale_tree_geometry(tree, factor)
-            _set_edge_lengths(tree)
+            _set_edge_lengths(tree, factor)
 
     _commit_units_metadata(tree, pending)
 
@@ -230,7 +232,7 @@ def convert_units(
             to_metadata=pending,
         )
         _scale_tree_geometry(tree, factor)
-        _set_edge_lengths(tree)
+        _set_edge_lengths(tree, factor)
 
     _commit_units_metadata(tree, pending)
     return tree

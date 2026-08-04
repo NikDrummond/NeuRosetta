@@ -50,6 +50,7 @@ from ..ops.tree_graphs import (
     get_subtree,
     get_partition_asymmetry,
     align_tree,
+    get_edge_angles,
     get_mean_edge_angle,
     get_edge_angle_variance,
 )
@@ -182,6 +183,9 @@ class Tree(_Tree):
     """Get total cable length of the tree."""
 
     # --- Geometry ---
+    get_edge_angles = get_edge_angles
+    """Get the angle of edges relative to another vector and a perspective"""
+
     get_mean_edge_angle = get_mean_edge_angle
     """Get the mean angle of edges in Neuron between edges and between vector, from perspective_vector"""
 

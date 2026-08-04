@@ -72,6 +72,7 @@ from .tree_transformations import (
 )
 
 from .tree_geometry import (
+    get_edge_angles,
     get_mean_edge_angle,
     get_edge_angle_variance,
 )
@@ -117,6 +118,7 @@ __all__ = [
     "get_subtree",
     "get_partition_asymmetry",
     "align_tree",
+    "get_edge_angles",
     "get_mean_edge_angle",
     "get_edge_angle_variance",
 ]
