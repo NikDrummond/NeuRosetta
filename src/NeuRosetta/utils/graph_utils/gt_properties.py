@@ -355,7 +355,7 @@ def get_property(
     name: str,
     level: Level | None = None,
     *,
-    as_array: bool = False,
+    as_array: bool = True,
     SoA: bool = False,
 ) -> Any:
     """Get a property map (or its array values) from a graph.

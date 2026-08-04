@@ -75,6 +75,7 @@ from .tree_geometry import (
     get_edge_angles,
     get_mean_edge_angle,
     get_edge_angle_variance,
+    get_radial_angle,
 )
 __all__ = [
     "get_root_index",
@@ -121,4 +122,5 @@ __all__ = [
     "get_edge_angles",
     "get_mean_edge_angle",
     "get_edge_angle_variance",
+    "get_radial_angle",
 ]

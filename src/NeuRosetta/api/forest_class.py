@@ -44,6 +44,7 @@ from ..ops.tree_graphs import (
     get_edge_angles,
     get_mean_edge_angle,
     get_edge_angle_variance,
+    get_radial_angle,
 )
 
 from ..ops.forest_ops import (
@@ -244,6 +245,9 @@ class Forest(_Forest):
 
     get_edge_angle_variance = _forest_op(get_edge_angle_variance)
     """Get the angle variance of edges in neuron and between vector from perspective vector"""
+
+    get_radial_angle = _forest_op(get_radial_angle)
+    """Get radial angle of edges from root node"""
 
     # --- topology ---
     get_node_depth = _forest_op(get_node_depth)
