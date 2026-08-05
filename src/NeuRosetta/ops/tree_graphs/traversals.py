@@ -1,9 +1,10 @@
 """Tree graph traversal functions."""
+
 from __future__ import annotations
 
-from typing import Iterable
-from numpy import ndarray
-from graph_tool.all import BFSVisitor, DFSVisitor, Graph
+from typing import Iterable, Tuple
+from numpy import ndarray, hstack
+from graph_tool.all import BFSVisitor, DFSVisitor
 
 from ...core import _Tree
 
@@ -15,8 +16,10 @@ from ...utils.graph_utils import (
     TreeDepthVisitor,
     PostOrderVisitor,
     root_index,
+    AngleVisitor,
+    branch_indices,
+    leaf_indices,
 )
-
 
 ### Generic BF Search
 
@@ -219,7 +222,7 @@ def get_node_depth(tree: _Tree, root: int | None = None, bind: bool = True):
 
 
 # post-order traversal
-def get_post_order(tree: _Tree, root: int | None = None, bind: bool = True):
+def get_post_order(tree: _Tree, root: int | None = None, bind: bool = True) -> None | DFSVisitor:
     """Get post-order traversal of tree using depth-first search.
 
     Parameters
@@ -246,5 +249,71 @@ def get_post_order(tree: _Tree, root: int | None = None, bind: bool = True):
         tree.graph.vertex_properties["post_order"] = tree.graph.new_vp(
             "int", vis.post_order
         )
+        return None
+    
+    return vis
+
+# angular mean/var of sections for non-reduced trees
+def get_section_angular_deviation(
+    tree: _Tree, return_Visitor: bool = False
+) -> Tuple[ndarray, ndarray] | DFSVisitor:
+    """Compute per-section angular mean and variance for a non-reduced tree.
+
+    Sections run between branch nodes (and the root) and end at branch or
+    leaf nodes. For each section, edge directions are compared to the section
+    axis and summarised with :func:`angular_mean` and :func:`angular_var`.
+
+    Parameters
+    ----------
+    tree : _Tree
+        Neuron tree. Must not be reduced.
+    return_Visitor : bool, optional
+        If True, return the underlying :class:`AngleVisitor` instead of the
+        summary arrays. By default False.
+
+    Returns
+    -------
+    tuple[list, list] | AngleVisitor
+        ``(mean_angles, angle_variances)`` per section when
+        return_Visitor=False; otherwise the visitor instance.
+
+    Raises
+    ------
+    AttributeError
+        If the tree is reduced.
+    """
+    if tree.is_reduced():
+        raise AttributeError("Cannot calculate angular deviation for a reduced Neuron")
+
+    root = root_index(tree.graph)
+
+    # get start and stop inds of graph if reduced
+    b_inds = branch_indices(tree.graph)
+    l_inds = leaf_indices(tree.graph)
+
+    # starts are branches and the root
+    if root not in b_inds:
+        starts = hstack([b_inds, [root]])
     else:
+        starts = b_inds
+    # stops are branches (without the root!) and leaves
+    stops = hstack([b_inds[b_inds != root], l_inds])
+
+    vis = depth_first_search(
+        tree=tree,
+        visitor=AngleVisitor,
+        root=root,
+        init_kwargs={
+            "graph": tree.graph,
+            "starts": starts,
+            "stops": stops,
+            "x_prop": tree.graph.vp["x"],
+            "y_prop": tree.graph.vp["y"],
+            "z_prop": tree.graph.vp["z"],
+        },
+    )
+
+    if return_Visitor:
         return vis
+
+    return vis.mean_angles, vis.angle_variances

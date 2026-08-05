@@ -8,6 +8,7 @@ from ...utils.graph_utils import (
     count_leaves as _count_leaves,
     count_branches as _count_branches,
     count_transitive_vertices as _count_transitive_vertices,
+    count_sections as _count_sections,
 )
 
 
@@ -105,3 +106,18 @@ def count_transitive_nodes(tree: _Tree) -> int:
         Number of transitive vertices.
     """
     return _count_transitive_vertices(tree.graph)
+
+def count_sections(tree: _Tree) -> int:
+    """Count the number of sections (edges between root, branch and leaf nodes)
+
+    Parameters
+    ----------
+    tree : _Tree
+        Neurontree
+
+    Returns
+    -------
+    int
+        Number of sections
+    """
+    return _count_sections(tree.graph)

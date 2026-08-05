@@ -22,12 +22,14 @@ from ..ops.tree_graphs import (
     count_leaves,
     count_branches,
     count_transitive_nodes,
+    count_sections,
     breadth_first_search,
     breadth_first_iterator,
     depth_first_search,
     depth_first_iterator,
     get_node_depth,
     get_post_order,
+    get_section_angular_deviation,
     get_node_coordinates,
     get_root_coordinate,
     get_subtree_node_coordinates,
@@ -144,6 +146,9 @@ class Tree(_Tree):
     count_transitive_nodes = count_transitive_nodes
     """Count transitive nodes (in-degree == out-degree == 1)."""
 
+    count_sections = count_sections
+    """Count the number of sections in a neuron (edges between root/branch/leaf nodes)"""
+
     # --- coordinates ---
     get_node_coordinates = get_node_coordinates
     """Get coordinates of all nodes."""
@@ -211,6 +216,9 @@ class Tree(_Tree):
 
     get_post_order = get_post_order
     """Compute post-order traversal."""
+
+    get_section_angular_deviation = get_section_angular_deviation
+    """Compute section angle mean and variance between core nodes for non-reduced neurons"""
 
     # --- Topological bits ---
     get_node_depth = get_node_depth

@@ -44,7 +44,8 @@ def has_property(tree: _Tree, prop: str, level: str = "all") -> bool:
     prop : str
         String name of internal property map.
     level : str, optional
-        Level to check: "all" (default), "g" (graph), "v" (vertex), or "e" (edge).
+        Level to check: ``"all"``, ``"g"`` (graph), ``"v"`` (vertex), or
+        ``"e"`` (edge). By default ``"all"``.
 
     Returns
     -------

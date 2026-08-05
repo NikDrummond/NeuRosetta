@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from typing import Iterable
-from numpy import ndarray
+from numpy import ndarray, asarray, float64
 
 from graph_tool.all import (
     BFSVisitor,
@@ -13,6 +13,8 @@ from graph_tool.all import (
     bfs_iterator,
     dfs_iterator,
 )
+
+from ..geometry_utils.angles import angle, angular_mean, angular_var
 
 
 ### BFS traversals
@@ -306,3 +308,93 @@ class ReduceVisitor(DFSVisitor):
             self.edge_target.append(int(e.target()))
             # add current length to path_lengths
             self.path_lengths.append(self.curr_length)
+
+
+class AngleVisitor(DFSVisitor):
+
+    def __init__(self, graph, starts, stops, x_prop, y_prop, z_prop):
+        self.graph = graph
+        self.starts = starts
+        self.stops = stops
+
+        self.x_prop = x_prop
+        self.y_prop = y_prop
+        self.z_prop = z_prop
+
+        self._section_start = None
+
+        self._edge_x = []
+        self._edge_y = []
+        self._edge_z = []
+
+        self.edge_source = []
+        self.edge_target = []
+        self.mean_angles = []
+        self.angle_variances = []
+
+    def _pos(self, v):
+        return (
+            float(self.x_prop[v]),
+            float(self.y_prop[v]),
+            float(self.z_prop[v]),
+        )
+
+    def tree_edge(self, e):
+
+        src = e.source()
+        tgt = e.target()
+
+        if src in self.starts:
+            self._section_start = src
+            self._edge_x.clear()
+            self._edge_y.clear()
+            self._edge_z.clear()
+
+        x0, y0, z0 = self._pos(src)
+        x1, y1, z1 = self._pos(tgt)
+
+        self._edge_x.append(x1 - x0)
+        self._edge_y.append(y1 - y0)
+        self._edge_z.append(z1 - z0)
+
+        if tgt in self.stops:
+            self._finalise_section(tgt)
+
+    def _finalise_section(self, stop_vertex):
+
+        x0, y0, z0 = self._pos(self._section_start)
+        x1, y1, z1 = self._pos(stop_vertex)
+
+        section_x = x1 - x0
+        section_y = y1 - y0
+        section_z = z1 - z0
+
+        edge_x = asarray(self._edge_x, dtype=float64)
+        edge_y = asarray(self._edge_y, dtype=float64)
+        edge_z = asarray(self._edge_z, dtype=float64)
+
+        angles = angle(
+            edge_x,
+            edge_y,
+            edge_z,
+            section_x,
+            section_y,
+            section_z,
+            assume_normalized=False,
+        )
+
+        self.edge_source.append(int(self._section_start))
+        self.edge_target.append(int(stop_vertex))
+
+        self.mean_angles.append(
+            angular_mean(angles)
+        )
+
+        self.angle_variances.append(
+            angular_var(angles)
+        )
+
+        self._section_start = None
+        self._edge_x.clear()
+        self._edge_y.clear()
+        self._edge_z.clear()

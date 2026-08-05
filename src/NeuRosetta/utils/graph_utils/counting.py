@@ -1,7 +1,7 @@
 """Functions for counting nodes of different types in a graph."""
 from __future__ import annotations
 
-from numpy import where
+from numpy import where, hstack
 from graph_tool.all import Graph
 
 from .vertex_inds import leaf_indices, branch_indices
@@ -108,3 +108,23 @@ def count_transitive_vertices(g: Graph) -> int:
             & (g.degree_property_map("in").a == 1)
         )
     )
+
+def count_sections(g:Graph)-> int:
+    """Count the number of sections in a graph.
+
+    Sections are edges between the root, branch, and leaf nodes
+
+    Parameters
+    ----------
+    g : Graph
+        Directed tree graph
+
+    Returns
+    -------
+    int
+        Number of sections
+    """
+    b = branch_indices(g)
+    l = leaf_indices(g)
+    r = where(g.degree_property_map("in").a == 0)[0][0]
+    return hstack([b[b != r], l]).shape[0]

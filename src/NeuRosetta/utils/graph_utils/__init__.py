@@ -22,6 +22,7 @@ from .traversals import(
     PostOrderVisitor,
     ReduceVisitor,
     SubtreeMaskVisitor,
+    AngleVisitor
 )
 
 from .vertex_inds import (
@@ -39,6 +40,7 @@ from .counting import (
     count_leaves,
     count_branches,
     count_transitive_vertices,
+    count_sections,
 )
 
 from .coordinates import (
@@ -88,6 +90,7 @@ __all__ = [
     "count_leaves",
     "count_branches",
     "count_transitive_vertices",
+    "count_sections",
     "bfsearch",
     "bf_iterator",
     "dfsearch",
@@ -96,6 +99,7 @@ __all__ = [
     "PostOrderVisitor",
     "ReduceVisitor",
     "SubtreeMaskVisitor",
+    "AngleVisitor",
     "vertex_coordinates",
     "vertex_coordinates_subtree",
     "edge_coordinates",

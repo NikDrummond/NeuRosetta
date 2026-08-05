@@ -15,7 +15,8 @@ from .counting import (
     count_edges,
     count_leaves,
     count_branches,
-    count_transitive_nodes
+    count_transitive_nodes,
+    count_sections,
 )
 
 from .traversals import (
@@ -24,7 +25,8 @@ from .traversals import (
     depth_first_search,
     depth_first_iterator,
     get_node_depth,
-    get_post_order
+    get_post_order,
+    get_section_angular_deviation,
 )
 
 from .coordinates import (
@@ -90,12 +92,14 @@ __all__ = [
     "count_leaves",
     "count_branches",
     "count_transitive_nodes",
+    "count_sections",
     "breadth_first_search",
     "breadth_first_iterator",
     "depth_first_search",
     "depth_first_iterator",
     "get_node_depth",
     "get_post_order",
+    "get_section_angular_deviation",
     "get_node_coordinates",
     "get_root_coordinate",
     "get_subtree_node_coordinates",

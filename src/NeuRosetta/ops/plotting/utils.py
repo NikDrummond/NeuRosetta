@@ -82,6 +82,7 @@ class TreePlot3D:
 
     @show_root.setter
     def show_root(self, value: bool):
+        """Set whether the root marker is included in :attr:`actors`."""
         self._show_root = value
 
     @property
@@ -138,13 +139,14 @@ class TreePlot3D:
         colour :
             Any colour specifier accepted by vedo. Overridden by *random_c*.
         lw : float, optional
-            Line width.
+            Line width. By default unchanged.
         alpha : float, optional
-            Opacity in [0, 1].
+            Opacity in [0, 1]. By default unchanged.
         root_size : float, optional
-            Point radius of the root marker.
+            Point radius of the root marker. By default unchanged.
         show_root : bool, optional
             Whether to include the root marker in :attr:`actors`.
+            By default unchanged.
         random_c : bool, optional
             When True, pick a random RGB colour (takes priority over *colour*).
             By default False.

@@ -22,6 +22,7 @@ from ..ops.tree_graphs import (
     count_leaves,
     count_branches,
     count_transitive_nodes,
+    count_sections,
     get_node_depth,
     get_node_coordinates,
     get_edge_coordinates,
@@ -205,6 +206,9 @@ class Forest(_Forest):
 
     count_transitive_nodes = _forest_op(count_transitive_nodes)
     """Count transitive nodes in all trees."""
+
+    count_sections = _forest_op(count_sections)
+    """Count the number of sectiosn in all trees"""
 
     # --- coordinates ---
     get_node_coordinates = _forest_op(get_node_coordinates)
