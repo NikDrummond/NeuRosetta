@@ -37,6 +37,11 @@ from ._validation import (
     raise_dimension_error,
 )
 
+# from .scaling import (
+#     scale_along_basis_scalar,
+#     scale_along_basis_xyz,
+# )
+
 __all__ = [
     "basis",
     "normalize",

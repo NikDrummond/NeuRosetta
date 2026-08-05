@@ -1,6 +1,9 @@
 # basis.py
 
 import numpy as np
+from numba import njit
+
+from .algebra import dot_scalar 
 
 # Precomputed once, at import time, instead of allocating a fresh array on
 # every `basis.x` / `basis.y` / ... access. Marked read-only so accidental
@@ -52,3 +55,163 @@ class _BasisVectors(object):
 
 
 basis = _BasisVectors()
+
+# basis decomposition
+
+_JIT = dict(nogil=True, fastmath=True, cache=True, inline="always")
+
+
+@njit(**_JIT)
+def decompose_basis_scalar(
+    x, y, z,
+    bx1, by1, bz1,
+    bx2, by2, bz2,
+    bx3, by3, bz3,
+):
+
+    return (
+        dot_scalar(x, y, z, bx1, by1, bz1),
+        dot_scalar(x, y, z, bx2, by2, bz2),
+        dot_scalar(x, y, z, bx3, by3, bz3),
+    )
+
+
+@njit(**_JIT)
+def decompose_basis_xyz(
+    x, y, z,
+    bx1, by1, bz1,
+    bx2, by2, bz2,
+    bx3, by3, bz3,
+):
+
+    n = x.size
+
+    c1 = np.empty(n)
+    c2 = np.empty(n)
+    c3 = np.empty(n)
+
+    for i in range(n):
+
+        c1[i], c2[i], c3[i] = decompose_basis_scalar(
+            x[i], y[i], z[i],
+            bx1, by1, bz1,
+            bx2, by2, bz2,
+            bx3, by3, bz3,
+        )
+
+    return c1, c2, c3
+
+# basis reconstuction
+
+
+@njit(**_JIT)
+def reconstruct_basis_scalar(
+    c1, c2, c3,
+    bx1, by1, bz1,
+    bx2, by2, bz2,
+    bx3, by3, bz3,
+):
+
+    return (
+        c1*bx1 + c2*bx2 + c3*bx3,
+        c1*by1 + c2*by2 + c3*by3,
+        c1*bz1 + c2*bz2 + c3*bz3,
+    )
+
+
+@njit(**_JIT)
+def reconstruct_basis_xyz(
+    c1, c2, c3,
+    bx1, by1, bz1,
+    bx2, by2, bz2,
+    bx3, by3, bz3,
+):
+
+    n = c1.size
+
+    x = np.empty(n)
+    y = np.empty(n)
+    z = np.empty(n)
+
+    for i in range(n):
+
+        x[i], y[i], z[i] = reconstruct_basis_scalar(
+            c1[i], c2[i], c3[i],
+            bx1, by1, bz1,
+            bx2, by2, bz2,
+            bx3, by3, bz3,
+        )
+
+    return x, y, z
+
+
+# ------------------------------------------------------------------
+# Change of basis
+# ------------------------------------------------------------------
+
+@njit(**_JIT)
+def change_basis_scalar(
+    x, y, z,
+    bx1, by1, bz1,
+    bx2, by2, bz2,
+    bx3, by3, bz3,
+):
+
+    return decompose_basis_scalar(
+        x, y, z,
+        bx1, by1, bz1,
+        bx2, by2, bz2,
+        bx3, by3, bz3,
+    )
+
+
+@njit(**_JIT)
+def change_basis_xyz(
+    x, y, z,
+    bx1, by1, bz1,
+    bx2, by2, bz2,
+    bx3, by3, bz3,
+):
+
+    return decompose_basis_xyz(
+        x, y, z,
+        bx1, by1, bz1,
+        bx2, by2, bz2,
+        bx3, by3, bz3,
+    )
+
+
+# ------------------------------------------------------------------
+# Inverse change of basis
+# ------------------------------------------------------------------
+
+@njit(**_JIT)
+def inverse_change_basis_scalar(
+    c1, c2, c3,
+    bx1, by1, bz1,
+    bx2, by2, bz2,
+    bx3, by3, bz3,
+):
+
+    return reconstruct_basis_scalar(
+        c1, c2, c3,
+        bx1, by1, bz1,
+        bx2, by2, bz2,
+        bx3, by3, bz3,
+    )
+
+
+@njit(**_JIT)
+def inverse_change_basis_xyz(
+    c1, c2, c3,
+    bx1, by1, bz1,
+    bx2, by2, bz2,
+    bx3, by3, bz3,
+):
+
+    return reconstruct_basis_xyz(
+        c1, c2, c3,
+        bx1, by1, bz1,
+        bx2, by2, bz2,
+        bx3, by3, bz3,
+    )
