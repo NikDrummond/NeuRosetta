@@ -31,7 +31,8 @@ from .vertex_inds import (
     branch_indices,
     core_indices,
     edge_indices,
-    subtree_indices
+    subtree_indices,
+    bifurcation_indices,
 )
 from .counting import (
     count_roots,
@@ -84,6 +85,7 @@ __all__ = [
     "core_indices",
     "edge_indices",
     "subtree_indices",
+    "bifurcation_indices",
     "count_roots",
     "count_vertices",
     "count_edges",

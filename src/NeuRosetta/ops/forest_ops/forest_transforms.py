@@ -10,7 +10,22 @@ from ...utils.geometry_utils.pca import eig_decomp
 from ...utils.geometry_utils.rotations import compute_alignment_rotation, apply_rotation_steps
 from .utils import _split_array_vertex, _split_inds
 
-def _set_global_coords(forest: _Forest, x:ndarray,y:ndarray,z:ndarray):
+def _set_global_coords(
+    forest: _Forest, x: ndarray, y: ndarray, z: ndarray
+) -> None:
+    """Write pooled coordinate arrays back to individual forest tree graphs.
+
+    Parameters
+    ----------
+    forest : _Forest
+        Target forest.
+    x, y, z : ndarray
+        Pooled node coordinates for all trees concatenated along vertices.
+
+    Returns
+    -------
+    None
+    """
     s_index = _split_inds(forest)
 
     x = _split_array_vertex(x, s_index)

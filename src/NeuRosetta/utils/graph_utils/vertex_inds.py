@@ -157,3 +157,22 @@ def subtree_indices(
     if traversal_order == "Depth":
         return unique(df_iterator(g, root, array=True))
     raise ValueError(f"traversal_order must be Breadth or Depth, not {traversal_order}")
+
+def bifurcation_indices(g: Graph, include_root: bool = False) -> ndarray:
+    """_summary_
+
+    Parameters
+    ----------
+    g : Graph
+        Directed tree graph
+    include_root : bool, optional
+        If True, include root index if it is a bifurcation, by default False
+
+    Returns
+    -------
+    ndarray
+        Array of bifurcation vertex indices
+    """
+    if include_root:
+        return where((g.degree_property_map('out').a == 2))[0]
+    return where((g.degree_property_map('out').a == 2) & (g.degree_property_map('in').a != 0))[0]

@@ -40,6 +40,8 @@ def get_node_coordinates(
     """
     return vertex_coordinates(tree.graph, subset, SoA)
 
+# branch and leaf coordinates?
+
 def get_root_coordinate(
     tree: _Tree, SoA: bool = False
 ) -> ndarray:

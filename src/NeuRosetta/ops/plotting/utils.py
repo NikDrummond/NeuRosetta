@@ -1,8 +1,10 @@
 """Vedo-based 3D plot helpers for neuron trees."""
 
 from __future__ import annotations
+
+from typing import Any
+
 from numpy.random import choice
-# from numpy import ndarray
 from vedo import Lines, Point
 
 from ...core import _Tree
@@ -33,7 +35,11 @@ class TreePlot3D:
         line_kwargs: dict | None = None,
         root_kwargs: dict | None = None,
         random_c: bool = False,
-    ):
+    ) -> None:
+        """Initialize vedo plot actors from a tree.
+
+        See the class docstring for parameter descriptions.
+        """
         self._show_root = show_root
         self._lines: Lines | None = None
         self._root: Point | None = None
@@ -81,12 +87,12 @@ class TreePlot3D:
         return self._show_root
 
     @show_root.setter
-    def show_root(self, value: bool):
+    def show_root(self, value: bool) -> None:
         """Set whether the root marker is included in :attr:`actors`."""
         self._show_root = value
 
     @property
-    def color(self):
+    def color(self) -> Any | None:
         """Current line colour, or None if no lines actor exists."""
         return self._lines.color() if self._lines is not None else None
 
@@ -113,7 +119,7 @@ class TreePlot3D:
         return self._root.ps() if self._root is not None else None
 
     @property
-    def actors(self) -> list:
+    def actors(self) -> list[Lines | Point | None]:
         """Flattened list of vedo actors ready to pass to a Plotter."""
         actors = [self._lines]
         if self._show_root:
@@ -125,7 +131,7 @@ class TreePlot3D:
     def style(
         self,
         *,
-        colour=None,
+        colour: Any | None = None,
         lw: float | None = None,
         alpha: float | None = None,
         root_size: float | None = None,
@@ -219,6 +225,7 @@ class TreePlot3D:
         return self
 
     def __repr__(self) -> str:
+        """Return a concise summary of the current plot style."""
         return (
             f"TreePlot3D(color={self.color}, lw={self.lw}, alpha={self.alpha})"
         )

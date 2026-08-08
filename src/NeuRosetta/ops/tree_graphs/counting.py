@@ -108,16 +108,18 @@ def count_transitive_nodes(tree: _Tree) -> int:
     return _count_transitive_vertices(tree.graph)
 
 def count_sections(tree: _Tree) -> int:
-    """Count the number of sections (edges between root, branch and leaf nodes)
+    """Count the number of sections in a tree.
+
+    Sections are maximal paths between root, branch, and leaf nodes.
 
     Parameters
     ----------
     tree : _Tree
-        Neurontree
+        Neuron tree.
 
     Returns
     -------
     int
-        Number of sections
+        Number of sections.
     """
     return _count_sections(tree.graph)

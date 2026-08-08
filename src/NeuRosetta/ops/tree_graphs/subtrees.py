@@ -16,7 +16,9 @@ from .tree_checks import has_property
 from .path_lengths import get_edge_length
 
 
-def mask_subtree_from_root(tree: _Tree, root: int, bind: bool = True):
+def mask_subtree_from_root(
+    tree: _Tree, root: int, bind: bool = True
+) -> SubtreeMaskVisitor | None:
     """Create vertex and edge masks for a subtree rooted at the given vertex.
 
     Parameters

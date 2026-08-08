@@ -3,16 +3,18 @@
 from matplotlib.collections import LineCollection
 from numpy import stack, vstack, arange
 from matplotlib.pyplot import Axes, subplots
+from graph_tool import VertexPropertyMap
 
 from ...core import _Tree
+from ...utils.graph_utils import PostOrderVisitor
 from ..tree_graphs import get_node_depth, get_post_order
 
 
 def compute_dend_x(
     tree: _Tree,
     root: int,
-    depth,  # vertex PropertyMap<int>
-    post_order,  # PostOrderVisitor (has .post_order list)
+    depth: VertexPropertyMap,
+    post_order: PostOrderVisitor,
     x_spacing: float = 1.0,
 ) -> dict[int, float]:
     """Derive x coordinates from depth and the post-order visit list.

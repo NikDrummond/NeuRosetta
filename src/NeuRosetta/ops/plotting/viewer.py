@@ -99,7 +99,12 @@ class Viewer:
         """Enter the context manager."""
         return self
 
-    def __exit__(self, exc_type, exc, tb) -> None:
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        tb: Any,
+    ) -> None:
         """Exit the context manager and close the viewer."""
         self.close()
 
@@ -133,7 +138,7 @@ class Viewer:
         resetcam: bool = False,
         zoom: float | None = None,
         **kwargs: Any,
-    ):
+    ) -> Any:
         """Show the scene.
 
         Parameters
@@ -190,11 +195,8 @@ class Viewer:
         """Explicit access to the underlying vedo Plotter."""
         return self._plotter
 
-    def __getattr__(self, name: str):
-        """
-        Delegate everything else to Plotter.
-        Keeps wrapper thin without re-implementing vedo's API.
-        """
+    def __getattr__(self, name: str) -> Any:
+        """Delegate unknown attributes to the underlying vedo Plotter."""
         return getattr(self._plotter, name)
 
     ### Add neuron

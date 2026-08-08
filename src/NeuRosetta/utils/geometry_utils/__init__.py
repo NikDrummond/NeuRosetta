@@ -10,7 +10,17 @@ from .algebra import (
     perpendicular,
     scale_factor,
 )
-from .angles import angle, planar_angle, signed_angle, align_with, angular_mean, angular_var
+from .projections import (
+    bisector,
+)
+from .angles import (
+    angle,
+    planar_angle,
+    signed_angle,
+    align_with,
+    angular_mean,
+    angular_var,
+)
 from .rotations import (
     rotate,
     minimum_rotation_to_align,
@@ -53,6 +63,7 @@ __all__ = [
     "reject",
     "perpendicular",
     "scale_factor",
+    "bisector",
     "angle",
     "planar_angle",
     "signed_angle",

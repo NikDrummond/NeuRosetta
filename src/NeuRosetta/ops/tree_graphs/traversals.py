@@ -186,7 +186,9 @@ def depth_first_iterator(
 
 
 # depths
-def get_node_depth(tree: _Tree, root: int | None = None, bind: bool = True):
+def get_node_depth(
+    tree: _Tree, root: int | None = None, bind: bool = True
+) -> ndarray | None:
     """Compute node depths from root using breadth-first search.
 
     Parameters

@@ -23,6 +23,20 @@ from ...utils.units import (
 
 
 def _set_edge_lengths(tree: _Tree, factor: float) -> None:
+    """Scale cached edge-length properties by a unit-conversion factor.
+
+    Parameters
+    ----------
+    tree : _Tree
+        Target tree.
+    factor : float
+        Multiplicative scale factor applied to ``Path_length`` and
+        ``Euclidean_length`` edge properties when present.
+
+    Returns
+    -------
+    None
+    """
     for prop in ("Path_length", "Euclidean_length"):
         if g_has_property(tree.graph, prop, "e"):
 
@@ -35,6 +49,19 @@ def _set_edge_lengths(tree: _Tree, factor: float) -> None:
 
 
 def _scale_tree_geometry(tree: _Tree, factor: float) -> None:
+    """Scale node coordinates, radii, and edge lengths by a factor.
+
+    Parameters
+    ----------
+    tree : _Tree
+        Target tree.
+    factor : float
+        Multiplicative scale factor.
+
+    Returns
+    -------
+    None
+    """
     coords = tree.get_node_coordinates() * factor
     tree.graph.vp['x'].a = coords[:,0]
     tree.graph.vp['y'].a = coords[:,1]
@@ -49,6 +76,29 @@ def _pending_units_metadata(
     voxel_size: float | None = None,
     voxel_unit: str | None = None,
 ) -> tuple[dict, str]:
+    """Build pending metadata for a target unit assignment.
+
+    Parameters
+    ----------
+    metadata : dict
+        Existing tree metadata.
+    units : str
+        Target unit string.
+    voxel_size : float | None, optional
+        Cubic edge length when converting to voxel units. By default None.
+    voxel_unit : str | None, optional
+        Physical unit of each voxel edge. By default None.
+
+    Returns
+    -------
+    tuple[dict, str]
+        Pending metadata dict and normalized target unit string.
+
+    Raises
+    ------
+    ValueError
+        If voxel units are requested without ``voxel_size`` and ``voxel_unit``.
+    """
     pending = dict(metadata)
     target = normalize_units_str(units)
     if is_voxel_units(target):
@@ -63,6 +113,19 @@ def _pending_units_metadata(
 
 
 def _commit_units_metadata(tree: _Tree, pending: dict) -> None:
+    """Write pending unit metadata onto a tree.
+
+    Parameters
+    ----------
+    tree : _Tree
+        Target tree.
+    pending : dict
+        Metadata dict produced by :func:`_pending_units_metadata`.
+
+    Returns
+    -------
+    None
+    """
     tree.metadata["units"] = pending["units"]
     if is_voxel_units(pending["units"]):
         tree.metadata["voxel_size"] = pending["voxel_size"]
@@ -260,6 +323,18 @@ def check_units_defined(tree: _Tree) -> None:
 
 
 def _defined_unit_spec(tree: _Tree) -> tuple[str, tuple[float, str] | None]:
+    """Return the canonical unit string and optional voxel spec for a tree.
+
+    Parameters
+    ----------
+    tree : _Tree
+        Tree to inspect.
+
+    Returns
+    -------
+    tuple[str, tuple[float, str] | None]
+        Canonical units and ``(voxel_size, voxel_unit)`` when applicable.
+    """
     units = get_units(tree)
     if is_voxel_units(units):
         return units, validate_voxel_metadata(tree.metadata)

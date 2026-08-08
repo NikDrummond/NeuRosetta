@@ -56,6 +56,9 @@ from ..ops.tree_graphs import (
     get_mean_edge_angle,
     get_edge_angle_variance,
     get_radial_angle,
+    get_bifurcation_angles,
+    get_bifurcation_angle_sums,
+    get_bifurcation_deihedral_beta,
 )
 
 from ..ops.plotting import (
@@ -201,6 +204,15 @@ class Tree(_Tree):
     get_radial_angle = get_radial_angle
     """Get radial angle of edges from root node"""
 
+    get_bifurcation_angles = get_bifurcation_angles
+    """Get angles between edges at bifucation points (parent to child 1, parent to child 2 and child1 to child 2)"""
+
+    get_bifurcation_angle_sums = get_bifurcation_angle_sums
+    """ Get sum of edge angles at bifurcation points"""
+
+    get_bifurcation_deihedral_beta = get_bifurcation_deihedral_beta
+    """Get Dihedral beta angle for bifurcations (measure of planarity)"""
+    
     # --- Traversals ---
     tree_breadth_first_search = breadth_first_search
     """Perform breadth-first search with custom visitor."""

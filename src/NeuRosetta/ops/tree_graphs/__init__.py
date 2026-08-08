@@ -78,7 +78,11 @@ from .tree_geometry import (
     get_mean_edge_angle,
     get_edge_angle_variance,
     get_radial_angle,
+    get_bifurcation_angles,
+    get_bifurcation_angle_sums,
+    get_bifurcation_deihedral_beta,
 )
+
 __all__ = [
     "get_root_index",
     "get_leaf_indices",
@@ -127,4 +131,7 @@ __all__ = [
     "get_mean_edge_angle",
     "get_edge_angle_variance",
     "get_radial_angle",
+    "get_bifurcation_angles",
+    "get_bifurcation_angle_sums",
+    "get_bifurcation_deihedral_beta",
 ]

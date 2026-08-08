@@ -1,7 +1,7 @@
 """Functions for 3D geometric analysis of tree graphs."""
 
 from typing import Tuple
-from numpy import ndarray
+from numpy import ndarray, isin
 
 from .counting import count_edges
 from .coordinates import get_edge_coordinates, get_root_coordinate
@@ -16,8 +16,17 @@ from ...utils.geometry_utils import (
     angular_var,
     cross,
     angle,
+    bisector,
 )
-from ...utils.graph_utils import set_property, g_has_property, get_property
+from ...utils.graph_utils import (
+    set_property,
+    g_has_property,
+    get_property,
+    bifurcation_indices,
+)
+
+UnitVector = Tuple[ndarray, ndarray, ndarray]
+BifurcationUnitVectors = Tuple[UnitVector, UnitVector, UnitVector]
 
 
 def get_edge_angles(
@@ -285,3 +294,164 @@ def get_radial_angle(
         return
 
     return a
+
+
+# get_bifurcation_geometry
+
+
+### Get ALL the needed vectors (not normals)
+def _get_bifurcation_unit_vectors(tree: _Tree) -> BifurcationUnitVectors:
+    """Return unit vectors at each bifurcation for geometry calculations.
+
+    For every bifurcation node, returns normalized vectors from the branch
+    point to each child (``bc1``, ``bc2``) and to the parent (``sb``).
+
+    Parameters
+    ----------
+    tree : _Tree
+        Neuron tree.
+
+    Returns
+    -------
+    tuple[tuple[ndarray, ndarray, ndarray], tuple[ndarray, ndarray, ndarray], tuple[ndarray, ndarray, ndarray]]
+        ``(bc1, bc2, sb)`` where each element is an ``(x, y, z)`` component
+        tuple of per-bifurcation unit vectors.
+    """
+    # get bifurcation inds
+    b_inds = bifurcation_indices(tree.graph)
+
+    # get coordinates + branch poit coordinates
+    coords = tree.get_node_coordinates()
+    branch_coords = coords[b_inds]
+    # get edges
+    edges = tree.get_edge_indices()
+
+    ### Needed node indices around bifurcations
+
+    # get child edges, as in the source is branch - we index to only get the target of the edge
+    source_inds = isin(edges[:, 0], b_inds)
+    child_edges_to_keep = edges[source_inds]
+    child_edges = child_edges_to_keep[:, 1]
+
+    # split into odd and even
+    even_child = child_edges[::2]
+    odd_child = child_edges[1::2]
+
+    # now we want the parents of the branches - again we index, this time to only get the source
+    source_inds = isin(edges[:, 1], b_inds)
+    parent_edges = edges[source_inds][:, 0]
+
+    # node coordinates
+    v_bc1 = coords[even_child]
+    v_bc2 = coords[odd_child]
+    v_sb = coords[parent_edges]
+
+    # subtract branch_coords
+    v_bc1 -= branch_coords
+    v_bc2 -= branch_coords
+    v_sb -= branch_coords
+
+    # transpose for numba kernels
+    v_bc1 = v_bc1.T
+    v_bc2 = v_bc2.T
+    v_sb = v_sb.T
+
+    # normalize to return unit vectors
+
+    return normalize(*v_bc1), normalize(*v_bc2), normalize(*v_sb)
+
+
+def get_bifurcation_angles(
+    tree: _Tree, degrees: bool = False
+) -> tuple[ndarray, ndarray, ndarray]:
+    """Compute planar angles at each bifurcation node.
+
+    For each bifurcation, returns the parent-to-first-child angle
+    (``pc1_angles``), parent-to-second-child angle (``pc2_angles``), and
+    inter-child angle (``c_angles``).
+
+    Parameters
+    ----------
+    tree : _Tree
+        Neuron tree.
+    degrees : bool, optional
+        Return angles in degrees instead of radians. By default False.
+
+    Returns
+    -------
+    tuple[ndarray, ndarray, ndarray]
+        ``(pc1_angles, pc2_angles, c_angles)``, one value per bifurcation.
+    """
+    bc1, bc2, sb = _get_bifurcation_unit_vectors(tree)
+    # normals
+    child_normals = cross(*bc1, *bc2)
+    pc1_normals = cross(*bc1, *sb)
+    pc2_normals = cross(*bc2, *sb)
+
+    # angles
+    c_angles = planar_angle(*bc1, *bc2, *child_normals, degrees=degrees)
+    pc1_angles = planar_angle(*sb, *bc1, *pc1_normals, degrees=degrees)
+    pc2_angles = planar_angle(*sb, *bc2, *pc2_normals, degrees=degrees)
+
+    return pc1_angles, pc2_angles, c_angles
+
+
+def get_bifurcation_angle_sums(
+    tree: _Tree, degrees: bool = False
+) -> ndarray:
+    """Compute the sum of parent-child and inter-child angles at bifurcations.
+
+    Equivalent to ``pc1 + pc2 + c`` from :func:`get_bifurcation_angles`.
+
+    Parameters
+    ----------
+    tree : _Tree
+        Neuron tree.
+    degrees : bool, optional
+        Return angles in degrees instead of radians. By default False.
+
+    Returns
+    -------
+    ndarray
+        Angle sum at each bifurcation node.
+    """
+    pc1_angles, pc2_angles, c_angles = get_bifurcation_angles(tree, degrees=degrees)
+    return pc1_angles + pc2_angles + c_angles
+
+
+# dehedral beta
+def get_bifurcation_deihedral_beta(
+    tree: _Tree, degrees: bool = False
+) -> ndarray:
+    """Compute the dihedral beta angle at each bifurcation.
+
+    Measures the planar angle between the parent branch vector and the
+    bisector of the two child branch vectors, viewed along the plane normal
+    defined by the child cross product.
+
+    Parameters
+    ----------
+    tree : _Tree
+        Neuron tree.
+    degrees : bool, optional
+        Return angles in degrees instead of radians. By default False.
+
+    Returns
+    -------
+    ndarray
+        Dihedral beta angle at each bifurcation node.
+    """
+    # get normal bifurcation vectors
+    bc1, bc2, sb = _get_bifurcation_unit_vectors(tree)
+
+    # bisection of child vectors
+    cc_bisector = bisector(*bc1, *bc2)
+
+    # cross of child vectors
+    cc_cross = cross(*bc1, *bc2)
+
+    # cross of the cross and the bisector
+    normal = cross(*cc_cross, *cc_bisector)
+
+    # Dihedral beta - angle between parent and bisector from perspective of normal
+    return planar_angle(*sb, *cc_bisector, *normal, degrees=degrees)
