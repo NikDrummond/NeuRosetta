@@ -16,6 +16,7 @@ from ..ops.tree_graphs import (
     get_branch_indices,
     get_core_indices,
     get_edge_indices,
+    get_bifurcation_indices,
     count_roots,
     count_nodes,
     count_edges,
@@ -23,6 +24,7 @@ from ..ops.tree_graphs import (
     count_branches,
     count_transitive_nodes,
     count_sections,
+    count_bifurcations,
     get_node_depth,
     get_node_coordinates,
     get_edge_coordinates,
@@ -46,6 +48,9 @@ from ..ops.tree_graphs import (
     get_mean_edge_angle,
     get_edge_angle_variance,
     get_radial_angle,
+    get_bifurcation_angles,
+    get_bifurcation_angle_sums,
+    get_bifurcation_deihedral_beta,
 )
 
 from ..ops.forest_ops import (
@@ -188,6 +193,9 @@ class Forest(_Forest):
     get_edge_indices = _forest_op(get_edge_indices)
     """Get edge indices for all trees."""
 
+    get_bifurcation_indices = _forest_op(get_bifurcation_indices)
+    """get indices of bifurcation nodes for all trees"""
+
     # --- counts ---
     count_roots = _forest_op(count_roots)
     """Count roots in all trees."""
@@ -209,6 +217,9 @@ class Forest(_Forest):
 
     count_sections = _forest_op(count_sections)
     """Count the number of sectiosn in all trees"""
+
+    count_bifurcations = _forest_op(count_bifurcations)
+    """Count the number of bifurcating nodes in all trees"""
 
     # --- coordinates ---
     get_node_coordinates = _forest_op(get_node_coordinates)
@@ -232,7 +243,6 @@ class Forest(_Forest):
         global_fn=get_forest_convex_hull_volume
     )
 
-
     # --- distances ---
     get_edge_length = _forest_op(get_edge_length)
     """Get edge lengths for all trees."""
@@ -252,6 +262,15 @@ class Forest(_Forest):
 
     get_radial_angle = _forest_op(get_radial_angle)
     """Get radial angle of edges from root node"""
+
+    get_bifurcation_angles = _forest_op(get_bifurcation_angles)
+    """Get the angles between edges at bifurcations nodes"""
+
+    get_bifurcation_angle_sums = _forest_op(get_bifurcation_angle_sums)
+    """Get the sum of angles between edges at bifurcations points"""
+
+    get_bifurcation_deihedral_beta = _forest_op(get_bifurcation_deihedral_beta)
+    """Get Dihedral beta angle for all bifurcations (measure of planarity)"""
 
     # --- topology ---
     get_node_depth = _forest_op(get_node_depth)

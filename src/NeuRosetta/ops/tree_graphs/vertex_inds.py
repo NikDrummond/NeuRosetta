@@ -10,6 +10,7 @@ from ...utils.graph_utils import (
     core_indices,
     edge_indices,
     subtree_indices,
+    bifurcation_indices,
 )
 
 
@@ -128,3 +129,22 @@ def get_edge_indices(
         If traversal_order is not "Breadth" or "Depth".
     """
     return edge_indices(tree.graph, root, traversal_order)
+
+def get_bifurcation_indices(
+        tree: _Tree, include_root:bool = False
+) -> ndarray:
+    """Get node indices of bifurcation branch points.
+
+    Parameters
+    ----------
+    tree : _Tree
+        Neuron tree.
+    include_root : bool, optional
+        If True, the root node index is included if it is a bifurcation, by default False
+
+    Returns
+    -------
+    ndarray
+        Node indices of bifurcation points
+    """
+    return bifurcation_indices(tree.graph, include_root=include_root)

@@ -42,6 +42,7 @@ from .counting import (
     count_branches,
     count_transitive_vertices,
     count_sections,
+    count_bifurcations,
 )
 
 from .coordinates import (
@@ -93,6 +94,7 @@ __all__ = [
     "count_branches",
     "count_transitive_vertices",
     "count_sections",
+    "count_bifurcations",
     "bfsearch",
     "bf_iterator",
     "dfsearch",

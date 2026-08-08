@@ -159,7 +159,7 @@ def subtree_indices(
     raise ValueError(f"traversal_order must be Breadth or Depth, not {traversal_order}")
 
 def bifurcation_indices(g: Graph, include_root: bool = False) -> ndarray:
-    """_summary_
+    """Return indices of bifurcation in tree graph.
 
     Parameters
     ----------

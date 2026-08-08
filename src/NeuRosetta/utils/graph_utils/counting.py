@@ -4,7 +4,7 @@ from __future__ import annotations
 from numpy import where, hstack
 from graph_tool.all import Graph
 
-from .vertex_inds import leaf_indices, branch_indices
+from .vertex_inds import leaf_indices, branch_indices, bifurcation_indices
 
 
 def count_roots(g: Graph) -> int:
@@ -128,3 +128,22 @@ def count_sections(g:Graph)-> int:
     l = leaf_indices(g)
     r = where(g.degree_property_map("in").a == 0)[0][0]
     return hstack([b[b != r], l]).shape[0]
+
+def count_bifurcations(g:Graph, include_root:bool = False)-> int:
+    """Count the number of bifurcations within a graph.
+
+    Parameters
+    ----------
+    g : Graph
+        Directed tree graph
+    include_root : bool, optional
+        If True, include root index in count if it is a bifurcation, by default False
+
+    Returns
+    -------
+    int
+        Number of bifurcations
+    """
+    return len(bifurcation_indices(g, include_root=include_root))
+
+

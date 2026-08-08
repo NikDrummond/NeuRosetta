@@ -9,6 +9,7 @@ from ...utils.graph_utils import (
     count_branches as _count_branches,
     count_transitive_vertices as _count_transitive_vertices,
     count_sections as _count_sections,
+    count_bifurcations as _count_bifurcations,
 )
 
 
@@ -123,3 +124,20 @@ def count_sections(tree: _Tree) -> int:
         Number of sections.
     """
     return _count_sections(tree.graph)
+
+def count_bifurcations(tree: _Tree, include_root: bool = False) -> int:
+    """Count the number of bifurcating nodes within a tree
+
+    Parameters
+    ----------
+    tree : _Tree
+        Neuron tree
+    include_root : bool, optional
+        If True, count the root node if it is a bifurcation, by default False
+
+    Returns
+    -------
+    int
+        Number of bifurcation points within the neuron.
+    """
+    return _count_bifurcations(tree.graph, include_root=include_root)

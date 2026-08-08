@@ -6,7 +6,8 @@ from .vertex_inds import (
     get_branch_indices,
     get_core_indices,
     get_subtree_indices,
-    get_edge_indices
+    get_edge_indices,
+    get_bifurcation_indices,
 )
 
 from .counting import (
@@ -17,6 +18,7 @@ from .counting import (
     count_branches,
     count_transitive_nodes,
     count_sections,
+    count_bifurcations,
 )
 
 from .traversals import (
@@ -90,6 +92,7 @@ __all__ = [
     "get_core_indices",
     "get_subtree_indices",
     "get_edge_indices",
+    "get_bifurcation_indices",
     "count_roots",
     "count_nodes",
     "count_edges",
@@ -97,6 +100,7 @@ __all__ = [
     "count_branches",
     "count_transitive_nodes",
     "count_sections",
+    "count_bifurcations",
     "breadth_first_search",
     "breadth_first_iterator",
     "depth_first_search",

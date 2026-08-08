@@ -16,6 +16,7 @@ from ..ops.tree_graphs import (
     get_core_indices,
     get_subtree_indices,
     get_edge_indices,
+    get_bifurcation_indices,
     count_roots,
     count_nodes,
     count_edges,
@@ -23,6 +24,7 @@ from ..ops.tree_graphs import (
     count_branches,
     count_transitive_nodes,
     count_sections,
+    count_bifurcations,
     breadth_first_search,
     breadth_first_iterator,
     depth_first_search,
@@ -130,6 +132,9 @@ class Tree(_Tree):
     get_subtree_indices = get_subtree_indices
     """Get node indices of subtree rooted at given vertex."""
 
+    get_bifurcation_indices = get_bifurcation_indices
+    """Get the indices of bifurcation nodes"""
+
     # --- counting ---
     count_roots = count_roots
     """Count root nodes."""
@@ -152,6 +157,9 @@ class Tree(_Tree):
     count_sections = count_sections
     """Count the number of sections in a neuron (edges between root/branch/leaf nodes)"""
 
+    count_bifurcations = count_bifurcations
+    """Count the number of bifurcating nodes"""
+    
     # --- coordinates ---
     get_node_coordinates = get_node_coordinates
     """Get coordinates of all nodes."""
