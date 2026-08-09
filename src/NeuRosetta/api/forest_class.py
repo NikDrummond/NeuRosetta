@@ -51,6 +51,10 @@ from ..ops.tree_graphs import (
     get_bifurcation_angles,
     get_bifurcation_angle_sums,
     get_bifurcation_deihedral_beta,
+    fit_circle,
+    fit_line,
+    fit_plane, 
+    fit_sphere,
 )
 
 from ..ops.forest_ops import (
@@ -58,6 +62,10 @@ from ..ops.forest_ops import (
     forest_pca,
     get_forest_convex_hull,
     get_forest_convex_hull_volume,
+    fit_sphere_forest,
+    fit_plane_forest,
+    fit_line_forest,
+    fit_circle_forest,
 )
 
 from ..ops.plotting import Viewer
@@ -271,6 +279,31 @@ class Forest(_Forest):
 
     get_bifurcation_deihedral_beta = _forest_op(get_bifurcation_deihedral_beta)
     """Get Dihedral beta angle for all bifurcations (measure of planarity)"""
+
+    # --- Shape Fitting ---
+    fit_sphere = _forest_op(
+        fit_sphere,
+        global_fn=fit_sphere_forest
+                            )
+    """Fit a sphere to individual neuron coordinates or all coordinates"""
+
+    fit_line = _forest_op(
+        fit_line,
+        global_fn=fit_line_forest
+                            )
+    """Fit a line to individual neuron coordinates or all coordinates"""
+
+    fit_plane = _forest_op(
+        fit_plane,
+        global_fn=fit_plane_forest
+                            )
+    """Fit a plane to individual neuron coordinates or all coordinates"""
+
+    fit_circle = _forest_op(
+        fit_circle,
+        global_fn=fit_circle_forest
+                            )
+    """Fit a circle to individual neuron coordinates or all coordinates"""
 
     # --- topology ---
     get_node_depth = _forest_op(get_node_depth)

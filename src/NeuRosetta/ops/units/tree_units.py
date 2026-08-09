@@ -254,7 +254,7 @@ def convert_units(
     in_place: bool = True,
     voxel_size: float | None = None,
     voxel_unit: str | None = None,
-) -> _Tree:
+):
     """Convert tree coordinates and radii to target units.
 
     Parameters
@@ -298,7 +298,7 @@ def convert_units(
         _set_edge_lengths(tree, factor)
 
     _commit_units_metadata(tree, pending)
-    return tree
+    return
 
 
 def check_units_defined(tree: _Tree) -> None:

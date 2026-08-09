@@ -61,6 +61,10 @@ from ..ops.tree_graphs import (
     get_bifurcation_angles,
     get_bifurcation_angle_sums,
     get_bifurcation_deihedral_beta,
+    fit_circle,
+    fit_line,
+    fit_plane,
+    fit_sphere,
 )
 
 from ..ops.plotting import (
@@ -220,7 +224,20 @@ class Tree(_Tree):
 
     get_bifurcation_deihedral_beta = get_bifurcation_deihedral_beta
     """Get Dihedral beta angle for bifurcations (measure of planarity)"""
-    
+
+    # --- Shape Fitting ---
+    fit_sphere = fit_sphere
+    """Fit a sphere to neuron coordinates"""
+
+    fit_line = fit_line
+    """Fit a line to neuron coordinates"""
+
+    fit_plane = fit_plane
+    """Fit a plane to neuron coordinates"""
+
+    fit_circle = fit_circle
+    """Fit a circle to neuron coordinates"""
+
     # --- Traversals ---
     tree_breadth_first_search = breadth_first_search
     """Perform breadth-first search with custom visitor."""

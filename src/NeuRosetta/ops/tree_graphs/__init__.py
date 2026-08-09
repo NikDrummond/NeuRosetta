@@ -85,6 +85,13 @@ from .tree_geometry import (
     get_bifurcation_deihedral_beta,
 )
 
+from .shape_fitting import (
+    fit_sphere,
+    fit_line,
+    fit_plane,
+    fit_circle,
+)
+
 __all__ = [
     "get_root_index",
     "get_leaf_indices",
@@ -138,4 +145,8 @@ __all__ = [
     "get_bifurcation_angles",
     "get_bifurcation_angle_sums",
     "get_bifurcation_deihedral_beta",
+    "fit_sphere",
+    "fit_line",
+    "fit_plane",
+    "fit_circle",
 ]
