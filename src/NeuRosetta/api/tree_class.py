@@ -53,7 +53,17 @@ from ..ops.tree_graphs import (
     get_max_subtree_node,
     get_subtree,
     get_partition_asymmetry,
-    align_tree,
+    align_coordinates,
+    translate_coordinates,
+    center_coordinates_at_centroid,
+    recenter_coordinates,
+    rotate_coordinates,
+    rotate_coordinates_about,
+    scale_coordinates,
+    scale_coordinates_about,
+    align_coordinates_to_vector,
+    scale_coordinates_along_pca,
+    apply_rotation_steps_to_coordinates,
     get_edge_angles,
     get_mean_edge_angle,
     get_edge_angle_variance,
@@ -285,8 +295,38 @@ class Tree(_Tree):
     """Compute partition asymmetry at branch points."""
 
     # --- transformations ---
-    align_tree = align_tree
-    """Align neuron pca axis to basis"""
+    align_coordinates = align_coordinates
+    """PCA-align node coordinates to canonical axes."""
+
+    translate_coordinates = translate_coordinates
+    """Translate all node coordinates by a fixed displacement."""
+
+    center_coordinates_at_centroid = center_coordinates_at_centroid
+    """Translate a tree so its node centroid lies at the origin."""
+
+    recenter_coordinates = recenter_coordinates
+    """Translate a tree so a specified point becomes the origin."""
+
+    rotate_coordinates = rotate_coordinates
+    """Rotate all node coordinates about an axis through the origin."""
+
+    rotate_coordinates_about = rotate_coordinates_about
+    """Rotate all node coordinates about an axis through a point."""
+
+    scale_coordinates = scale_coordinates
+    """Uniformly scale node coordinates about a point."""
+
+    scale_coordinates_about = scale_coordinates_about
+    """Scale node coordinates independently along each axis about a point."""
+
+    align_coordinates_to_vector = align_coordinates_to_vector
+    """Rotate a tree so a source direction aligns with a target direction."""
+
+    scale_coordinates_along_pca = scale_coordinates_along_pca
+    """Scale node coordinates along the tree PCA axes."""
+
+    apply_rotation_steps_to_coordinates = apply_rotation_steps_to_coordinates
+    """Apply two precomputed axis-angle rotations to all node coordinates."""
 
     # --- saving ---
     export_to_swc = export_swc

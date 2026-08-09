@@ -72,7 +72,17 @@ from .subtrees import(
 )
 
 from .tree_transformations import (
-    align_tree
+    align_coordinates,
+    translate_coordinates,
+    center_coordinates_at_centroid,
+    recenter_coordinates,
+    rotate_coordinates,
+    rotate_coordinates_about,
+    scale_coordinates,
+    scale_coordinates_about,
+    align_coordinates_to_vector,
+    scale_coordinates_along_pca,
+    apply_rotation_steps_to_coordinates,
 )
 
 from .tree_geometry import (
@@ -137,7 +147,17 @@ __all__ = [
     "get_max_subtree_node",
     "get_subtree",
     "get_partition_asymmetry",
-    "align_tree",
+    "align_coordinates",
+    "translate_coordinates",
+    "center_coordinates_at_centroid",
+    "recenter_coordinates",
+    "rotate_coordinates",
+    "rotate_coordinates_about",
+    "scale_coordinates",
+    "scale_coordinates_about",
+    "align_coordinates_to_vector",
+    "scale_coordinates_along_pca",
+    "apply_rotation_steps_to_coordinates",
     "get_edge_angles",
     "get_mean_edge_angle",
     "get_edge_angle_variance",

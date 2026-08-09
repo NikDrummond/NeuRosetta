@@ -5,7 +5,7 @@ objects, with batch operations that can run in parallel.
 """
 
 from functools import wraps
-from inspect import cleandoc
+from inspect import cleandoc, signature
 from typing import Callable
 
 from ..core import _Forest
@@ -43,7 +43,17 @@ from ..ops.tree_graphs import (
     get_max_subtree_node,
     get_subtree,
     get_partition_asymmetry,
-    align_tree,
+    align_coordinates,
+    translate_coordinates,
+    center_coordinates_at_centroid,
+    recenter_coordinates,
+    rotate_coordinates,
+    rotate_coordinates_about,
+    scale_coordinates,
+    scale_coordinates_about,
+    align_coordinates_to_vector,
+    scale_coordinates_along_pca,
+    apply_rotation_steps_to_coordinates,
     get_edge_angles,
     get_mean_edge_angle,
     get_edge_angle_variance,
@@ -59,6 +69,16 @@ from ..ops.tree_graphs import (
 
 from ..ops.forest_ops import (
     align_forest,
+    translate_forest,
+    center_forest_at_centroid,
+    recenter_forest,
+    rotate_forest,
+    rotate_forest_about,
+    scale_forest,
+    scale_forest_about,
+    align_forest_to_vector,
+    scale_forest_along_pca,
+    apply_rotation_steps_to_forest,
     forest_pca,
     get_forest_convex_hull,
     get_forest_convex_hull_volume,
@@ -150,7 +170,10 @@ def _forest_op(
                     f"{fn.__name__} does not provide a global implementation."
                 )
 
-            return global_fn(self, **func_kwargs)
+            kwargs = dict(func_kwargs)
+            if "bind" in signature(global_fn).parameters:
+                kwargs["bind"] = bind
+            return global_fn(self, **kwargs)
 
         return self.apply(
             fn,
@@ -343,10 +366,74 @@ class Forest(_Forest):
     """Get partition asymmetry for all trees."""
 
     # --- transformations ---
-    align_forest = _forest_op(
-        align_tree,
-        global_fn=align_forest
+    align_coordinates = _forest_op(
+        align_coordinates,
+        global_fn=align_forest,
     )
+    """PCA-align node coordinates to canonical axes."""
+
+    translate_coordinates = _forest_op(
+        translate_coordinates,
+        global_fn=translate_forest,
+    )
+    """Translate all node coordinates by a fixed displacement."""
+
+    center_coordinates_at_centroid = _forest_op(
+        center_coordinates_at_centroid,
+        global_fn=center_forest_at_centroid,
+    )
+    """Translate trees so their node centroids lie at the origin."""
+
+    recenter_coordinates = _forest_op(
+        recenter_coordinates,
+        global_fn=recenter_forest,
+    )
+    """Translate trees so a specified point becomes the origin."""
+
+    rotate_coordinates = _forest_op(
+        rotate_coordinates,
+        global_fn=rotate_forest,
+    )
+    """Rotate all node coordinates about an axis through the origin."""
+
+    rotate_coordinates_about = _forest_op(
+        rotate_coordinates_about,
+        global_fn=rotate_forest_about,
+    )
+    """Rotate all node coordinates about an axis through a point."""
+
+    scale_coordinates = _forest_op(
+        scale_coordinates,
+        global_fn=scale_forest,
+    )
+    """Uniformly scale node coordinates about a point."""
+
+    scale_coordinates_about = _forest_op(
+        scale_coordinates_about,
+        global_fn=scale_forest_about,
+    )
+    """Scale node coordinates independently along each axis about a point."""
+
+    align_coordinates_to_vector = _forest_op(
+        align_coordinates_to_vector,
+        global_fn=align_forest_to_vector,
+    )
+    """Rotate trees so a source direction aligns with a target direction."""
+
+    scale_coordinates_along_pca = _forest_op(
+        scale_coordinates_along_pca,
+        global_fn=scale_forest_along_pca,
+    )
+    """Scale node coordinates along PCA axes."""
+
+    apply_rotation_steps_to_coordinates = _forest_op(
+        apply_rotation_steps_to_coordinates,
+        global_fn=apply_rotation_steps_to_forest,
+    )
+    """Apply two precomputed axis-angle rotations to all node coordinates."""
+
+    align_forest = align_coordinates
+    """Alias for :meth:`align_coordinates`."""
 
     # --- units ---
     get_units = _forest_op(get_units)
