@@ -562,37 +562,40 @@ def align_with(x, y, z, ax, ay, az, reverse=False):
 
 def angular_mean(angles, weights=None):
     """
-    Returns the angular mean of an array of angles IN RADIAN
+    Circular mean of an array of angles.
 
     Parameters
     ----------
-    angles : ndarrau
-        1D array of angler. MUST BE IN RADIANS
+    angles : ndarray
+        1D array of angles in radians.
     weights : ndarray, optional
-        Array of weights for weighted mean, by default None
+        1D array of weights for a weighted mean. Must have the same length as
+        ``angles``.
 
     Returns
     -------
     float
-        Mean angle of angles in radians.
+        Mean angle in radians.
     """
     return angular_mean_nb(angles, weights)
 
 
 def angular_var(angles, weights=None):
     """
-    Returns the angular variance of an array of angles IN RADIAN
+    Circular variance of an array of angles.
 
     Parameters
     ----------
-    angles : ndarrau
-        1D array of angler. MUST BE IN RADIANS
+    angles : ndarray
+        1D array of angles in radians.
     weights : ndarray, optional
-        Array of weights for weighted variance, by default None
+        1D array of weights for a weighted variance. Must have the same length
+        as ``angles``.
 
     Returns
     -------
     float
-        Anglular variance of angles in radians.
+        Angular variance in ``[0, 1]``. Returns ``nan`` if the total weight
+        is zero.
     """
     return angular_variance_nb(angles, weights)

@@ -1,5 +1,5 @@
 """    """
-from numpy import cos, sin, empty, isclose, pi, sqrt, asarray, array
+from numpy import cos, sin, empty, isclose, pi, sqrt, asarray, array, float64
 from numpy.linalg import norm
 from numba import njit
 
@@ -64,6 +64,37 @@ def rotate_scalar(
         c * z + s * cz + (1.0 - c) * d * az,
     )
 
+@njit(**_JIT)
+def rotate_about_scalar(
+    x, y, z,
+    ax, ay, az,
+    angle,
+    cx, cy, cz,
+    assume_normalized=False,
+):
+    """
+    Rotate a point about an axis passing through a point.
+    """
+
+    # Translate so the rotation centre is the origin.
+    rx = x - cx
+    ry = y - cy
+    rz = z - cz
+
+    # Rotate using the existing rotation kernel.
+    rx, ry, rz = rotate_scalar(
+        rx, ry, rz,
+        ax, ay, az,
+        angle,
+        assume_normalized,
+    )
+
+    # Translate back.
+    return (
+        rx + cx,
+        ry + cy,
+        rz + cz,
+    )
 
 @njit(**_JIT)
 def rotate_xyz(
@@ -97,6 +128,37 @@ def rotate_xyz(
         )
 
     return xr, yr, zr
+
+@njit(**_JIT)
+def rotate_about_xyz(
+    x, y, z,
+    ax, ay, az,
+    angle,
+    cx, cy, cz,
+    assume_normalized=False,
+):
+    """
+    Rotate points about an axis passing through a point.
+    """
+
+    n = x.size
+
+    xo = empty(n, dtype=float64)
+    yo = empty(n, dtype=float64)
+    zo = empty(n, dtype=float64)
+
+    for i in range(n):
+        xo[i], yo[i], zo[i] = rotate_about_scalar(
+            x[i], y[i], z[i],
+            ax, ay, az,
+            angle,
+            cx, cy, cz,
+            assume_normalized,
+        )
+
+    return xo, yo, zo
+
+### Python functions
 
 def rotate(x, y, z, ax, ay, az, rotation_angle, assume_normalized=False):
     """
@@ -133,8 +195,11 @@ def rotate(x, y, z, ax, ay, az, rotation_angle, assume_normalized=False):
 
 def minimum_rotation_to_align(x1, y1, z1, x2, y2, z2, assume_normalized=False):
     """
-    Axis and angle of the minimum rotation that aligns vector 1 with
-    vector 2.
+    Compute the minimum rotation that aligns one 3D vector with another.
+
+    The returned rotation is the shortest rotation taking vector 1 onto
+    vector 2. The rotation angle is in radians and lies in the interval
+    [0, pi].
 
     Parameters
     ----------
@@ -143,15 +208,23 @@ def minimum_rotation_to_align(x1, y1, z1, x2, y2, z2, assume_normalized=False):
     x2, y2, z2 : float
         Components of the target vector.
     assume_normalized : bool, default False
-        If True, skip normalizing the inputs.
+        If True, assume both input vectors are already unit vectors.
+        Otherwise, both vectors are normalized before computing the
+        rotation.
 
     Returns
     -------
-    axis : (float, float, float)
-        Unit rotation axis. Arbitrary but valid when angle == 0
-        (no rotation needed).
+    axis : tuple of float
+        Unit rotation axis. If the vectors are already aligned, the axis
+        is arbitrary because the required rotation angle is zero.
     angle : float
-        Rotation angle in radians, in [0, pi].
+        Rotation angle in radians in the interval [0, pi].
+
+    Notes
+    -----
+    When the vectors are antiparallel, there are infinitely many valid
+    rotation axes. In this case, an axis perpendicular to the first
+    vector is selected deterministically.
     """
 
     if not assume_normalized:
@@ -190,9 +263,51 @@ def compute_alignment_rotation(
     assume_normalized=False,
 ):
     """
-    Compute the two (axis, angle) rotation steps that align an
-    orthonormal eigenbasis (e1, e2, e3) to a target orthonormal basis
-    (b1, b2, b3), using minimum_rotation_to_align for each step.
+    Compute two minimum-rotation steps that align one orthonormal basis
+    with another.
+
+    The first rotation aligns ``e1`` with ``b1``. The second rotation is
+    then computed using the transformed ``e2`` and aligns it with ``b2``.
+    Together, the two rotations align the input basis with the target
+    basis.
+
+    Parameters
+    ----------
+    e1, e2, e3 : array_like
+        Three components of the input orthonormal basis vectors.
+    b1, b2, b3 : array_like, default
+        Three components of the target orthonormal basis vectors.
+        The default target basis is
+
+        ``b1 = (0, 1, 0)``
+        ``b2 = (1, 0, 0)``
+        ``b3 = (0, 0, 1)``
+
+    assume_normalized : bool, default False
+        If True, assume the input basis vectors are already normalized.
+        Otherwise, each input vector is normalized before computing the
+        rotations. The target basis vectors are always normalized.
+
+    Returns
+    -------
+    step1 : tuple
+        ``(axis1, angle1)`` describing the first rotation.
+    step2 : tuple
+        ``(axis2, angle2)`` describing the second rotation.
+
+        Each axis is a tuple ``(x, y, z)`` representing a unit vector,
+        and each angle is in radians.
+
+    Notes
+    -----
+    The handedness of the input basis is adjusted to match the handedness
+    of the target basis before computing the rotations. If necessary,
+    ``e3`` is negated. This is required because eigenvectors can have
+    arbitrary signs.
+
+    The second rotation is computed after applying the first rotation to
+    ``e2``. Consequently, the two returned rotations should be applied in
+    the order ``step1`` followed by ``step2``.
     """
 
     e1 = asarray(e1, dtype=float)
@@ -228,8 +343,93 @@ def compute_alignment_rotation(
     return (axis1, angle1), (axis2, angle2)
 
 def apply_rotation_steps(x, y, z, step1, step2):
+    """
+    Apply two successive axis-angle rotations to a 3D vector or array
+    of vectors.
+
+    The rotations are applied in the order ``step1`` followed by
+    ``step2``.
+
+    Parameters
+    ----------
+    x, y, z : float or ndarray
+        Components of the vector or vectors to rotate.
+    step1 : tuple
+        First rotation specified as ``(axis, angle)``, where ``axis`` is
+        a three-component unit vector and ``angle`` is in radians.
+    step2 : tuple
+        Second rotation specified as ``(axis, angle)``, where ``axis`` is
+        a three-component unit vector and ``angle`` is in radians.
+
+    Returns
+    -------
+    xr, yr, zr : float or ndarray
+        Components of the vector or vectors after both rotations.
+
+    Notes
+    -----
+    The rotation axes in ``step1`` and ``step2`` are assumed to be
+    normalized. The two rotations are applied sequentially, so the result
+    is equivalent to first applying ``step1`` and then applying ``step2``.
+    """
     (axis1, angle1) = step1
     (axis2, angle2) = step2
     x, y, z = rotate(x, y, z, *axis1, angle1, assume_normalized=True)
     x, y, z = rotate(x, y, z, *axis2, angle2, assume_normalized=True)
     return x, y, z
+
+def rotate_about(
+    x, y, z,
+    ax, ay, az,
+    angle,
+    cx, cy, cz,
+    assume_normalized=False,
+):
+    """
+    Rotate a 3D point about an axis passing through a point.
+
+    Uses Rodrigues' rotation formula. The rotation angle is in radians.
+
+    Parameters
+    ----------
+    x, y, z : float or ndarray
+        Components of the point to rotate.
+    ax, ay, az : float or ndarray
+        Components of the rotation axis. A scalar axis may be broadcast
+        against array points.
+    angle : float
+        Rotation angle in radians.
+    cx, cy, cz : float or ndarray
+        Components of a point through which the rotation axis passes.
+        Scalar centre coordinates may be broadcast against array points.
+    assume_normalized : bool, default False
+        If True, treat ``(ax, ay, az)`` as a unit vector.
+
+    Returns
+    -------
+    xo, yo, zo : float or ndarray
+        Components of the rotated point.
+    """
+
+    if _check_vector_broadcast(x, y, z, ax, ay, az):
+        x, y, z, ax, ay, az = _broadcast_vectors(x, y, z, ax, ay, az)
+
+    if _check_vector_broadcast(x, y, z, cx, cy, cz):
+        x, y, z, cx, cy, cz = _broadcast_vectors(x, y, z, cx, cy, cz)
+
+    if _check_scalar(x, y, z):
+        return rotate_about_scalar(
+            x, y, z,
+            ax, ay, az,
+            angle,
+            cx, cy, cz,
+            assume_normalized,
+        )
+
+    return rotate_about_xyz(
+        x, y, z,
+        ax, ay, az,
+        angle,
+        cx, cy, cz,
+        assume_normalized,
+    )

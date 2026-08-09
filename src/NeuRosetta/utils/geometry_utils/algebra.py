@@ -1,4 +1,4 @@
-import numpy as np
+from numpy import sqrt, nan, empty, float64
 from numba import njit
 
 from ._validation import _broadcast_vectors, _check_scalar, _check_vector_broadcast
@@ -13,13 +13,13 @@ _JIT = dict(nogil=True, fastmath=True, cache=True, inline="always")
 ## scalars
 @njit(**_JIT)
 def magnitude_scalar(x, y, z):
-    return np.sqrt(x * x + y * y + z * z)
+    return sqrt(x * x + y * y + z * z)
 
 
 @njit(**_JIT)
 def normalize_scalar(x, y, z):
 
-    mag = np.sqrt(x * x + y * y + z * z)
+    mag = sqrt(x * x + y * y + z * z)
 
     if mag > 0.0:
         inv = 1.0 / mag
@@ -46,10 +46,10 @@ def scalar_projection_scalar(vx, vy, vz, ax, ay, az):
     Scalar projection of vector onto another vector.
     """
 
-    mag = np.sqrt(ax * ax + ay * ay + az * az)
+    mag = sqrt(ax * ax + ay * ay + az * az)
 
     if mag == 0.0:
-        return np.nan
+        return nan
 
     inv = 1.0 / mag
 
@@ -59,7 +59,7 @@ def scalar_projection_scalar(vx, vy, vz, ax, ay, az):
 @njit(**_JIT)
 def project_scalar(vx, vy, vz, ax, ay, az):
 
-    mag = np.sqrt(ax * ax + ay * ay + az * az)
+    mag = sqrt(ax * ax + ay * ay + az * az)
 
     if mag == 0.0:
         return 0.0, 0.0, 0.0
@@ -79,19 +79,6 @@ def reject_scalar(vx, vy, vz, ax, ay, az):
     return (vx - px, vy - py, vz - pz)
 
 
-# @njit(cache=True)
-# def reject_axis_scalar(x, y, z, basis):
-
-#     if basis == 0:
-#         return 0.0, y, z
-#     elif basis == 1:
-#         return x, 0.0, z
-#     elif basis == 2:
-#         return x, y, 0.0
-
-#     return np.nan, np.nan, np.nan
-
-
 @njit(**_JIT)
 def perpendicular_scalar(x1, y1, z1, x2, y2, z2, normalized=True):
 
@@ -101,7 +88,7 @@ def perpendicular_scalar(x1, y1, z1, x2, y2, z2, normalized=True):
 
     if normalized:
 
-        mag = np.sqrt(cx * cx + cy * cy + cz * cz)
+        mag = sqrt(cx * cx + cy * cy + cz * cz)
 
         if mag > 0.0:
             inv = 1.0 / mag
@@ -118,7 +105,7 @@ def scale_factor_scalar(x1, y1, z1, x2, y2, z2):
     denom = x1 * x1 + y1 * y1 + z1 * z1
 
     if denom == 0.0:
-        return np.nan
+        return nan
 
     return (x1 * x2 + y1 * y2 + z1 * z2) / denom
 
@@ -128,10 +115,10 @@ def scale_factor_scalar(x1, y1, z1, x2, y2, z2):
 def magnitude_xyz(x, y, z):
 
     n = x.size
-    out = np.empty(n, dtype=np.float64)
+    out = empty(n, dtype=float64)
 
     for i in range(n):
-        out[i] = np.sqrt(x[i] * x[i] + y[i] * y[i] + z[i] * z[i])
+        out[i] = sqrt(x[i] * x[i] + y[i] * y[i] + z[i] * z[i])
 
     return out
 
@@ -141,13 +128,13 @@ def normalize_xyz(x, y, z):
 
     n = x.size
 
-    xn = np.empty(n, dtype=np.float64)
-    yn = np.empty(n, dtype=np.float64)
-    zn = np.empty(n, dtype=np.float64)
+    xn = empty(n, dtype=float64)
+    yn = empty(n, dtype=float64)
+    zn = empty(n, dtype=float64)
 
     for i in range(n):
 
-        mag = np.sqrt(x[i] * x[i] + y[i] * y[i] + z[i] * z[i])
+        mag = sqrt(x[i] * x[i] + y[i] * y[i] + z[i] * z[i])
 
         if mag > 0.0:
             inv = 1.0 / mag
@@ -168,7 +155,7 @@ def normalize_xyz(x, y, z):
 def dot_xyz(x1, y1, z1, x2, y2, z2):
 
     n = x1.size
-    out = np.empty(n, dtype=np.float64)
+    out = empty(n, dtype=float64)
 
     for i in range(n):
 
@@ -182,9 +169,9 @@ def cross_xyz(x1, y1, z1, x2, y2, z2):
 
     n = x1.size
 
-    cx = np.empty(n, dtype=np.float64)
-    cy = np.empty(n, dtype=np.float64)
-    cz = np.empty(n, dtype=np.float64)
+    cx = empty(n, dtype=float64)
+    cy = empty(n, dtype=float64)
+    cz = empty(n, dtype=float64)
 
     for i in range(n):
 
@@ -203,14 +190,14 @@ def scalar_projection_xyz(vx, vy, vz, ax, ay, az):
 
     n = vx.size
 
-    out = np.empty(n, dtype=np.float64)
+    out = empty(n, dtype=float64)
 
     for i in range(n):
 
-        mag = np.sqrt(ax[i] * ax[i] + ay[i] * ay[i] + az[i] * az[i])
+        mag = sqrt(ax[i] * ax[i] + ay[i] * ay[i] + az[i] * az[i])
 
         if mag == 0.0:
-            out[i] = np.nan
+            out[i] = nan
         else:
             inv = 1.0 / mag
 
@@ -224,13 +211,13 @@ def project_xyz(vx, vy, vz, ax, ay, az):
 
     n = vx.size
 
-    px = np.empty(n)
-    py = np.empty(n)
-    pz = np.empty(n)
+    px = empty(n)
+    py = empty(n)
+    pz = empty(n)
 
     for i in range(n):
 
-        mag = np.sqrt(ax[i] * ax[i] + ay[i] * ay[i] + az[i] * az[i])
+        mag = sqrt(ax[i] * ax[i] + ay[i] * ay[i] + az[i] * az[i])
 
         if mag == 0.0:
 
@@ -265,9 +252,9 @@ def perpendicular_xyz(x1, y1, z1, x2, y2, z2, normalized=True):
 
     n = x1.size
 
-    px = np.empty(n, dtype=np.float64)
-    py = np.empty(n, dtype=np.float64)
-    pz = np.empty(n, dtype=np.float64)
+    px = empty(n, dtype=float64)
+    py = empty(n, dtype=float64)
+    pz = empty(n, dtype=float64)
 
     for i in range(n):
 
@@ -278,7 +265,7 @@ def perpendicular_xyz(x1, y1, z1, x2, y2, z2, normalized=True):
 
         if normalized:
 
-            mag = np.sqrt(cx * cx + cy * cy + cz * cz)
+            mag = sqrt(cx * cx + cy * cy + cz * cz)
 
             if mag > 0.0:
                 inv_mag = 1.0 / mag
@@ -298,14 +285,14 @@ def scale_factor_xyz(x1, y1, z1, x2, y2, z2):
 
     n = x1.size
 
-    out = np.empty(n)
+    out = empty(n)
 
     for i in range(n):
 
         denom = x1[i] * x1[i] + y1[i] * y1[i] + z1[i] * z1[i]
 
         if denom == 0.0:
-            out[i] = np.nan
+            out[i] = nan
         else:
             out[i] = (x1[i] * x2[i] + y1[i] * y2[i] + z1[i] * z2[i]) / denom
 

@@ -12,6 +12,8 @@ from .algebra import (
 )
 from .projections import (
     bisector,
+    reflect_plane,
+    mirror_axis,
 )
 from .angles import (
     angle,
@@ -23,9 +25,16 @@ from .angles import (
 )
 from .rotations import (
     rotate,
+    rotate_about,
     minimum_rotation_to_align,
     compute_alignment_rotation,
     apply_rotation_steps,
+)
+from .transforms import (
+    translate,
+    recenter,
+    scale_about,
+    center_at_centroid,
 )
 from .tolerance import almost_zero, almost_unit_length, almost_collinear, almost_equal
 from .points import (
@@ -47,10 +56,7 @@ from ._validation import (
     raise_dimension_error,
 )
 
-# from .scaling import (
-#     scale_along_basis_scalar,
-#     scale_along_basis_xyz,
-# )
+from .scaling import scale_along_basis
 
 __all__ = [
     "basis",
@@ -64,16 +70,24 @@ __all__ = [
     "perpendicular",
     "scale_factor",
     "bisector",
+    "reflect_plane",
+    "mirror_axis",
     "angle",
     "planar_angle",
     "signed_angle",
     "angular_mean",
     "angular_var",
     "rotate",
+    "rotate_about",
     "minimum_rotation_to_align",
     "compute_alignment_rotation",
     "apply_rotation_steps",
     "align_with",
+    "translate",
+    "recenter",
+    "scale_about",
+    "center_at_centroid",
+    "scale_along_basis",
     "almost_zero",
     "almost_unit_length",
     "almost_collinear",

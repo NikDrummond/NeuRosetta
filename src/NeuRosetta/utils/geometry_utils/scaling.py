@@ -116,10 +116,41 @@ def scale_along_basis_xyz(
 
     return xo, yo, zo
 
-def scale_along_basis(x:ndarray,y: ndarray,z:ndarray,s: float | int | ndarray,b1: ndarray,b2:ndarray,b3:ndarray)-> ndarray:
-    """"""
+def scale_along_basis(
+    x: ndarray,
+    y: ndarray,
+    z: ndarray,
+    s: float | int | ndarray,
+    b1: ndarray,
+    b2: ndarray,
+    b3: ndarray,
+):
+    """
+    Scale an array of 3D vectors along an orthonormal basis.
 
-    # if s is a single value, make it 3
-    if (isinstance(s, float)) | (isinstance(s, int)):
-        s = [s,s,s]
-    return scale_along_basis_xyz(x,y,z,*s,*b1,*b2,*b3)
+    Each vector is decomposed into its projections onto ``b1``, ``b2``, and
+    ``b3``, then reassembled with independent scale factors applied along each
+    basis direction.
+
+    Parameters
+    ----------
+    x, y, z : ndarray
+        1D coordinate arrays of equal length.
+    s : float, int, or ndarray
+        Scale factor(s) along ``b1``, ``b2``, and ``b3``. A scalar is applied
+        uniformly to all three directions.
+    b1, b2, b3 : ndarray
+        Three orthonormal basis vectors, each with shape ``(3,)``.
+
+    Returns
+    -------
+    xo, yo, zo : ndarray
+        Components of the scaled vectors.
+
+    Notes
+    -----
+    The basis vectors are assumed to be normalized.
+    """
+    if isinstance(s, (float, int)):
+        s = [s, s, s]
+    return scale_along_basis_xyz(x, y, z, *s, *b1, *b2, *b3)

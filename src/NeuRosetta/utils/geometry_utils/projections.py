@@ -135,11 +135,86 @@ def bisector_xyz(
 
 # python wrappers
 
-def bisector(x1,y1,z1,x2,y2,z2):
-    """"""
-    if _check_vector_broadcast(x1,y1,z1,x2,y2,z2):
-        x1,y1,z1,x2,y2,z2 = _broadcast_vectors(x1,y1,z1,x2,y2,z2)
+def bisector(x1, y1, z1, x2, y2, z2):
+    """
+    Unit vector bisecting two 3D vectors.
 
-    if _check_scalar(x1,y1,z1):
-        return bisector_scalar(x1,y1,z1,x2,y2,z2)
-    return bisector_xyz(x1,y1,z1,x2,y2,z2)
+    Each input vector is normalized before computing the bisector. The result
+    is the normalized sum of the two unit vectors.
+
+    Parameters
+    ----------
+    x1, y1, z1 : float or ndarray
+        Components of the first vector.
+    x2, y2, z2 : float or ndarray
+        Components of the second vector. A scalar vector may be broadcast
+        against an array vector.
+
+    Returns
+    -------
+    bx, by, bz : float or ndarray
+        Components of the unit bisector vector.
+    """
+    if _check_vector_broadcast(x1, y1, z1, x2, y2, z2):
+        x1, y1, z1, x2, y2, z2 = _broadcast_vectors(x1, y1, z1, x2, y2, z2)
+
+    if _check_scalar(x1, y1, z1):
+        return bisector_scalar(x1, y1, z1, x2, y2, z2)
+    return bisector_xyz(x1, y1, z1, x2, y2, z2)
+
+
+def reflect_plane(x, y, z, nx, ny, nz):
+    """
+    Reflect a 3D vector across a plane.
+
+    The plane is defined by its normal ``(nx, ny, nz)``. The reflection is
+    ``v - 2 * project(v, n)``.
+
+    Parameters
+    ----------
+    x, y, z : float or ndarray
+        Components of the vector to reflect.
+    nx, ny, nz : float or ndarray
+        Components of the plane normal. A scalar normal may be broadcast
+        against an array vector.
+
+    Returns
+    -------
+    xo, yo, zo : float or ndarray
+        Components of the reflected vector.
+    """
+    if _check_vector_broadcast(x, y, z, nx, ny, nz):
+        x, y, z, nx, ny, nz = _broadcast_vectors(x, y, z, nx, ny, nz)
+
+    if _check_scalar(x, y, z):
+        return reflect_plane_scalar(x, y, z, nx, ny, nz)
+    return reflect_plane_xyz(x, y, z, nx, ny, nz)
+
+
+def mirror_axis(x, y, z, ax, ay, az):
+    """
+    Mirror a 3D vector across an axis.
+
+    The mirror transformation is ``2 * project(v, axis) - v``, which reflects
+    the component orthogonal to the axis while preserving the component along
+    the axis.
+
+    Parameters
+    ----------
+    x, y, z : float or ndarray
+        Components of the vector to mirror.
+    ax, ay, az : float or ndarray
+        Components of the mirror axis. A scalar axis may be broadcast against
+        an array vector.
+
+    Returns
+    -------
+    xo, yo, zo : float or ndarray
+        Components of the mirrored vector.
+    """
+    if _check_vector_broadcast(x, y, z, ax, ay, az):
+        x, y, z, ax, ay, az = _broadcast_vectors(x, y, z, ax, ay, az)
+
+    if _check_scalar(x, y, z):
+        return mirror_axis_scalar(x, y, z, ax, ay, az)
+    return mirror_axis_xyz(x, y, z, ax, ay, az)
