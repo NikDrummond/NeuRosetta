@@ -28,9 +28,18 @@ from ..ops.tree_graphs import (
     get_node_depth,
     get_node_coordinates,
     get_edge_coordinates,
+    get_root_coordinate,
     coordinate_pca,
     get_convex_hull,
     get_convex_hull_volume,
+    coordinate_mean_along_axis,
+    coordinate_variance_along_axis,
+    coordinate_std_along_axis,
+    coordinate_minmax_along_axis,
+    coordinate_extent_along_axis,
+    coordinate_rms_along_axis,
+    coordinate_mean_absolute_along_axis,
+    coordinate_projection_moments,
     check_reduced,
     update_reduced,
     has_property,
@@ -46,6 +55,7 @@ from ..ops.tree_graphs import (
     align_coordinates,
     translate_coordinates,
     center_coordinates_at_centroid,
+    center_coordinates_at_root,
     recenter_coordinates,
     rotate_coordinates,
     rotate_coordinates_about,
@@ -82,6 +92,14 @@ from ..ops.forest_ops import (
     forest_pca,
     get_forest_convex_hull,
     get_forest_convex_hull_volume,
+    coordinate_mean_along_axis_forest,
+    coordinate_variance_along_axis_forest,
+    coordinate_std_along_axis_forest,
+    coordinate_minmax_along_axis_forest,
+    coordinate_extent_along_axis_forest,
+    coordinate_rms_along_axis_forest,
+    coordinate_mean_absolute_along_axis_forest,
+    coordinate_projection_moments_forest,
     fit_sphere_forest,
     fit_plane_forest,
     fit_line_forest,
@@ -259,6 +277,9 @@ class Forest(_Forest):
     get_edge_coordinates = _forest_op(get_edge_coordinates)
     """Get edge coordinates for all trees."""
 
+    get_root_coordinate = _forest_op(get_root_coordinate)
+    """Get the root coorrdinate for all trees"""
+
     coordinate_pca = _forest_op(
         coordinate_pca,
         global_fn=forest_pca
@@ -273,6 +294,54 @@ class Forest(_Forest):
         get_convex_hull_volume,
         global_fn=get_forest_convex_hull_volume
     )
+
+    coordinate_mean_along_axis = _forest_op(
+        coordinate_mean_along_axis,
+        global_fn=coordinate_mean_along_axis_forest,
+    )
+    """Compute mean projection of node coordinates onto an axis."""
+
+    coordinate_variance_along_axis = _forest_op(
+        coordinate_variance_along_axis,
+        global_fn=coordinate_variance_along_axis_forest,
+    )
+    """Compute variance of node coordinate projections onto an axis."""
+
+    coordinate_std_along_axis = _forest_op(
+        coordinate_std_along_axis,
+        global_fn=coordinate_std_along_axis_forest,
+    )
+    """Compute standard deviation of node coordinate projections onto an axis."""
+
+    coordinate_minmax_along_axis = _forest_op(
+        coordinate_minmax_along_axis,
+        global_fn=coordinate_minmax_along_axis_forest,
+    )
+    """Compute minimum and maximum projections onto an axis."""
+
+    coordinate_extent_along_axis = _forest_op(
+        coordinate_extent_along_axis,
+        global_fn=coordinate_extent_along_axis_forest,
+    )
+    """Compute extent of node coordinate projections onto an axis."""
+
+    coordinate_rms_along_axis = _forest_op(
+        coordinate_rms_along_axis,
+        global_fn=coordinate_rms_along_axis_forest,
+    )
+    """Compute root-mean-square projection onto an axis."""
+
+    coordinate_mean_absolute_along_axis = _forest_op(
+        coordinate_mean_absolute_along_axis,
+        global_fn=coordinate_mean_absolute_along_axis_forest,
+    )
+    """Compute mean absolute projection onto an axis."""
+
+    coordinate_projection_moments = _forest_op(
+        coordinate_projection_moments,
+        global_fn=coordinate_projection_moments_forest,
+    )
+    """Compute summary projection moments onto an axis."""
 
     # --- distances ---
     get_edge_length = _forest_op(get_edge_length)
@@ -383,6 +452,11 @@ class Forest(_Forest):
         global_fn=center_forest_at_centroid,
     )
     """Translate trees so their node centroids lie at the origin."""
+
+    center_coordinates_at_root = _forest_op(
+        center_coordinates_at_root,
+    )
+    """Translate each tree so its root node lies at the origin."""
 
     recenter_coordinates = _forest_op(
         recenter_coordinates,

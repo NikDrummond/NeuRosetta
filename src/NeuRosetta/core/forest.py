@@ -7,11 +7,77 @@ import inspect
 from functools import lru_cache
 from itertools import chain
 import warnings
-from numpy import concatenate, ndarray
+from numpy import concatenate, ndarray, stack
 
 from tqdm import tqdm
 
 T = TypeVar("T")
+
+
+def _is_numeric_scalar(v) -> bool:
+    try:
+        import numpy as np
+
+        return isinstance(v, (int, float, np.integer, np.floating))
+    except ImportError:
+        return isinstance(v, (int, float))
+
+
+def _is_fixed_size_vector(x, sizes: tuple[int, ...] = (2, 3)) -> bool:
+    """Return True for short numeric tuples/lists/1d arrays used as geometry."""
+    try:
+        import numpy as np
+
+        if isinstance(x, np.ndarray):
+            return x.ndim == 1 and x.shape[0] in sizes
+    except ImportError:
+        pass
+
+    if isinstance(x, tuple):
+        seq = x
+    elif isinstance(x, list):
+        seq = x
+    else:
+        return False
+
+    if len(seq) not in sizes:
+        return False
+
+    return all(_is_numeric_scalar(v) for v in seq)
+
+
+def _is_per_tree_iterable(x, n: int) -> bool:
+    """
+    Return True when *x* should be split into one value per tree.
+
+    Short numeric vectors such as ``(1.0, 0.0, 0.0)`` are treated as a
+    single value broadcast to every tree, even when ``len(x) == n``.
+    """
+    if isinstance(x, (str, bytes)):
+        return False
+
+    if _is_fixed_size_vector(x):
+        return False
+
+    try:
+        import numpy as np
+
+        if isinstance(x, np.ndarray):
+            if x.ndim == 0:
+                return False
+            return x.ndim >= 1 and len(x) == n
+    except ImportError:
+        pass
+
+    if not isinstance(x, Iterable):
+        return False
+
+    try:
+        length = len(x)
+    except TypeError:
+        return False
+
+    return length == n
 
 
 def _is_iterable(x) -> bool:
@@ -42,6 +108,25 @@ def _accepts_bind(fn: Callable) -> bool:
         # some built-ins don't support inspect.signature
         return False
 
+def _normalize_single_coord(
+    arr: Any, sizes: tuple[int, ...] = (2, 3)
+) -> ndarray | None:
+    """Return a 1D coordinate vector, or None if not a single-point result."""
+    if not isinstance(arr, ndarray):
+        return None
+
+    if arr.ndim == 1 and arr.shape[0] in sizes:
+        return arr
+
+    if arr.ndim == 2:
+        if arr.shape[0] == 1 and arr.shape[1] in sizes:
+            return arr[0]
+        if arr.shape[1] == 1 and arr.shape[0] in sizes:
+            return arr[:, 0]
+
+    return None
+
+
 def _merge_results(results: list[Any], axis: int | None = None) -> Any:
     if axis is None:
         return results
@@ -58,6 +143,18 @@ def _merge_results(results: list[Any], axis: int | None = None) -> Any:
         return list(chain.from_iterable(items))
 
     if isinstance(first, ndarray):
+        norms = [_normalize_single_coord(r) for r in items]
+        if all(n is not None for n in norms):
+            stacked = stack(norms, axis=0)
+            if axis == 0:
+                return stacked
+            if axis in (1, -1):
+                return stacked.T
+            raise ValueError(
+                "Single coordinate vectors can only be merged along "
+                f"axis 0, 1, or -1; got {axis}."
+            )
+
         return concatenate(items, axis=axis)
 
     raise TypeError(f"Don't know how to merge {type(first)!r}")
@@ -243,9 +340,11 @@ class _Forest(Sequence):
         """Apply a function to every tree in the forest.
 
         Positional and keyword arguments are broadcast to all trees unless
-        given as length-*n* iterables (one value per tree). When *fn* accepts
-        a ``bind`` parameter and ``bind=True``, results are written in place
-        and ``None`` is returned.
+        given as length-*n* iterables (one value per tree). Short numeric
+        vectors such as ``(1.0, 0.0, 0.0)`` are always broadcast as a
+        single geometric value, even when ``len(self) == 3``. When *fn*
+        accepts a ``bind`` parameter and ``bind=True``, results are written
+        in place and ``None`` is returned.
 
         Parameters
         ----------
@@ -267,7 +366,10 @@ class _Forest(Sequence):
         merge_axis : int | None, optional
             Axis along which to concatenate ndarray results, or ``0`` to
             flatten list results. When None, return a plain list of per-tree
-            results. By default None.
+            results. Single coordinate vectors (one point per tree) are
+            stacked to ``(N, d)`` for ``axis=0`` or ``(d, N)`` for
+            ``axis=1`` / ``axis=-1`` instead of being flattened. By default
+            None.
         **kwargs
             Keyword arguments broadcast to all trees, or iterables of length
             ``len(self)`` supplying per-tree values.
@@ -297,9 +399,7 @@ class _Forest(Sequence):
         # --- normalize positional args
         norm_args: list[list] = []
         for a in args:
-            if _is_iterable(a):
-                if len(a) != n:
-                    raise ValueError("Iterable argument length mismatch")
+            if _is_per_tree_iterable(a, n):
                 norm_args.append(list(a))
             else:
                 norm_args.append([a] * n)
@@ -307,9 +407,7 @@ class _Forest(Sequence):
         # --- normalize keyword args
         norm_kwargs: dict[str, list] = {}
         for k, v in kwargs.items():
-            if _is_iterable(v):
-                if len(v) != n:
-                    raise ValueError(f"Iterable kwarg '{k}' length mismatch")
+            if _is_per_tree_iterable(v, n):
                 norm_kwargs[k] = list(v)
             else:
                 norm_kwargs[k] = [v] * n

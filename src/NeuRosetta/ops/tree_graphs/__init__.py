@@ -42,6 +42,17 @@ from .coordinates import (
     get_convex_hull_volume,
 )
 
+from .coordinate_moments import (
+    coordinate_mean_along_axis,
+    coordinate_variance_along_axis,
+    coordinate_std_along_axis,
+    coordinate_minmax_along_axis,
+    coordinate_extent_along_axis,
+    coordinate_rms_along_axis,
+    coordinate_mean_absolute_along_axis,
+    coordinate_projection_moments,
+)
+
 from .tree_checks import (
     check_reduced,
     update_reduced,
@@ -75,6 +86,7 @@ from .tree_transformations import (
     align_coordinates,
     translate_coordinates,
     center_coordinates_at_centroid,
+    center_coordinates_at_root,
     recenter_coordinates,
     rotate_coordinates,
     rotate_coordinates_about,
@@ -133,6 +145,14 @@ __all__ = [
     "coordinate_pca",
     "get_convex_hull",
     "get_convex_hull_volume",
+    "coordinate_mean_along_axis",
+    "coordinate_variance_along_axis",
+    "coordinate_std_along_axis",
+    "coordinate_minmax_along_axis",
+    "coordinate_extent_along_axis",
+    "coordinate_rms_along_axis",
+    "coordinate_mean_absolute_along_axis",
+    "coordinate_projection_moments",
     "check_reduced",
     "update_reduced",
     "has_property",
@@ -150,6 +170,7 @@ __all__ = [
     "align_coordinates",
     "translate_coordinates",
     "center_coordinates_at_centroid",
+    "center_coordinates_at_root",
     "recenter_coordinates",
     "rotate_coordinates",
     "rotate_coordinates_about",

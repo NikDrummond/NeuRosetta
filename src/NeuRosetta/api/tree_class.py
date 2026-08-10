@@ -40,6 +40,14 @@ from ..ops.tree_graphs import (
     coordinate_pca,
     get_convex_hull,
     get_convex_hull_volume,
+    coordinate_mean_along_axis,
+    coordinate_variance_along_axis,
+    coordinate_std_along_axis,
+    coordinate_minmax_along_axis,
+    coordinate_extent_along_axis,
+    coordinate_rms_along_axis,
+    coordinate_mean_absolute_along_axis,
+    coordinate_projection_moments,
     check_reduced,
     update_reduced,
     get_edge_length,
@@ -56,6 +64,7 @@ from ..ops.tree_graphs import (
     align_coordinates,
     translate_coordinates,
     center_coordinates_at_centroid,
+    center_coordinates_at_root,
     recenter_coordinates,
     rotate_coordinates,
     rotate_coordinates_about,
@@ -199,6 +208,30 @@ class Tree(_Tree):
     get_convex_hull_volume = get_convex_hull_volume
     """Get the convex hull volume around neuron points using scipy.spatial.ConvexHull"""
 
+    coordinate_mean_along_axis = coordinate_mean_along_axis
+    """Compute mean projection of node coordinates onto an axis."""
+
+    coordinate_variance_along_axis = coordinate_variance_along_axis
+    """Compute variance of node coordinate projections onto an axis."""
+
+    coordinate_std_along_axis = coordinate_std_along_axis
+    """Compute standard deviation of node coordinate projections onto an axis."""
+
+    coordinate_minmax_along_axis = coordinate_minmax_along_axis
+    """Compute minimum and maximum projections onto an axis."""
+
+    coordinate_extent_along_axis = coordinate_extent_along_axis
+    """Compute extent of node coordinate projections onto an axis."""
+
+    coordinate_rms_along_axis = coordinate_rms_along_axis
+    """Compute root-mean-square projection onto an axis."""
+
+    coordinate_mean_absolute_along_axis = coordinate_mean_absolute_along_axis
+    """Compute mean absolute projection onto an axis."""
+
+    coordinate_projection_moments = coordinate_projection_moments
+    """Compute summary projection moments onto an axis."""
+
     # --- degrees ---
     get_degrees = get_degrees
     """Get degree array for all nodes."""
@@ -303,6 +336,9 @@ class Tree(_Tree):
 
     center_coordinates_at_centroid = center_coordinates_at_centroid
     """Translate a tree so its node centroid lies at the origin."""
+
+    center_coordinates_at_root = center_coordinates_at_root
+    """Translate a tree so its root node lies at the origin."""
 
     recenter_coordinates = recenter_coordinates
     """Translate a tree so a specified point becomes the origin."""

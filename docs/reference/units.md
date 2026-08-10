@@ -12,7 +12,6 @@ through [Pint](https://pint.readthedocs.io/) where possible. Legacy strings such
 | `nanometer` | `nm`, `nanometer` | Common for EM reconstructions. |
 | `micron` | `micron`, `micrometer`, `um`, `µm`, `microns` | Default harmonization target for forests. |
 | `millimeter` | `mm`, `millimeter` | Standard SI length unit. |
-| `meter` | `m`, `meter` | Standard SI length unit. |
 | `voxel` | `voxel` | Voxel-index coordinates; see below. |
 
 Other SI length units accepted by Pint (for example `angstrom`) can also be used,

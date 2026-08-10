@@ -1,9 +1,12 @@
+"""point value metrics and moments"""
 # point.py
 
 from numba import njit
 from numpy import sqrt, empty, float64, bool_
+from numpy import abs as _abs
 
 from ._validation import _check_vector_broadcast, _check_scalar, _broadcast_vectors
+from .algebra import dot_scalar
 
 _JIT = dict(nogil=True, fastmath=True, cache=True, inline="always")
 
@@ -310,6 +313,228 @@ def weighted_average_xyz(
         sw,
     )
 
+### point moments
+
+
+@njit(**_JIT)
+def mean_along_axis_xyz(
+    x, y, z,
+    ax, ay, az,
+):
+    """
+    Mean projection along a (normalized) axis.
+    """
+
+    n = x.size
+
+    s = 0.0
+
+    for i in range(n):
+        s += dot_scalar(
+            x[i], y[i], z[i],
+            ax, ay, az,
+        )
+
+    return s / n
+
+
+@njit(**_JIT)
+def variance_along_axis_xyz(
+    x, y, z,
+    ax, ay, az,
+):
+    """
+    Population variance of projections along a (normalized) axis.
+    """
+
+    n = x.size
+
+    mean = mean_along_axis_xyz(
+        x, y, z,
+        ax, ay, az,
+    )
+
+    var = 0.0
+
+    for i in range(n):
+
+        d = (
+            dot_scalar(
+                x[i], y[i], z[i],
+                ax, ay, az,
+            )
+            - mean
+        )
+
+        var += d * d
+
+    return var / n
+
+
+@njit(**_JIT)
+def std_along_axis_xyz(
+    x, y, z,
+    ax, ay, az,
+):
+    """
+    Standard deviation along a (normalized) axis.
+    """
+
+    return sqrt(
+        variance_along_axis_xyz(
+            x, y, z,
+            ax, ay, az,
+        )
+    )
+
+
+@njit(**_JIT)
+def minmax_along_axis_xyz(
+    x, y, z,
+    ax, ay, az,
+):
+    """
+    Minimum and maximum projections.
+    """
+
+    n = x.size
+
+    p = dot_scalar(
+        x[0], y[0], z[0],
+        ax, ay, az,
+    )
+
+    pmin = p
+    pmax = p
+
+    for i in range(1, n):
+
+        p = dot_scalar(
+            x[i], y[i], z[i],
+            ax, ay, az,
+        )
+
+        if p < pmin:
+            pmin = p
+        elif p > pmax:
+            pmax = p
+
+    return pmin, pmax
+
+
+@njit(**_JIT)
+def extent_along_axis_xyz(
+    x, y, z,
+    ax, ay, az,
+):
+    """
+    Extent along a (normalized) axis.
+    """
+
+    pmin, pmax = minmax_along_axis_xyz(
+        x, y, z,
+        ax, ay, az,
+    )
+
+    return pmax - pmin
+
+
+@njit(**_JIT)
+def rms_along_axis_xyz(
+    x, y, z,
+    ax, ay, az,
+):
+    """
+    Root-mean-square projection along an axis.
+    """
+
+    n = x.size
+
+    s = 0.0
+
+    for i in range(n):
+
+        p = dot_scalar(
+            x[i], y[i], z[i],
+            ax, ay, az,
+        )
+
+        s += p * p
+
+    return sqrt(s / n)
+
+
+@njit(**_JIT)
+def mean_absolute_along_axis_xyz(
+    x, y, z,
+    ax, ay, az,
+):
+    """
+    Mean absolute projection along an axis.
+    """
+
+    n = x.size
+
+    s = 0.0
+
+    for i in range(n):
+
+        p = dot_scalar(
+            x[i], y[i], z[i],
+            ax, ay, az,
+        )
+
+        s += _abs(p)
+
+    return s / n
+
+
+@njit(**_JIT)
+def projection_moments_xyz(
+    x, y, z,
+    ax, ay, az,
+):
+    """
+    Return mean, variance, standard deviation,
+    minimum and maximum projection.
+    """
+
+    pmin, pmax = minmax_along_axis_xyz(
+        x, y, z,
+        ax, ay, az,
+    )
+
+    mean = mean_along_axis_xyz(
+        x, y, z,
+        ax, ay, az,
+    )
+
+    n = x.size
+
+    var = 0.0
+
+    for i in range(n):
+
+        d = (
+            dot_scalar(
+                x[i], y[i], z[i],
+                ax, ay, az,
+            )
+            - mean
+        )
+
+        var += d * d
+
+    var /= n
+
+    return (
+        mean,
+        var,
+        sqrt(var),
+        pmin,
+        pmax,
+    )
+
 
 ### Numpy callers
 def euclidean_distance(x1, y1, z1, x2, y2, z2):
@@ -487,3 +712,174 @@ def average(x, y, z, weights=None):
     if weights is None:
         return average_xyz(x, y, z)
     return weighted_average_xyz(x, y, z, weights)
+
+
+def mean_along_axis(x, y, z, ax, ay, az):
+    """
+    Mean projection of 3D points onto an axis.
+
+    Parameters
+    ----------
+    x, y, z : ndarray
+        1D coordinate arrays of equal length.
+    ax, ay, az : float
+        Components of the axis direction. The axis is assumed to be a unit
+        vector; projections are computed as ``dot(point, axis)``.
+
+    Returns
+    -------
+    float
+        Population mean of the scalar projections onto the axis.
+    """
+    return mean_along_axis_xyz(x, y, z, ax, ay, az)
+
+
+def variance_along_axis(x, y, z, ax, ay, az):
+    """
+    Population variance of projections onto an axis.
+
+    Parameters
+    ----------
+    x, y, z : ndarray
+        1D coordinate arrays of equal length.
+    ax, ay, az : float
+        Components of the axis direction. The axis is assumed to be a unit
+        vector; projections are computed as ``dot(point, axis)``.
+
+    Returns
+    -------
+    float
+        Population variance of the scalar projections onto the axis.
+    """
+    return variance_along_axis_xyz(x, y, z, ax, ay, az)
+
+
+def std_along_axis(x, y, z, ax, ay, az):
+    """
+    Standard deviation of projections onto an axis.
+
+    Parameters
+    ----------
+    x, y, z : ndarray
+        1D coordinate arrays of equal length.
+    ax, ay, az : float
+        Components of the axis direction. The axis is assumed to be a unit
+        vector; projections are computed as ``dot(point, axis)``.
+
+    Returns
+    -------
+    float
+        Square root of the population variance of projections onto the axis.
+    """
+    return std_along_axis_xyz(x, y, z, ax, ay, az)
+
+
+def minmax_along_axis(x, y, z, ax, ay, az):
+    """
+    Minimum and maximum projections onto an axis.
+
+    Parameters
+    ----------
+    x, y, z : ndarray
+        1D coordinate arrays of equal length.
+    ax, ay, az : float
+        Components of the axis direction. The axis is assumed to be a unit
+        vector; projections are computed as ``dot(point, axis)``.
+
+    Returns
+    -------
+    pmin : float
+        Minimum scalar projection onto the axis.
+    pmax : float
+        Maximum scalar projection onto the axis.
+    """
+    return minmax_along_axis_xyz(x, y, z, ax, ay, az)
+
+
+def extent_along_axis(x, y, z, ax, ay, az):
+    """
+    Extent of projections onto an axis.
+
+    Parameters
+    ----------
+    x, y, z : ndarray
+        1D coordinate arrays of equal length.
+    ax, ay, az : float
+        Components of the axis direction. The axis is assumed to be a unit
+        vector; projections are computed as ``dot(point, axis)``.
+
+    Returns
+    -------
+    float
+        Difference between the maximum and minimum projections onto the
+        axis.
+    """
+    return extent_along_axis_xyz(x, y, z, ax, ay, az)
+
+
+def rms_along_axis(x, y, z, ax, ay, az):
+    """
+    Root-mean-square projection onto an axis.
+
+    Parameters
+    ----------
+    x, y, z : ndarray
+        1D coordinate arrays of equal length.
+    ax, ay, az : float
+        Components of the axis direction. The axis is assumed to be a unit
+        vector; projections are computed as ``dot(point, axis)``.
+
+    Returns
+    -------
+    float
+        ``sqrt(mean(projection**2))`` over all points.
+    """
+    return rms_along_axis_xyz(x, y, z, ax, ay, az)
+
+
+def mean_absolute_along_axis(x, y, z, ax, ay, az):
+    """
+    Mean absolute projection onto an axis.
+
+    Parameters
+    ----------
+    x, y, z : ndarray
+        1D coordinate arrays of equal length.
+    ax, ay, az : float
+        Components of the axis direction. The axis is assumed to be a unit
+        vector; projections are computed as ``dot(point, axis)``.
+
+    Returns
+    -------
+    float
+        Mean of ``abs(projection)`` over all points.
+    """
+    return mean_absolute_along_axis_xyz(x, y, z, ax, ay, az)
+
+
+def projection_moments(x, y, z, ax, ay, az):
+    """
+    Summary moments of projections onto an axis.
+
+    Parameters
+    ----------
+    x, y, z : ndarray
+        1D coordinate arrays of equal length.
+    ax, ay, az : float
+        Components of the axis direction. The axis is assumed to be a unit
+        vector; projections are computed as ``dot(point, axis)``.
+
+    Returns
+    -------
+    mean : float
+        Population mean projection onto the axis.
+    variance : float
+        Population variance of projections onto the axis.
+    std : float
+        Standard deviation of projections onto the axis.
+    pmin : float
+        Minimum projection onto the axis.
+    pmax : float
+        Maximum projection onto the axis.
+    """
+    return projection_moments_xyz(x, y, z, ax, ay, az)

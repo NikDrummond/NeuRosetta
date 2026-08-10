@@ -17,6 +17,17 @@ from .forest_transforms import (
     get_forest_convex_hull_volume,
 )
 
+from .forest_coordinate_moments import (
+    coordinate_mean_along_axis_forest,
+    coordinate_variance_along_axis_forest,
+    coordinate_std_along_axis_forest,
+    coordinate_minmax_along_axis_forest,
+    coordinate_extent_along_axis_forest,
+    coordinate_rms_along_axis_forest,
+    coordinate_mean_absolute_along_axis_forest,
+    coordinate_projection_moments_forest,
+)
+
 from .forest_shape_fitting import (
     fit_circle_forest,
     fit_line_forest,
@@ -39,6 +50,14 @@ __all__ = [
     "forest_pca",
     "get_forest_convex_hull",
     "get_forest_convex_hull_volume",
+    "coordinate_mean_along_axis_forest",
+    "coordinate_variance_along_axis_forest",
+    "coordinate_std_along_axis_forest",
+    "coordinate_minmax_along_axis_forest",
+    "coordinate_extent_along_axis_forest",
+    "coordinate_rms_along_axis_forest",
+    "coordinate_mean_absolute_along_axis_forest",
+    "coordinate_projection_moments_forest",
     "fit_circle_forest",
     "fit_line_forest",
     "fit_plane_forest",

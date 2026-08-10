@@ -218,6 +218,41 @@ def center_coordinates_at_centroid(
     return _apply_node_coordinates(tree, x, y, z, bind)
 
 
+def center_coordinates_at_root(
+    tree: _Tree,
+    bind: bool = True,
+) -> ndarray | None:
+    """Translate a tree so that its root node lies at the origin.
+
+    This is equivalent to subtracting the root coordinate from every node
+    position. When the tree has multiple roots, the first root returned by
+    :func:`get_root_coordinate` is used.
+
+    Parameters
+    ----------
+    tree : _Tree
+        Tree to center.
+    bind : bool, optional
+        If True, write centered coordinates to the graph and return None.
+        By default True.
+
+    Returns
+    -------
+    ndarray | None
+        Centered (N, 3) coordinates when bind=False; None when bind=True.
+
+    Notes
+    -----
+    Node radii are not modified by this operation.
+    """
+    rc = get_root_coordinate(tree, SoA=False).ravel()
+    return recenter_coordinates(
+        tree,
+        center=(float(rc[0]), float(rc[1]), float(rc[2])),
+        bind=bind,
+    )
+
+
 def recenter_coordinates(
     tree: _Tree,
     center: tuple | ndarray,
