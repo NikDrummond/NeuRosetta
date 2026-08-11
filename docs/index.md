@@ -5,6 +5,18 @@ reconstructions. It centres on `Tree` and `Forest` objects built on
 [graph-tool](https://graph-tool.skewed.de/), with SWC/NR/mesh I/O, plotting,
 neuropil surface reconstruction, and an optional GUI.
 
+**New here?** Start with {doc}`concepts/overview` for the mental model (graphs,
+file formats, workflows), then {doc}`tutorials/01_installation`. Contributors
+should also read {doc}`concepts/architecture`.
+
+```{toctree}
+:maxdepth: 2
+:caption: Concepts
+
+concepts/overview
+concepts/architecture
+```
+
 ```{toctree}
 :maxdepth: 2
 :caption: Getting started
@@ -24,6 +36,13 @@ tutorials/06_forests
 tutorials/07_meshes_neuropils
 tutorials/08_surface_reconstruction
 tutorials/09_gui
+```
+
+```{toctree}
+:maxdepth: 1
+:caption: Notebooks
+
+notebooks/index
 ```
 
 ```{toctree}

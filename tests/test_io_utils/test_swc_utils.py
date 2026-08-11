@@ -3,10 +3,35 @@ import pytest
 from tempfile import TemporaryDirectory
 from pathlib import Path
 from pandas import DataFrame
-from numpy import array_equal, array, ones_like
+from numpy import array_equal, array, ones_like, sort
 from NeuRosetta.io.io_utils import _check_swc_columns, _table_from_swc
 from NeuRosetta.io.swc_utils import export_swc, import_swc
 from NeuRosetta.api import Tree
+
+
+def _props_by_id(graph, prop):
+    ids = graph.vp["ids"].a
+    return {int(ids[v]): graph.vp[prop].a[v] for v in graph.get_vertices()}
+
+
+def _parent_map(graph):
+    ids = graph.vp["ids"].a
+    parents = {int(ids[v]): -1 for v in graph.get_vertices()}
+    for source, target in graph.get_edges():
+        parents[int(ids[target])] = int(ids[source])
+    return parents
+
+
+def _coords_by_id(graph):
+    ids = graph.vp["ids"].a
+    return {
+        int(ids[v]): (
+            graph.vp["x"].a[v],
+            graph.vp["y"].a[v],
+            graph.vp["z"].a[v],
+        )
+        for v in graph.get_vertices()
+    }
 
 def test_check_swc_columns_valid():
     df = DataFrame({
@@ -58,14 +83,59 @@ def test_swc_read_write(simple_tree):
     assert result.metadata is result.graph.gp["metadata"]
     assert int(result.graph.gp["ID"]) == 1
 
-    # assert graph is the same
+    # assert graph topology and geometry are preserved in SWC id space
+    assert array_equal(
+        sort(tree.graph.vp["ids"].a), sort(result.graph.vp["ids"].a)
+    )
+    assert _parent_map(tree.graph) == _parent_map(result.graph)
+    assert _coords_by_id(tree.graph) == _coords_by_id(result.graph)
 
-    n_types = array([-1,0,5,6,0,0,0,5,0,0,6,5,6,6,6,0,6])
+    n_types = array([-1, 0, 5, 6, 0, 0, 0, 5, 0, 0, 6, 5, 6, 6, 6, 0, 6])
     radius = ones_like(n_types)
 
-    assert array_equal(tree.graph.get_edges(),result.graph.get_edges())
-    assert array_equal(n_types, result.graph.vp['node_type'].a)
-    assert array_equal(radius, result.graph.vp['radius'].a)
+    assert _props_by_id(tree.graph, "node_type") == _props_by_id(
+        result.graph, "node_type"
+    )
+    assert _props_by_id(tree.graph, "radius") == _props_by_id(result.graph, "radius")
+
+
+def test_swc_roundtrip_non_contiguous_ids(tmp_path):
+    swc_file = tmp_path / "42.swc"
+    swc_file.write_text(
+        "10 1 0 0 0 1 -1\n"
+        "11 1 1 0 0 1 10\n"
+        "12 1 2 0 0 1 11\n"
+        "20 1 3 0 0 1 10\n"
+    )
+
+    original = import_swc(swc_file)
+    out_file = tmp_path / "99.swc"
+    export_swc(original, out_file)
+    result = import_swc(out_file)
+
+    assert array_equal(original.graph.vp["ids"].a, result.graph.vp["ids"].a)
+    assert _parent_map(original.graph) == _parent_map(result.graph)
+    assert _coords_by_id(original.graph) == _coords_by_id(result.graph)
+
+
+def test_swc_roundtrip_reordered_ids(tmp_path):
+    swc_file = tmp_path / "42.swc"
+    swc_file.write_text(
+        "1 1 0 0 0 1 -1\n"
+        "2 1 1 0 0 1 1\n"
+        "3 1 2 0 0 1 2\n"
+    )
+
+    original = import_swc(swc_file)
+    out_file = tmp_path / "99.swc"
+    export_swc(original, out_file)
+    result = import_swc(out_file)
+
+    assert array_equal(original.graph.vp["ids"].a, result.graph.vp["ids"].a)
+    assert _parent_map(original.graph) == _parent_map(result.graph)
+    df = _table_from_swc(str(out_file))
+    assert list(df.parent_id) == [-1, 1, 2]
+    assert list(df.node_id) == [1, 2, 3]
 
 
 def test_import_swc_set_units(tmp_path, simple_tree):

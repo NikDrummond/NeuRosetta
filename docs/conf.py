@@ -14,7 +14,7 @@ release = "0.1.0"
 version = "0.1.0"
 
 extensions = [
-    "myst_parser",
+    "myst_nb",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
     "sphinx.ext.napoleon",
@@ -29,37 +29,48 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "data/README.md"]
 
 html_theme = "furo"
 html_static_path = ["_static"]
+html_css_files = ["custom.css"]
+html_js_files = ["dyslexia-font.js", "bionic-reading.js"]
 html_title = "NeuRosetta"
 html_theme_options = {
     "source_repository": "https://github.com/NikDrummond/NeuRosetta",
     "source_branch": "main",
     "source_directory": "docs/",
     "light_css_variables": {
-        # Main colors
-        "color-brand-primary": "#7c3aed",
-        "color-brand-content": "#9333ea",
+        # Microscopy slate — teal accent on warm stone canvas
+        "color-brand-primary": "#0d9488",
+        "color-brand-content": "#0f766e",
 
-        # Page background
-        "color-background-primary": "#ffffff",
-        "color-background-secondary": "#f5f3ff",
+        "color-background-primary": "#fafaf9",
+        "color-background-secondary": "#f0fdfa",
+        "color-background-border": "#e7e5e4",
+        "color-background-hover": "#ccfbf1",
 
-        # Text
-        "color-foreground-primary": "#1f2937",
-        "color-foreground-secondary": "#4b5563",
+        "color-foreground-primary": "#1c1917",
+        "color-foreground-secondary": "#57534e",
+        "color-foreground-muted": "#78716c",
+        "color-foreground-border": "#d6d3d1",
 
-        # Admonitions
-        "color-admonition-background": "#fef3c7",
+        "color-admonition-background": "#fffbeb",
+        "color-code-background": "#ecfdf5",
     },
 
     "dark_css_variables": {
-        "color-brand-primary": "#c084fc",
-        "color-brand-content": "#d8b4fe",
+        "color-brand-primary": "#2dd4bf",
+        "color-brand-content": "#5eead4",
 
-        "color-background-primary": "#111827",
-        "color-background-secondary": "#1f2937",
+        "color-background-primary": "#0c1222",
+        "color-background-secondary": "#111827",
+        "color-background-border": "#1e293b",
+        "color-background-hover": "#134e4a",
 
-        "color-foreground-primary": "#f9fafb",
-        "color-foreground-secondary": "#d1d5db",
+        "color-foreground-primary": "#f8fafc",
+        "color-foreground-secondary": "#cbd5e1",
+        "color-foreground-muted": "#94a3b8",
+        "color-foreground-border": "#334155",
+
+        "color-admonition-background": "#422006",
+        "color-code-background": "#042f2e",
     },
 }
 
@@ -69,6 +80,11 @@ myst_enable_extensions = [
     "fieldlist",
 ]
 myst_heading_anchors = 3
+
+# Notebooks (myst-nb): render committed outputs; re-execute locally when updating.
+nb_execution_mode = "off"
+nb_merge_streams = True
+nb_show_stderr = "warning"
 
 autosummary_generate = True
 autoclass_content = "both"

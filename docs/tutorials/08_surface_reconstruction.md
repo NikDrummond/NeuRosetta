@@ -49,8 +49,9 @@ Useful knobs (see the API docs for full detail):
 | `clean` / `smooth` | Mesh post-processing |
 
 ```{note}
-The synthetic ``docs/data`` SWCs are tiny teaching morphologies and are not
-realistic inputs for neuropil reconstruction. Use a dense EM forest in nm.
+The bundled ``docs/data`` sample SWCs are single-neuron excerpts with
+dimensionless units — not suitable inputs for neuropil reconstruction. Use a
+dense EM forest in nm.
 ```
 
 ## Distances and depth

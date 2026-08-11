@@ -1,0 +1,44 @@
+{% extends "!base.html" %}
+
+{% block extrahead %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+  href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+  rel="stylesheet"
+>
+{{ super() }}
+{% endblock %}
+
+{% block body %}
+<script>
+  document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+  try {
+    var _fontMode = localStorage.getItem("neurosetta-font-mode");
+    if (_fontMode === null) {
+      _fontMode = localStorage.getItem("neurosetta-dyslexia-font");
+      if (_fontMode === "on") {
+        _fontMode = "atkinson";
+      } else if (_fontMode === "off" || _fontMode === null) {
+        _fontMode = "default";
+      }
+    }
+    if (
+      _fontMode !== "default" &&
+      _fontMode !== "atkinson" &&
+      _fontMode !== "opendyslexic"
+    ) {
+      _fontMode = "default";
+    }
+    document.body.dataset.fontMode = _fontMode;
+  } catch (e) {
+    document.body.dataset.fontMode = "default";
+  }
+  try {
+    document.body.dataset.bionicReading =
+      localStorage.getItem("neurosetta-bionic-reading") === "on" ? "on" : "off";
+  } catch (e) {
+    document.body.dataset.bionicReading = "off";
+  }
+</script>
+{% endblock %}

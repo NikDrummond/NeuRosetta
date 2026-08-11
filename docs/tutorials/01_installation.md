@@ -7,12 +7,13 @@ imports correctly.
 
 NeuRosetta depends on [graph-tool](https://graph-tool.skewed.de/), which is
 distributed on **conda-forge** and is not available from PyPI. The recommended
-install path is therefore conda/mamba first, then install NeuRosetta into that
-environment.
+install path is therefore conda/mamba plus an editable install from source.
+
+NeuRosetta is **not yet published on PyPI or conda-forge**.
 
 Supported Python versions: **3.11** and **3.12**.
 
-## Create an environment
+## Install from source
 
 Install [Miniconda](https://www.anaconda.com/docs/getting-started/miniconda/install)
 (or Mambaforge). Optionally install `mamba` for faster solves:
@@ -21,33 +22,8 @@ Install [Miniconda](https://www.anaconda.com/docs/getting-started/miniconda/inst
 conda install -n base -c conda-forge mamba -y
 ```
 
-Create an environment with the hard runtime dependencies:
-
-```bash
-mamba create -n nr -c conda-forge python=3.11 \
-  numpy pandas scipy matplotlib jax tqdm trimesh vedo \
-  scikit-learn scikit-image pyside6 graph-tool \
-  pip hatchling
-mamba activate nr
-```
-
-Then install NeuRosetta:
-
-```bash
-python -m pip install NeuRosetta
-```
-
-Once the package is on conda-forge, you will be able to install with:
-
-```bash
-mamba create -n nr -c conda-forge neurosetta
-mamba activate nr
-```
-
-## Development install from source
-
-Clone the repository and use the provided environment file (installs the
-package in editable mode):
+Clone the repository and create the environment (installs NeuRosetta in editable
+mode):
 
 ```bash
 git clone https://github.com/NikDrummond/NeuRosetta.git
@@ -56,10 +32,21 @@ mamba env create -f environment.yml
 mamba activate nr
 ```
 
-Or, with dependencies already present:
+Or, with dependencies already present in an activated environment:
 
 ```bash
 python -m pip install -e ".[dev,docs]"
+```
+
+Once the package is published, you will be able to install with:
+
+```bash
+# PyPI (planned)
+python -m pip install NeuRosetta
+
+# conda-forge (planned)
+mamba create -n nr -c conda-forge neurosetta
+mamba activate nr
 ```
 
 ## Verify the install

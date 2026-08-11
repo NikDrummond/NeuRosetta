@@ -4,7 +4,7 @@ The {class}`~NeuRosetta.api.Tree` class, and its big brother, {class}`~NeuRosett
 
 ## Tree Basics
 
-All trees have three main properties: ID, metadata, and graph. As the Tree class makes use of __slots__, you cannot add arbritray attributes to Trees, but rather have to store them within either metadata, or bound to the graph. This is easy to do however, and when done you can save these elements with the `.nr` file, giving you a persistent state across sessions. You can look at the basis attributes as follows:
+All trees have three main properties: ID, metadata, and graph. As the Tree class makes use of __slots__, you cannot add arbitrary attributes to Trees, but rather have to store them within either metadata, or bound to the graph. This is easy to do however, and when done you can save these elements with the `.nr` file, giving you a persistent state across sessions. You can look at the basic attributes as follows:
 
 ```python
 from pathlib import Path
@@ -18,15 +18,15 @@ print(tree.graph)
 
 ```
 
-As explained in {doc}`02_io`, the `ID`of a neuron comes from the file name / identification number within the dataset this neuron comes from. Metadata is a place to keep track of information about this neuron. Finally, graph is the core graph representation of the neuron tree graph and is a `graph_tool.Graph` object.
+As explained in {doc}`02_io`, the `ID` of a neuron comes from the file name / identification number within the dataset this neuron comes from. Metadata is a place to keep track of information about this neuron. Finally, graph is the core graph representation of the neuron tree graph and is a `graph_tool.Graph` object.
 
 ---
 
 ### Understanding Graph Properties.
 
-As much as possible. NeuRosetta aims to be as easy to use as possible, but understanding properties will helps a little. NeuRosetta tries to handle as much of this under the hood as possible, so in theory you never need to fullly understand this. What is important, is knowing that and bound property - a property that shows up when you look at the list of properties a neuron has, is savable, and can be persistenty attached to the neuron.
+As much as possible, NeuRosetta aims to be as easy to use as possible, but understanding properties will help a little. NeuRosetta tries to handle as much of this under the hood as possible, so in theory you never need to fully understand this. What is important is knowing that a bound property — a property that shows up when you look at the list of properties a neuron has — is savable, and can be persistently attached to the neuron.
 
-Each neuron is treated as a directed tree graph within NeuRosetta. This is done using [graph_tool](https://graph-tool.skewed.de/), which under the hood is a C++ libray which gives us some nice speed in some places. There are a few elements which are key to understanding how this works within NeuRosetta, possibly most importantly the idea of properties. Graph_tool gives an overview [here](https://graph-tool.skewed.de/static/docs/stable/quickstart.html#property-maps) which is worth going through. When a property is "bound" to the graph within NeuRosetta, it is an internal property for the `graph_tool.Graph` object. There are three levels of properties, graph properties, vertex properties, and edge properties (vertex is another word for a node in a graph). We us the shorthand ['g','v','e'] for graph, vertex, and edge properties resepctively. 
+Each neuron is treated as a directed tree graph within NeuRosetta. This is done using [graph_tool](https://graph-tool.skewed.de/), which under the hood is a C++ library which gives us some nice speed in some places. There are a few elements which are key to understanding how this works within NeuRosetta, possibly most importantly the idea of properties. Graph_tool gives an overview [here](https://graph-tool.skewed.de/static/docs/stable/quickstart.html#property-maps) which is worth going through. When a property is "bound" to the graph within NeuRosetta, it is an internal property for the `graph_tool.Graph` object. There are three levels of properties, graph properties, vertex properties, and edge properties (vertex is another word for a node in a graph). We use the shorthand ['g','v','e'] for graph, vertex, and edge properties respectively.
 
 To view the properties bound to a tree, you can view them all using:
 
@@ -53,11 +53,11 @@ In order to get the values of a property, by default as a numpy array, you shoul
 tree.get_property(prop = 'radius',level = 'v', as_array = True)
 ```
 
-This will give you the numpy array of node radii. Alternatively, you may need the graph_tool property map object itself as documented [here](https://graph-tool.skewed.de/static/docs/stable/graph_tool.html#property-maps), in which case set `as_array = False`. The `level` argument is not needed either. If you don't use it, NeuRosetta will still find your propert. If however you have set two properties with identical names at different evels, you will get a dictionary of `{'level':'property values'}` returned.
+This will give you the numpy array of node radii. Alternatively, you may need the graph_tool property map object itself as documented [here](https://graph-tool.skewed.de/static/docs/stable/graph_tool.html#property-maps), in which case set `as_array = False`. The `level` argument is not needed either. If you don't use it, NeuRosetta will still find your property. If however you have set two properties with identical names at different levels, you will get a dictionary of `{'level':'property values'}` returned.
 
-You can also set or create new properties at any level using. When creating a new property, you need data (obviously), as well as knowing the level and datatype. When creating a new property you *need* to specify the datatype. There is a table of usable datatypes [here](https://graph-tool.skewed.de/static/docs/stable/quickstart.html#property-maps). Bound properties can either be 1 or 2 dimensional arrays (at the ['v','e'] levels), or more flexibaly any picklale python object (using the `object` dtype) at graph level.
+You can also set or create new properties at any level. When creating a new property, you need data (obviously), as well as knowing the level and datatype. When creating a new property you *need* to specify the datatype. There is a table of usable datatypes [here](https://graph-tool.skewed.de/static/docs/stable/quickstart.html#property-maps). Bound properties can either be 1 or 2 dimensional arrays (at the ['v','e'] levels), or more flexibly any picklable python object (using the `object` dtype) at graph level.
 
-To set a 1-dimensional array, in the below example a value for each node in the neuron, you need your datset - an array of length equal to the number of nodes, and can set it as follows:
+To set a 1-dimensional array, in the below example a value for each node in the neuron, you need your dataset — an array of length equal to the number of nodes, and can set it as follows:
 
 ```python
 data = np.zeros(tree.count_nodes())
@@ -65,7 +65,7 @@ tree.set_property(name = 'zeros', data = data, level = 'v', create = True, dtype
 tree.get_property('zeros')
 ```
 
-When setting a 2-dimensional array, for example, the coordinates of points, NeuRosetta will try to make sure the shape is correct, as Graph_tool expects the array in the format dimensions x *n*. Additionally, the datatype needs to be `vector<dtype>`, for example `vector<double`> for an array of floats. Bellow, we repeat the above operation, but for a 2D array:
+When setting a 2-dimensional array, for example, the coordinates of points, NeuRosetta will try to make sure the shape is correct, as Graph_tool expects the array in the format dimensions x *n*. Additionally, the datatype needs to be `vector<dtype>`, for example `vector<double>` for an array of floats. Below, we repeat the above operation, but for a 2D array:
 
 ```python
 data_2d = np.ones((tree.count_nodes(),2))
@@ -100,7 +100,7 @@ tree.set_property(name = 'zeros', data = data, level = 'v', create = True, dtype
 data_2d = np.ones((tree.count_nodes(),2))
 tree.set_property(name = 'zeros', data = data_2d, level = 'v', create = True, dtype = 'vector<int>')
 ```
-Will not work, nor will trying to set a 1-d array top a property which is a 2-d array.
+Will not work, nor will trying to set a 1-d array to a property which is a 2-d array.
 
 ````
 
@@ -116,7 +116,7 @@ print(f"This neuron has {tree.count_branches()} branching nodes")
 print(f"This neuron has {tree.count_leaves()} terminal nodes")
 print(f"This neuron has {tree.count_roots()} root node")
 ```
-The above tels you how many nodes the neuron is made up of, the number of branching nodes (those with an out degree > 1), the number of terminal nodes (or leaves, nodes with an out degree = 0), and the number of root nodes (nodes with an in-degree = 0). Stricktly speaking, you should only ever have a single root node. If you have multiple, you have multiple disjoined graphs in your graph representation of your neuron, and something is wrong.
+The above tells you how many nodes the neuron is made up of, the number of branching nodes (those with an out degree > 1), the number of terminal nodes (or leaves, nodes with an out degree = 0), and the number of root nodes (nodes with an in-degree = 0). Strictly speaking, you should only ever have a single root node. If you have multiple, you have multiple disjoint graphs in your graph representation of your neuron, and something is wrong.
 
 Additionally, we have various functions to get the indices of nodes in the graph representation of your neuron:
 
@@ -126,7 +126,7 @@ print(tree.get_branch_indices())
 print(tree.get_leaf_indices())
 print(tree.get_edge_indices())
 ```
-NeuRosetta will aim for the root node index to *always* be at the 0 index. You will see that `tree.get_edge_indices()` returns a 2-dimensiona array. The first column is the source node index and the second the target node index for each edge. 
+NeuRosetta will aim for the root node index to *always* be at the 0 index. You will see that `tree.get_edge_indices()` returns a 2-dimensional array. The first column is the source node index and the second the target node index for each edge.
 
 Having access to the index of specific nodes is important, as the node ordering in all your node level properties is consistent, meaning you can use these indices to subset. For example, if you want to know the radius of nodes at each branch point:
 
@@ -156,7 +156,7 @@ Much like when looking at the indices of edges, the same thing can be done for c
 ```python
 source_c, target_c = tree.get_edge_coordinates()
 ```
-This returns a tupple of coordinates arrays, which we are splitting into source and target above. Currenty, subsetting doesn't work here as an argument, although this will likely change in the future! A full list of Tree methods can be found in the API documentation on trees.
+This returns a tuple of coordinate arrays, which we are splitting into source and target above. Currently, subsetting doesn't work here as an argument, although this will likely change in the future! A full list of Tree methods can be found in the API documentation on trees.
 
 ---
 
@@ -168,9 +168,9 @@ The base metadata dictionary is like so:
 |--------|-----------|
 | 'units'| Assumed to be 'dimensionless' at import unless specified|
 | 'file_path'| The location of the `.swc` file|
-| 'isReduced'| This is a bool flag, explained {doc}`here <03_tree_basics>`|
+| 'isReduced'| This is a bool flag, explained in {doc}`04_tree_surgery`|
 
-Metadata is a graph-level property, so will be saved alongside any edits made to it when using the `.nr` file format. When we look at the {class}`~NeuRosetta.api.Forest` the metadata is particularly useful, as you can add information on neuron types, for example, and use it to filter your forest for different neurons. It is also how NeuRosetta keeps track of a neurons spatial units, which is covered bellow, or the reduced of flagged nature of a neuron, which will be relevant later.
+Metadata is a graph-level property, so will be saved alongside any edits made to it when using the `.nr` file format. When we look at the {class}`~NeuRosetta.api.Forest` the metadata is particularly useful, as you can add information on neuron types, for example, and use it to filter your forest for different neurons. It is also how NeuRosetta keeps track of a neuron's spatial units, which is covered below, or the reduced or flagged nature of a neuron, which will be relevant later.
 
 ---
 
@@ -193,7 +193,7 @@ Which sets the neuron as being in nanometer units. You can also convert between 
 ```python
 tree.convert_units('um')
 ```
-Which converts the neurons units in place to microns. NeuRosetta can also hande data in isotropic voxels, which can be set and saved within the metadata. To set voxel units:
+Which converts the neuron's units in place to microns. NeuRosetta can also handle data in isotropic voxels, which can be set and saved within the metadata. To set voxel units:
 
 ```python
 tree.set_voxel_units(voxel_size = 8, voxel_unit = 'nm')
@@ -208,7 +208,7 @@ This tells NeuRosetta that the spatial units of this neuron are in voxel units a
 |`micron`|`Micron`,`micrometer`,`Micrometer`,`microns`,`Microns`,`um`|
 |`voxel`|`voxel`(+`voxel_size`/`voxel_unit` metadata)|
 
-Keep in mind with voxel units, you should use on of the other spatial units, such as 'nm'. 
+Keep in mind with voxel units, you should use one of the other spatial units, such as 'nm'.
 
 ---
 

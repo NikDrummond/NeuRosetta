@@ -9,8 +9,6 @@ from numpy import (
     where,
     ndarray,
     zeros_like,
-    vstack,
-    array,
 )
 from pandas import DataFrame, read_csv
 from graph_tool.all import Graph
@@ -18,6 +16,7 @@ from tqdm import tqdm
 
 from ..core import _Tree
 from ..ops.tree_graphs import has_property
+from ..utils.graph_utils.vertex_inds import root_index
 from ..utils.units import DEFAULT_UNITS
 
 T = TypeVar("T")
@@ -151,40 +150,56 @@ def _graph_from_table(df: DataFrame) -> Graph:
 
 
 def _swc_table(tree: _Tree) -> DataFrame:
+    """Build an SWC node table from a tree graph.
 
-    # get node ids, radius and cooridnates
-    # ids = tree.graph.vp["ids"].a
-    radius = tree.graph.vp["radius"].a
-    # coords = tree.graph.vp["coordinates"].get_2d_array().T
-    x = tree.graph.vp['x'].a
-    y = tree.graph.vp['y'].a
-    z = tree.graph.vp['z'].a
-    # get edges - reorder columns so node to parent
-    edges = tree.graph.get_edges()[:, [1, 0]]
+    Rows use SWC ``node_id`` / ``parent_id`` values from ``g.vp['ids']``, matching
+    :func:`_graph_from_table` import semantics.
+    """
+    g = tree.graph
+    ids = g.vp["ids"].a if "ids" in g.vp else g.get_vertices()
+    root = root_index(g)
+    node_types = _infer_node_types(g)
 
-    # get node types
-    node_types = _infer_node_types(tree.graph)
+    x = g.vp["x"].a
+    y = g.vp["y"].a
+    z = g.vp["z"].a
+    radius = g.vp["radius"].a
 
-    # append root,-1 to the top of the edge list
-    edges = vstack((array([0, -1]), edges))
+    node_id = []
+    parent_id = []
+    types = []
+    xs = []
+    ys = []
+    zs = []
+    radii = []
 
-    df = (
+    for v in g.get_vertices():
+        node_id.append(int(ids[v]))
+        if v == root:
+            parent_id.append(-1)
+        else:
+            parent_id.append(int(ids[int(g.get_in_neighbors(v)[0])]))
+        types.append(int(node_types[v]))
+        xs.append(float(x[v]))
+        ys.append(float(y[v]))
+        zs.append(float(z[v]))
+        radii.append(float(radius[v]))
+
+    return (
         DataFrame(
             {
-                "node_id": edges[:, 0],
-                "type": node_types,
-                "x": x,
-                "y": y,
-                "z": z,
-                "radius": radius,
-                "parent_id": edges[:, 1],
+                "node_id": node_id,
+                "type": types,
+                "x": xs,
+                "y": ys,
+                "z": zs,
+                "radius": radii,
+                "parent_id": parent_id,
             }
         )
         .sort_values("node_id")
         .reset_index(drop=True)
     )
-
-    return df
 
 
 def _base_meta():

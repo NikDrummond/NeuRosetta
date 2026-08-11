@@ -1,0 +1,139 @@
+.sidebar-brand-text {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* Font-mode toggle (default → Atkinson → OpenDyslexic), beside light/dark switch */
+.theme-toggle-container {
+  gap: 0.35rem;
+}
+
+@font-face {
+  font-family: "OpenDyslexic";
+  src: url("https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.woff")
+    format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "OpenDyslexic";
+  src: url("https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-bold.woff")
+    format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+.font-mode-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: none;
+  padding: 0;
+  background: transparent;
+  border-radius: 0.25rem;
+  line-height: 0;
+}
+
+.font-mode-toggle svg {
+  height: 1.25rem;
+  width: 1.25rem;
+  color: var(--color-foreground-secondary);
+  fill: currentColor;
+}
+
+.font-mode-toggle:hover svg,
+.font-mode-toggle[aria-pressed="true"] svg {
+  color: var(--color-brand-primary);
+}
+
+.font-mode-toggle[aria-pressed="true"] {
+  background: var(--color-background-hover);
+}
+
+/* Bionic reading toggle (separate from font mode) */
+.bionic-reading-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: none;
+  padding: 0;
+  background: transparent;
+  border-radius: 0.25rem;
+  line-height: 0;
+}
+
+.bionic-reading-toggle svg {
+  height: 1.25rem;
+  width: 1.25rem;
+  color: var(--color-foreground-secondary);
+  fill: currentColor;
+}
+
+.bionic-reading-toggle:hover svg,
+.bionic-reading-toggle.is-active svg {
+  color: var(--color-brand-primary);
+}
+
+.bionic-reading-toggle.is-active {
+  background: var(--color-background-hover);
+}
+
+.bionic-reading-toggle-label {
+  font-family: var(--font-stack);
+}
+
+/* Bionic reading: bold word prefixes in main article only */
+body[data-bionic-reading="on"] #furo-main-content .bionic-bold {
+  font-weight: 700;
+}
+
+/* Icon preview uses the active readable font */
+.font-mode-toggle[data-font-mode="default"] .font-mode-toggle-letter {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.font-mode-toggle[data-font-mode="atkinson"] .font-mode-toggle-letter {
+  font-family: "Atkinson Hyperlegible", sans-serif;
+}
+
+.font-mode-toggle[data-font-mode="opendyslexic"] .font-mode-toggle-letter {
+  font-family: "OpenDyslexic", sans-serif;
+}
+
+/* Readable-font body styles; code stays monospace */
+body[data-font-mode="atkinson"],
+body[data-font-mode="opendyslexic"] {
+  letter-spacing: 0.03em;
+  word-spacing: 0.06em;
+  line-height: 1.65;
+}
+
+body[data-font-mode="atkinson"] {
+  --font-stack:
+    "Atkinson Hyperlegible", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji;
+  --font-stack--headings: var(--font-stack);
+}
+
+body[data-font-mode="opendyslexic"] {
+  --font-stack:
+    "OpenDyslexic", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica,
+    Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji;
+  --font-stack--headings: var(--font-stack);
+}
+
+body[data-font-mode="atkinson"] p,
+body[data-font-mode="atkinson"] li,
+body[data-font-mode="atkinson"] td,
+body[data-font-mode="atkinson"] .sidebar-tree,
+body[data-font-mode="opendyslexic"] p,
+body[data-font-mode="opendyslexic"] li,
+body[data-font-mode="opendyslexic"] td,
+body[data-font-mode="opendyslexic"] .sidebar-tree {
+  line-height: 1.75;
+}

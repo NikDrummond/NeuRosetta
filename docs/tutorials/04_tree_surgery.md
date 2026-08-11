@@ -16,7 +16,7 @@ Several editing helpers take ``inplace`` / ``bind`` flags.
 ## Reduce a tree
 
 Reduction collapses transitive (chain) vertices while preserving branch
-points, leaves, and the root. This removes any nodes in the neuron with out degree = in degree = 1, reducing your graph representation to only the core elements of the neurons morphoplogy - the root, branch nodes and terminal nodes. 
+points, leaves, and the root. This removes any nodes in the neuron with out degree = in degree = 1, reducing your graph representation to only the core elements of the neuron's morphology — the root, branch nodes and terminal nodes.
 
 ```python
 from pathlib import Path
@@ -39,22 +39,22 @@ reduced = nr.Tree(ID=tree.ID, metadata=dict(tree.metadata), graph=g)
 print(reduced.count_nodes())
 ```
 
-This damatically reduces the memory footprint of single neurons, at the expence of the curvature in the neuronal sections. NeuRosetta keeps track of if a neuron is reduces of not within its metadata under the `isReduced` key. You can check if a neuron has been reduced:
+This dramatically reduces the memory footprint of single neurons, at the expense of the curvature in the neuronal sections. NeuRosetta keeps track of whether a neuron is reduced or not within its metadata under the `isReduced` key. You can check if a neuron has been reduced:
 
 ```python
 tree.is_reduced()
 ```
-Which returns True if the neuron has no transitive nodes. NeuRosetta will assume that a neuron has not been reduced on import, unless the metadata says otherwise. If you have a neuron which has been reduced and, for whetever reason, the metadata says it has not, you can use:
+Which returns True if the neuron has no transitive nodes. NeuRosetta will assume that a neuron has not been reduced on import, unless the metadata says otherwise. If you have a neuron which has been reduced and, for whatever reason, the metadata says it has not, you can use:
 
 ```python
 tree.update_reduced()
 ```
-Which will update the `isReduced` key in the neurons metadata if, and only if, the neuron does infact have no transitive nodes.
+Which will update the `isReduced` key in the neuron's metadata if, and only if, the neuron does in fact have no transitive nodes.
 
 ```{note}
-The `tree.get_edge_length()` method gives you the length of edges within your neuron, either as an array or by adding the `Path_length` edge property if `bind = True` is used. If a neuron has been reduced, you implicitly some of the detail in this measurement - You can only measure the euclidean distance between your 'core' points. However, NeuRosetta handles this. When using `bind = True` (which is the recomended approach generally) the edge property created will be called `Euclidean_length`, not `Path_length`. 
+The `tree.get_edge_length()` method gives you the length of edges within your neuron, either as an array or by adding the `Path_length` edge property if `bind = True` is used. If a neuron has been reduced, you implicitly lose some of the detail in this measurement — you can only measure the euclidean distance between your 'core' points. However, NeuRosetta handles this. When using `bind = True` (which is the recommended approach generally) the edge property created will be called `Euclidean_length`, not `Path_length`.
 
-Importantly, you should calculate your `Path_length` **BEFORE** reducing the neuron. When doing so, `Path_length` remains an edge property, keeping the length of cable between your core points, and   Euclidean_length` is then an additional property you can use. 
+Importantly, you should calculate your `Path_length` **before** reducing the neuron. When doing so, `Path_length` remains an edge property, keeping the length of cable between your core points, and `Euclidean_length` is then an additional property you can use.
 ```
 
 ## Reroot

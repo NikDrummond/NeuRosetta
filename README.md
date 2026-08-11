@@ -15,41 +15,36 @@ I/O, 2D/3D plotting, neuropil surface reconstruction, and a PySide6 GUI.
 - [conda-forge](https://conda-forge.org/) packages, especially **graph-tool**
   (not available on PyPI)
 
+NeuRosetta is **not yet published on PyPI or conda-forge**. Install from source
+for now (see below).
+
 ## Install (recommended: conda / mamba)
 
-```bash
-# optional: faster solver
-conda install -n base -c conda-forge mamba -y
-
-mamba create -n nr -c conda-forge python=3.11 \
-  numpy pandas scipy matplotlib tqdm trimesh vedo \
-  scikit-learn scikit-image pyside6 graph-tool \
-  pip hatchling
-mamba activate nr
-python -m pip install NeuRosetta
-```
-
-Once published on conda-forge:
+Clone the repository and create the environment from `environment.yml` (installs
+the package in editable mode):
 
 ```bash
-mamba create -n nr -c conda-forge neurosetta
-mamba activate nr
-```
-
-### Editable / development install
-
-From a clone of this repository:
-
-```bash
+git clone https://github.com/NikDrummond/NeuRosetta.git
+cd NeuRosetta
 mamba env create -f environment.yml
 mamba activate nr
-# environment.yml already installs the package in editable mode
 ```
 
-Or, in an existing env with dependencies available:
+Or, in an existing env with dependencies already available:
 
 ```bash
 python -m pip install -e ".[dev,docs]"
+```
+
+Once published:
+
+```bash
+# PyPI (planned)
+python -m pip install NeuRosetta
+
+# conda-forge (planned)
+mamba create -n nr -c conda-forge neurosetta
+mamba activate nr
 ```
 
 ## Quick start
@@ -58,7 +53,7 @@ python -m pip install -e ".[dev,docs]"
 import NeuRosetta as nr
 
 tree = nr.import_swc("path/to/1.swc")
-print(tree.count_nodes(), tree.get_cable_length())
+print(tree.count_nodes(), tree.get_total_cable_length())
 tree.show_2d()
 ```
 

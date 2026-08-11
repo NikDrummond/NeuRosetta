@@ -9,7 +9,6 @@ dependencies:
   - pandas
   - scipy
   - matplotlib
-  # - jax
   - tqdm
   - trimesh
   - vedo
@@ -24,6 +23,9 @@ dependencies:
   - ruff
   - sphinx >=7
   - myst-parser
+  - myst-nb
+  - nbclient
+  - ipykernel
   - sphinx-autodoc-typehints
   - furo
   - sphinx-copybutton
