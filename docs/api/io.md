@@ -1,7 +1,7 @@
 # I/O
 
 ```{eval-rst}
-.. automodule:: NeuRosetta.io
+.. automodule:: neurosetta.io
    :members:
    :imported-members:
 ```
@@ -9,20 +9,20 @@
 ## SWC
 
 ```{eval-rst}
-.. automodule:: NeuRosetta.io.swc_utils
+.. automodule:: neurosetta.io.swc_utils
    :members:
 ```
 
 ## Native ``.nr``
 
 ```{eval-rst}
-.. automodule:: NeuRosetta.io.nr_utils
+.. automodule:: neurosetta.io.nr_utils
    :members:
 ```
 
 ## Meshes
 
 ```{eval-rst}
-.. automodule:: NeuRosetta.io.mesh_utils
+.. automodule:: neurosetta.io.mesh_utils
    :members:
 ```

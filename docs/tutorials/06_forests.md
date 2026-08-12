@@ -1,7 +1,7 @@
 # Forests
 
-A {class}`~NeuRosetta.api.Forest` is an ordered collection of
-{class}`~NeuRosetta.api.Tree` objects with batch helpers, metadata filtering,
+A {class}`~neurosetta.api.Forest` is an ordered collection of
+{class}`~neurosetta.api.Tree` objects with batch helpers, metadata filtering,
 and parallel `apply`.
 
 ## Build a forest
@@ -10,7 +10,7 @@ From a directory of SWC files:
 
 ```python
 from pathlib import Path
-import NeuRosetta as nr
+import neurosetta as nr
 
 forest = nr.import_swc(Path("docs/data"), progress=True)
 print(len(forest), forest.ids())

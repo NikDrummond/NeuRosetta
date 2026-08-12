@@ -2,7 +2,7 @@
 
 import pytest
 
-from NeuRosetta.utils.units.conversion import scale_factor
+from neurosetta.utils.units.conversion import scale_factor
 
 
 def test_scale_factor_identity():

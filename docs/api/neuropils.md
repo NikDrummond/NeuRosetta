@@ -1,6 +1,6 @@
 # Neuropil distances
 
 ```{eval-rst}
-.. automodule:: NeuRosetta.ops.neuropils.distances
+.. automodule:: neurosetta.ops.neuropils.distances
    :members:
 ```

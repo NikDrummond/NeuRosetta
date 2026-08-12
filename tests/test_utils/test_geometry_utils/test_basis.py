@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from NeuRosetta.utils.geometry_utils.basis import basis
+from neurosetta.utils.geometry_utils.basis import basis
 
 
 def test_basis_vectors():

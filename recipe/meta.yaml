@@ -1,4 +1,4 @@
-{% set name = "NeuRosetta" %}
+{% set name = "neurosetta" %}
 {% set version = "0.1.0" %}
 
 package:
@@ -15,7 +15,7 @@ build:
   noarch: python
   script: {{ PYTHON }} -m pip install . -vv --no-deps
   entry_points:
-    - run_neuro_GUI = NeuRosetta.gui.main:start_GUI
+    - run_neuro_GUI = neurosetta.gui.main:start_GUI
 
 requirements:
   host:
@@ -39,14 +39,14 @@ requirements:
 
 test:
   imports:
-    - NeuRosetta
+    - neurosetta
   requires:
     - pytest
     - pytest-cov
   source_files:
     - tests
   commands:
-    - python -c "import NeuRosetta; print(NeuRosetta.__version__)"
+    - python -c "import neurosetta; print(neurosetta.__version__)"
     - pytest -q -o addopts= tests/test_core.py tests/test_errors.py tests/test_tree_graphs/test_counting.py
 
 about:

@@ -2,7 +2,7 @@
 
 from numpy import unique
 
-from NeuRosetta.utils.graph_utils.traversals import (
+from neurosetta.utils.graph_utils.traversals import (
     PostOrderVisitor,
     SubtreeMaskVisitor,
     TreeDepthVisitor,
@@ -11,7 +11,7 @@ from NeuRosetta.utils.graph_utils.traversals import (
     df_iterator,
     dfsearch,
 )
-from NeuRosetta.utils.graph_utils.vertex_inds import root_index
+from neurosetta.utils.graph_utils.vertex_inds import root_index
 
 
 def test_bf_iterator_returns_edges(simple_tree):

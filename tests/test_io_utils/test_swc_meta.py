@@ -6,14 +6,14 @@ from pathlib import Path
 
 import pytest
 
-from NeuRosetta.api import Tree
-from NeuRosetta.io.swc_meta import (
+from neurosetta.api import Tree
+from neurosetta.io.swc_meta import (
     default_swc_header,
     parse_swc_header,
     units_from_swc_header,
     warn_if_export_dimensionless,
 )
-from NeuRosetta.io.swc_utils import export_swc, import_swc
+from neurosetta.io.swc_utils import export_swc, import_swc
 
 
 def test_parse_swc_header_meta_json(tmp_path):

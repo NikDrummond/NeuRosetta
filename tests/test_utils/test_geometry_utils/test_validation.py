@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from NeuRosetta.utils.geometry_utils import _validation as val
+from neurosetta.utils.geometry_utils import _validation as val
 
 
 def test_pluralize():

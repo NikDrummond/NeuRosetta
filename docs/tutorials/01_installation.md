@@ -1,6 +1,6 @@
 # Installation
 
-This tutorial covers installing NeuRosetta and verifying that the package
+This tutorial covers installing neurosetta and verifying that the package
 imports correctly.
 
 ## Why conda?
@@ -22,7 +22,7 @@ Install [Miniconda](https://www.anaconda.com/docs/getting-started/miniconda/inst
 conda install -n base -c conda-forge mamba -y
 ```
 
-Clone the repository and create the environment (installs NeuRosetta in editable
+Clone the repository and create the environment (installs neurosetta in editable
 mode):
 
 ```bash
@@ -42,7 +42,7 @@ Once the package is published, you will be able to install with:
 
 ```bash
 # PyPI (planned)
-python -m pip install NeuRosetta
+python -m pip install neurosetta
 
 # conda-forge (planned)
 mamba create -n nr -c conda-forge neurosetta
@@ -52,7 +52,7 @@ mamba activate nr
 ## Verify the install
 
 ```python
-import NeuRosetta as nr
+import neurosetta as nr
 
 print(nr.__version__)
 print(nr.Tree, nr.Forest, nr.import_swc)
@@ -72,7 +72,7 @@ run_neuro_GUI
 or:
 
 ```python
-import NeuRosetta as nr
+import neurosetta as nr
 nr.start_GUI()
 ```
 

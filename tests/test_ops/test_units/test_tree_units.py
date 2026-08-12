@@ -5,8 +5,8 @@ import warnings
 import pytest
 from numpy import array_equal
 
-from NeuRosetta.api import Forest, Tree
-from NeuRosetta.ops.units import (
+from neurosetta.api import Forest, Tree
+from neurosetta.ops.units import (
     check_units_defined,
     convert_units,
     ensure_forest_units,
@@ -14,7 +14,7 @@ from NeuRosetta.ops.units import (
     harmonize_forest_units,
     set_units,
 )
-from NeuRosetta.utils.units import DEFAULT_UNITS
+from neurosetta.utils.units import DEFAULT_UNITS
 
 
 def test_get_units_defaults_to_dimensionless(simple_tree):

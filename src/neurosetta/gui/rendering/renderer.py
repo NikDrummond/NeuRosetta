@@ -5,7 +5,7 @@ from typing import Optional, Any, Tuple
 
 import numpy as np
 import vedo as vd
-# import NeuRosetta as nr
+# import neurosetta as nr
 from ..config import RENDERING_CONSTANTS
 from ...ops.plotting.utils import TreePlot3D
 from ...ops.plotting.plot_subtree import build_3d_subtree

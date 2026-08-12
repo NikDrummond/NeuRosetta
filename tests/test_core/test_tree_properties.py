@@ -4,7 +4,7 @@ import pytest
 from graph_tool.all import Graph
 from numpy import array, allclose, arange, stack
 
-from NeuRosetta.api import Tree
+from neurosetta.api import Tree
 
 
 def _node_coordinates(tree: Tree):

@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from NeuRosetta.utils.geometry_utils import points
+from neurosetta.utils.geometry_utils import points
 
 
 def test_euclidean_distance_scalar():

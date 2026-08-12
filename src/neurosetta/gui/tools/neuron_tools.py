@@ -3,7 +3,7 @@
 import logging
 import numpy as np
 
-# import NeuRosetta as nr
+# import neurosetta as nr
 from typing import Any, Optional
 from ..utils.helpers import get_mask_node_ind, n_pnt_coords
 

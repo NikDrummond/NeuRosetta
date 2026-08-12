@@ -16,7 +16,7 @@ land.
 ## Import / export
 
 ```python
-import NeuRosetta as nr
+import neurosetta as nr
 
 # Neuron surface
 # neuron = nr.import_mesh("42.ply", mesh_type="Neuron")
@@ -46,7 +46,7 @@ import NeuRosetta as nr
 ## Where meshes come from
 
 1. External tools / EM pipelines → `import_mesh`
-2. NeuRosetta analysis → {func}`~NeuRosetta.reconstruct_neuropil_surface`
+2. NeuRosetta analysis → {func}`~neurosetta.reconstruct_neuropil_surface`
    (next tutorial)
 
 Next: {doc}`08_surface_reconstruction`.

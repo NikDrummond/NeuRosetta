@@ -1,6 +1,6 @@
 import pytest
 from graph_tool.all import Graph
-from NeuRosetta.core import _Tree
+from neurosetta.core import _Tree
 from numpy import array, ones_like
 
 import numba  # noqa: F401 — required by geometry_utils JIT kernels

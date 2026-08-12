@@ -2,7 +2,7 @@
 
 import numpy as np
 
-from NeuRosetta.utils.geometry_utils import tolerance
+from neurosetta.utils.geometry_utils import tolerance
 
 
 def test_almost_zero():

@@ -1,13 +1,13 @@
 # Plotting
 
 NeuRosetta plotting spans matplotlib (2D / dendrogram) and vedo (3D /
-{class}`~NeuRosetta.ops.plotting.Viewer`).
+{class}`~neurosetta.ops.plotting.Viewer`).
 
 ## 2D projection
 
 ```python
 from pathlib import Path
-import NeuRosetta as nr
+import neurosetta as nr
 
 tree = nr.import_swc(Path("docs/data/1.swc"))
 ax = tree.show_2d()
@@ -31,7 +31,7 @@ exploratory for now.
 tree.show_3d()
 ```
 
-This builds a {class}`~NeuRosetta.ops.plotting.Viewer`, shows the scene, and
+This builds a {class}`~neurosetta.ops.plotting.Viewer`, shows the scene, and
 closes the viewer when finished.
 
 ## Custom Viewer
@@ -39,7 +39,7 @@ closes the viewer when finished.
 For more control (multiple neurons, screenshots, reuse):
 
 ```python
-from NeuRosetta import Viewer
+from neurosetta import Viewer
 
 tree_a = nr.import_swc(Path("docs/data/1.swc"))
 tree_b = nr.import_swc(Path("docs/data/2.swc"))
@@ -78,6 +78,6 @@ where possible. Large forests may still take time to build.
 
 After creating subtree masks (`subtree_mask_from_root`), you can build a
 coloured 3D subtree representation with
-{func}`~NeuRosetta.ops.plotting.build_3d_subtree`.
+{func}`~neurosetta.ops.plotting.build_3d_subtree`.
 
 Next: {doc}`06_forests`.

@@ -3,7 +3,7 @@ requires = ["hatchling>=1.25"]
 build-backend = "hatchling.build"
 
 [project]
-name = "NeuRosetta"
+name = "neurosetta"
 version = "0.1.0"
 description = "Tools for morphological analysis of EM neuron reconstructions"
 readme = "README.md"
@@ -54,10 +54,10 @@ docs = [
 ]
 
 [project.scripts]
-run_neuro_GUI = "NeuRosetta.gui.main:start_GUI"
+run_neuro_GUI = "neurosetta.gui.main:start_GUI"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/NeuRosetta"]
+packages = ["src/neurosetta"]
 
 [tool.ruff]
 target-version = "py311"
@@ -66,7 +66,7 @@ lint.select = ["E", "F", "I", "UP", "B", "SIM"]
 lint.ignore = ["E203", "W503"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["NeuRosetta"]
+known-first-party = ["neurosetta"]
 
 [tool.mypy]
 python_version = "3.11"
@@ -81,7 +81,7 @@ python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = [
     "--strict-markers",
-    "--cov=src/NeuRosetta",
+    "--cov=src/neurosetta",
     "--cov-report=term-missing",
     "--cov-report=html",
     "-v"

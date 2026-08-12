@@ -3,9 +3,9 @@
 import pytest
 from numpy import array_equal
 
-from NeuRosetta.api import Tree
-from NeuRosetta.io.swc_utils import export_swc, import_swc
-from NeuRosetta.ops.units import convert_units, get_units, get_voxel_spec, set_voxel_units
+from neurosetta.api import Tree
+from neurosetta.io.swc_utils import export_swc, import_swc
+from neurosetta.ops.units import convert_units, get_units, get_voxel_spec, set_voxel_units
 
 
 def test_set_voxel_units_metadata(simple_tree):

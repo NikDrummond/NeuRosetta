@@ -1,9 +1,9 @@
 """Tests for Stone / Tree core identity, gp truth, and slots."""
 
 import pytest
-from NeuRosetta.api import Tree, Forest
-from NeuRosetta.core import _Stone
-from NeuRosetta.ops.tree_graphs import update_reduced
+from neurosetta.api import Tree, Forest
+from neurosetta.core import _Stone
+from neurosetta.ops.tree_graphs import update_reduced
 
 
 def test_tree_gp_is_source_of_truth(simple_tree):

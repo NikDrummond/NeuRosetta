@@ -1,9 +1,9 @@
 # from graph_tool.all import GraphView, bfs_iterator, Graph
 
-# from NeuRosetta.utils.graph_utils.properties import g_has_property
-# from NeuRosetta.ops.tree_graphs.path_lengths import get_edge_length
+# from neurosetta.utils.graph_utils.properties import g_has_property
+# from neurosetta.ops.tree_graphs.path_lengths import get_edge_length
 
-# from NeuRosetta.core import _Tree
+# from neurosetta.core import _Tree
 
 # def _reroot_tree(tree: _Tree, root: int) -> None:
 #     """_summary_

@@ -1,7 +1,7 @@
 # GUI
 
 ```{eval-rst}
-.. automodule:: NeuRosetta.gui
+.. automodule:: neurosetta.gui
    :members:
 ```
 

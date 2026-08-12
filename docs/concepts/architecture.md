@@ -1,7 +1,7 @@
 # Architecture
 
 NeuRosetta is organised in strict layers. **User code should import from the
-top** (`NeuRosetta`, `NeuRosetta.io`, `NeuRosetta.gui`) and avoid reaching into
+top** (`neurosetta`, `neurosetta.io`, `neurosetta.gui`) and avoid reaching into
 `core/` or `utils/` unless you are extending the library.
 
 ## Layer diagram
@@ -52,7 +52,7 @@ to understand.
 | `core/mesh.py` | Base for vedo mesh wrappers |
 
 `_Tree` is the object every `ops/` function actually receives (the public
-{class}`~NeuRosetta.api.Tree` subclasses it and adds bound methods).
+{class}`~neurosetta.api.Tree` subclasses it and adds bound methods).
 
 ## Layer 2: `ops/` vs `utils/`
 
@@ -68,7 +68,7 @@ They know about metadata, units, and NeuRosetta conventions (root at 0,
 |------------|---------|
 | `ops/tree_graphs/` | Counting, indices, coordinates, traversals, editing, subtrees, path lengths, shape fitting |
 | `ops/forest_ops/` | **Forest-wide** geometry — align/rotate/scale all trees together, forest PCA, convex hull |
-| `ops/plotting/` | `show_2d`, `show_3d`, dendrogram, {class}`~NeuRosetta.ops.plotting.Viewer` |
+| `ops/plotting/` | `show_2d`, `show_3d`, dendrogram, {class}`~neurosetta.ops.plotting.Viewer` |
 | `ops/neuropils/` | Point-to-surface distances on neuropil meshes |
 | `ops/units/` | `set_units`, `convert_units`, forest harmonisation — updates tree metadata **and** coordinates |
 
@@ -102,7 +102,7 @@ pre/post processing. `utils/` does the graph-tool work.
 When adding a new tree metric: implement the graph logic in `utils/graph_utils/`
 (or `utils/geometry_utils/` if purely numeric), wrap it in `ops/tree_graphs/`,
 then bind it onto `api/tree_class.Tree` and optionally re-export from
-`NeuRosetta.__init__`.
+`neurosetta.__init__`.
 ```
 
 ### `ops/forest_ops/` vs `Forest.apply`
@@ -118,8 +118,8 @@ Easy to confuse — they solve different problems:
 
 Thin user-facing classes:
 
-- {class}`~NeuRosetta.api.Tree` — binds ~all of `ops/tree_graphs` + plotting + units
-- {class}`~NeuRosetta.api.Forest` — per-tree batch binds + `filter`, `apply`, parallel I/O
+- {class}`~neurosetta.api.Tree` — binds ~all of `ops/tree_graphs` + plotting + units
+- {class}`~neurosetta.api.Forest` — per-tree batch binds + `filter`, `apply`, parallel I/O
 - Mesh classes — `Tree_mesh`, `Forest_mesh`, `Neuropil`, `Neuropils`
 
 The binding machinery in `forest_class.py` introspects function signatures so
@@ -129,7 +129,7 @@ from the underlying op.
 Import as:
 
 ```python
-import NeuRosetta as nr
+import neurosetta as nr
 tree = nr.Tree(...)   # or nr.import_swc(...)
 ```
 
@@ -150,7 +150,7 @@ Single file → `Tree` / mesh object. Directory → `Forest` / mesh collection.
 High-level routines composed from `ops/` + `utils/`. Kept separate so the core
 tree API stays general-purpose.
 
-Example: {func}`~NeuRosetta.reconstruct_neuropil_surface` pools forest
+Example: {func}`~neurosetta.reconstruct_neuropil_surface` pools forest
 coordinates, voxelises, runs marching cubes, returns a `Neuropil`.
 
 ## Layer 6: `gui/`
@@ -169,7 +169,7 @@ The GUI never bypasses `ops/`; it is a front-end over the same stack.
 
 ## Public import surface
 
-What `import NeuRosetta as nr` re-exports (see {doc}`../api/package`):
+What `import neurosetta as nr` re-exports (see {doc}`../api/package`):
 
 | Category | Examples |
 |----------|----------|

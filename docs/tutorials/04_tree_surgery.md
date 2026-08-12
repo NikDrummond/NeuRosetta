@@ -20,7 +20,7 @@ points, leaves, and the root. This removes any nodes in the neuron with out degr
 
 ```python
 from pathlib import Path
-import NeuRosetta as nr
+import neurosetta as nr
 
 tree = nr.import_swc(Path("docs/data/1.swc"))
 print("before:", tree.count_nodes(), "reduced?", tree.is_reduced())

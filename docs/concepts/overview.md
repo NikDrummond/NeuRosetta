@@ -12,10 +12,10 @@ just coordinate arrays.
 
 | Object | What it is | Typical input |
 |--------|------------|---------------|
-| {class}`~NeuRosetta.api.Tree` | One neuron morphology | single `.swc` / `.nr` |
-| {class}`~NeuRosetta.api.Forest` | Ordered collection of trees | directory of SWC/NR files |
+| {class}`~neurosetta.api.Tree` | One neuron morphology | single `.swc` / `.nr` |
+| {class}`~neurosetta.api.Forest` | Ordered collection of trees | directory of SWC/NR files |
 | `Tree_mesh` / `Forest_mesh` | Neuron surface meshes (vedo) | `.ply`, etc. |
-| `Neuropil` / `Neuropils` | Brain-region surface meshes | `.ply`, or built via {func}`~NeuRosetta.reconstruct_neuropil_surface` |
+| `Neuropil` / `Neuropils` | Brain-region surface meshes | `.ply`, or built via {func}`~neurosetta.reconstruct_neuropil_surface` |
 
 Everything user-facing hangs off **ID + metadata + graph** (for trees) or
 **ID + metadata + mesh** (for mesh containers).
@@ -83,10 +83,10 @@ See {doc}`../reference/units` and the units section in
 ## Two ways to call the same thing
 
 Almost every `tree.some_method()` is a thin bind of a function in
-{mod}`NeuRosetta.ops.tree_graphs`:
+{mod}`neurosetta.ops.tree_graphs`:
 
 ```python
-import NeuRosetta as nr
+import neurosetta as nr
 
 tree = nr.import_swc("docs/data/1.swc")
 assert tree.count_nodes() == nr.count_nodes(tree)
@@ -103,7 +103,7 @@ I/O. See {doc}`../tutorials/06_forests`.
 ## Package layout
 
 NeuRosetta is layered (`gui` → `analysis` → `io` → `api` → `ops` → `utils` →
-`core`). User code normally stops at `import NeuRosetta as nr`.
+`core`). User code normally stops at `import neurosetta as nr`.
 
 For the full layer diagram, `ops/` vs `utils/` split, call chains, and
 contribution rules, see {doc}`architecture`.
@@ -123,7 +123,7 @@ pipelines.
 
 ```python
 from pathlib import Path
-import NeuRosetta as nr
+import neurosetta as nr
 
 # 1. Load
 forest = nr.import_swc(Path("swc_dir/"), set_units="nm", progress=True)

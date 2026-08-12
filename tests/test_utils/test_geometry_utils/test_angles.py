@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from NeuRosetta.utils.geometry_utils import angles
+from neurosetta.utils.geometry_utils import angles
 
 
 def test_angle_right_angle_degrees():

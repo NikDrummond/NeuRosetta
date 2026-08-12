@@ -3,10 +3,10 @@
 ## Tree
 
 Main user-facing class for a single neuron morphology. Most methods are aliases
-of functions in :mod:`NeuRosetta.ops.tree_graphs` and :mod:`NeuRosetta.ops.plotting`.
+of functions in :mod:`neurosetta.ops.tree_graphs` and :mod:`neurosetta.ops.plotting`.
 
 ```{eval-rst}
-.. autoclass:: NeuRosetta.api.tree_class.Tree
+.. autoclass:: neurosetta.api.tree_class.Tree
    :members:
    :inherited-members:
    :show-inheritance:
@@ -14,11 +14,11 @@ of functions in :mod:`NeuRosetta.ops.tree_graphs` and :mod:`NeuRosetta.ops.plott
 
 ## Forest
 
-Container for multiple :class:`~NeuRosetta.api.tree_class.Tree` objects with
-batch operations via :meth:`~NeuRosetta.api.forest_class.Forest.apply`.
+Container for multiple :class:`~neurosetta.api.tree_class.Tree` objects with
+batch operations via :meth:`~neurosetta.api.forest_class.Forest.apply`.
 
 ```{eval-rst}
-.. autoclass:: NeuRosetta.api.forest_class.Forest
+.. autoclass:: neurosetta.api.forest_class.Forest
    :members:
    :inherited-members:
    :show-inheritance:
@@ -27,7 +27,7 @@ batch operations via :meth:`~NeuRosetta.api.forest_class.Forest.apply`.
 ## Tree_mesh
 
 ```{eval-rst}
-.. autoclass:: NeuRosetta.api.tree_mesh_class.Tree_mesh
+.. autoclass:: neurosetta.api.tree_mesh_class.Tree_mesh
    :members:
    :inherited-members:
    :show-inheritance:
@@ -36,7 +36,7 @@ batch operations via :meth:`~NeuRosetta.api.forest_class.Forest.apply`.
 ## Forest_mesh
 
 ```{eval-rst}
-.. autoclass:: NeuRosetta.api.forest_mesh_class.Forest_mesh
+.. autoclass:: neurosetta.api.forest_mesh_class.Forest_mesh
    :members:
    :inherited-members:
    :show-inheritance:
@@ -45,7 +45,7 @@ batch operations via :meth:`~NeuRosetta.api.forest_class.Forest.apply`.
 ## Neuropil
 
 ```{eval-rst}
-.. autoclass:: NeuRosetta.api.neuropil_class.Neuropil
+.. autoclass:: neurosetta.api.neuropil_class.Neuropil
    :members:
    :inherited-members:
    :show-inheritance:
@@ -54,7 +54,7 @@ batch operations via :meth:`~NeuRosetta.api.forest_class.Forest.apply`.
 ## Neuropils
 
 ```{eval-rst}
-.. autoclass:: NeuRosetta.api.neuropils_class.Neuropils
+.. autoclass:: neurosetta.api.neuropils_class.Neuropils
    :members:
    :inherited-members:
    :show-inheritance:

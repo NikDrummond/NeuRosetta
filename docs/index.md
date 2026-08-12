@@ -62,7 +62,7 @@ api/index
 ## Quick example
 
 ```python
-import NeuRosetta as nr
+import neurosetta as nr
 
 tree = nr.import_swc("docs/data/1.swc")
 print(tree.count_nodes(), tree.count_leaves(), tree.get_total_cable_length())

@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from NeuRosetta.utils.geometry_utils import algebra as alg
+from neurosetta.utils.geometry_utils import algebra as alg
 
 
 def test_magnitude_scalar():

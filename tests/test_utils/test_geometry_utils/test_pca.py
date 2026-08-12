@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from NeuRosetta.utils.geometry_utils import pca
+from neurosetta.utils.geometry_utils import pca
 
 
 def test_covariance_xyz_line_along_x():

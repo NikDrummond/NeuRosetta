@@ -5,14 +5,14 @@ on:
     branches: [main]
     paths:
       - "docs/**"
-      - "src/NeuRosetta/**"
+      - "src/neurosetta/**"
       - "pyproject.toml"
       - "environment.yml"
       - ".github/workflows/docs.yml"
   pull_request:
     paths:
       - "docs/**"
-      - "src/NeuRosetta/**"
+      - "src/neurosetta/**"
       - "pyproject.toml"
       - "environment.yml"
       - ".github/workflows/docs.yml"

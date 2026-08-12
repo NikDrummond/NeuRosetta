@@ -2,7 +2,7 @@
 
 import pytest
 
-from NeuRosetta.utils.graph_utils.degrees import degree_distribution, get_vertex_degrees
+from neurosetta.utils.graph_utils.degrees import degree_distribution, get_vertex_degrees
 
 
 def test_get_vertex_degrees_out(simple_tree):

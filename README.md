@@ -40,7 +40,7 @@ Once published:
 
 ```bash
 # PyPI (planned)
-python -m pip install NeuRosetta
+python -m pip install neurosetta
 
 # conda-forge (planned)
 mamba create -n nr -c conda-forge neurosetta
@@ -50,7 +50,7 @@ mamba activate nr
 ## Quick start
 
 ```python
-import NeuRosetta as nr
+import neurosetta as nr
 
 tree = nr.import_swc("path/to/1.swc")
 print(tree.count_nodes(), tree.get_total_cable_length())
@@ -66,7 +66,7 @@ run_neuro_GUI
 or:
 
 ```python
-import NeuRosetta as nr
+import neurosetta as nr
 nr.start_GUI()
 ```
 

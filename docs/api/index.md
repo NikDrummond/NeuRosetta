@@ -10,7 +10,7 @@ NeuRosetta's public surface is organised as:
 
 ```{note}
 Many `Tree` methods are bound aliases of functions in
-{mod}`NeuRosetta.ops.tree_graphs`. The class page lists the method names;
+{mod}`neurosetta.ops.tree_graphs`. The class page lists the method names;
 full parameter documentation lives with the underlying ops functions.
 ```
 

@@ -1,6 +1,6 @@
 # Package
 
-Public symbols re-exported from :mod:`NeuRosetta`:
+Public symbols re-exported from :mod:`neurosetta`:
 
 | Symbol | Description |
 |--------|-------------|
@@ -12,4 +12,4 @@ Public symbols re-exported from :mod:`NeuRosetta`:
 | `reconstruct_neuropil_surface` | Surface reconstruction — see {doc}`analysis` |
 | `start_GUI` | Desktop GUI — see {doc}`gui` |
 
-Version is available as ``NeuRosetta.__version__``.
+Version is available as ``neurosetta.__version__``.

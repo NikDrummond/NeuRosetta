@@ -74,7 +74,7 @@ def import_swc(
     Import one or more SWC morphology files as trees.
 
     This function imports neuron morphology data stored in SWC format and
-    converts it into NeuRosetta.Tree objects. If a single `.swc` file is
+    converts it into neurosetta.Tree objects. If a single `.swc` file is
     provided, a single Tree is returned. If a directory is provided,
     all `.swc` files in that directory are imported and returned as a
     Forest.

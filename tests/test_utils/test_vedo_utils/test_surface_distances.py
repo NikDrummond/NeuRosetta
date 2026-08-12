@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 from vedo import Mesh
 
-from NeuRosetta.utils.vedo_utils.surface_distances import (
+from neurosetta.utils.vedo_utils.surface_distances import (
     _compute_face_centroids_and_normals,
     _get_face_subset_from_dot,
     build_submesh,

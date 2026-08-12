@@ -3,13 +3,13 @@
 import pytest
 from numpy import allclose
 
-from NeuRosetta.utils.graph_utils.coordinates import (
+from neurosetta.utils.graph_utils.coordinates import (
     edge_coordinates,
     edge_coordinates_subtree,
     vertex_coordinates,
     vertex_coordinates_subtree,
 )
-from NeuRosetta.utils.graph_utils.vertex_inds import root_index
+from neurosetta.utils.graph_utils.vertex_inds import root_index
 
 
 def test_vertex_coordinates_shape(graph_with_xyz):

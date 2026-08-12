@@ -1,7 +1,7 @@
 # Surface reconstruction and neuropil distances
 
-{func}`~NeuRosetta.reconstruct_neuropil_surface` builds a neuropil mesh from
-the combined point cloud of a {class}`~NeuRosetta.api.Forest` (voxel grid →
+{func}`~neurosetta.reconstruct_neuropil_surface` builds a neuropil mesh from
+the combined point cloud of a {class}`~neurosetta.api.Forest` (voxel grid →
 marching cubes → optional clean/smooth).
 
 ## Units requirement
@@ -20,7 +20,7 @@ With a real EM forest in nm:
 
 ```python
 from pathlib import Path
-import NeuRosetta as nr
+import neurosetta as nr
 
 forest = nr.import_swc(Path("path/to/swc_dir"))
 for tree in forest:
@@ -57,10 +57,10 @@ dense EM forest in nm.
 ## Distances and depth
 
 Once you have a neuropil mesh, distance helpers live under
-{mod}`NeuRosetta.ops.neuropils.distances`:
+{mod}`neurosetta.ops.neuropils.distances`:
 
 ```python
-from NeuRosetta.ops.neuropils.distances import (
+from neurosetta.ops.neuropils.distances import (
     distance_from_neuropil_surface,
     neuropil_point_depth,
 )

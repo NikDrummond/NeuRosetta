@@ -1,6 +1,6 @@
 # The Tree Class
 
-The {class}`~NeuRosetta.api.Tree` class, and its big brother, {class}`~NeuRosetta.api.Forest`, is the way to handle and manipulate neurons within NeuRosetta.
+The {class}`~neurosetta.api.Tree` class, and its big brother, {class}`~neurosetta.api.Forest`, is the way to handle and manipulate neurons within NeuRosetta.
 
 ## Tree Basics
 
@@ -8,7 +8,7 @@ All trees have three main properties: ID, metadata, and graph. As the Tree class
 
 ```python
 from pathlib import Path
-import NeuRosetta as nr
+import neurosetta as nr
 
 tree = nr.import_swc(Path("docs/data/1.swc"))
 print(tree)
@@ -91,7 +91,7 @@ tree.list_properties(level = 'v')
 ```
 
 ````{warning}
-You cannot use `tree.set_property` to change between 1 and 2 dimensional arrays - `NeuRosetta` will give you a value error. For example, 
+You cannot use `tree.set_property` to change between 1 and 2 dimensional arrays - `neurosetta` will give you a value error. For example, 
 
 ```python
 data = np.zeros(tree.count_nodes())
@@ -170,7 +170,7 @@ The base metadata dictionary is like so:
 | 'file_path'| The location of the `.swc` file|
 | 'isReduced'| This is a bool flag, explained in {doc}`04_tree_surgery`|
 
-Metadata is a graph-level property, so will be saved alongside any edits made to it when using the `.nr` file format. When we look at the {class}`~NeuRosetta.api.Forest` the metadata is particularly useful, as you can add information on neuron types, for example, and use it to filter your forest for different neurons. It is also how NeuRosetta keeps track of a neuron's spatial units, which is covered below, or the reduced or flagged nature of a neuron, which will be relevant later.
+Metadata is a graph-level property, so will be saved alongside any edits made to it when using the `.nr` file format. When we look at the {class}`~neurosetta.api.Forest` the metadata is particularly useful, as you can add information on neuron types, for example, and use it to filter your forest for different neurons. It is also how NeuRosetta keeps track of a neuron's spatial units, which is covered below, or the reduced or flagged nature of a neuron, which will be relevant later.
 
 ---
 
@@ -199,7 +199,7 @@ Which converts the neuron's units in place to microns. NeuRosetta can also handl
 tree.set_voxel_units(voxel_size = 8, voxel_unit = 'nm')
 tree.get_voxel_spec()
 ```
-This tells NeuRosetta that the spatial units of this neuron are in voxel units and each voxel is 8x8x8nm. Using this, you can convert voxel units to nanometers or microns easily using the same `tree.convert_units` functionality above. For specifying spatial units, there are a few aliases and options for strings, some useful ones for connectomics data are as follows:
+This tells neurosetta that the spatial units of this neuron are in voxel units and each voxel is 8x8x8nm. Using this, you can convert voxel units to nanometers or microns easily using the same `tree.convert_units` functionality above. For specifying spatial units, there are a few aliases and options for strings, some useful ones for connectomics data are as follows:
 
 |Canonical|Aliases|
 |-|-|
@@ -215,10 +215,10 @@ Keep in mind with voxel units, you should use one of the other spatial units, su
 ## Functional vs method API
 
 Every tree method is a thin bind of a function in
-{mod}`NeuRosetta.ops.tree_graphs`. These are equivalent:
+{mod}`neurosetta.ops.tree_graphs`. These are equivalent:
 
 ```python
-import NeuRosetta as nr
+import neurosetta as nr
 
 assert tree.count_nodes() == nr.count_nodes(tree)
 ```

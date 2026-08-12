@@ -1,7 +1,7 @@
 # tests/test_core.py
 import pytest
 from graph_tool.all import Graph
-from NeuRosetta.core import _Stone, _Tree
+from neurosetta.core import _Stone, _Tree
 
 def test_stone_initialization():
     stone = _Stone(ID=1, metadata={"key": "value"})

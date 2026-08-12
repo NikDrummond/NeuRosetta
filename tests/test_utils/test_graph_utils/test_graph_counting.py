@@ -1,6 +1,6 @@
 """Tests for graph_utils.counting."""
 
-from NeuRosetta.utils.graph_utils.counting import (
+from neurosetta.utils.graph_utils.counting import (
     count_branches,
     count_edges,
     count_leaves,

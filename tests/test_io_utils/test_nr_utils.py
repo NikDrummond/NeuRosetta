@@ -1,8 +1,8 @@
 from tempfile import TemporaryDirectory
 from pathlib import Path
-from NeuRosetta.api import Tree
-from NeuRosetta.io.io_utils import _base_meta
-from NeuRosetta.io import load, save
+from neurosetta.api import Tree
+from neurosetta.io.io_utils import _base_meta
+from neurosetta.io import load, save
 
 
 def test_nr_read_write(simple_tree):

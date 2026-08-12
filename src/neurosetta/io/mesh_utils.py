@@ -32,7 +32,7 @@ def import_mesh(
     mesh_type: str = "Neuron",
 ):
     """
-    Import one or more mesh files as NeuRosetta mesh objects.
+    Import one or more mesh files as neurosetta mesh objects.
 
     Parameters
     ----------
@@ -40,9 +40,9 @@ def import_mesh(
         Path to a mesh file, or to a directory of mesh files supported by vedo
         (for example ``.ply``, ``.obj``, ``.stl``, ``.vtk``).
     mesh_type : {"Neuron", "Neuropil"}, optional
-        Object type to construct. ``"Neuron"`` yields :class:`~NeuRosetta.api.Tree_mesh`
-        / :class:`~NeuRosetta.api.Forest_mesh`. ``"Neuropil"`` yields
-        :class:`~NeuRosetta.api.Neuropil` / :class:`~NeuRosetta.api.Neuropils`.
+        Object type to construct. ``"Neuron"`` yields :class:`~neurosetta.api.Tree_mesh`
+        / :class:`~neurosetta.api.Forest_mesh`. ``"Neuropil"`` yields
+        :class:`~neurosetta.api.Neuropil` / :class:`~neurosetta.api.Neuropils`.
         Default is ``"Neuron"``.
 
     Returns

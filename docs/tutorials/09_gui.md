@@ -5,7 +5,7 @@ inspection and light editing of morphologies.
 
 ## Launch
 
-From an activated environment with NeuRosetta installed:
+From an activated environment with neurosetta installed:
 
 ```bash
 run_neuro_GUI
@@ -14,7 +14,7 @@ run_neuro_GUI
 or:
 
 ```python
-import NeuRosetta as nr
+import neurosetta as nr
 nr.start_GUI()
 ```
 

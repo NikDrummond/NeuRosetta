@@ -66,7 +66,7 @@ def default_swc_header(tree: _Tree) -> str:
     }
     if (spec := get_voxel_spec(tree)) is not None:
         meta["voxel_size"], meta["voxel_unit"] = spec
-    return "SWC Generated using NeuRosetta\n" f'Meta: {json.dumps(meta, sort_keys=True)}'
+    return "SWC Generated using neurosetta\n" f'Meta: {json.dumps(meta, sort_keys=True)}'
 
 
 def swc_header_for_tree(tree: _Tree, header: str | None = None) -> str:

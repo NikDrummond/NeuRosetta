@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 from graph_tool.all import Graph
 
-from NeuRosetta.utils.graph_utils.gt_properties import (
+from neurosetta.utils.graph_utils.gt_properties import (
     _InternalPropertyMissingError,
     bind_edge_property,
     bind_graph_property,

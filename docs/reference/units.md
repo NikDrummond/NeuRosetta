@@ -23,7 +23,7 @@ Voxel units represent coordinates stored as **voxel indices**, where each voxel 
 cube with a known edge length. Set them with a size and base unit:
 
 ```python
-import NeuRosetta as nr
+import neurosetta as nr
 
 tree.set_voxel_units(8, "nm")          # 8 nm cubic voxels
 tree.set_units("voxel", voxel_size=8, voxel_unit="nm")  # equivalent
@@ -54,7 +54,7 @@ SWC headers round-trip voxel metadata:
 ## Programmatic reference
 
 ```python
-import NeuRosetta as nr
+import neurosetta as nr
 
 for definition in nr.list_unit_definitions():
     print(definition.canonical, definition.aliases)

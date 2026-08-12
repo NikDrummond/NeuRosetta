@@ -1,8 +1,8 @@
 """Tests for graph_utils.graph_editing."""
 
-from NeuRosetta.utils.graph_utils.counting import count_vertices
-from NeuRosetta.utils.graph_utils.graph_editing import reduce_graph, reroot_graph
-from NeuRosetta.utils.graph_utils.vertex_inds import root_index
+from neurosetta.utils.graph_utils.counting import count_vertices
+from neurosetta.utils.graph_utils.graph_editing import reduce_graph, reroot_graph
+from neurosetta.utils.graph_utils.vertex_inds import root_index
 
 
 def test_reduce_graph_fewer_vertices(reduced_graph_fixture):

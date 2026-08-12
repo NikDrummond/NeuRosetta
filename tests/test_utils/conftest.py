@@ -13,7 +13,7 @@ def graph_with_xyz(simple_tree):
 @pytest.fixture
 def graph_with_path_length(simple_tree):
     """Graph with Euclidean Path_length on each edge."""
-    from NeuRosetta.utils.graph_utils.coordinates import edge_coordinates
+    from neurosetta.utils.graph_utils.coordinates import edge_coordinates
 
     g = simple_tree
     p1, p2 = edge_coordinates(g)

@@ -2,14 +2,14 @@
 
 import numpy as np
 
-from NeuRosetta.utils.graph_utils.subgraphs import (
+from neurosetta.utils.graph_utils.subgraphs import (
     extract_subgraph,
     max_subgraph_ind,
     partition_asymmetry,
     subgraph_score,
 )
-from NeuRosetta.utils.graph_utils.traversals import SubtreeMaskVisitor, bfsearch
-from NeuRosetta.utils.graph_utils.vertex_inds import root_index
+from neurosetta.utils.graph_utils.traversals import SubtreeMaskVisitor, bfsearch
+from neurosetta.utils.graph_utils.vertex_inds import root_index
 
 
 def test_subgraph_score_bind(graph_with_path_length):

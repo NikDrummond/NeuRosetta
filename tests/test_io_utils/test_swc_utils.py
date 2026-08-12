@@ -4,9 +4,9 @@ from tempfile import TemporaryDirectory
 from pathlib import Path
 from pandas import DataFrame
 from numpy import array_equal, array, ones_like, sort
-from NeuRosetta.io.io_utils import _check_swc_columns, _table_from_swc
-from NeuRosetta.io.swc_utils import export_swc, import_swc
-from NeuRosetta.api import Tree
+from neurosetta.io.io_utils import _check_swc_columns, _table_from_swc
+from neurosetta.io.swc_utils import export_swc, import_swc
+from neurosetta.api import Tree
 
 
 def _props_by_id(graph, prop):
