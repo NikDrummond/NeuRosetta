@@ -300,7 +300,7 @@ def convert_units(
         _set_edge_lengths(tree, factor)
 
     _commit_units_metadata(tree, pending)
-    return
+    return tree
 
 
 def check_units_defined(tree: _Tree) -> None:

@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from neurosetta.utils.geometry_utils import angles
+from neurosetta.utils.geometry_utils import angles, rotate
 
 
 def test_angle_right_angle_degrees():
@@ -31,7 +31,7 @@ def test_signed_angle_sign():
 
 
 def test_rotate_90_about_z():
-    xr, yr, zr = angles.rotate(1.0, 0.0, 0.0, 0.0, 0.0, 1.0, np.pi / 2)
+    xr, yr, zr = rotate(1.0, 0.0, 0.0, 0.0, 0.0, 1.0, np.pi / 2)
     assert (xr, yr, zr) == pytest.approx((0.0, 1.0, 0.0), abs=1e-6)
 
 
