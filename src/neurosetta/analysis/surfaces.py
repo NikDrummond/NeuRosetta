@@ -5,14 +5,15 @@ point clouds of neuron morphologies, including voxelization, marching cubes,
 and mesh cleaning operations.
 """
 
-import vedo as vd
 import numpy as np
+import trimesh
+import vedo as vd
+from scipy.ndimage import binary_dilation, label
+from skimage.measure import marching_cubes
+
 # import jax.numpy as jnp
 # from jax.ops import segment_sum
 from sklearn.neighbors import NearestNeighbors
-import trimesh
-from skimage.measure import marching_cubes
-from scipy.ndimage import binary_dilation, label
 
 from ..api import Forest, Neuropil
 from ..ops.units import ensure_forest_units
@@ -42,17 +43,11 @@ def is_point_inside_mesh(
     assert isinstance(mesh, vd.Mesh), "Mesh input must be a Vedo Mesh object."
     if isinstance(query_points, np.ndarray):
         n_points = query_points.shape[0]
-        query_points = (
-            vd.Points(query_points) if query_points.ndim > 1 else vd.Point(query_points)
-        )
+        query_points = vd.Points(query_points) if query_points.ndim > 1 else vd.Point(query_points)
     else:
         n_points = query_points.N()
-    assert isinstance(
-        query_points, vd.Points
-    ), "Query points must be a numpy array or vd.Points."
-    indices_inside = mesh.inside_points(
-        query_points, invert=invert, return_ids=True, **kwargs
-    )
+    assert isinstance(query_points, vd.Points), "Query points must be a numpy array or vd.Points."
+    indices_inside = mesh.inside_points(query_points, invert=invert, return_ids=True, **kwargs)
     result = np.zeros(n_points, dtype=bool)
     result[indices_inside] = True
     return result
@@ -92,9 +87,7 @@ def downsample_points_voxel_grid(points: np.ndarray, voxel_size: float) -> np.nd
     factor = np.array([1_000_000, 1_000, 1], dtype=np.int64)
     voxel_hash = voxel_indices @ factor
 
-    unique_hashes, inv = np.unique(
-        voxel_hash, return_inverse=True
-    )
+    unique_hashes, inv = np.unique(voxel_hash, return_inverse=True)
 
     sums = np.zeros((len(unique_hashes), 3), dtype=points.dtype)
     np.add.at(sums, inv, points)
@@ -103,9 +96,8 @@ def downsample_points_voxel_grid(points: np.ndarray, voxel_size: float) -> np.nd
 
     return sums / counts[:, None]
 
-def remove_point_cloud_outliers(
-    points: np.ndarray, k: int = 10, quantile: int = 95
-) -> np.ndarray:
+
+def remove_point_cloud_outliers(points: np.ndarray, k: int = 10, quantile: int = 95) -> np.ndarray:
     """Remove outliers in a point cloud using local neighborhood distances.
 
     Parameters

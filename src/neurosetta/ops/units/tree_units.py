@@ -5,7 +5,7 @@ from __future__ import annotations
 import warnings
 
 from ...core import _Forest, _Tree
-from ...utils.graph_utils import g_has_property, del_property
+from ...utils.graph_utils import g_has_property
 from ...utils.units import (
     DEFAULT_UNITS,
     TARGET_MICROMETER,
@@ -39,7 +39,6 @@ def _set_edge_lengths(tree: _Tree, factor: float) -> None:
     """
     for prop in ("Path_length", "Euclidean_length"):
         if g_has_property(tree.graph, prop, "e"):
-
             tree.graph.ep[prop].a = tree.graph.ep[prop].a * factor
             # import here so not circular and re-calculate
             # from ...ops.tree_graphs.path_lengths import get_edge_length
@@ -63,9 +62,9 @@ def _scale_tree_geometry(tree: _Tree, factor: float) -> None:
     None
     """
     coords = tree.get_node_coordinates() * factor
-    tree.graph.vp['x'].a = coords[:,0]
-    tree.graph.vp['y'].a = coords[:,1]
-    tree.graph.vp['z'].a = coords[:,2]
+    tree.graph.vp["x"].a = coords[:, 0]
+    tree.graph.vp["y"].a = coords[:, 1]
+    tree.graph.vp["z"].a = coords[:, 2]
     tree.graph.vp["radius"].a *= factor
 
 
@@ -205,16 +204,19 @@ def set_units(
         voxel_unit=voxel_unit,
     )
 
-    if convert and not units_are_equal(current, target, old_meta, pending):
-        if not is_dimensionless(current):
-            factor = scale_factor(
-                current,
-                target,
-                from_metadata=old_meta,
-                to_metadata=pending,
-            )
-            _scale_tree_geometry(tree, factor)
-            _set_edge_lengths(tree, factor)
+    if (
+        convert
+        and not units_are_equal(current, target, old_meta, pending)
+        and not is_dimensionless(current)
+    ):
+        factor = scale_factor(
+            current,
+            target,
+            from_metadata=old_meta,
+            to_metadata=pending,
+        )
+        _scale_tree_geometry(tree, factor)
+        _set_edge_lengths(tree, factor)
 
     _commit_units_metadata(tree, pending)
 
@@ -315,9 +317,7 @@ def check_units_defined(tree: _Tree) -> None:
         If units are dimensionless or voxel metadata is invalid.
     """
     if is_dimensionless(get_units(tree)):
-        raise ValueError(
-            "Tree units are dimensionless; assign spatial units before converting."
-        )
+        raise ValueError("Tree units are dimensionless; assign spatial units before converting.")
     if is_voxel_units(get_units(tree)):
         validate_voxel_metadata(tree.metadata)
 
@@ -362,11 +362,7 @@ def harmonize_forest_units(
     None
     """
     target = normalize_units_str(target_units)
-    defined = [
-        _defined_unit_spec(tree)
-        for tree in forest
-        if not is_dimensionless(get_units(tree))
-    ]
+    defined = [_defined_unit_spec(tree) for tree in forest if not is_dimensionless(get_units(tree))]
 
     if len(set(defined)) > 1:
         warnings.warn(
@@ -407,9 +403,7 @@ def ensure_forest_units(
         If any tree remains dimensionless after harmonization.
     """
     harmonize_forest_units(forest, target_units=target_units)
-    dimensionless_ids = [
-        tree.ID for tree in forest if is_dimensionless(get_units(tree))
-    ]
+    dimensionless_ids = [tree.ID for tree in forest if is_dimensionless(get_units(tree))]
     if dimensionless_ids:
         raise ValueError(
             "Forest contains trees with dimensionless units: "

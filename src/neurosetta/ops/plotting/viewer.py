@@ -2,18 +2,19 @@
 
 from __future__ import annotations
 
+import contextlib
+from collections.abc import Sequence
 from dataclasses import dataclass, field
-from typing import Any, Sequence
+from typing import Any
 
-from vedo.plotter import Plotter
 from vedo import settings
+from vedo.plotter import Plotter
+
+from ...core import _Forest, _Tree
+from .utils import TreePlot3D
 
 settings.default_backend = "vtk"
 settings.use_parallel_projection = True
-
-from ...core import _Tree, _Forest
-from .utils import TreePlot3D
-
 
 Actor = Any
 
@@ -82,10 +83,8 @@ class Viewer:
             self._plotter.remove(self._actors)
         except Exception:
             for actor in self._actors:
-                try:
+                with contextlib.suppress(Exception):
                     self._plotter.remove(actor)
-                except Exception:
-                    pass
 
         self._actors.clear()
 
@@ -95,7 +94,7 @@ class Viewer:
 
     ### context manager
 
-    def __enter__(self) -> "Viewer":
+    def __enter__(self) -> Viewer:
         """Enter the context manager."""
         return self
 
@@ -110,7 +109,7 @@ class Viewer:
 
     ### scene construction
 
-    def add(self, *actors: Actor) -> "Viewer":
+    def add(self, *actors: Actor) -> Viewer:
         """Add one or more actors to the scene.
 
         Parameters

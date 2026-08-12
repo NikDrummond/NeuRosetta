@@ -4,116 +4,111 @@ This module provides the Forest class which is a container for multiple Tree
 objects, with batch operations that can run in parallel.
 """
 
+from collections.abc import Callable
 from functools import wraps
 from inspect import cleandoc, signature
-from typing import Callable
 
 from ..core import _Forest
-
-from ..ops.tree_graphs import (
-    get_root_index,
-    get_leaf_indices,
-    get_branch_indices,
-    get_core_indices,
-    get_edge_indices,
-    get_bifurcation_indices,
-    count_roots,
-    count_nodes,
-    count_edges,
-    count_leaves,
-    count_branches,
-    count_transitive_nodes,
-    count_sections,
-    count_bifurcations,
-    get_node_depth,
-    get_node_coordinates,
-    get_edge_coordinates,
-    get_root_coordinate,
-    coordinate_pca,
-    get_convex_hull,
-    get_convex_hull_volume,
-    coordinate_mean_along_axis,
-    coordinate_variance_along_axis,
-    coordinate_std_along_axis,
-    coordinate_minmax_along_axis,
-    coordinate_extent_along_axis,
-    coordinate_rms_along_axis,
-    coordinate_mean_absolute_along_axis,
-    coordinate_projection_moments,
-    check_reduced,
-    update_reduced,
-    has_property,
-    get_edge_length,
-    get_total_cable_length,
-    get_degrees,
-    get_degree_distribution,
-    reduce_tree,
-    get_subtree_scores,
-    get_max_subtree_node,
-    get_subtree,
-    get_partition_asymmetry,
-    align_coordinates,
-    translate_coordinates,
-    center_coordinates_at_centroid,
-    center_coordinates_at_root,
-    recenter_coordinates,
-    rotate_coordinates,
-    rotate_coordinates_about,
-    scale_coordinates,
-    scale_coordinates_about,
-    align_coordinates_to_vector,
-    scale_coordinates_along_pca,
-    apply_rotation_steps_to_coordinates,
-    get_edge_angles,
-    get_mean_edge_angle,
-    get_edge_angle_variance,
-    get_radial_angle,
-    get_bifurcation_angles,
-    get_bifurcation_angle_sums,
-    get_bifurcation_deihedral_beta,
-    fit_circle,
-    fit_line,
-    fit_plane, 
-    fit_sphere,
+from ..io import (
+    export_swc,
+    save,
 )
-
 from ..ops.forest_ops import (
     align_forest,
-    translate_forest,
+    align_forest_to_vector,
+    apply_rotation_steps_to_forest,
     center_forest_at_centroid,
+    coordinate_extent_along_axis_forest,
+    coordinate_mean_absolute_along_axis_forest,
+    coordinate_mean_along_axis_forest,
+    coordinate_minmax_along_axis_forest,
+    coordinate_projection_moments_forest,
+    coordinate_rms_along_axis_forest,
+    coordinate_std_along_axis_forest,
+    coordinate_variance_along_axis_forest,
+    fit_circle_forest,
+    fit_line_forest,
+    fit_plane_forest,
+    fit_sphere_forest,
+    forest_pca,
+    get_forest_convex_hull,
+    get_forest_convex_hull_volume,
     recenter_forest,
     rotate_forest,
     rotate_forest_about,
     scale_forest,
     scale_forest_about,
-    align_forest_to_vector,
     scale_forest_along_pca,
-    apply_rotation_steps_to_forest,
-    forest_pca,
-    get_forest_convex_hull,
-    get_forest_convex_hull_volume,
-    coordinate_mean_along_axis_forest,
-    coordinate_variance_along_axis_forest,
-    coordinate_std_along_axis_forest,
-    coordinate_minmax_along_axis_forest,
-    coordinate_extent_along_axis_forest,
-    coordinate_rms_along_axis_forest,
-    coordinate_mean_absolute_along_axis_forest,
-    coordinate_projection_moments_forest,
-    fit_sphere_forest,
-    fit_plane_forest,
-    fit_line_forest,
-    fit_circle_forest,
+    translate_forest,
 )
-
 from ..ops.plotting import Viewer
-
-from ..ops.units import get_units, harmonize_forest_units, ensure_forest_units, convert_units
-
-from ..io import (
-    export_swc,
-    save,
+from ..ops.tree_graphs import (
+    align_coordinates,
+    align_coordinates_to_vector,
+    apply_rotation_steps_to_coordinates,
+    center_coordinates_at_centroid,
+    center_coordinates_at_root,
+    check_reduced,
+    coordinate_extent_along_axis,
+    coordinate_mean_absolute_along_axis,
+    coordinate_mean_along_axis,
+    coordinate_minmax_along_axis,
+    coordinate_pca,
+    coordinate_projection_moments,
+    coordinate_rms_along_axis,
+    coordinate_std_along_axis,
+    coordinate_variance_along_axis,
+    count_bifurcations,
+    count_branches,
+    count_edges,
+    count_leaves,
+    count_nodes,
+    count_roots,
+    count_sections,
+    count_transitive_nodes,
+    fit_circle,
+    fit_line,
+    fit_plane,
+    fit_sphere,
+    get_bifurcation_angle_sums,
+    get_bifurcation_angles,
+    get_bifurcation_deihedral_beta,
+    get_bifurcation_indices,
+    get_branch_indices,
+    get_convex_hull,
+    get_convex_hull_volume,
+    get_core_indices,
+    get_degree_distribution,
+    get_degrees,
+    get_edge_angle_variance,
+    get_edge_angles,
+    get_edge_coordinates,
+    get_edge_indices,
+    get_edge_length,
+    get_leaf_indices,
+    get_max_subtree_node,
+    get_mean_edge_angle,
+    get_node_coordinates,
+    get_node_depth,
+    get_partition_asymmetry,
+    get_radial_angle,
+    get_root_coordinate,
+    get_root_index,
+    get_subtree,
+    get_subtree_scores,
+    get_total_cable_length,
+    has_property,
+    recenter_coordinates,
+    reduce_tree,
+    rotate_coordinates,
+    rotate_coordinates_about,
+    scale_coordinates,
+    scale_coordinates_about,
+    scale_coordinates_along_pca,
+    translate_coordinates,
+    update_reduced,
 )
+from ..ops.units import convert_units, ensure_forest_units, get_units, harmonize_forest_units
 
 # apply and global method doc strings
 _FOREST_EXECUTION_PARAMETERS = """
@@ -139,6 +134,7 @@ global_ : bool, default=False
     If True, use the forest-wide implementation.
 """.strip()
 
+
 def _add_forest_parameters(doc: str | None) -> str:
     """Add Forest-specific parameters to a NumPy-style docstring."""
 
@@ -146,22 +142,14 @@ def _add_forest_parameters(doc: str | None) -> str:
     marker = "Parameters\n----------"
 
     if not doc:
-        return (
-            "Apply the operation to the forest.\n\n"
-            f"{marker}\n"
-            f"{parameters}"
-        )
+        return f"Apply the operation to the forest.\n\n{marker}\n{parameters}"
 
     doc = cleandoc(doc)
 
     if marker in doc:
         return doc.replace(marker, f"{marker}\n{parameters}", 1)
 
-    return (
-        f"{doc}\n\n"
-        f"{marker}\n"
-        f"{parameters}"
-    )
+    return f"{doc}\n\n{marker}\n{parameters}"
 
 
 def _forest_op(
@@ -184,9 +172,7 @@ def _forest_op(
     ):
         if global_:
             if global_fn is None:
-                raise ValueError(
-                    f"{fn.__name__} does not provide a global implementation."
-                )
+                raise ValueError(f"{fn.__name__} does not provide a global implementation.")
 
             kwargs = dict(func_kwargs)
             if "bind" in signature(global_fn).parameters:
@@ -280,19 +266,12 @@ class Forest(_Forest):
     get_root_coordinate = _forest_op(get_root_coordinate)
     """Get the root coorrdinate for all trees"""
 
-    coordinate_pca = _forest_op(
-        coordinate_pca,
-        global_fn=forest_pca
-    )
+    coordinate_pca = _forest_op(coordinate_pca, global_fn=forest_pca)
 
-    get_convex_hull = _forest_op(
-        get_convex_hull,
-        global_fn=get_forest_convex_hull
-    )
+    get_convex_hull = _forest_op(get_convex_hull, global_fn=get_forest_convex_hull)
 
     get_convex_hull_volume = _forest_op(
-        get_convex_hull_volume,
-        global_fn=get_forest_convex_hull_volume
+        get_convex_hull_volume, global_fn=get_forest_convex_hull_volume
     )
 
     coordinate_mean_along_axis = _forest_op(
@@ -373,28 +352,16 @@ class Forest(_Forest):
     """Get Dihedral beta angle for all bifurcations (measure of planarity)"""
 
     # --- Shape Fitting ---
-    fit_sphere = _forest_op(
-        fit_sphere,
-        global_fn=fit_sphere_forest
-                            )
+    fit_sphere = _forest_op(fit_sphere, global_fn=fit_sphere_forest)
     """Fit a sphere to individual neuron coordinates or all coordinates"""
 
-    fit_line = _forest_op(
-        fit_line,
-        global_fn=fit_line_forest
-                            )
+    fit_line = _forest_op(fit_line, global_fn=fit_line_forest)
     """Fit a line to individual neuron coordinates or all coordinates"""
 
-    fit_plane = _forest_op(
-        fit_plane,
-        global_fn=fit_plane_forest
-                            )
+    fit_plane = _forest_op(fit_plane, global_fn=fit_plane_forest)
     """Fit a plane to individual neuron coordinates or all coordinates"""
 
-    fit_circle = _forest_op(
-        fit_circle,
-        global_fn=fit_circle_forest
-                            )
+    fit_circle = _forest_op(fit_circle, global_fn=fit_circle_forest)
     """Fit a circle to individual neuron coordinates or all coordinates"""
 
     # --- topology ---

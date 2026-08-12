@@ -1,13 +1,17 @@
 # NeuRosetta
 
+[![Tests](https://github.com/NikDrummond/NeuRosetta/actions/workflows/tests.yml/badge.svg)](https://github.com/NikDrummond/NeuRosetta/actions/workflows/tests.yml)
+[![Lint](https://github.com/NikDrummond/NeuRosetta/actions/workflows/lint.yml/badge.svg)](https://github.com/NikDrummond/NeuRosetta/actions/workflows/lint.yml)
+[![Docs](https://github.com/NikDrummond/NeuRosetta/actions/workflows/docs.yml/badge.svg)](https://nikdrummond.github.io/NeuRosetta/)
+[![Python](https://img.shields.io/badge/python-3.11%20|%203.12-blue)](https://www.python.org/)
+[![License: LGPL v3](https://img.shields.io/badge/License-LGPLv3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
+
 Tools for morphological analysis of EM neuron reconstructions.
 
 NeuRosetta provides `Tree` and `Forest` APIs for neuron morphologies, SWC/NR/mesh
 I/O, 2D/3D plotting, neuropil surface reconstruction, and a PySide6 GUI.
 
 **Documentation:** [https://nikdrummond.github.io/NeuRosetta/](https://nikdrummond.github.io/NeuRosetta/)
-
-**License:** LGPL-3.0-only
 
 ## Requirements
 
@@ -86,6 +90,16 @@ From the repository root:
 
 ```bash
 python -m pytest
+```
+
+CI runs a smoke subset until the full suite is green:
+`test_core.py`, `test_errors.py`, `test_tree_graphs/test_counting.py`.
+
+Lint with Ruff:
+
+```bash
+ruff check src tests
+ruff format src tests
 ```
 
 ## Citation / links

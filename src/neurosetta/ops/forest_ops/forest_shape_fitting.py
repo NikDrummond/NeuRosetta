@@ -1,14 +1,12 @@
 """Least-squares shape fitting for pooled forest node coordinates."""
 
-from typing import Tuple
-
 from vedo import Line, Plane, Sphere
 
 from ...core import _Forest
 from ...utils.vedo_utils import fit_circle, fit_line, fit_plane, fit_sphere
 
 
-def fit_sphere_forest(forest: _Forest, return_obj: bool = False) -> Sphere | Tuple:
+def fit_sphere_forest(forest: _Forest, return_obj: bool = False) -> Sphere | tuple:
     """Fit a sphere to pooled node coordinates across a forest.
 
     Parameters
@@ -25,13 +23,11 @@ def fit_sphere_forest(forest: _Forest, return_obj: bool = False) -> Sphere | Tup
         When *return_obj* is True, a vedo Sphere. Otherwise
         ``(center, radius)`` where *center* has shape ``(3,)``.
     """
-    coords = forest.get_node_coordinates(
-        SoA=False, merge_axis=0, show_progress=False
-    )
+    coords = forest.get_node_coordinates(SoA=False, merge_axis=0, show_progress=False)
     return fit_sphere(coords, return_obj=return_obj)
 
 
-def fit_plane_forest(forest: _Forest, return_obj: bool = False) -> Plane | Tuple:
+def fit_plane_forest(forest: _Forest, return_obj: bool = False) -> Plane | tuple:
     """Fit a plane to pooled node coordinates across a forest.
 
     Parameters
@@ -48,13 +44,11 @@ def fit_plane_forest(forest: _Forest, return_obj: bool = False) -> Plane | Tuple
         When *return_obj* is True, a vedo Plane. Otherwise
         ``(normal, center, variances)``.
     """
-    coords = forest.get_node_coordinates(
-        SoA=False, merge_axis=0, show_progress=False
-    )
+    coords = forest.get_node_coordinates(SoA=False, merge_axis=0, show_progress=False)
     return fit_plane(coords, return_obj=return_obj)
 
 
-def fit_line_forest(forest: _Forest, return_obj: bool = False) -> Line | Tuple:
+def fit_line_forest(forest: _Forest, return_obj: bool = False) -> Line | tuple:
     """Fit a 3D line to pooled node coordinates across a forest.
 
     Parameters
@@ -71,13 +65,11 @@ def fit_line_forest(forest: _Forest, return_obj: bool = False) -> Line | Tuple:
         When *return_obj* is True, a vedo Line. Otherwise
         ``(slope, center, variances)``.
     """
-    coords = forest.get_node_coordinates(
-        SoA=False, merge_axis=0, show_progress=False
-    )
+    coords = forest.get_node_coordinates(SoA=False, merge_axis=0, show_progress=False)
     return fit_line(coords, return_obj=return_obj)
 
 
-def fit_circle_forest(forest: _Forest) -> Tuple:
+def fit_circle_forest(forest: _Forest) -> tuple:
     """Fit a circle to pooled node coordinates across a forest.
 
     Parameters
@@ -90,7 +82,5 @@ def fit_circle_forest(forest: _Forest) -> Tuple:
     tuple
         ``(center, radius, normal_to_circle)``.
     """
-    coords = forest.get_node_coordinates(
-        SoA=False, merge_axis=0, show_progress=False
-    )
+    coords = forest.get_node_coordinates(SoA=False, merge_axis=0, show_progress=False)
     return fit_circle(coords)

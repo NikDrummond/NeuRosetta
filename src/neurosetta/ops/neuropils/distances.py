@@ -3,7 +3,7 @@
 from numpy import ndarray
 
 from ...core import _Mesh
-from ...utils.vedo_utils import surface_distance, mesh_surface_depth
+from ...utils.vedo_utils import mesh_surface_depth, surface_distance
 
 
 def distance_from_neuropil_surface(mesh: _Mesh, points: ndarray) -> ndarray:
@@ -49,6 +49,4 @@ def neuropil_point_depth(
     ndarray
         Array of depth values with shape (N,). Values in [0, 1] if normalized.
     """
-    return mesh_surface_depth(
-        mesh=mesh.mesh, points=points, t=t, surface=surface, norm=norm
-    )
+    return mesh_surface_depth(mesh=mesh.mesh, points=points, t=t, surface=surface, norm=norm)

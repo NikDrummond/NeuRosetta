@@ -2,14 +2,13 @@
 import numpy as np
 from numba import njit
 
+from ._validation import _broadcast_vectors, _check_scalar, _check_vector_broadcast
 from .algebra import (
+    cross_scalar,
     dot_scalar,
     magnitude_scalar,
-    cross_scalar,
     reject_scalar,
-    normalize_scalar,
 )
-from ._validation import _check_vector_broadcast, _broadcast_vectors, _check_scalar
 
 ### Numba
 
@@ -55,7 +54,6 @@ def angle_scalar(
     if assume_normalized:
         c = d
     else:
-
         m1 = magnitude_scalar(x1, y1, z1)
         m2 = magnitude_scalar(x2, y2, z2)
 
@@ -226,12 +224,10 @@ def align_with_scalar(
     )
 
     if reverse:
-
         if d > 0.0:
             return -x, -y, -z
 
     else:
-
         if d < 0.0:
             return -x, -y, -z
 
@@ -258,7 +254,6 @@ def angle_xyz(
     out = np.empty(n, dtype=np.float64)
 
     for i in range(n):
-
         out[i] = angle_scalar(
             x1[i],
             y1[i],
@@ -292,7 +287,6 @@ def planar_angle_xyz(
     out = np.empty(n, dtype=np.float64)
 
     for i in range(n):
-
         out[i] = planar_angle_scalar(
             x1[i],
             y1[i],
@@ -328,7 +322,6 @@ def signed_angle_xyz(
     out = np.empty(n, dtype=np.float64)
 
     for i in range(n):
-
         out[i] = signed_angle_scalar(
             x1[i],
             y1[i],
@@ -343,6 +336,7 @@ def signed_angle_xyz(
         )
 
     return out
+
 
 @njit(**_JIT)
 def align_with_xyz(
@@ -362,7 +356,6 @@ def align_with_xyz(
     zo = np.empty(n)
 
     for i in range(n):
-
         xo[i], yo[i], zo[i] = align_with_scalar(
             x[i],
             y[i],
@@ -386,7 +379,6 @@ def _angular_resultant(angles, weights=None):
     s = 0.0
 
     if weights is None:
-
         wsum = float(angles.size)
 
         for i in range(angles.size):
@@ -395,7 +387,6 @@ def _angular_resultant(angles, weights=None):
             s += np.sin(a)
 
     else:
-
         wsum = 0.0
 
         for i in range(angles.size):
@@ -488,9 +479,7 @@ def planar_angle(x1, y1, z1, x2, y2, z2, l1, l2, l3, degrees=False):
     """
 
     if _check_vector_broadcast(x1, y1, z1, x2, y2, z2, l1, l2, l3):
-        x1, y1, z1, x2, y2, z2, l1, l2, l3 = _broadcast_vectors(
-            x1, y1, z1, x2, y2, z2, l1, l2, l3
-        )
+        x1, y1, z1, x2, y2, z2, l1, l2, l3 = _broadcast_vectors(x1, y1, z1, x2, y2, z2, l1, l2, l3)
 
     if _check_scalar(x1, y1, z1):
         return planar_angle_scalar(x1, y1, z1, x2, y2, z2, l1, l2, l3, degrees)
@@ -524,14 +513,13 @@ def signed_angle(x1, y1, z1, x2, y2, z2, l1, l2, l3, degrees=False):
     """
 
     if _check_vector_broadcast(x1, y1, z1, x2, y2, z2, l1, l2, l3):
-        x1, y1, z1, x2, y2, z2, l1, l2, l3 = _broadcast_vectors(
-            x1, y1, z1, x2, y2, z2, l1, l2, l3
-        )
+        x1, y1, z1, x2, y2, z2, l1, l2, l3 = _broadcast_vectors(x1, y1, z1, x2, y2, z2, l1, l2, l3)
 
     if _check_scalar(x1, y1, z1):
         return signed_angle_scalar(x1, y1, z1, x2, y2, z2, l1, l2, l3, degrees)
 
     return signed_angle_xyz(x1, y1, z1, x2, y2, z2, l1, l2, l3, degrees)
+
 
 def align_with(x, y, z, ax, ay, az, reverse=False):
     """

@@ -1,7 +1,7 @@
 """Shared fixtures for utils unit tests."""
 
 import pytest
-from numpy import array, ones_like, sqrt
+from numpy import sqrt
 
 
 @pytest.fixture

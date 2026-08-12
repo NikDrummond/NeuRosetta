@@ -4,21 +4,20 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import overload, TypeVar
+from typing import TypeVar, overload
 
 from numpy import savetxt
-from graph_tool.all import Graph
-from tqdm import tqdm
 
-from ..core import _Tree, _Forest
+from ..core import _Forest, _Tree
+from ..utils.units import apply_voxel_metadata, is_voxel_units, normalize_units_str
 from .io_utils import (
-    _table_from_swc,
-    _graph_from_table,
-    _swc_table,
-    _base_meta,
     _apply_import_units,
+    _base_meta,
     _foreach_with_progress,
-    _map_with_progress
+    _graph_from_table,
+    _map_with_progress,
+    _swc_table,
+    _table_from_swc,
 )
 from .swc_meta import (
     parse_swc_header,
@@ -26,8 +25,6 @@ from .swc_meta import (
     units_from_swc_header,
     warn_if_export_dimensionless,
 )
-from ..utils.units import apply_voxel_metadata, is_voxel_units, normalize_units_str
-
 
 T = TypeVar("T")
 
@@ -137,7 +134,7 @@ def import_swc(
         forest = import_swc("swc_files/", parallel=True, progress=True)
     """
 
-    from ..api import Tree, Forest
+    from ..api import Forest, Tree
 
     p = Path(fpath)
 
@@ -150,13 +147,16 @@ def import_swc(
         meta = _base_meta()
         if header_units := units_from_swc_header(header_meta):
             meta["units"] = normalize_units_str(header_units)
-        if is_voxel_units(meta.get("units")):
-            if "voxel_size" in header_meta and "voxel_unit" in header_meta:
-                apply_voxel_metadata(
-                    meta,
-                    header_meta["voxel_size"],
-                    header_meta["voxel_unit"],
-                )
+        if (
+            is_voxel_units(meta.get("units"))
+            and "voxel_size" in header_meta
+            and "voxel_unit" in header_meta
+        ):
+            apply_voxel_metadata(
+                meta,
+                header_meta["voxel_size"],
+                header_meta["voxel_unit"],
+            )
         meta["file_path"] = str(path)
         meta["isReduced"] = False
 
@@ -228,7 +228,6 @@ def export_swc(
     max_workers: int | None = None,
     show_progress: bool = False,
 ) -> None:
-
     """
     Export a tree or forest to SWC morphology files.
 
@@ -304,10 +303,7 @@ def export_swc(
 
     # ---- Single Tree ----
     if not isinstance(tree, _Forest):
-        if p.exists() and p.is_dir():
-            out = p / f"{tree.ID}.swc"
-        else:
-            out = p
+        out = p / f"{tree.ID}.swc" if p.exists() and p.is_dir() else p
 
         df = _swc_table(tree)
         warn_if_export_dimensionless(tree)

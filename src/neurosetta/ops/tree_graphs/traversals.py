@@ -2,23 +2,23 @@
 
 from __future__ import annotations
 
-from typing import Iterable, Tuple
-from numpy import ndarray, hstack
+from collections.abc import Iterable
+
 from graph_tool.all import BFSVisitor, DFSVisitor
+from numpy import hstack, ndarray
 
 from ...core import _Tree
-
 from ...utils.graph_utils import (
-    bfsearch,
-    bf_iterator,
-    dfsearch,
-    df_iterator,
-    TreeDepthVisitor,
-    PostOrderVisitor,
-    root_index,
     AngleVisitor,
+    PostOrderVisitor,
+    TreeDepthVisitor,
+    bf_iterator,
+    bfsearch,
     branch_indices,
+    df_iterator,
+    dfsearch,
     leaf_indices,
+    root_index,
 )
 
 ### Generic BF Search
@@ -186,9 +186,7 @@ def depth_first_iterator(
 
 
 # depths
-def get_node_depth(
-    tree: _Tree, root: int | None = None, bind: bool = True
-) -> ndarray | None:
+def get_node_depth(tree: _Tree, root: int | None = None, bind: bool = True) -> ndarray | None:
     """Compute node depths from root using breadth-first search.
 
     Parameters
@@ -248,17 +246,16 @@ def get_post_order(tree: _Tree, root: int | None = None, bind: bool = True) -> N
     vis = depth_first_search(tree=tree, visitor=PostOrderVisitor, root=root)
 
     if bind:
-        tree.graph.vertex_properties["post_order"] = tree.graph.new_vp(
-            "int", vis.post_order
-        )
+        tree.graph.vertex_properties["post_order"] = tree.graph.new_vp("int", vis.post_order)
         return None
-    
+
     return vis
+
 
 # angular mean/var of sections for non-reduced trees
 def get_section_angular_deviation(
     tree: _Tree, return_Visitor: bool = False
-) -> Tuple[ndarray, ndarray] | DFSVisitor:
+) -> tuple[ndarray, ndarray] | DFSVisitor:
     """Compute per-section angular mean and variance for a non-reduced tree.
 
     Sections run between branch nodes (and the root) and end at branch or
@@ -294,10 +291,7 @@ def get_section_angular_deviation(
     l_inds = leaf_indices(tree.graph)
 
     # starts are branches and the root
-    if root not in b_inds:
-        starts = hstack([b_inds, [root]])
-    else:
-        starts = b_inds
+    starts = hstack([b_inds, [root]]) if root not in b_inds else b_inds
     # stops are branches (without the root!) and leaves
     stops = hstack([b_inds[b_inds != root], l_inds])
 

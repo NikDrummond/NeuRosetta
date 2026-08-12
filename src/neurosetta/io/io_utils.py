@@ -1,17 +1,20 @@
 from __future__ import annotations
+
+from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
-from typing import Callable, TypeVar, List
+from typing import TypeVar
 from warnings import warn
+
+from graph_tool.all import Graph
 from numpy import (
-    int32,
     float64,
+    int32,
+    ndarray,
     unique,
     where,
-    ndarray,
     zeros_like,
 )
 from pandas import DataFrame, read_csv
-from graph_tool.all import Graph
 from tqdm import tqdm
 
 from ..core import _Tree
@@ -22,6 +25,7 @@ from ..utils.units import DEFAULT_UNITS
 T = TypeVar("T")
 
 ### swc utils
+
 
 def _check_swc_columns(df, error_type=ValueError):
     """
@@ -66,18 +70,16 @@ def _table_from_swc(file_path: str) -> DataFrame:
 
     # check for duplicate node ids
     if unique(df.node_id.values).size != len(df.node_id.values):
-        warn("Duplicate node_id values found in DataFrame.")
+        warn("Duplicate node_id values found in DataFrame.", stacklevel=2)
 
     return df
 
 
-def _node_inds(g: Graph, df: DataFrame) -> List[int]:
+def _node_inds(g: Graph, df: DataFrame) -> list[int]:
     """
-    Given a graph, with ids as a vp, and a df with the same set of ids, find the order of indicies to order things going from the table to the graph
-
-    This is important whenever adding an attribute to nodes in a graph
+    Map table node ids to graph vertex indices for attribute assignment.
     """
-    # node id orders - this is the order of nodes in the graph, which match the node ids in the table
+    # node id orders - graph node order matches node ids in the table
     ids = g.vp["ids"].a
     # nodes in the table
     nodes = df["node_id"].values
@@ -88,7 +90,7 @@ def _node_inds(g: Graph, df: DataFrame) -> List[int]:
 
 def _infer_node_types(g: Graph) -> ndarray:
     """
-    Infer node types as root(-1), branch (5), terminal (6), and transitory (0) based on in/out degree
+    Infer node types: root (-1), branch (5), terminal (6), transitory (0).
 
     Returns a np.array
 
@@ -121,7 +123,7 @@ def _graph_from_table(df: DataFrame) -> Graph:
     # create new (hashed) graph with edges
     g = Graph(edges, hashed=True, hash_type="int")
 
-    # we want to know the indicies of the nodes in the table that match how the nodes were added to the graph
+    # table indices matching the order nodes were added to the graph
 
     # indicies of graph nodes in table
     inds = _node_inds(g, df)
@@ -229,6 +231,7 @@ def _apply_import_units(
 
 ### nr utils
 
+
 def _bind_core(tree: _Tree):
     """Assert core identity gps are bound (Tree.__init__ always binds them)."""
     if not has_property(tree, "ID", "g") or not has_property(tree, "metadata", "g"):
@@ -239,6 +242,7 @@ def _bind_core(tree: _Tree):
 
 
 ### parallel utils
+
 
 def _map_with_progress(
     fn: Callable[[T], T],

@@ -1,6 +1,6 @@
 """Functions for computing distances from points to mesh surfaces."""
 
-from numpy import asarray, ndarray, unique, cross, where, zeros, einsum
+from numpy import asarray, cross, einsum, ndarray, unique, where, zeros
 from numpy.linalg import norm
 from scipy.spatial import KDTree
 from vedo import Mesh
@@ -92,10 +92,7 @@ def _compute_face_centroids_and_normals(mesh: Mesh, face_indices=None):
     all_faces = asarray(mesh.cells)  # (F, 3)
     all_verts = asarray(mesh.vertices)  # (V, 3)
 
-    if face_indices is not None:
-        faces = all_faces[asarray(face_indices)]
-    else:
-        faces = all_faces
+    faces = all_faces[asarray(face_indices)] if face_indices is not None else all_faces
 
     v0 = all_verts[faces[:, 0]]
     v1 = all_verts[faces[:, 1]]
@@ -159,9 +156,7 @@ def _get_face_subset_from_dot(
     elif face == "both":
         return where(dot < -t), where(dot > t)
     else:
-        raise AttributeError(
-            f'face must be one of ["inner", "outer", "both"] for {face}'
-        )
+        raise AttributeError(f'face must be one of ["inner", "outer", "both"] for {face}')
 
 
 def mesh_surface_depth(

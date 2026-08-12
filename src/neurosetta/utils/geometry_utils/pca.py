@@ -1,6 +1,6 @@
-from numpy import mean, empty, float64, eye, sqrt, array, ndarray
-from numpy.linalg import inv, eigh
 from numba import njit
+from numpy import array, empty, eye, float64, mean, ndarray, sqrt
+from numpy.linalg import eigh, inv
 
 from ._validation import check
 
@@ -109,7 +109,6 @@ def robust_covariance_xyz(
     c2 = c * c
 
     for _ in range(max_iter):
-
         # Invert covariance matrix
         inv_cov = inv(cov + eye(3) * 1e-6)
 
@@ -119,7 +118,6 @@ def robust_covariance_xyz(
         wsum = 0.0
 
         for i in range(n):
-
             dx = x[i] - mx
             dy = y[i] - my
             dz = z[i] - mz
@@ -130,10 +128,7 @@ def robust_covariance_xyz(
                 + dz * (inv_cov[2, 0] * dx + inv_cov[2, 1] * dy + inv_cov[2, 2] * dz)
             )
 
-            if md2 < c2:
-                w = 1.0
-            else:
-                w = c2 / md2
+            w = 1.0 if md2 < c2 else c2 / md2
 
             weights[i] = w
             wsum += w
@@ -176,7 +171,6 @@ def robust_covariance_xyz(
         czz = 0.0
 
         for i in range(n):
-
             w = weights[i]
 
             dx = x[i] - mx
@@ -277,10 +271,7 @@ def eig_decomp(x: ndarray, y: ndarray, z: ndarray, robust: bool = False, norm=Fa
     check(locals(), "z", (-1,))
 
     # egt cov mat
-    if robust:
-        cov = robust_covariance_xyz(x, y, z)
-    else:
-        cov = covariance_xyz(x, y, z)
+    cov = robust_covariance_xyz(x, y, z) if robust else covariance_xyz(x, y, z)
 
     # eig decomp
     evals, evecs = covariance_eigh(cov)

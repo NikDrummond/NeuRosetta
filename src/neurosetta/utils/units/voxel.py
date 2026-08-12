@@ -13,8 +13,7 @@ def validate_voxel_metadata(metadata: dict) -> tuple[float, str]:
     """Return normalized ``(voxel_size, voxel_unit)`` from tree metadata."""
     if VOXEL_SIZE_KEY not in metadata or VOXEL_UNIT_KEY not in metadata:
         raise ValueError(
-            "Voxel units require metadata keys "
-            f"'{VOXEL_SIZE_KEY}' and '{VOXEL_UNIT_KEY}'."
+            f"Voxel units require metadata keys '{VOXEL_SIZE_KEY}' and '{VOXEL_UNIT_KEY}'."
         )
 
     size = float(metadata[VOXEL_SIZE_KEY])
@@ -30,9 +29,7 @@ def validate_voxel_metadata(metadata: dict) -> tuple[float, str]:
 
 def apply_voxel_metadata(metadata: dict, voxel_size: float, voxel_unit: str) -> None:
     """Write normalized voxel metadata fields."""
-    size, unit = validate_voxel_metadata(
-        {VOXEL_SIZE_KEY: voxel_size, VOXEL_UNIT_KEY: voxel_unit}
-    )
+    size, unit = validate_voxel_metadata({VOXEL_SIZE_KEY: voxel_size, VOXEL_UNIT_KEY: voxel_unit})
     metadata[VOXEL_SIZE_KEY] = size
     metadata[VOXEL_UNIT_KEY] = unit
 

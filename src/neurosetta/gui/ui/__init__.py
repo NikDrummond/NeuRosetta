@@ -3,4 +3,4 @@
 from .main_window import MainWindow
 from .scale_overlay import ScaleOverlay
 
-__all__ = ['MainWindow', 'ScaleOverlay']
+__all__ = ["MainWindow", "ScaleOverlay"]

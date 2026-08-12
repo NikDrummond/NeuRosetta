@@ -1,10 +1,7 @@
 """Tests for graph_utils.gt_properties."""
 
-import warnings
-
 import numpy as np
 import pytest
-from graph_tool.all import Graph
 
 from neurosetta.utils.graph_utils.gt_properties import (
     _InternalPropertyMissingError,

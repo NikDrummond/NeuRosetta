@@ -1,9 +1,11 @@
 """Internal helpers for global forest operations."""
-from numpy import cumsum, split, ndarray
+
+from numpy import cumsum, ndarray, split
 
 from ...core import _Forest
 
-def _split_inds(forest:_Forest) -> ndarray:
+
+def _split_inds(forest: _Forest) -> ndarray:
     """Return split indices for partitioning a pooled vertex array by tree.
 
     Parameters
@@ -16,8 +18,9 @@ def _split_inds(forest:_Forest) -> ndarray:
     ndarray
         Cumulative split indices excluding the final boundary.
     """
-    counts = forest.count_nodes(parallel = True, show_progress = False)
+    counts = forest.count_nodes(parallel=True, show_progress=False)
     return cumsum(counts)[:-1]
+
 
 def _split_array_vertex(arr: ndarray, inds: ndarray) -> ndarray:
     """Split a pooled vertex array into per-tree segments.

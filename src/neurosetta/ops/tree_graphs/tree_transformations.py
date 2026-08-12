@@ -1,29 +1,30 @@
 """Functions for spatial transformations on trees."""
 
-from typing import Literal, Tuple, Union
-from numpy import ndarray, array, asarray
+from typing import Literal
 
-from .coordinates import get_node_coordinates, get_root_coordinate
+from numpy import array, asarray, ndarray
+
+from ...core import _Tree
 from ...utils.geometry_utils.pca import eig_decomp
 from ...utils.geometry_utils.rotations import (
-    compute_alignment_rotation,
     apply_rotation_steps,
-    rotate,
+    compute_alignment_rotation,
     minimum_rotation_to_align,
+    rotate,
 )
 from ...utils.geometry_utils.scaling import scale_along_basis
 from ...utils.geometry_utils.transforms import (
-    translate,
+    center_at_centroid,
     recenter,
     scale_about,
-    center_at_centroid,
+    translate,
 )
 from ...utils.graph_utils.gt_properties import _set_coords_prop
-from ...core import _Tree
+from .coordinates import get_node_coordinates, get_root_coordinate
 
 CenterMode = Literal["centroid", "root"]
 SourceMode = Literal["pc1"]
-SourceVector = Union[SourceMode, tuple, ndarray]
+SourceVector = SourceMode | tuple | ndarray
 
 
 def _apply_node_coordinates(
@@ -53,7 +54,7 @@ def _resolve_transform_center(
     z: ndarray,
     center: tuple | ndarray | None,
     center_mode: CenterMode,
-) -> Tuple[float, float, float]:
+) -> tuple[float, float, float]:
     """Resolve the centre point used by rotation and scaling transforms."""
     if center is not None:
         cx, cy, cz = center
@@ -72,7 +73,7 @@ def _maybe_recenter_at_centroid(
     y: ndarray,
     z: ndarray,
     recenter: bool,
-) -> Tuple[ndarray, ndarray, ndarray]:
+) -> tuple[ndarray, ndarray, ndarray]:
     """Optionally translate coordinates so their centroid lies at the origin."""
     if recenter:
         x, y, z, _, _, _ = center_at_centroid(x, y, z)
@@ -81,7 +82,7 @@ def _maybe_recenter_at_centroid(
 
 def _resolve_scale_factors(
     scale: float | int | tuple | ndarray,
-) -> Tuple[float, float, float]:
+) -> tuple[float, float, float]:
     """Normalize uniform or per-axis scale factors to ``(sx, sy, sz)``."""
     if isinstance(scale, (float, int)):
         factor = float(scale)
@@ -377,9 +378,7 @@ def rotate_coordinates_about(
         If *center_mode* is not ``"centroid"`` or ``"root"``.
     """
     if center_mode not in ("centroid", "root"):
-        raise ValueError(
-            f"center_mode must be 'centroid' or 'root', not {center_mode!r}"
-        )
+        raise ValueError(f"center_mode must be 'centroid' or 'root', not {center_mode!r}")
 
     x, y, z = get_node_coordinates(tree, SoA=True)
     cx, cy, cz = _resolve_transform_center(tree, x, y, z, center, center_mode)
@@ -441,9 +440,7 @@ def scale_coordinates(
     reflect coordinates through *center* while scaling their magnitude.
     """
     if center_mode not in ("centroid", "root"):
-        raise ValueError(
-            f"center_mode must be 'centroid' or 'root', not {center_mode!r}"
-        )
+        raise ValueError(f"center_mode must be 'centroid' or 'root', not {center_mode!r}")
 
     x, y, z = get_node_coordinates(tree, SoA=True)
     cx, cy, cz = _resolve_transform_center(tree, x, y, z, center, center_mode)
@@ -505,9 +502,7 @@ def scale_coordinates_about(
     :func:`scale_coordinates`.
     """
     if center_mode not in ("centroid", "root"):
-        raise ValueError(
-            f"center_mode must be 'centroid' or 'root', not {center_mode!r}"
-        )
+        raise ValueError(f"center_mode must be 'centroid' or 'root', not {center_mode!r}")
 
     if isinstance(scale, (float, int)):
         sx = sy = sz = float(scale)
@@ -582,9 +577,7 @@ def align_coordinates_to_vector(
     else:
         v1 = asarray(source, dtype=float).ravel()
         if v1.shape != (3,):
-            raise ValueError(
-                f"source must be 'pc1' or a three-component vector, not {source!r}"
-            )
+            raise ValueError(f"source must be 'pc1' or a three-component vector, not {source!r}")
 
     tx, ty, tz = target
     axis, angle = minimum_rotation_to_align(*v1, tx, ty, tz)

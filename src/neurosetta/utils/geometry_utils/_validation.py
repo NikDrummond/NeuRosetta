@@ -82,27 +82,24 @@ def check_value(arr, shape, name=None):
     if any(not isinstance(dim, int) and not is_wildcard(dim) for dim in shape):
         raise ValueError("Expected shape dimensions to be int")
 
-    if name is None:
-        preamble = "Expected an array"
-    else:
-        preamble = f"{name} must be an array"
+    preamble = "Expected an array" if name is None else f"{name} must be an array"
 
     if arr is None:
         raise ValueError(f"{preamble} with shape {shape}; got None")
     try:
         len(arr.shape)
     except (AttributeError, TypeError):
-        raise ValueError(f"{preamble} with shape {shape}; got {arr.__class__.__name__}")
+        raise ValueError(f"{preamble} with shape {shape}; got {arr.__class__.__name__}") from None
 
     if len(arr.shape) != len(shape) or any(
         actual != expected
-        for actual, expected in zip(arr.shape, shape)
+        for actual, expected in zip(arr.shape, shape, strict=False)
         if not is_wildcard(expected)
     ):
         raise ValueError(f"{preamble} with shape {shape}; got {arr.shape}")
 
     wildcard_dims = [
-        actual for actual, expected in zip(arr.shape, shape) if is_wildcard(expected)
+        actual for actual, expected in zip(arr.shape, shape, strict=False) if is_wildcard(expected)
     ]
     if len(wildcard_dims) == 0:
         return None
@@ -145,17 +142,13 @@ def check_value_any(arr, *shapes, name=None):
         except ValueError:
             pass
 
-    if name is None:
-        preamble = "Expected an array"
-    else:
-        preamble = f"Expected {name} to be an array"
+    preamble = "Expected an array" if name is None else f"Expected {name} to be an array"
 
     if len(shapes) == 1:
         (shape_choices,) = shapes
     else:
         shape_choices = ", ".join(
-            [str(s) for s in shapes[:-2]]
-            + [" or ".join([str(shapes[-2]), str(shapes[-1])])]
+            [str(s) for s in shapes[:-2]] + [" or ".join([str(shapes[-2]), str(shapes[-1])])]
         )
 
     if arr is None:
@@ -166,7 +159,7 @@ def check_value_any(arr, *shapes, name=None):
         except (AttributeError, TypeError):
             raise ValueError(
                 f"{preamble} with shape {shape_choices}; got {arr.__class__.__name__}"
-            )
+            ) from None
         raise ValueError(f"{preamble} with shape {shape_choices}; got {arr.shape}")
 
 
@@ -296,7 +289,6 @@ def _check_vector_broadcast(
     shapes = []
 
     for i, (x, y, z) in enumerate(vectors, start=1):
-
         s = (np.shape(x), np.shape(y), np.shape(z))
 
         if not (s[0] == s[1] == s[2]):
@@ -309,11 +301,9 @@ def _check_vector_broadcast(
     array_shapes = [s for s in shapes if s != ()]
 
     if len(array_shapes) > 1:
-
         first = array_shapes[0]
 
         for s in array_shapes[1:]:
-
             if s != first:
                 raise ValueError(f"Vector shapes do not match: {array_shapes}")
 
@@ -355,10 +345,8 @@ def _broadcast_vectors(
 
     target_shape = None
 
-    for x, y, z in vectors:
-
+    for x, _y, _z in vectors:
         if np.ndim(x) > 0:
-
             target_shape = np.shape(x)
             break
 
@@ -367,7 +355,6 @@ def _broadcast_vectors(
     #
 
     if target_shape is None:
-
         if have_third:
             return (
                 x1,
@@ -395,14 +382,11 @@ def _broadcast_vectors(
     #
 
     for v in vectors:
-
         for i in range(3):
-
             if np.ndim(v[i]) == 0:
                 v[i] = np.full(target_shape, v[i], dtype=np.float64)
 
     if have_third:
-
         return (
             vectors[0][0],
             vectors[0][1],

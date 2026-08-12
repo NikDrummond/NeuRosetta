@@ -1,23 +1,28 @@
 """Least-squares shape fitting for neuron tree node coordinates."""
 
-from typing import Tuple
 from vedo import (
-    Sphere,
     Line,
     Plane,
+    Sphere,
 )
 
 from ...core import _Tree
 from ...utils.graph_utils import vertex_coordinates
 from ...utils.vedo_utils import (
-    fit_sphere as _fit_sphere,
-    fit_plane as _fit_plane,
-    fit_line as _fit_line,
     fit_circle as _fit_circle,
+)
+from ...utils.vedo_utils import (
+    fit_line as _fit_line,
+)
+from ...utils.vedo_utils import (
+    fit_plane as _fit_plane,
+)
+from ...utils.vedo_utils import (
+    fit_sphere as _fit_sphere,
 )
 
 
-def fit_sphere(tree: _Tree, return_obj: bool = False) -> Sphere | Tuple:
+def fit_sphere(tree: _Tree, return_obj: bool = False) -> Sphere | tuple:
     """Fit a sphere to tree node coordinates.
 
     Parameters
@@ -37,7 +42,7 @@ def fit_sphere(tree: _Tree, return_obj: bool = False) -> Sphere | Tuple:
     return _fit_sphere(vertex_coordinates(tree.graph), return_obj=return_obj)
 
 
-def fit_plane(tree: _Tree, return_obj: bool = False) -> Plane | Tuple:
+def fit_plane(tree: _Tree, return_obj: bool = False) -> Plane | tuple:
     """Fit a plane to tree node coordinates.
 
     Parameters
@@ -57,7 +62,7 @@ def fit_plane(tree: _Tree, return_obj: bool = False) -> Plane | Tuple:
     return _fit_plane(vertex_coordinates(tree.graph), return_obj=return_obj)
 
 
-def fit_line(tree: _Tree, return_obj: bool = False) -> Line | Tuple:
+def fit_line(tree: _Tree, return_obj: bool = False) -> Line | tuple:
     """Fit a 3D line to tree node coordinates.
 
     Parameters
@@ -77,7 +82,7 @@ def fit_line(tree: _Tree, return_obj: bool = False) -> Line | Tuple:
     return _fit_line(vertex_coordinates(tree.graph), return_obj=return_obj)
 
 
-def fit_circle(tree: _Tree) -> Tuple:
+def fit_circle(tree: _Tree) -> tuple:
     """Fit a circle to tree node coordinates.
 
     Parameters

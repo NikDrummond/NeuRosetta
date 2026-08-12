@@ -38,7 +38,8 @@ def parse_swc_header(file_path: str | Path) -> dict:
                         meta.update(payload)
                     else:
                         warn(
-                            f"SWC Meta JSON in {file_path} must be an object; got {type(payload)!r}",
+                            f"SWC Meta JSON in {file_path} must be an object; "
+                            f"got {type(payload)!r}",
                             stacklevel=2,
                         )
                 continue
@@ -66,7 +67,7 @@ def default_swc_header(tree: _Tree) -> str:
     }
     if (spec := get_voxel_spec(tree)) is not None:
         meta["voxel_size"], meta["voxel_unit"] = spec
-    return "SWC Generated using neurosetta\n" f'Meta: {json.dumps(meta, sort_keys=True)}'
+    return f"SWC Generated using neurosetta\nMeta: {json.dumps(meta, sort_keys=True)}"
 
 
 def swc_header_for_tree(tree: _Tree, header: str | None = None) -> str:

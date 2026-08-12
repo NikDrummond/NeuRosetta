@@ -1,7 +1,5 @@
 """Tests for geometry_utils.tolerance."""
 
-import numpy as np
-
 from neurosetta.utils.geometry_utils import tolerance
 
 

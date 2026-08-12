@@ -17,9 +17,7 @@ def test_euclidean_distance_array():
     x2 = np.array([3.0, 0.0])
     y2 = np.array([4.0, 1.0])
     z2 = np.array([0.0, 0.0])
-    assert points.euclidean_distance(x1, y1, z1, x2, y2, z2) == pytest.approx(
-        np.array([5.0, 1.0])
-    )
+    assert points.euclidean_distance(x1, y1, z1, x2, y2, z2) == pytest.approx(np.array([5.0, 1.0]))
 
 
 def test_argapex_and_apex():

@@ -3,14 +3,12 @@
 from numpy import ndarray
 
 from ...core import _Tree
+from ...utils.geometry_utils import euclidean_distance
 from ...utils.graph_utils import (
     bind_edge_property,
     edge_coordinates,
     g_has_property,
 )
-
-from ...utils.geometry_utils import euclidean_distance
-
 from .tree_checks import check_reduced
 
 
@@ -40,15 +38,12 @@ def get_edge_length(tree: _Tree, bind: bool = True) -> ndarray | None:
     elif g_has_property(tree.graph, "Euclidean_length", "e"):
         lengths = tree.graph.ep["Euclidean_length"].a
     else:
-        (x1,y1,z1),(x2,y2,z2) = edge_coordinates(tree.graph, SoA = True)
-        lengths = euclidean_distance(x1,y1,z1,x2,y2,z2)
+        (x1, y1, z1), (x2, y2, z2) = edge_coordinates(tree.graph, SoA=True)
+        lengths = euclidean_distance(x1, y1, z1, x2, y2, z2)
 
         if bind:
             # base property name on if this is a reduced graph
-            if check_reduced(tree):
-                p_name = "Euclidean_length"
-            else:
-                p_name = "Path_length"
+            p_name = "Euclidean_length" if check_reduced(tree) else "Path_length"
             bind_edge_property(
                 tree.graph,
                 property_name=p_name,

@@ -9,6 +9,7 @@ from vedo import Lines, Point
 
 from ...core import _Tree
 
+
 class TreePlot3D:
     """3D plot representation of a neuron tree using vedo primitives.
 
@@ -126,7 +127,7 @@ class TreePlot3D:
             actors.append(self._root)
         return actors
 
-    # Style 
+    # Style
 
     def style(
         self,
@@ -137,7 +138,7 @@ class TreePlot3D:
         root_size: float | None = None,
         show_root: bool | None = None,
         random_c: bool = False,
-    ) -> "TreePlot3D":
+    ) -> TreePlot3D:
         """Update visual style in bulk.  Returns self for chaining.
 
         Parameters
@@ -186,7 +187,7 @@ class TreePlot3D:
         tree: _Tree,
         line_kwargs: dict | None = None,
         root_kwargs: dict | None = None,
-    ) -> "TreePlot3D":
+    ) -> TreePlot3D:
         """Regenerate vedo objects from an updated tree in place.
 
         Preserves the current colour, line width, alpha, and root size unless
@@ -226,6 +227,4 @@ class TreePlot3D:
 
     def __repr__(self) -> str:
         """Return a concise summary of the current plot style."""
-        return (
-            f"TreePlot3D(color={self.color}, lw={self.lw}, alpha={self.alpha})"
-        )
+        return f"TreePlot3D(color={self.color}, lw={self.lw}, alpha={self.alpha})"

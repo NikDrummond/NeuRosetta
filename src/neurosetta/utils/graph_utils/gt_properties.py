@@ -1,12 +1,13 @@
 """Check, list, get, set, and bind graph-tool property maps."""
+
 from __future__ import annotations
 
-from typing import List, Any, Literal
 import itertools
 import warnings
+from typing import Any, Literal
 
-from numpy import asarray, ndarray
 from graph_tool.all import Graph
+from numpy import asarray, ndarray
 
 Level = Literal["g", "v", "e"]
 _LEVEL_MAP = {"g": "gp", "v": "vp", "e": "ep"}
@@ -48,7 +49,7 @@ def _property_dict(g: Graph) -> dict:
     }
 
 
-def _get_properties(g: Graph, level: str | List[str] = "all") -> List[str] | dict:
+def _get_properties(g: Graph, level: str | list[str] = "all") -> list[str] | dict:
     """Get list of property names at given level.
 
     Parameters
@@ -73,9 +74,8 @@ def _get_properties(g: Graph, level: str | List[str] = "all") -> List[str] | dic
     # accepted levels
     accepted_levels = ["g", "v", "e", "all"]
     # raise if wrong value passed
-    if isinstance(level, str):
-        if level not in accepted_levels:
-            raise AttributeError(f"level must be one of {accepted_levels}")
+    if isinstance(level, str) and level not in accepted_levels:
+        raise AttributeError(f"level must be one of {accepted_levels}")
 
     # property dict
     prop_keys = _property_dict(g)
@@ -125,7 +125,7 @@ def revert_core_properties(g: Graph) -> None:
 ### checking properties
 
 
-def g_has_property(g: Graph, prop: str, level: str | List[str] = "all") -> bool:
+def g_has_property(g: Graph, prop: str, level: str | list[str] = "all") -> bool:
     """Check if a graph has a property at the specified level.
 
     Parameters
@@ -158,15 +158,13 @@ class _InternalPropertyMissingError(Exception):
     """Raised when a required internal property is missing from a
     graph_tool.Graph object."""
 
-    def __init__(self, missing_property: str, level: str | List[str]):
+    def __init__(self, missing_property: str, level: str | list[str]):
         message = f"Internal Property Missing: {missing_property} at level(s) {level}"
         super().__init__(message)
         self.missing_property = missing_property
 
 
-def raise_internal_property_missing(
-    g: Graph, prop: str, level: str | List[str] = "all"
-) -> None:
+def raise_internal_property_missing(g: Graph, prop: str, level: str | list[str] = "all") -> None:
     """Raise an exception if a required property is missing from the graph.
 
     Parameters
@@ -193,9 +191,7 @@ def raise_internal_property_missing(
 ### Binding properties (internalising to graph)
 
 
-def bind_vertex_property(
-    g: Graph, property_name: str, property_dtype: str, property_data
-) -> None:
+def bind_vertex_property(g: Graph, property_name: str, property_dtype: str, property_data) -> None:
     """Bind a property array to graph vertices.
 
     Parameters
@@ -212,9 +208,7 @@ def bind_vertex_property(
     g.vp[property_name] = g.new_vp(property_dtype, property_data)
 
 
-def bind_edge_property(
-    g: Graph, property_name: str, property_dtype: str, property_data
-) -> None:
+def bind_edge_property(g: Graph, property_name: str, property_dtype: str, property_data) -> None:
     """Bind a property array to graph edges.
 
     Parameters
@@ -231,9 +225,7 @@ def bind_edge_property(
     g.ep[property_name] = g.new_ep(property_dtype, property_data)
 
 
-def bind_graph_property(
-    g: Graph, property_name: str, property_dtype: str, property_data
-) -> None:
+def bind_graph_property(g: Graph, property_name: str, property_dtype: str, property_data) -> None:
     """Bind a property value to the graph.
 
     Parameters
@@ -306,9 +298,7 @@ def _coerce_to_dims_by_n(data, n: int, *, name: str) -> ndarray:
     )
 
 
-def list_properties(
-    g: Graph, level: str | List[str] = "all"
-) -> list[str] | dict[str, list[str]]:
+def list_properties(g: Graph, level: str | list[str] = "all") -> list[str] | dict[str, list[str]]:
     """List property names on a graph.
 
     Parameters
@@ -387,9 +377,7 @@ def get_property(
     found: dict[str, Any] = {}
     for lvl in ("g", "v", "e"):
         if name in _property_maps(g, lvl):
-            found[lvl] = _property_value(
-                g, name, lvl, as_array=as_array, SoA=SoA
-            )
+            found[lvl] = _property_value(g, name, lvl, as_array=as_array, SoA=SoA)
 
     if not found:
         raise KeyError(f"Property {name!r} not found at any level (g/v/e)")
@@ -398,8 +386,7 @@ def get_property(
         return next(iter(found.values()))
 
     warnings.warn(
-        f"Property {name!r} found at multiple levels {list(found)}; "
-        "returning dict keyed by level",
+        f"Property {name!r} found at multiple levels {list(found)}; returning dict keyed by level",
         UserWarning,
         stacklevel=2,
     )
@@ -456,8 +443,7 @@ def set_property(
             _bind_vector_property(g, level, name, dtype, data)
         elif asarray(data).ndim == 2:
             raise ValueError(
-                f"Property {name!r}: 2d data requires a vector<> dtype "
-                f"(got dtype={dtype!r})"
+                f"Property {name!r}: 2d data requires a vector<> dtype (got dtype={dtype!r})"
             )
         elif level == "v":
             bind_vertex_property(g, name, dtype, data)
@@ -485,10 +471,10 @@ def set_property(
     arr = asarray(data)
     if arr.ndim == 2:
         raise ValueError(
-            f"Property {name!r} at level {level!r} is scalar, but data is 2d "
-            f"with shape {arr.shape}"
+            f"Property {name!r} at level {level!r} is scalar, but data is 2d with shape {arr.shape}"
         )
     prop.a = arr
+
 
 def _set_coords_prop(g, coords: ndarray):
 
@@ -498,11 +484,12 @@ def _set_coords_prop(g, coords: ndarray):
     if coords.shape[1] == 3:
         coords = coords.T
     elif coords.shape[0] != 3:
-        raise ValueError(f"Given coordinate array must have 3 rows or columns (x,y,z)")
+        raise ValueError("Given coordinate array must have 3 rows or columns (x,y,z)")
 
-    set_property(g, 'x',coords[0],'v')
-    set_property(g, 'y',coords[1],'v')
-    set_property(g, 'z',coords[2],'v')
+    set_property(g, "x", coords[0], "v")
+    set_property(g, "y", coords[1], "v")
+    set_property(g, "z", coords[2], "v")
+
 
 def del_property(g: Graph, name: str, level: Level) -> None:
     """Delete a property map from the graph."""
@@ -510,4 +497,3 @@ def del_property(g: Graph, name: str, level: Level) -> None:
     if name not in maps:
         raise KeyError(f"Property {name!r} not found at level {level!r}")
     del maps[name]
-

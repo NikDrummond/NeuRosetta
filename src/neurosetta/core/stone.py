@@ -1,6 +1,6 @@
 """Base class — every singleton object inherits from this."""
 
-from typing import Hashable
+from collections.abc import Hashable
 
 
 class _Stone:

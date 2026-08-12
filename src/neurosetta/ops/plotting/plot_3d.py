@@ -8,9 +8,9 @@ def plot_3d(
     tree: _Tree,
     show_root: bool = True,
     cache: bool = False,
-    line_kwargs: dict = {"c": "k4", "lw": 1, "alpha": 1.0},
-    root_kwargs: dict = {"r": 12, "c": "k4", "alpha": 1.0},
-    plot_kwargs: dict = {},
+    line_kwargs: dict = None,
+    root_kwargs: dict = None,
+    plot_kwargs: dict = None,
     force_refresh: bool = False,
 ) -> Viewer:
     """On-the-fly 3D neuron plotting. Opens an interactive vedo.Plotter instance.
@@ -41,6 +41,12 @@ def plot_3d(
         The vedo Viewer instance.
     """
     # set up viewer
+    if plot_kwargs is None:
+        plot_kwargs = {}
+    if root_kwargs is None:
+        root_kwargs = {"r": 12, "c": "k4", "alpha": 1.0}
+    if line_kwargs is None:
+        line_kwargs = {"c": "k4", "lw": 1, "alpha": 1.0}
     view = Viewer()
     view.add_neuron(
         tree,
@@ -48,7 +54,7 @@ def plot_3d(
         cache=cache,
         line_kwargs=line_kwargs,
         root_kwargs=root_kwargs,
-        force_refresh = force_refresh
+        force_refresh=force_refresh,
     )
     # show and set to close upon close
     view.show(**plot_kwargs).close()

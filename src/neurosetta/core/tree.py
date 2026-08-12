@@ -117,9 +117,7 @@ class _Tree(_Stone):
         """
         from ..utils.graph_utils import get_property as _get_property
 
-        return _get_property(
-            self.graph, name, level, as_array=as_array, SoA=SoA
-        )
+        return _get_property(self.graph, name, level, as_array=as_array, SoA=SoA)
 
     def set_property(
         self,

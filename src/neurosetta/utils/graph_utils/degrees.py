@@ -1,9 +1,9 @@
 """Get vertex degree information from graphs."""
+
 from __future__ import annotations
 
-from typing import Tuple
+from graph_tool.all import EdgePropertyMap, Graph
 from numpy import ndarray, unique
-from graph_tool.all import Graph, EdgePropertyMap
 
 
 def _check_deg_type_input(deg: str) -> None:
@@ -52,9 +52,7 @@ def get_vertex_degrees(
     return g.degree_property_map(deg, weight).a
 
 
-def degree_distribution(
-    g: Graph, deg: str = "total", mass: bool = True
-) -> Tuple[ndarray, ndarray]:
+def degree_distribution(g: Graph, deg: str = "total", mass: bool = True) -> tuple[ndarray, ndarray]:
     """Compute the degree distribution of a graph.
 
     Parameters

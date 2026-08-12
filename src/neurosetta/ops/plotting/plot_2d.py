@@ -1,20 +1,20 @@
 """2D plotting of neuron morphologies."""
 
-from numpy import array, stack, vstack, ones, ndarray
 from matplotlib.collections import LineCollection
 from matplotlib.pyplot import Axes, subplots
+from numpy import array, ndarray, ones, stack, vstack
 
 from ...core import _Tree
 
 
 def plot_2d(
     tree: _Tree,
-    center: ndarray = array([0, 0]),
+    center: ndarray | None = None,
     ax_pad: float = 1,
     show_root: bool = True,
-    line_kwargs: dict = {"color": "gray", "linewidth": 1, "alpha": 1},
-    point_kwargs: dict = {"color": "k"},
-    root_kwargs: dict = {"color": "r"},
+    line_kwargs: dict = None,
+    point_kwargs: dict = None,
+    root_kwargs: dict = None,
     axes: Axes | None = None,
 ) -> Axes:
     """Generate a simple 2D plot of a neuron morphology.
@@ -51,6 +51,14 @@ def plot_2d(
         The matplotlib Axes object with the plot.
     """
     # get source and target coordinates
+    if root_kwargs is None:
+        root_kwargs = {"color": "r"}
+    if point_kwargs is None:
+        point_kwargs = {"color": "k"}
+    if line_kwargs is None:
+        line_kwargs = {"color": "gray", "linewidth": 1, "alpha": 1}
+    if center is None:
+        center = array([0, 0])
     starts, stops = tree.get_edge_coordinates()
     # remove z axis
     starts = starts[:, [0, 1]]

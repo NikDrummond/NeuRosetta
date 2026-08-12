@@ -1,21 +1,21 @@
 """Module for breadth and depth first traversals on graphs."""
+
 from __future__ import annotations
 
-from typing import Iterable
-from numpy import ndarray, asarray, float64
+from collections.abc import Iterable
 
 from graph_tool.all import (
     BFSVisitor,
-    bfs_search,
     DFSVisitor,
-    dfs_search,
     Graph,
     bfs_iterator,
+    bfs_search,
     dfs_iterator,
+    dfs_search,
 )
+from numpy import asarray, float64, ndarray
 
 from ..geometry_utils.angles import angle, angular_mean, angular_var
-
 
 ### BFS traversals
 
@@ -311,7 +311,6 @@ class ReduceVisitor(DFSVisitor):
 
 
 class AngleVisitor(DFSVisitor):
-
     def __init__(self, graph, starts, stops, x_prop, y_prop, z_prop):
         self.graph = graph
         self.starts = starts
@@ -386,13 +385,9 @@ class AngleVisitor(DFSVisitor):
         self.edge_source.append(int(self._section_start))
         self.edge_target.append(int(stop_vertex))
 
-        self.mean_angles.append(
-            angular_mean(angles)
-        )
+        self.mean_angles.append(angular_mean(angles))
 
-        self.angle_variances.append(
-            angular_var(angles)
-        )
+        self.angle_variances.append(angular_var(angles))
 
         self._section_start = None
         self._edge_x.clear()

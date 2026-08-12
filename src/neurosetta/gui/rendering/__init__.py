@@ -1,6 +1,6 @@
 """3D rendering and visualization components for the Neurosetta GUI application."""
 
-from .renderer import NeuronRenderer
 from .point_selector import PointSelector
+from .renderer import NeuronRenderer
 
-__all__ = ['NeuronRenderer', 'PointSelector']
+__all__ = ["NeuronRenderer", "PointSelector"]

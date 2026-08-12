@@ -3,7 +3,7 @@
 import pytest
 from numpy import unique
 
-from neurosetta.utils.graph_utils.counting import count_leaves, count_branches
+from neurosetta.utils.graph_utils.counting import count_branches, count_leaves
 from neurosetta.utils.graph_utils.vertex_inds import (
     branch_indices,
     core_indices,

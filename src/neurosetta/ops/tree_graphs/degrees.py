@@ -1,12 +1,12 @@
 """Functions to get degree information from trees."""
+
 from __future__ import annotations
 
-from typing import Tuple
-from numpy import ndarray
 from graph_tool.all import EdgePropertyMap
+from numpy import ndarray
 
 from ...core import _Tree
-from ...utils.graph_utils import get_vertex_degrees, degree_distribution
+from ...utils.graph_utils import degree_distribution, get_vertex_degrees
 
 
 def get_degrees(
@@ -36,7 +36,7 @@ def get_degrees(
 
 def get_degree_distribution(
     tree: _Tree, deg: str = "total", mass: bool = True
-) -> Tuple[ndarray, ndarray]:
+) -> tuple[ndarray, ndarray]:
     """Compute the degree distribution of a tree.
 
     Parameters

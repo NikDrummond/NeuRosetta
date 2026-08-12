@@ -1,24 +1,22 @@
 """Functions for handling and finding subtrees."""
 
 from numpy import ndarray
-# from graph_tool.all import GraphView
 
+# from graph_tool.all import GraphView
 from ...core import _Tree
 from ...utils.graph_utils import (
-    bfsearch,
     SubtreeMaskVisitor,
-    subgraph_score,
-    max_subgraph_ind,
+    bfsearch,
     extract_subgraph,
+    max_subgraph_ind,
     partition_asymmetry,
+    subgraph_score,
 )
-from .tree_checks import has_property
 from .path_lengths import get_edge_length
+from .tree_checks import has_property
 
 
-def mask_subtree_from_root(
-    tree: _Tree, root: int, bind: bool = True
-) -> SubtreeMaskVisitor | None:
+def mask_subtree_from_root(tree: _Tree, root: int, bind: bool = True) -> SubtreeMaskVisitor | None:
     """Create vertex and edge masks for a subtree rooted at the given vertex.
 
     Parameters
@@ -92,9 +90,7 @@ def get_max_subtree_node(tree: _Tree) -> int:
     return max_subgraph_ind(tree.graph)
 
 
-def get_subtree(
-    tree: _Tree, revert_properties: bool = True
-) -> None:
+def get_subtree(tree: _Tree, revert_properties: bool = True) -> None:
     """Extract the masked subtree from the tree.
 
     Parameters

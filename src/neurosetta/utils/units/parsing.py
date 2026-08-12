@@ -35,9 +35,7 @@ def parse_units(units: str | None) -> Unit:
     """Parse a metadata units string into a Pint unit."""
     raw = _coerce_units_str(units)
     if is_voxel_units(raw):
-        raise ValueError(
-            "Voxel units are metadata-backed; use voxel_size and voxel_unit instead."
-        )
+        raise ValueError("Voxel units are metadata-backed; use voxel_size and voxel_unit instead.")
     try:
         return ureg.parse_units(raw)
     except Exception as exc:

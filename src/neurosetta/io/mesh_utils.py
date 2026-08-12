@@ -3,10 +3,10 @@
 from pathlib import Path
 from typing import overload
 
-from vedo import Mesh, write
 from vedo import load as vd_load_mesh
+from vedo import write
 
-from ..core import _Mesh, _Forest
+from ..core import _Forest, _Mesh
 from .io_utils import _base_meta, _foreach_with_progress
 
 
@@ -71,7 +71,7 @@ def import_mesh(
         raise AttributeError(f"mesh_type must be Neuron or Neuropil, not {mesh_type}")
 
     # Import here - avoid circular imports
-    from ..api import Tree_mesh, Neuropil, Forest_mesh, Neuropils
+    from ..api import Forest_mesh, Neuropil, Neuropils, Tree_mesh
 
     p = Path(fpath)
 
@@ -95,9 +95,7 @@ def import_mesh(
     ids = [Path(m.filename).stem for m in meshes]
 
     if mesh_type == "Neuron":
-        meshes = [
-            Tree_mesh(ID=ids[i], metadata={}, mesh=meshes[i]) for i in range(len(ids))
-        ]
+        meshes = [Tree_mesh(ID=ids[i], metadata={}, mesh=meshes[i]) for i in range(len(ids))]
         return Forest_mesh(meshes)
 
     meshes = [Neuropil(ID=ids[i], metadata={}, mesh=meshes[i]) for i in range(len(ids))]
@@ -200,10 +198,7 @@ def export_mesh(
         return out
 
     # ---- Forest ----
-    if fpath is None:
-        base = Path.cwd()
-    else:
-        base = Path(fpath)
+    base = Path.cwd() if fpath is None else Path(fpath)
 
     if base.suffix:
         raise ValueError("Cannot export a Forest to a single file path")

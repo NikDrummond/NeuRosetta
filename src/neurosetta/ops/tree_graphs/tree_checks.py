@@ -1,7 +1,7 @@
 """Various checks for tree graphs."""
 
 from ...core import _Tree
-from ...utils.graph_utils import g_has_property, count_transitive_vertices
+from ...utils.graph_utils import count_transitive_vertices, g_has_property
 
 
 def check_reduced(tree: _Tree) -> bool:

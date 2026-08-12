@@ -2,14 +2,28 @@
 
 from ...core import _Tree
 from ...utils.graph_utils import (
-    count_roots as _count_roots,
-    count_vertices as _count_vertices,
-    count_edges as _count_edges,
-    count_leaves as _count_leaves,
-    count_branches as _count_branches,
-    count_transitive_vertices as _count_transitive_vertices,
-    count_sections as _count_sections,
     count_bifurcations as _count_bifurcations,
+)
+from ...utils.graph_utils import (
+    count_branches as _count_branches,
+)
+from ...utils.graph_utils import (
+    count_edges as _count_edges,
+)
+from ...utils.graph_utils import (
+    count_leaves as _count_leaves,
+)
+from ...utils.graph_utils import (
+    count_roots as _count_roots,
+)
+from ...utils.graph_utils import (
+    count_sections as _count_sections,
+)
+from ...utils.graph_utils import (
+    count_transitive_vertices as _count_transitive_vertices,
+)
+from ...utils.graph_utils import (
+    count_vertices as _count_vertices,
 )
 
 
@@ -108,6 +122,7 @@ def count_transitive_nodes(tree: _Tree) -> int:
     """
     return _count_transitive_vertices(tree.graph)
 
+
 def count_sections(tree: _Tree) -> int:
     """Count the number of sections in a tree.
 
@@ -124,6 +139,7 @@ def count_sections(tree: _Tree) -> int:
         Number of sections.
     """
     return _count_sections(tree.graph)
+
 
 def count_bifurcations(tree: _Tree, include_root: bool = False) -> int:
     """Count the number of bifurcating nodes within a tree

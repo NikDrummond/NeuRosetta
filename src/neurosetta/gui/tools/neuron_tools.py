@@ -1,10 +1,12 @@
 """Neuron manipulation tools including rerooting and subtree operations."""
 
 import logging
-import numpy as np
 
 # import neurosetta as nr
-from typing import Any, Optional
+from typing import Any
+
+import numpy as np
+
 from ..utils.helpers import get_mask_node_ind, n_pnt_coords
 
 
@@ -23,9 +25,7 @@ class NeuronTools:
         """
         self.current_neuron = neuron
 
-    def reroot_neuron(
-        self, selected_indices: np.ndarray
-    ) -> tuple[Any, np.ndarray, np.ndarray]:
+    def reroot_neuron(self, selected_indices: np.ndarray) -> tuple[Any, np.ndarray, np.ndarray]:
         """Reroot the neuron at the selected point.
 
         Args:
@@ -142,9 +142,7 @@ class NeuronTools:
     def set_flag_state(self) -> None:
         """Boolian graph property for neurons to flag"""
         if not self.current_neuron.has_property("flag", "g"):
-            self.current_neuron.graph.gp["flag"] = self.current_neuron.graph.new_gp(
-                "bool", False
-            )
+            self.current_neuron.graph.gp["flag"] = self.current_neuron.graph.new_gp("bool", False)
 
     def update_flag_state(self, flag_state: bool) -> None:
         """Boolian graph property for neurons to flag"

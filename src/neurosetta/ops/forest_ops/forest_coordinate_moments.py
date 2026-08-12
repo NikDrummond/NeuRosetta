@@ -1,35 +1,32 @@
 """Projection moments of pooled forest node coordinates onto an axis."""
 
-from typing import Tuple
 from numpy import ndarray
 
 from ...core import _Forest
 from ...utils.geometry_utils.points import (
-    mean_along_axis,
-    variance_along_axis,
-    std_along_axis,
-    minmax_along_axis,
     extent_along_axis,
-    rms_along_axis,
     mean_absolute_along_axis,
+    mean_along_axis,
+    minmax_along_axis,
     projection_moments,
+    rms_along_axis,
+    std_along_axis,
+    variance_along_axis,
 )
 
 
 def _pooled_coordinate_arrays(
     forest: _Forest,
-    axis: Tuple | ndarray,
-) -> Tuple[ndarray, ndarray, ndarray, float, float, float]:
-    coords = forest.get_node_coordinates(
-        SoA=False, merge_axis=0, show_progress=False
-    )
+    axis: tuple | ndarray,
+) -> tuple[ndarray, ndarray, ndarray, float, float, float]:
+    coords = forest.get_node_coordinates(SoA=False, merge_axis=0, show_progress=False)
     ax, ay, az = axis
     return coords[:, 0], coords[:, 1], coords[:, 2], float(ax), float(ay), float(az)
 
 
 def coordinate_mean_along_axis_forest(
     forest: _Forest,
-    axis: Tuple | ndarray,
+    axis: tuple | ndarray,
 ) -> float:
     """Compute the mean projection of pooled node coordinates onto an axis.
 
@@ -52,7 +49,7 @@ def coordinate_mean_along_axis_forest(
 
 def coordinate_variance_along_axis_forest(
     forest: _Forest,
-    axis: Tuple | ndarray,
+    axis: tuple | ndarray,
 ) -> float:
     """Compute the variance of pooled node coordinate projections onto an axis.
 
@@ -75,7 +72,7 @@ def coordinate_variance_along_axis_forest(
 
 def coordinate_std_along_axis_forest(
     forest: _Forest,
-    axis: Tuple | ndarray,
+    axis: tuple | ndarray,
 ) -> float:
     """Compute the standard deviation of pooled projections onto an axis.
 
@@ -98,8 +95,8 @@ def coordinate_std_along_axis_forest(
 
 def coordinate_minmax_along_axis_forest(
     forest: _Forest,
-    axis: Tuple | ndarray,
-) -> Tuple[float, float]:
+    axis: tuple | ndarray,
+) -> tuple[float, float]:
     """Compute minimum and maximum pooled projections onto an axis.
 
     Parameters
@@ -122,7 +119,7 @@ def coordinate_minmax_along_axis_forest(
 
 def coordinate_extent_along_axis_forest(
     forest: _Forest,
-    axis: Tuple | ndarray,
+    axis: tuple | ndarray,
 ) -> float:
     """Compute the extent of pooled node coordinate projections onto an axis.
 
@@ -145,7 +142,7 @@ def coordinate_extent_along_axis_forest(
 
 def coordinate_rms_along_axis_forest(
     forest: _Forest,
-    axis: Tuple | ndarray,
+    axis: tuple | ndarray,
 ) -> float:
     """Compute the root-mean-square pooled projection onto an axis.
 
@@ -168,7 +165,7 @@ def coordinate_rms_along_axis_forest(
 
 def coordinate_mean_absolute_along_axis_forest(
     forest: _Forest,
-    axis: Tuple | ndarray,
+    axis: tuple | ndarray,
 ) -> float:
     """Compute the mean absolute pooled projection onto an axis.
 
@@ -190,8 +187,8 @@ def coordinate_mean_absolute_along_axis_forest(
 
 def coordinate_projection_moments_forest(
     forest: _Forest,
-    axis: Tuple | ndarray,
-) -> Tuple[float, float, float, float, float]:
+    axis: tuple | ndarray,
+) -> tuple[float, float, float, float, float]:
     """Compute summary projection moments of pooled node coordinates.
 
     Parameters

@@ -1,10 +1,11 @@
 """Functions for counting nodes of different types in a graph."""
+
 from __future__ import annotations
 
-from numpy import where, hstack
 from graph_tool.all import Graph
+from numpy import hstack, where
 
-from .vertex_inds import leaf_indices, branch_indices, bifurcation_indices
+from .vertex_inds import bifurcation_indices, branch_indices, leaf_indices
 
 
 def count_roots(g: Graph) -> int:
@@ -102,14 +103,10 @@ def count_transitive_vertices(g: Graph) -> int:
     int
         Number of transitive vertices.
     """
-    return int(
-        sum(
-            (g.degree_property_map("out").a == 1)
-            & (g.degree_property_map("in").a == 1)
-        )
-    )
+    return int(sum((g.degree_property_map("out").a == 1) & (g.degree_property_map("in").a == 1)))
 
-def count_sections(g:Graph)-> int:
+
+def count_sections(g: Graph) -> int:
     """Count the number of sections in a graph.
 
     Sections are edges between the root, branch, and leaf nodes
@@ -125,11 +122,12 @@ def count_sections(g:Graph)-> int:
         Number of sections
     """
     b = branch_indices(g)
-    l = leaf_indices(g)
+    leaves = leaf_indices(g)
     r = where(g.degree_property_map("in").a == 0)[0][0]
-    return hstack([b[b != r], l]).shape[0]
+    return hstack([b[b != r], leaves]).shape[0]
 
-def count_bifurcations(g:Graph, include_root:bool = False)-> int:
+
+def count_bifurcations(g: Graph, include_root: bool = False) -> int:
     """Count the number of bifurcations within a graph.
 
     Parameters
@@ -145,5 +143,3 @@ def count_bifurcations(g:Graph, include_root:bool = False)-> int:
         Number of bifurcations
     """
     return len(bifurcation_indices(g, include_root=include_root))
-
-

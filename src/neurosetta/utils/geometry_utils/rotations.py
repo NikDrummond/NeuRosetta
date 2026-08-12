@@ -1,13 +1,15 @@
-"""    """
-from numpy import cos, sin, empty, isclose, pi, sqrt, asarray, array, float64
-from numpy.linalg import norm
-from numba import njit
+""" """
 
-from .algebra import normalize_scalar, cross_scalar, dot_scalar
+from numba import njit
+from numpy import array, asarray, cos, empty, float64, isclose, pi, sin, sqrt
+from numpy.linalg import norm
+
+from ._validation import _broadcast_vectors, _check_scalar, _check_vector_broadcast
+from .algebra import cross_scalar, dot_scalar, normalize_scalar
 from .angles import angle_scalar
-from ._validation import _check_scalar, _check_vector_broadcast, _broadcast_vectors
 
 _JIT = dict(nogil=True, fastmath=True, cache=True, inline="always")
+
 
 @njit(**_JIT)
 def rotate_scalar(
@@ -64,12 +66,19 @@ def rotate_scalar(
         c * z + s * cz + (1.0 - c) * d * az,
     )
 
+
 @njit(**_JIT)
 def rotate_about_scalar(
-    x, y, z,
-    ax, ay, az,
+    x,
+    y,
+    z,
+    ax,
+    ay,
+    az,
     angle,
-    cx, cy, cz,
+    cx,
+    cy,
+    cz,
     assume_normalized=False,
 ):
     """
@@ -83,8 +92,12 @@ def rotate_about_scalar(
 
     # Rotate using the existing rotation kernel.
     rx, ry, rz = rotate_scalar(
-        rx, ry, rz,
-        ax, ay, az,
+        rx,
+        ry,
+        rz,
+        ax,
+        ay,
+        az,
         angle,
         assume_normalized,
     )
@@ -95,6 +108,7 @@ def rotate_about_scalar(
         ry + cy,
         rz + cz,
     )
+
 
 @njit(**_JIT)
 def rotate_xyz(
@@ -115,7 +129,6 @@ def rotate_xyz(
     zr = empty(n)
 
     for i in range(n):
-
         xr[i], yr[i], zr[i] = rotate_scalar(
             x[i],
             y[i],
@@ -129,12 +142,19 @@ def rotate_xyz(
 
     return xr, yr, zr
 
+
 @njit(**_JIT)
 def rotate_about_xyz(
-    x, y, z,
-    ax, ay, az,
+    x,
+    y,
+    z,
+    ax,
+    ay,
+    az,
     angle,
-    cx, cy, cz,
+    cx,
+    cy,
+    cz,
     assume_normalized=False,
 ):
     """
@@ -149,16 +169,24 @@ def rotate_about_xyz(
 
     for i in range(n):
         xo[i], yo[i], zo[i] = rotate_about_scalar(
-            x[i], y[i], z[i],
-            ax, ay, az,
+            x[i],
+            y[i],
+            z[i],
+            ax,
+            ay,
+            az,
             angle,
-            cx, cy, cz,
+            cx,
+            cy,
+            cz,
             assume_normalized,
         )
 
     return xo, yo, zo
 
+
 ### Python functions
+
 
 def rotate(x, y, z, ax, ay, az, rotation_angle, assume_normalized=False):
     """
@@ -255,8 +283,11 @@ def minimum_rotation_to_align(x1, y1, z1, x2, y2, z2, assume_normalized=False):
     n = sqrt(ax**2 + ay**2 + az**2)
     return (ax / n, ay / n, az / n), ang
 
+
 def compute_alignment_rotation(
-    e1, e2, e3,
+    e1,
+    e2,
+    e3,
     b1=(0.0, 1.0, 0.0),
     b2=(1.0, 0.0, 0.0),
     b3=(0.0, 0.0, 1.0),
@@ -342,6 +373,7 @@ def compute_alignment_rotation(
 
     return (axis1, angle1), (axis2, angle2)
 
+
 def apply_rotation_steps(x, y, z, step1, step2):
     """
     Apply two successive axis-angle rotations to a 3D vector or array
@@ -378,11 +410,18 @@ def apply_rotation_steps(x, y, z, step1, step2):
     x, y, z = rotate(x, y, z, *axis2, angle2, assume_normalized=True)
     return x, y, z
 
+
 def rotate_about(
-    x, y, z,
-    ax, ay, az,
+    x,
+    y,
+    z,
+    ax,
+    ay,
+    az,
     angle,
-    cx, cy, cz,
+    cx,
+    cy,
+    cz,
     assume_normalized=False,
 ):
     """
@@ -419,17 +458,29 @@ def rotate_about(
 
     if _check_scalar(x, y, z):
         return rotate_about_scalar(
-            x, y, z,
-            ax, ay, az,
+            x,
+            y,
+            z,
+            ax,
+            ay,
+            az,
             angle,
-            cx, cy, cz,
+            cx,
+            cy,
+            cz,
             assume_normalized,
         )
 
     return rotate_about_xyz(
-        x, y, z,
-        ax, ay, az,
+        x,
+        y,
+        z,
+        ax,
+        ay,
+        az,
         angle,
-        cx, cy, cz,
+        cx,
+        cy,
+        cz,
         assume_normalized,
     )

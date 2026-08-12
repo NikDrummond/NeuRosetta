@@ -1,13 +1,14 @@
 """Functions to modify structure of graphs"""
+
 from __future__ import annotations
 
-from numpy import concatenate, vstack
 from graph_tool.all import Graph, GraphView
+from numpy import concatenate, vstack
 
-from .gt_properties import raise_internal_property_missing
-from .traversals import dfsearch, ReduceVisitor, bf_iterator
-from .vertex_inds import root_index, core_indices, branch_indices
 from .coordinates import vertex_coordinates
+from .gt_properties import raise_internal_property_missing
+from .traversals import ReduceVisitor, bf_iterator, dfsearch
+from .vertex_inds import branch_indices, core_indices, root_index
 
 
 def reduce_graph(g: Graph) -> Graph:
@@ -126,12 +127,8 @@ def reroot_graph(g: Graph, root: int) -> Graph:
     g_new.vp["y"] = g_new.new_vp("double", g_view.vp["y"].a[ids])
     g_new.vp["z"] = g_new.new_vp("double", g_view.vp["z"].a[ids])
     # node_type
-    g_new.vp["node_type"] = g_new.new_vp(
-        "int", g_view.vp["node_type"].a[g_new.vp["ids"].a]
-    )
+    g_new.vp["node_type"] = g_new.new_vp("int", g_view.vp["node_type"].a[g_new.vp["ids"].a])
     # radius
-    g_new.vp["radius"] = g_new.new_vp(
-        "double", g_view.vp["radius"].a[g_new.vp["ids"].a]
-    )
+    g_new.vp["radius"] = g_new.new_vp("double", g_view.vp["radius"].a[g_new.vp["ids"].a])
 
     return g_new

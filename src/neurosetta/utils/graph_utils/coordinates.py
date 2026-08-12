@@ -1,16 +1,16 @@
 """Functions for extracting vertex and edge coordinates from graphs."""
+
 from __future__ import annotations
 
-from typing import List, Tuple
-from numpy import ndarray, stack
 from graph_tool.all import Graph
+from numpy import ndarray, stack
 
 from .gt_properties import raise_internal_property_missing
 from .vertex_inds import edge_indices, subtree_indices
 
 
 def vertex_coordinates(
-    g: Graph, subset: int | List[int] | None = None, SoA: bool = False
+    g: Graph, subset: int | list[int] | None = None, SoA: bool = False
 ) -> ndarray:
     """Get coordinates of vertices.
 
@@ -38,7 +38,7 @@ def vertex_coordinates(
     raise_internal_property_missing(g, "z", "v")
 
     # get coordinates
-    coords = stack([g.vp[p].a for p in ["x","y","z"]], axis = 0)
+    coords = stack([g.vp[p].a for p in ["x", "y", "z"]], axis=0)
 
     # subset if needed
     if subset is not None:
@@ -85,7 +85,7 @@ def vertex_coordinates_subtree(
     return vertex_coordinates(g, subset=sub_inds, SoA=SoA)
 
 
-def edge_coordinates(g: Graph, SoA: bool = False) -> Tuple[ndarray, ndarray]:
+def edge_coordinates(g: Graph, SoA: bool = False) -> tuple[ndarray, ndarray]:
     """Get source and target coordinates for all edges.
 
     Parameters
@@ -122,7 +122,7 @@ def edge_coordinates(g: Graph, SoA: bool = False) -> Tuple[ndarray, ndarray]:
 
 def edge_coordinates_subtree(
     g: Graph, root: int, traversal_order: str = "Breadth", SoA: bool = False
-) -> Tuple[ndarray, ndarray]:
+) -> tuple[ndarray, ndarray]:
     """Get source and target coordinates for edges in a subtree.
 
     Parameters

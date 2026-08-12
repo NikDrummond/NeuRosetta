@@ -1,22 +1,20 @@
 """Functions for getting coordinates from trees."""
 
-from typing import List, Tuple
 from numpy import ndarray
 from scipy.spatial import ConvexHull
 
 from ...core import _Tree
+from ...utils.geometry_utils import eig_decomp
 from ...utils.graph_utils import (
-    vertex_coordinates,
-    vertex_coordinates_subtree,
     edge_coordinates,
     edge_coordinates_subtree,
-)
-from ...utils.geometry_utils import (
-    eig_decomp
+    vertex_coordinates,
+    vertex_coordinates_subtree,
 )
 
+
 def get_node_coordinates(
-    tree: _Tree, subset: int | List | None = None, SoA: bool = False
+    tree: _Tree, subset: int | list | None = None, SoA: bool = False
 ) -> ndarray:
     """Get coordinates of tree nodes.
 
@@ -40,11 +38,11 @@ def get_node_coordinates(
     """
     return vertex_coordinates(tree.graph, subset, SoA)
 
+
 # branch and leaf coordinates?
 
-def get_root_coordinate(
-    tree: _Tree, SoA: bool = False
-) -> ndarray:
+
+def get_root_coordinate(tree: _Tree, SoA: bool = False) -> ndarray:
     """Get coordinates of the tree root node.
 
     Parameters
@@ -61,7 +59,8 @@ def get_root_coordinate(
         Array of vertex coordinates with shape (3, N) if SoA=True,
         or (N, 3) if SoA=False, where N is the number of roots.
     """
-    return vertex_coordinates(tree.graph, subset = tree.get_root_index(), SoA = SoA)
+    return vertex_coordinates(tree.graph, subset=tree.get_root_index(), SoA=SoA)
+
 
 def get_subtree_node_coordinates(
     tree: _Tree, root: int, traversal_order: str = "Breadth", SoA: bool = False
@@ -90,7 +89,7 @@ def get_subtree_node_coordinates(
     return vertex_coordinates_subtree(tree.graph, root, traversal_order, SoA)
 
 
-def get_edge_coordinates(tree: _Tree, SoA: bool = False) -> Tuple[ndarray, ndarray]:
+def get_edge_coordinates(tree: _Tree, SoA: bool = False) -> tuple[ndarray, ndarray]:
     """Get source and target coordinates for all edges.
 
     Parameters
@@ -113,7 +112,7 @@ def get_edge_coordinates(tree: _Tree, SoA: bool = False) -> Tuple[ndarray, ndarr
 
 def get_subtree_edge_coordinates(
     tree: _Tree, root: int, traversal_order: str = "Breadth", SoA: bool = False
-) -> Tuple[ndarray, ndarray]:
+) -> tuple[ndarray, ndarray]:
     """Get source and target coordinates for edges in a subtree.
 
     Parameters
@@ -138,7 +137,8 @@ def get_subtree_edge_coordinates(
     """
     return edge_coordinates_subtree(tree.graph, root, traversal_order, SoA)
 
-def coordinate_pca(tree: _Tree, robust:bool = True, norm:bool = True) -> Tuple[ndarray,ndarray]:
+
+def coordinate_pca(tree: _Tree, robust: bool = True, norm: bool = True) -> tuple[ndarray, ndarray]:
     """Perform PCA on tree node coordinates.
 
     Parameters
@@ -156,10 +156,11 @@ def coordinate_pca(tree: _Tree, robust:bool = True, norm:bool = True) -> Tuple[n
         ``(evals, evecs)`` from :func:`eig_decomp`: eigenvalues in descending
         order and corresponding eigenvectors as columns.
     """
-    x,y,z = get_node_coordinates(tree, SoA = True)
-    return eig_decomp(x,y,z, robust = robust, norm = norm)
+    x, y, z = get_node_coordinates(tree, SoA=True)
+    return eig_decomp(x, y, z, robust=robust, norm=norm)
 
-def get_convex_hull(tree:_Tree, bind:bool = False) -> ConvexHull | None:
+
+def get_convex_hull(tree: _Tree, bind: bool = False) -> ConvexHull | None:
     """Build a convex hull around tree node coordinates.
 
     Parameters
@@ -175,14 +176,15 @@ def get_convex_hull(tree:_Tree, bind:bool = False) -> ConvexHull | None:
     ConvexHull | None
         SciPy convex hull when bind=False; None when bind=True.
     """
-    cv = ConvexHull(get_node_coordinates(tree, SoA = False))
+    cv = ConvexHull(get_node_coordinates(tree, SoA=False))
     if bind:
-        tree.set_property('Convex_hull', cv, level  = 'g', dtype = 'object', create = True)
+        tree.set_property("Convex_hull", cv, level="g", dtype="object", create=True)
         return
-    else: 
+    else:
         return cv
 
-def get_convex_hull_volume(tree:_Tree, bind:bool = False) -> float:
+
+def get_convex_hull_volume(tree: _Tree, bind: bool = False) -> float:
     """Return the volume enclosed by the convex hull of tree node coordinates.
 
     Reuses a cached ``Convex_hull`` graph property when present.
@@ -200,13 +202,12 @@ def get_convex_hull_volume(tree:_Tree, bind:bool = False) -> float:
     float
         Convex hull volume in cubic tree units.
     """
-    if tree.has_property('Convex_hull', level = 'g'):
-        return tree.graph.gp['Convex_hull'].volume
+    if tree.has_property("Convex_hull", level="g"):
+        return tree.graph.gp["Convex_hull"].volume
 
     if bind:
-        get_convex_hull(tree, bind = True)
-        return tree.graph.gp['Convex_hull'].volume
+        get_convex_hull(tree, bind=True)
+        return tree.graph.gp["Convex_hull"].volume
     else:
-        cv = get_convex_hull(tree, bind = False)
+        cv = get_convex_hull(tree, bind=False)
         return cv.volume
-    

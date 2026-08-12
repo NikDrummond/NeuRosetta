@@ -1,20 +1,26 @@
 """Least-squares geometric shape fitting using vedo."""
 
 from numpy import ndarray
-from typing import Tuple
-
 from vedo import (
-    fit_sphere as _fit_sphere,
-    fit_line as _fit_line,
-    fit_plane as _fit_plane,
-    fit_circle as _fit_circle,
-    Sphere,
     Line,
     Plane,
+    Sphere,
+)
+from vedo import (
+    fit_circle as _fit_circle,
+)
+from vedo import (
+    fit_line as _fit_line,
+)
+from vedo import (
+    fit_plane as _fit_plane,
+)
+from vedo import (
+    fit_sphere as _fit_sphere,
 )
 
 
-def fit_sphere(points: ndarray, return_obj: bool = False) -> Sphere | Tuple:
+def fit_sphere(points: ndarray, return_obj: bool = False) -> Sphere | tuple:
     """Fit a sphere to a set of 3D points.
 
     Parameters
@@ -37,7 +43,7 @@ def fit_sphere(points: ndarray, return_obj: bool = False) -> Sphere | Tuple:
     return sphere.center, sphere.radius
 
 
-def fit_line(points: ndarray, return_obj: bool = False) -> Line | Tuple:
+def fit_line(points: ndarray, return_obj: bool = False) -> Line | tuple:
     """Fit a 3D line to a set of points.
 
     Parameters
@@ -60,7 +66,7 @@ def fit_line(points: ndarray, return_obj: bool = False) -> Line | Tuple:
     return line.slope, line.center, line.variances
 
 
-def fit_plane(points: ndarray, return_obj: bool = False) -> Plane | Tuple:
+def fit_plane(points: ndarray, return_obj: bool = False) -> Plane | tuple:
     """Fit a plane to a set of 3D points.
 
     Parameters
@@ -83,7 +89,7 @@ def fit_plane(points: ndarray, return_obj: bool = False) -> Plane | Tuple:
     return plane.normal, plane.center, plane.variances
 
 
-def fit_circle(points: ndarray) -> Tuple:
+def fit_circle(points: ndarray) -> tuple:
     """Fit a circle to a set of 3D points.
 
     Parameters

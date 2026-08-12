@@ -1,15 +1,20 @@
-from numpy import empty, float64
 from numba import njit
+from numpy import empty, float64
 
 from ._validation import _check_scalar
 
 _JIT = dict(nogil=True, fastmath=True, cache=True, inline="always")
 
+
 # Scalar ops
 @njit(**_JIT)
 def translate_scalar(
-    x, y, z,
-    dx, dy, dz,
+    x,
+    y,
+    z,
+    dx,
+    dy,
+    dz,
 ):
     return (
         x + dx,
@@ -17,10 +22,15 @@ def translate_scalar(
         z + dz,
     )
 
+
 @njit(**_JIT)
 def recenter_scalar(
-    x, y, z,
-    cx, cy, cz,
+    x,
+    y,
+    z,
+    cx,
+    cy,
+    cz,
 ):
     return (
         x - cx,
@@ -28,11 +38,18 @@ def recenter_scalar(
         z - cz,
     )
 
+
 @njit(**_JIT)
 def scale_about_scalar(
-    x, y, z,
-    sx, sy, sz,
-    cx, cy, cz,
+    x,
+    y,
+    z,
+    sx,
+    sy,
+    sz,
+    cx,
+    cy,
+    cz,
 ):
     return (
         cx + sx * (x - cx),
@@ -40,11 +57,16 @@ def scale_about_scalar(
         cz + sz * (z - cz),
     )
 
+
 # array ops
 @njit(**_JIT)
 def translate_xyz(
-    x, y, z,
-    dx, dy, dz,
+    x,
+    y,
+    z,
+    dx,
+    dy,
+    dz,
 ):
     n = x.size
 
@@ -54,16 +76,25 @@ def translate_xyz(
 
     for i in range(n):
         xo[i], yo[i], zo[i] = translate_scalar(
-            x[i], y[i], z[i],
-            dx, dy, dz,
+            x[i],
+            y[i],
+            z[i],
+            dx,
+            dy,
+            dz,
         )
 
     return xo, yo, zo
 
+
 @njit(**_JIT)
 def recenter_xyz(
-    x, y, z,
-    cx, cy, cz,
+    x,
+    y,
+    z,
+    cx,
+    cy,
+    cz,
 ):
     n = x.size
 
@@ -73,17 +104,28 @@ def recenter_xyz(
 
     for i in range(n):
         xo[i], yo[i], zo[i] = recenter_scalar(
-            x[i], y[i], z[i],
-            cx, cy, cz,
+            x[i],
+            y[i],
+            z[i],
+            cx,
+            cy,
+            cz,
         )
 
     return xo, yo, zo
 
+
 @njit(**_JIT)
 def scale_about_xyz(
-    x, y, z,
-    sx, sy, sz,
-    cx, cy, cz,
+    x,
+    y,
+    z,
+    sx,
+    sy,
+    sz,
+    cx,
+    cy,
+    cz,
 ):
     n = x.size
 
@@ -93,9 +135,15 @@ def scale_about_xyz(
 
     for i in range(n):
         xo[i], yo[i], zo[i] = scale_about_scalar(
-            x[i], y[i], z[i],
-            sx, sy, sz,
-            cx, cy, cz,
+            x[i],
+            y[i],
+            z[i],
+            sx,
+            sy,
+            sz,
+            cx,
+            cy,
+            cz,
         )
 
     return xo, yo, zo
@@ -103,7 +151,9 @@ def scale_about_xyz(
 
 @njit(**_JIT)
 def center_at_centroid_xyz(
-    x, y, z,
+    x,
+    y,
+    z,
 ):
     n = x.size
 
@@ -123,11 +173,16 @@ def center_at_centroid_xyz(
     cz *= inv_n
 
     xo, yo, zo = recenter_xyz(
-        x, y, z,
-        cx, cy, cz,
+        x,
+        y,
+        z,
+        cx,
+        cy,
+        cz,
     )
 
     return xo, yo, zo, cx, cy, cz
+
 
 def translate(x, y, z, dx, dy, dz):
     """
@@ -148,13 +203,21 @@ def translate(x, y, z, dx, dy, dz):
 
     if _check_scalar(x, y, z):
         return translate_scalar(
-            x, y, z,
-            dx, dy, dz,
+            x,
+            y,
+            z,
+            dx,
+            dy,
+            dz,
         )
 
     return translate_xyz(
-        x, y, z,
-        dx, dy, dz,
+        x,
+        y,
+        z,
+        dx,
+        dy,
+        dz,
     )
 
 
@@ -180,20 +243,34 @@ def recenter(x, y, z, cx, cy, cz):
 
     if _check_scalar(x, y, z):
         return recenter_scalar(
-            x, y, z,
-            cx, cy, cz,
+            x,
+            y,
+            z,
+            cx,
+            cy,
+            cz,
         )
 
     return recenter_xyz(
-        x, y, z,
-        cx, cy, cz,
+        x,
+        y,
+        z,
+        cx,
+        cy,
+        cz,
     )
 
 
 def scale_about(
-    x, y, z,
-    sx, sy, sz,
-    cx, cy, cz,
+    x,
+    y,
+    z,
+    sx,
+    sy,
+    sz,
+    cx,
+    cy,
+    cz,
 ):
     """
     Scale a 3D vector or array of 3D vectors about a specified point.
@@ -225,15 +302,27 @@ def scale_about(
 
     if _check_scalar(x, y, z):
         return scale_about_scalar(
-            x, y, z,
-            sx, sy, sz,
-            cx, cy, cz,
+            x,
+            y,
+            z,
+            sx,
+            sy,
+            sz,
+            cx,
+            cy,
+            cz,
         )
 
     return scale_about_xyz(
-        x, y, z,
-        sx, sy, sz,
-        cx, cy, cz,
+        x,
+        y,
+        z,
+        sx,
+        sy,
+        sz,
+        cx,
+        cy,
+        cz,
     )
 
 
@@ -271,5 +360,7 @@ def center_at_centroid(x, y, z):
     """
 
     return center_at_centroid_xyz(
-        x, y, z,
+        x,
+        y,
+        z,
     )

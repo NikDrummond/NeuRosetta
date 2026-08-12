@@ -1,6 +1,6 @@
 """Base mesh class."""
 
-from typing import Hashable
+from collections.abc import Hashable
 
 from vedo import Mesh
 

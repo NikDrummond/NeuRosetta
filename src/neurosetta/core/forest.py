@@ -1,14 +1,14 @@
 """Container class for multiple trees"""
 
-from typing import Iterable, Iterator, Callable, TypeVar, Any, Hashable
-from collections.abc import Sequence
-from concurrent.futures import ThreadPoolExecutor
 import inspect
+import warnings
+from collections.abc import Callable, Hashable, Iterable, Iterator, Sequence
+from concurrent.futures import ThreadPoolExecutor
 from functools import lru_cache
 from itertools import chain
-import warnings
-from numpy import concatenate, ndarray, stack
+from typing import Any, TypeVar
 
+from numpy import concatenate, ndarray, stack
 from tqdm import tqdm
 
 T = TypeVar("T")
@@ -33,9 +33,7 @@ def _is_fixed_size_vector(x, sizes: tuple[int, ...] = (2, 3)) -> bool:
     except ImportError:
         pass
 
-    if isinstance(x, tuple):
-        seq = x
-    elif isinstance(x, list):
+    if isinstance(x, (tuple, list)):
         seq = x
     else:
         return False
@@ -108,9 +106,8 @@ def _accepts_bind(fn: Callable) -> bool:
         # some built-ins don't support inspect.signature
         return False
 
-def _normalize_single_coord(
-    arr: Any, sizes: tuple[int, ...] = (2, 3)
-) -> ndarray | None:
+
+def _normalize_single_coord(arr: Any, sizes: tuple[int, ...] = (2, 3)) -> ndarray | None:
     """Return a 1D coordinate vector, or None if not a single-point result."""
     if not isinstance(arr, ndarray):
         return None
@@ -151,13 +148,13 @@ def _merge_results(results: list[Any], axis: int | None = None) -> Any:
             if axis in (1, -1):
                 return stacked.T
             raise ValueError(
-                "Single coordinate vectors can only be merged along "
-                f"axis 0, 1, or -1; got {axis}."
+                f"Single coordinate vectors can only be merged along axis 0, 1, or -1; got {axis}."
             )
 
         return concatenate(items, axis=axis)
 
     raise TypeError(f"Don't know how to merge {type(first)!r}")
+
 
 class _Forest(Sequence):
     """Ordered, mutable container of Tree (or other Stone) objects."""

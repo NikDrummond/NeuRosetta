@@ -4,13 +4,13 @@ from numpy import ndarray
 
 from ...core import _Tree
 from ...utils.graph_utils import (
-    root_index,
-    leaf_indices,
+    bifurcation_indices,
     branch_indices,
     core_indices,
     edge_indices,
+    leaf_indices,
+    root_index,
     subtree_indices,
-    bifurcation_indices,
 )
 
 
@@ -130,9 +130,8 @@ def get_edge_indices(
     """
     return edge_indices(tree.graph, root, traversal_order)
 
-def get_bifurcation_indices(
-        tree: _Tree, include_root:bool = False
-) -> ndarray:
+
+def get_bifurcation_indices(tree: _Tree, include_root: bool = False) -> ndarray:
     """Get node indices of bifurcation branch points.
 
     Parameters

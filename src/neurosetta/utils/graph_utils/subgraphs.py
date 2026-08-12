@@ -1,22 +1,23 @@
 """Functions for handling subgraphs and computing subgraph metrics."""
+
 from __future__ import annotations
 
-from numpy import (
-    zeros,
-    where,
-    nan,
-    nan_to_num,
-    argmax,
-    ndarray,
-)
 from itertools import combinations
 
 from graph_tool.all import Graph
 from graph_tool.topology import topological_sort
+from numpy import (
+    argmax,
+    nan,
+    nan_to_num,
+    ndarray,
+    where,
+    zeros,
+)
 
 from .gt_properties import (
-    raise_internal_property_missing,
     g_has_property,
+    raise_internal_property_missing,
     revert_core_properties,
 )
 
@@ -149,9 +150,7 @@ def extract_subgraph(g: Graph, revert_properties: bool = True) -> Graph:
     return g
 
 
-def partition_asymmetry(
-    g: Graph, weighted: bool = False, bind: bool = True
-) -> None | ndarray:
+def partition_asymmetry(g: Graph, weighted: bool = False, bind: bool = True) -> None | ndarray:
     """Compute partition asymmetry at each branching node in a directed tree graph.
 
     For a binary branching node with downstream leaf counts r and s (one per child
@@ -242,7 +241,7 @@ def partition_asymmetry(
             r, s = child_leaves[i], child_leaves[j]
             denom = r + s - 1.0
             if denom <= 0:
-                # degenerate case: both subtrees have a single shared leaf - this should be impossible
+                # Degenerate case: shared leaf subtrees (should be impossible).
                 pair_scores.append(0.0)
             else:
                 pair_scores.append(abs(r - s) / denom)

@@ -1,39 +1,37 @@
 """Functions for 3D geometric analysis of tree graphs."""
 
-from typing import Tuple
-from numpy import ndarray, isin
-
-from .counting import count_edges
-from .coordinates import get_edge_coordinates, get_root_coordinate
+from numpy import isin, ndarray
 
 from ...core import _Tree
 from ...utils.geometry_utils import (
-    normalize,
     align_with,
-    planar_angle,
-    signed_angle,
+    angle,
     angular_mean,
     angular_var,
-    cross,
-    angle,
     bisector,
+    cross,
+    normalize,
+    planar_angle,
+    signed_angle,
 )
 from ...utils.graph_utils import (
-    set_property,
+    bifurcation_indices,
     g_has_property,
     get_property,
-    bifurcation_indices,
+    set_property,
 )
+from .coordinates import get_edge_coordinates, get_root_coordinate
+from .counting import count_edges
 
-UnitVector = Tuple[ndarray, ndarray, ndarray]
-BifurcationUnitVectors = Tuple[UnitVector, UnitVector, UnitVector]
+UnitVector = tuple[ndarray, ndarray, ndarray]
+BifurcationUnitVectors = tuple[UnitVector, UnitVector, UnitVector]
 
 
 def get_edge_angles(
     tree: _Tree,
-    between_vector: Tuple | ndarray,
-    perspective_vector: None | Tuple | ndarray = None,
-    alignment_vector: None | Tuple | ndarray = None,
+    between_vector: tuple | ndarray,
+    perspective_vector: None | tuple | ndarray = None,
+    alignment_vector: None | tuple | ndarray = None,
     degrees: bool = False,
     signed: bool = True,
     bind: bool = False,
@@ -85,7 +83,7 @@ def get_edge_angles(
     if perspective_vector is None:
         perspective_vector = cross(xv, yv, zv, *between_vector)
 
-    # If alignment vector is given make sure perspective normal is aligned globaly (conserves sign, not always needed)
+    # Align perspective normal globally when an alignment vector is given.
     if alignment_vector is not None:
         normal = align_with(*perspective_vector, *alignment_vector)
     else:
@@ -98,22 +96,17 @@ def get_edge_angles(
         edge_angles = planar_angle(xv, yv, zv, *between_vector, *normal, degrees)
 
     if bind:
-        if g_has_property(tree.graph, "Edge_angle", "e"):
-            c = False
-        else:
-            c = True
-        set_property(
-            tree.graph, "Edge_angle", edge_angles, "e", dtype="double", create=c
-        )
+        c = not g_has_property(tree.graph, "Edge_angle", "e")
+        set_property(tree.graph, "Edge_angle", edge_angles, "e", dtype="double", create=c)
         return
     return edge_angles
 
 
 def get_mean_edge_angle(
     tree: _Tree,
-    between_vector: Tuple | ndarray,
-    perspective_vector: None | Tuple | ndarray,
-    alignment_vector: None | Tuple | ndarray = None,
+    between_vector: tuple | ndarray,
+    perspective_vector: None | tuple | ndarray,
+    alignment_vector: None | tuple | ndarray = None,
     degrees: bool = False,
     signed: bool = True,
     weights: None | ndarray = None,
@@ -152,9 +145,11 @@ def get_mean_edge_angle(
         True).
     """
     if weights is not None:
-        assert count_edges(tree) == len(
-            weights
-        ), f"If weights are given, len(weights) must be the same as number of edges ({count_edges(tree)}), not {len(weights)}"
+        n_edges = count_edges(tree)
+        assert n_edges == len(weights), (
+            "If weights are given, len(weights) must match the number of edges "
+            f"({n_edges}), not {len(weights)}"
+        )
 
     if g_has_property(tree.graph, "Edge_angle", "e"):
         edge_angles = get_property(tree.graph, "Edge_angle", "e")
@@ -168,9 +163,9 @@ def get_mean_edge_angle(
 
 def get_edge_angle_variance(
     tree: _Tree,
-    between_vector: Tuple | ndarray,
-    perspective_vector: None | Tuple | ndarray = None,
-    alignment_vector: None | Tuple | ndarray = None,
+    between_vector: tuple | ndarray,
+    perspective_vector: None | tuple | ndarray = None,
+    alignment_vector: None | tuple | ndarray = None,
     degrees: bool = False,
     signed: bool = True,
     weights: None | ndarray = None,
@@ -210,9 +205,11 @@ def get_edge_angle_variance(
         *degrees* is True).
     """
     if weights is not None:
-        assert count_edges(tree) == len(
-            weights
-        ), f"If weights are given, len(weights) must be the same as number of edges ({count_edges(tree)}), not {len(weights)}"
+        n_edges = count_edges(tree)
+        assert n_edges == len(weights), (
+            "If weights are given, len(weights) must match the number of edges "
+            f"({n_edges}), not {len(weights)}"
+        )
 
     if g_has_property(tree.graph, "Edge_angle", "e"):
         edge_angles = get_property(tree.graph, "Edge_angle", "e")
@@ -226,7 +223,7 @@ def get_edge_angle_variance(
 
 def get_radial_angle(
     tree: _Tree,
-    alignment_vector: None | Tuple | ndarray = None,
+    alignment_vector: None | tuple | ndarray = None,
     degrees: bool = False,
     signed: bool = True,
     bind: bool = True,
@@ -280,9 +277,8 @@ def get_radial_angle(
     crosses = cross(*center_vecs, *section_ends)
 
     if signed:
-
         if alignment_vector is None:
-            raise ValueError(f"alignment_vector must be given if signed is True")
+            raise ValueError("alignment_vector must be given if signed is True")
 
         normals = normalize(*align_with(*crosses, *alignment_vector))
         a = signed_angle(*section_ends, *center_vecs, *normals, degrees=degrees)
@@ -313,7 +309,7 @@ def _get_bifurcation_unit_vectors(tree: _Tree) -> BifurcationUnitVectors:
 
     Returns
     -------
-    tuple[tuple[ndarray, ndarray, ndarray], tuple[ndarray, ndarray, ndarray], tuple[ndarray, ndarray, ndarray]]
+    tuple[tuple[ndarray, ndarray, ndarray], ...]
         ``(bc1, bc2, sb)`` where each element is an ``(x, y, z)`` component
         tuple of per-bifurcation unit vectors.
     """
@@ -361,9 +357,7 @@ def _get_bifurcation_unit_vectors(tree: _Tree) -> BifurcationUnitVectors:
     return normalize(*v_bc1), normalize(*v_bc2), normalize(*v_sb)
 
 
-def get_bifurcation_angles(
-    tree: _Tree, degrees: bool = False
-) -> tuple[ndarray, ndarray, ndarray]:
+def get_bifurcation_angles(tree: _Tree, degrees: bool = False) -> tuple[ndarray, ndarray, ndarray]:
     """Compute planar angles at each bifurcation node.
 
     For each bifurcation, returns the parent-to-first-child angle
@@ -396,9 +390,7 @@ def get_bifurcation_angles(
     return pc1_angles, pc2_angles, c_angles
 
 
-def get_bifurcation_angle_sums(
-    tree: _Tree, degrees: bool = False
-) -> ndarray:
+def get_bifurcation_angle_sums(tree: _Tree, degrees: bool = False) -> ndarray:
     """Compute the sum of parent-child and inter-child angles at bifurcations.
 
     Equivalent to ``pc1 + pc2 + c`` from :func:`get_bifurcation_angles`.
@@ -420,9 +412,7 @@ def get_bifurcation_angle_sums(
 
 
 # dehedral beta
-def get_bifurcation_deihedral_beta(
-    tree: _Tree, degrees: bool = False
-) -> ndarray:
+def get_bifurcation_deihedral_beta(tree: _Tree, degrees: bool = False) -> ndarray:
     """Compute the dihedral beta angle at each bifurcation.
 
     Measures the planar angle between the parent branch vector and the

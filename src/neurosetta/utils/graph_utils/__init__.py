@@ -1,72 +1,60 @@
 """Low-level graph utility helpers."""
 
+from .coordinates import (
+    edge_coordinates,
+    edge_coordinates_subtree,
+    vertex_coordinates,
+    vertex_coordinates_subtree,
+)
+from .counting import (
+    count_bifurcations,
+    count_branches,
+    count_edges,
+    count_leaves,
+    count_roots,
+    count_sections,
+    count_transitive_vertices,
+    count_vertices,
+)
+from .degrees import degree_distribution, get_vertex_degrees
+from .graph_editing import reduce_graph, reroot_graph
 from .gt_properties import (
-    g_has_property,
-    raise_internal_property_missing,
-    bind_vertex_property,
     bind_edge_property,
     bind_graph_property,
-    revert_core_properties,
-    list_properties,
-    get_property,
-    set_property,
+    bind_vertex_property,
     del_property,
+    g_has_property,
+    get_property,
+    list_properties,
+    raise_internal_property_missing,
+    revert_core_properties,
+    set_property,
 )
-
-from .traversals import(
-    bfsearch,
-    bf_iterator,
-    dfsearch,
-    df_iterator,
-    TreeDepthVisitor,
+from .subgraphs import (
+    extract_subgraph,
+    max_subgraph_ind,
+    partition_asymmetry,
+    subgraph_score,
+)
+from .traversals import (
+    AngleVisitor,
     PostOrderVisitor,
     ReduceVisitor,
     SubtreeMaskVisitor,
-    AngleVisitor
+    TreeDepthVisitor,
+    bf_iterator,
+    bfsearch,
+    df_iterator,
+    dfsearch,
 )
-
 from .vertex_inds import (
-    root_index,
-    leaf_indices,
+    bifurcation_indices,
     branch_indices,
     core_indices,
     edge_indices,
+    leaf_indices,
+    root_index,
     subtree_indices,
-    bifurcation_indices,
-)
-from .counting import (
-    count_roots,
-    count_vertices,
-    count_edges,
-    count_leaves,
-    count_branches,
-    count_transitive_vertices,
-    count_sections,
-    count_bifurcations,
-)
-
-from .coordinates import (
-    vertex_coordinates,
-    vertex_coordinates_subtree,
-    edge_coordinates,
-    edge_coordinates_subtree
-)
-
-from .graph_editing import (
-    reduce_graph,
-    reroot_graph
-)
-
-from .subgraphs import(
-    subgraph_score,
-    max_subgraph_ind,
-    extract_subgraph,
-    partition_asymmetry,
-)
-
-from .degrees import (
-    get_vertex_degrees,
-    degree_distribution
 )
 
 __all__ = [

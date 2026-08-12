@@ -4,107 +4,106 @@ This module provides the Tree class which wraps the core _Tree class and
 exposes a comprehensive API for neuron tree operations including traversal,
 analysis, visualization, and I/O.
 """
+
 from __future__ import annotations
 
 from graph_tool.all import Graph
 
 from ..core import _Tree
-from ..ops.tree_graphs import (
-    get_root_index,
-    get_leaf_indices,
-    get_branch_indices,
-    get_core_indices,
-    get_subtree_indices,
-    get_edge_indices,
-    get_bifurcation_indices,
-    count_roots,
-    count_nodes,
-    count_edges,
-    count_leaves,
-    count_branches,
-    count_transitive_nodes,
-    count_sections,
-    count_bifurcations,
-    breadth_first_search,
-    breadth_first_iterator,
-    depth_first_search,
-    depth_first_iterator,
-    get_node_depth,
-    get_post_order,
-    get_section_angular_deviation,
-    get_node_coordinates,
-    get_root_coordinate,
-    get_subtree_node_coordinates,
-    get_edge_coordinates,
-    get_subtree_edge_coordinates,
-    coordinate_pca,
-    get_convex_hull,
-    get_convex_hull_volume,
-    coordinate_mean_along_axis,
-    coordinate_variance_along_axis,
-    coordinate_std_along_axis,
-    coordinate_minmax_along_axis,
-    coordinate_extent_along_axis,
-    coordinate_rms_along_axis,
-    coordinate_mean_absolute_along_axis,
-    coordinate_projection_moments,
-    check_reduced,
-    update_reduced,
-    get_edge_length,
-    get_total_cable_length,
-    get_degrees,
-    get_degree_distribution,
-    reduce_tree,
-    reroot_tree,
-    mask_subtree_from_root,
-    get_subtree_scores,
-    get_max_subtree_node,
-    get_subtree,
-    get_partition_asymmetry,
-    align_coordinates,
-    translate_coordinates,
-    center_coordinates_at_centroid,
-    center_coordinates_at_root,
-    recenter_coordinates,
-    rotate_coordinates,
-    rotate_coordinates_about,
-    scale_coordinates,
-    scale_coordinates_about,
-    align_coordinates_to_vector,
-    scale_coordinates_along_pca,
-    apply_rotation_steps_to_coordinates,
-    get_edge_angles,
-    get_mean_edge_angle,
-    get_edge_angle_variance,
-    get_radial_angle,
-    get_bifurcation_angles,
-    get_bifurcation_angle_sums,
-    get_bifurcation_deihedral_beta,
-    fit_circle,
-    fit_line,
-    fit_plane,
-    fit_sphere,
+from ..io import (
+    export_swc,
+    save,
 )
-
 from ..ops.plotting import (
     plot_2d,
     plot_3d,
     plot_dendrogram,
 )
-
+from ..ops.tree_graphs import (
+    align_coordinates,
+    align_coordinates_to_vector,
+    apply_rotation_steps_to_coordinates,
+    breadth_first_iterator,
+    breadth_first_search,
+    center_coordinates_at_centroid,
+    center_coordinates_at_root,
+    check_reduced,
+    coordinate_extent_along_axis,
+    coordinate_mean_absolute_along_axis,
+    coordinate_mean_along_axis,
+    coordinate_minmax_along_axis,
+    coordinate_pca,
+    coordinate_projection_moments,
+    coordinate_rms_along_axis,
+    coordinate_std_along_axis,
+    coordinate_variance_along_axis,
+    count_bifurcations,
+    count_branches,
+    count_edges,
+    count_leaves,
+    count_nodes,
+    count_roots,
+    count_sections,
+    count_transitive_nodes,
+    depth_first_iterator,
+    depth_first_search,
+    fit_circle,
+    fit_line,
+    fit_plane,
+    fit_sphere,
+    get_bifurcation_angle_sums,
+    get_bifurcation_angles,
+    get_bifurcation_deihedral_beta,
+    get_bifurcation_indices,
+    get_branch_indices,
+    get_convex_hull,
+    get_convex_hull_volume,
+    get_core_indices,
+    get_degree_distribution,
+    get_degrees,
+    get_edge_angle_variance,
+    get_edge_angles,
+    get_edge_coordinates,
+    get_edge_indices,
+    get_edge_length,
+    get_leaf_indices,
+    get_max_subtree_node,
+    get_mean_edge_angle,
+    get_node_coordinates,
+    get_node_depth,
+    get_partition_asymmetry,
+    get_post_order,
+    get_radial_angle,
+    get_root_coordinate,
+    get_root_index,
+    get_section_angular_deviation,
+    get_subtree,
+    get_subtree_edge_coordinates,
+    get_subtree_indices,
+    get_subtree_node_coordinates,
+    get_subtree_scores,
+    get_total_cable_length,
+    mask_subtree_from_root,
+    recenter_coordinates,
+    reduce_tree,
+    reroot_tree,
+    rotate_coordinates,
+    rotate_coordinates_about,
+    scale_coordinates,
+    scale_coordinates_about,
+    scale_coordinates_along_pca,
+    translate_coordinates,
+    update_reduced,
+)
 from ..ops.units import (
+    check_units_defined,
+    convert_units,
     get_units,
+    get_voxel_spec,
     set_units,
     set_voxel_units,
-    convert_units,
-    check_units_defined,
-    get_voxel_spec,
 )
 
-from ..io import (
-    export_swc,
-    save,
-)
 
 class Tree(_Tree):
     """Main class for single neuron tree operations.
@@ -182,7 +181,7 @@ class Tree(_Tree):
 
     count_bifurcations = count_bifurcations
     """Count the number of bifurcating nodes"""
-    
+
     # --- coordinates ---
     get_node_coordinates = get_node_coordinates
     """Get coordinates of all nodes."""
@@ -251,7 +250,7 @@ class Tree(_Tree):
     """Get the angle of edges relative to another vector and a perspective"""
 
     get_mean_edge_angle = get_mean_edge_angle
-    """Get the mean angle of edges in Neuron between edges and between vector, from perspective_vector"""
+    """Get mean angle of edges relative to between_vector from perspective_vector."""
 
     get_edge_angle_variance = get_edge_angle_variance
     """Get angular vaiance of edges fom between vector fom perspecitve vector."""
@@ -260,7 +259,7 @@ class Tree(_Tree):
     """Get radial angle of edges from root node"""
 
     get_bifurcation_angles = get_bifurcation_angles
-    """Get angles between edges at bifucation points (parent to child 1, parent to child 2 and child1 to child 2)"""
+    """Get bifurcation angles (parent-child and child-child) at branch points."""
 
     get_bifurcation_angle_sums = get_bifurcation_angle_sums
     """ Get sum of edge angles at bifurcation points"""

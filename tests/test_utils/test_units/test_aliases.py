@@ -1,6 +1,10 @@
 """Tests for documented unit aliases."""
 
-from neurosetta.utils.units.aliases import alias_lookup, format_units_reference_table, list_unit_definitions
+from neurosetta.utils.units.aliases import (
+    alias_lookup,
+    format_units_reference_table,
+    list_unit_definitions,
+)
 
 
 def test_alias_lookup_maps_nm_to_nanometer():

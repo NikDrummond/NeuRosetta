@@ -1,4 +1,3 @@
-
 from numba import njit
 from numpy import empty, float64, ndarray
 
@@ -115,6 +114,7 @@ def scale_along_basis_xyz(
         )
 
     return xo, yo, zo
+
 
 def scale_along_basis(
     x: ndarray,

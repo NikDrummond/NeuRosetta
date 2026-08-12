@@ -1,6 +1,5 @@
 """Build vedo line primitives for visualising subtrees."""
 
-from typing import Tuple
 from numpy import array
 from vedo import Lines
 
@@ -15,7 +14,7 @@ def build_3d_subtree(
     lw1: float = 2,
     lw2: float = 2,
     **kwargs,
-) -> Tuple[Lines, Lines]:
+) -> tuple[Lines, Lines]:
     """Build vedo Lines objects for a subtree and its complement.
 
     Parameters
@@ -43,10 +42,7 @@ def build_3d_subtree(
     AttributeError
         If the tree does not have bound subtree masks for vertices and edges.
     """
-    if has_property(tree, "v_subtree_mask", "v") & has_property(
-        tree, "e_subtree_mask", "e"
-    ):
-
+    if has_property(tree, "v_subtree_mask", "v") & has_property(tree, "e_subtree_mask", "e"):
         # get coordinates, edges, and masks
         coords = tree.get_node_coordinates()
         edges = tree.get_edge_indices()
@@ -68,6 +64,4 @@ def build_3d_subtree(
         return lns_in, lns_out
 
     # if we don't have the needed properties raise
-    raise AttributeError(
-        "Neuron must have bound subtree masks for vertices and edges"
-    )
+    raise AttributeError("Neuron must have bound subtree masks for vertices and edges")

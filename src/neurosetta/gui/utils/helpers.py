@@ -1,8 +1,10 @@
 """Helper functions for neuron data manipulation and visualization."""
 
+from typing import Any
+
 import numpy as np
 import vedo as vd
-from typing import Tuple, Any
+
 from ..config import FILE_CONSTANTS
 
 
@@ -23,7 +25,7 @@ def n_pnt_coords(neuron: Any) -> np.ndarray:
     return neuron.get_node_coordinates()[neuron.get_core_indices()]
 
 
-def make_pnts(coords: np.ndarray, mask: np.ndarray) -> Tuple[vd.Points, vd.Points]:
+def make_pnts(coords: np.ndarray, mask: np.ndarray) -> tuple[vd.Points, vd.Points]:
     """Create vedo Points objects for selected and unselected points.
 
     Parameters

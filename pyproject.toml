@@ -63,7 +63,7 @@ packages = ["src/neurosetta"]
 target-version = "py311"
 line-length = 100
 lint.select = ["E", "F", "I", "UP", "B", "SIM"]
-lint.ignore = ["E203", "W503"]
+lint.ignore = ["E203"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["neurosetta"]

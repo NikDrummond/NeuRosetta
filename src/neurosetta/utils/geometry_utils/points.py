@@ -2,10 +2,10 @@
 # point.py
 
 from numba import njit
-from numpy import sqrt, empty, float64, bool_
 from numpy import abs as _abs
+from numpy import bool_, empty, float64, sqrt
 
-from ._validation import _check_vector_broadcast, _check_scalar, _broadcast_vectors
+from ._validation import _broadcast_vectors, _check_scalar, _check_vector_broadcast
 from .algebra import dot_scalar
 
 _JIT = dict(nogil=True, fastmath=True, cache=True, inline="always")
@@ -51,7 +51,6 @@ def euclidean_distance_xyz(
     out = empty(n, dtype=float64)
 
     for i in range(n):
-
         out[i] = euclidean_distance_scalar(
             x1[i],
             y1[i],
@@ -87,7 +86,6 @@ def argapex_xyz(
     best_value = x[0] * ax + y[0] * ay + z[0] * az
 
     for i in range(1, n):
-
         value = x[i] * ax + y[i] * ay + z[i] * az
 
         if value > best_value:
@@ -138,7 +136,6 @@ def apex_and_opposite_xyz(
     vmin = vmax
 
     for i in range(1, n):
-
         v = x[i] * ax + y[i] * ay + z[i] * az
 
         if v > vmax:
@@ -173,7 +170,6 @@ def nearest_xyz(
     best_dist = dx * dx + dy * dy + dz * dz
 
     for i in range(1, n):
-
         dx = x[i] - px
         dy = y[i] - py
         dz = z[i] - pz
@@ -208,7 +204,6 @@ def farthest_xyz(
     best_dist = dx * dx + dy * dy + dz * dz
 
     for i in range(1, n):
-
         dx = x[i] - px
         dy = y[i] - py
         dz = z[i] - pz
@@ -241,7 +236,6 @@ def within_radius_xyz(
     r2 = (radius + atol) ** 2
 
     for i in range(n):
-
         dx = x[i] - px
         dy = y[i] - py
         dz = z[i] - pz
@@ -265,7 +259,6 @@ def average_xyz(
     sz = 0.0
 
     for i in range(n):
-
         sx += x[i]
         sy += y[i]
         sz += z[i]
@@ -295,7 +288,6 @@ def weighted_average_xyz(
     sw = 0.0
 
     for i in range(n):
-
         w = weights[i]
 
         sx += w * x[i]
@@ -313,13 +305,18 @@ def weighted_average_xyz(
         sw,
     )
 
+
 ### point moments
 
 
 @njit(**_JIT)
 def mean_along_axis_xyz(
-    x, y, z,
-    ax, ay, az,
+    x,
+    y,
+    z,
+    ax,
+    ay,
+    az,
 ):
     """
     Mean projection along a (normalized) axis.
@@ -331,8 +328,12 @@ def mean_along_axis_xyz(
 
     for i in range(n):
         s += dot_scalar(
-            x[i], y[i], z[i],
-            ax, ay, az,
+            x[i],
+            y[i],
+            z[i],
+            ax,
+            ay,
+            az,
         )
 
     return s / n
@@ -340,8 +341,12 @@ def mean_along_axis_xyz(
 
 @njit(**_JIT)
 def variance_along_axis_xyz(
-    x, y, z,
-    ax, ay, az,
+    x,
+    y,
+    z,
+    ax,
+    ay,
+    az,
 ):
     """
     Population variance of projections along a (normalized) axis.
@@ -350,18 +355,25 @@ def variance_along_axis_xyz(
     n = x.size
 
     mean = mean_along_axis_xyz(
-        x, y, z,
-        ax, ay, az,
+        x,
+        y,
+        z,
+        ax,
+        ay,
+        az,
     )
 
     var = 0.0
 
     for i in range(n):
-
         d = (
             dot_scalar(
-                x[i], y[i], z[i],
-                ax, ay, az,
+                x[i],
+                y[i],
+                z[i],
+                ax,
+                ay,
+                az,
             )
             - mean
         )
@@ -373,8 +385,12 @@ def variance_along_axis_xyz(
 
 @njit(**_JIT)
 def std_along_axis_xyz(
-    x, y, z,
-    ax, ay, az,
+    x,
+    y,
+    z,
+    ax,
+    ay,
+    az,
 ):
     """
     Standard deviation along a (normalized) axis.
@@ -382,16 +398,24 @@ def std_along_axis_xyz(
 
     return sqrt(
         variance_along_axis_xyz(
-            x, y, z,
-            ax, ay, az,
+            x,
+            y,
+            z,
+            ax,
+            ay,
+            az,
         )
     )
 
 
 @njit(**_JIT)
 def minmax_along_axis_xyz(
-    x, y, z,
-    ax, ay, az,
+    x,
+    y,
+    z,
+    ax,
+    ay,
+    az,
 ):
     """
     Minimum and maximum projections.
@@ -400,18 +424,25 @@ def minmax_along_axis_xyz(
     n = x.size
 
     p = dot_scalar(
-        x[0], y[0], z[0],
-        ax, ay, az,
+        x[0],
+        y[0],
+        z[0],
+        ax,
+        ay,
+        az,
     )
 
     pmin = p
     pmax = p
 
     for i in range(1, n):
-
         p = dot_scalar(
-            x[i], y[i], z[i],
-            ax, ay, az,
+            x[i],
+            y[i],
+            z[i],
+            ax,
+            ay,
+            az,
         )
 
         if p < pmin:
@@ -424,16 +455,24 @@ def minmax_along_axis_xyz(
 
 @njit(**_JIT)
 def extent_along_axis_xyz(
-    x, y, z,
-    ax, ay, az,
+    x,
+    y,
+    z,
+    ax,
+    ay,
+    az,
 ):
     """
     Extent along a (normalized) axis.
     """
 
     pmin, pmax = minmax_along_axis_xyz(
-        x, y, z,
-        ax, ay, az,
+        x,
+        y,
+        z,
+        ax,
+        ay,
+        az,
     )
 
     return pmax - pmin
@@ -441,8 +480,12 @@ def extent_along_axis_xyz(
 
 @njit(**_JIT)
 def rms_along_axis_xyz(
-    x, y, z,
-    ax, ay, az,
+    x,
+    y,
+    z,
+    ax,
+    ay,
+    az,
 ):
     """
     Root-mean-square projection along an axis.
@@ -453,10 +496,13 @@ def rms_along_axis_xyz(
     s = 0.0
 
     for i in range(n):
-
         p = dot_scalar(
-            x[i], y[i], z[i],
-            ax, ay, az,
+            x[i],
+            y[i],
+            z[i],
+            ax,
+            ay,
+            az,
         )
 
         s += p * p
@@ -466,8 +512,12 @@ def rms_along_axis_xyz(
 
 @njit(**_JIT)
 def mean_absolute_along_axis_xyz(
-    x, y, z,
-    ax, ay, az,
+    x,
+    y,
+    z,
+    ax,
+    ay,
+    az,
 ):
     """
     Mean absolute projection along an axis.
@@ -478,10 +528,13 @@ def mean_absolute_along_axis_xyz(
     s = 0.0
 
     for i in range(n):
-
         p = dot_scalar(
-            x[i], y[i], z[i],
-            ax, ay, az,
+            x[i],
+            y[i],
+            z[i],
+            ax,
+            ay,
+            az,
         )
 
         s += _abs(p)
@@ -491,8 +544,12 @@ def mean_absolute_along_axis_xyz(
 
 @njit(**_JIT)
 def projection_moments_xyz(
-    x, y, z,
-    ax, ay, az,
+    x,
+    y,
+    z,
+    ax,
+    ay,
+    az,
 ):
     """
     Return mean, variance, standard deviation,
@@ -500,13 +557,21 @@ def projection_moments_xyz(
     """
 
     pmin, pmax = minmax_along_axis_xyz(
-        x, y, z,
-        ax, ay, az,
+        x,
+        y,
+        z,
+        ax,
+        ay,
+        az,
     )
 
     mean = mean_along_axis_xyz(
-        x, y, z,
-        ax, ay, az,
+        x,
+        y,
+        z,
+        ax,
+        ay,
+        az,
     )
 
     n = x.size
@@ -514,11 +579,14 @@ def projection_moments_xyz(
     var = 0.0
 
     for i in range(n):
-
         d = (
             dot_scalar(
-                x[i], y[i], z[i],
-                ax, ay, az,
+                x[i],
+                y[i],
+                z[i],
+                ax,
+                ay,
+                az,
             )
             - mean
         )

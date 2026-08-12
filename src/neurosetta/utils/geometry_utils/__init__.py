@@ -1,70 +1,69 @@
-from .basis import basis
-from .algebra import (
-    normalize,
-    magnitude,
-    dot,
-    cross,
-    scalar_projection,
-    project,
-    reject,
-    perpendicular,
-    scale_factor,
-)
-from .projections import (
-    bisector,
-    reflect_plane,
-    mirror_axis,
-)
-from .angles import (
-    angle,
-    planar_angle,
-    signed_angle,
-    align_with,
-    angular_mean,
-    angular_var,
-)
-from .rotations import (
-    rotate,
-    rotate_about,
-    minimum_rotation_to_align,
-    compute_alignment_rotation,
-    apply_rotation_steps,
-)
-from .transforms import (
-    translate,
-    recenter,
-    scale_about,
-    center_at_centroid,
-)
-from .tolerance import almost_zero, almost_unit_length, almost_collinear, almost_equal
-from .points import (
-    euclidean_distance,
-    argapex,
-    apex,
-    apex_and_opposite,
-    nearest,
-    farthest,
-    within_radius,
-    average,
-    mean_along_axis,
-    variance_along_axis,
-    std_along_axis,
-    minmax_along_axis,
-    extent_along_axis,
-    rms_along_axis,
-    mean_absolute_along_axis,
-    projection_moments,
-)
-from .pca import eig_decomp
 from ._validation import (
+    check,
     check_value,
     check_value_any,
-    check,
     columnize,
     raise_dimension_error,
 )
-
+from .algebra import (
+    cross,
+    dot,
+    magnitude,
+    normalize,
+    perpendicular,
+    project,
+    reject,
+    scalar_projection,
+    scale_factor,
+)
+from .angles import (
+    align_with,
+    angle,
+    angular_mean,
+    angular_var,
+    planar_angle,
+    signed_angle,
+)
+from .basis import basis
+from .pca import eig_decomp
+from .points import (
+    apex,
+    apex_and_opposite,
+    argapex,
+    average,
+    euclidean_distance,
+    extent_along_axis,
+    farthest,
+    mean_absolute_along_axis,
+    mean_along_axis,
+    minmax_along_axis,
+    nearest,
+    projection_moments,
+    rms_along_axis,
+    std_along_axis,
+    variance_along_axis,
+    within_radius,
+)
+from .projections import (
+    bisector,
+    mirror_axis,
+    reflect_plane,
+)
+from .rotations import (
+    apply_rotation_steps,
+    compute_alignment_rotation,
+    minimum_rotation_to_align,
+    rotate,
+    rotate_about,
+)
 from .scaling import scale_along_basis
+from .tolerance import almost_collinear, almost_equal, almost_unit_length, almost_zero
+from .transforms import (
+    center_at_centroid,
+    recenter,
+    scale_about,
+    translate,
+)
 
 __all__ = [
     "basis",

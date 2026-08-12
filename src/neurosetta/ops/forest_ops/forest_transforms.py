@@ -1,26 +1,24 @@
 """Functions for global coordinate transformation of forests."""
 
-from typing import Tuple
-from numpy import array, ndarray, asarray
-
+from numpy import array, asarray, ndarray
 from scipy.spatial import ConvexHull
 
 from ...core import _Forest
-from ...utils.graph_utils.gt_properties import _set_coords_prop
 from ...utils.geometry_utils.pca import eig_decomp
 from ...utils.geometry_utils.rotations import (
-    compute_alignment_rotation,
     apply_rotation_steps,
-    rotate,
+    compute_alignment_rotation,
     minimum_rotation_to_align,
+    rotate,
 )
 from ...utils.geometry_utils.scaling import scale_along_basis
 from ...utils.geometry_utils.transforms import (
-    translate,
+    center_at_centroid,
     recenter,
     scale_about,
-    center_at_centroid,
+    translate,
 )
+from ...utils.graph_utils.gt_properties import _set_coords_prop
 from ..tree_graphs.coordinates import get_root_coordinate
 from ..tree_graphs.tree_transformations import (
     CenterMode,
@@ -31,9 +29,7 @@ from ..tree_graphs.tree_transformations import (
 from .utils import _split_array_vertex, _split_inds
 
 
-def _set_global_coords(
-    forest: _Forest, x: ndarray, y: ndarray, z: ndarray
-) -> None:
+def _set_global_coords(forest: _Forest, x: ndarray, y: ndarray, z: ndarray) -> None:
     """Write pooled coordinate arrays back to individual forest tree graphs.
 
     Parameters
@@ -60,11 +56,9 @@ def _set_global_coords(
 
 def _get_pooled_coordinates(
     forest: _Forest,
-) -> Tuple[ndarray, ndarray, ndarray]:
+) -> tuple[ndarray, ndarray, ndarray]:
     """Return pooled node coordinates as separate x, y, and z arrays."""
-    coords = forest.get_node_coordinates(
-        SoA=False, merge_axis=0, show_progress=False
-    )
+    coords = forest.get_node_coordinates(SoA=False, merge_axis=0, show_progress=False)
     return coords[:, 0], coords[:, 1], coords[:, 2]
 
 
@@ -106,19 +100,14 @@ def _resolve_forest_transform_center(
     z: ndarray,
     center: tuple | ndarray | None,
     center_mode: CenterMode,
-) -> Tuple[float, float, float]:
+) -> tuple[float, float, float]:
     """Resolve the centre point used by global forest transforms."""
     if center is not None:
         cx, cy, cz = center
         return float(cx), float(cy), float(cz)
 
     if center_mode == "root":
-        roots = array(
-            [
-                get_root_coordinate(tree, SoA=False).ravel()
-                for tree in forest
-            ]
-        )
+        roots = array([get_root_coordinate(tree, SoA=False).ravel() for tree in forest])
         cx, cy, cz = roots.mean(axis=0)
         return float(cx), float(cy), float(cz)
 
@@ -128,9 +117,7 @@ def _resolve_forest_transform_center(
 
 def _validate_center_mode(center_mode: CenterMode) -> None:
     if center_mode not in ("centroid", "root"):
-        raise ValueError(
-            f"center_mode must be 'centroid' or 'root', not {center_mode!r}"
-        )
+        raise ValueError(f"center_mode must be 'centroid' or 'root', not {center_mode!r}")
 
 
 def align_forest(
@@ -415,9 +402,7 @@ def rotate_forest_about(
     _validate_center_mode(center_mode)
 
     x, y, z = _get_pooled_coordinates(forest)
-    cx, cy, cz = _resolve_forest_transform_center(
-        forest, x, y, z, center, center_mode
-    )
+    cx, cy, cz = _resolve_forest_transform_center(forest, x, y, z, center, center_mode)
     ax, ay, az = axis
     x, y, z = recenter(x, y, z, cx, cy, cz)
     x, y, z = rotate(x, y, z, ax, ay, az, angle, assume_normalized)
@@ -477,9 +462,7 @@ def scale_forest(
     _validate_center_mode(center_mode)
 
     x, y, z = _get_pooled_coordinates(forest)
-    cx, cy, cz = _resolve_forest_transform_center(
-        forest, x, y, z, center, center_mode
-    )
+    cx, cy, cz = _resolve_forest_transform_center(forest, x, y, z, center, center_mode)
     x, y, z = scale_about(x, y, z, factor, factor, factor, cx, cy, cz)
     out = _return_forest_coordinates(forest, x, y, z, bind, unpack)
     if bind and scale_radii:
@@ -547,9 +530,7 @@ def scale_forest_about(
     sx, sy, sz = _resolve_scale_factors(scale)
 
     x, y, z = _get_pooled_coordinates(forest)
-    cx, cy, cz = _resolve_forest_transform_center(
-        forest, x, y, z, center, center_mode
-    )
+    cx, cy, cz = _resolve_forest_transform_center(forest, x, y, z, center, center_mode)
     x, y, z = scale_about(x, y, z, sx, sy, sz, cx, cy, cz)
     out = _return_forest_coordinates(forest, x, y, z, bind, unpack)
     if bind and scale_radii:
@@ -621,9 +602,7 @@ def align_forest_to_vector(
     else:
         v1 = asarray(source, dtype=float).ravel()
         if v1.shape != (3,):
-            raise ValueError(
-                f"source must be 'pc1' or a three-component vector, not {source!r}"
-            )
+            raise ValueError(f"source must be 'pc1' or a three-component vector, not {source!r}")
 
     tx, ty, tz = target
     axis, angle = minimum_rotation_to_align(*v1, tx, ty, tz)
@@ -756,7 +735,7 @@ def apply_rotation_steps_to_forest(
     return _return_forest_coordinates(forest, x, y, z, bind, unpack)
 
 
-def forest_pca(forest: _Forest, robust: bool = False, norm: bool = True) -> Tuple[ndarray, ndarray]:
+def forest_pca(forest: _Forest, robust: bool = False, norm: bool = True) -> tuple[ndarray, ndarray]:
     """Perform PCA on pooled node coordinates across a forest.
 
     Parameters
@@ -774,9 +753,7 @@ def forest_pca(forest: _Forest, robust: bool = False, norm: bool = True) -> Tupl
         ``(evals, evecs)`` from :func:`eig_decomp`: eigenvalues in descending
         order and corresponding eigenvectors as columns.
     """
-    x, y, z = forest.get_node_coordinates(
-        SoA=True, merge_axis=1, show_progress=False
-    )
+    x, y, z = forest.get_node_coordinates(SoA=True, merge_axis=1, show_progress=False)
     return eig_decomp(x, y, z, robust=robust, norm=norm)
 
 
@@ -793,11 +770,7 @@ def get_forest_convex_hull(forest: _Forest) -> ConvexHull:
     ConvexHull
         SciPy convex hull of all node coordinates.
     """
-    return ConvexHull(
-        forest.get_node_coordinates(
-            SoA=False, merge_axis=0, show_progress=False
-        )
-    )
+    return ConvexHull(forest.get_node_coordinates(SoA=False, merge_axis=0, show_progress=False))
 
 
 def get_forest_convex_hull_volume(forest: _Forest) -> float:

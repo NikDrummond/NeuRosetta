@@ -1,12 +1,12 @@
-from numpy import sqrt, nan, empty, float64
 from numba import njit
+from numpy import empty, float64, nan, sqrt
 
 from ._validation import _broadcast_vectors, _check_scalar, _check_vector_broadcast
 
 _JIT = dict(nogil=True, fastmath=True, cache=True, inline="always")
 
 ###
-# NUMBA - bit extra to have individual kernels for everything, but stops writing of intermediate arrays, so probably a touch faster
+# NUMBA kernels avoid intermediate arrays and are usually a bit faster.
 ###
 
 
@@ -87,7 +87,6 @@ def perpendicular_scalar(x1, y1, z1, x2, y2, z2, normalized=True):
     cz = x1 * y2 - y1 * x2
 
     if normalized:
-
         mag = sqrt(cx * cx + cy * cy + cz * cz)
 
         if mag > 0.0:
@@ -133,7 +132,6 @@ def normalize_xyz(x, y, z):
     zn = empty(n, dtype=float64)
 
     for i in range(n):
-
         mag = sqrt(x[i] * x[i] + y[i] * y[i] + z[i] * z[i])
 
         if mag > 0.0:
@@ -158,7 +156,6 @@ def dot_xyz(x1, y1, z1, x2, y2, z2):
     out = empty(n, dtype=float64)
 
     for i in range(n):
-
         out[i] = x1[i] * x2[i] + y1[i] * y2[i] + z1[i] * z2[i]
 
     return out
@@ -174,7 +171,6 @@ def cross_xyz(x1, y1, z1, x2, y2, z2):
     cz = empty(n, dtype=float64)
 
     for i in range(n):
-
         cx[i] = y1[i] * z2[i] - z1[i] * y2[i]
         cy[i] = z1[i] * x2[i] - x1[i] * z2[i]
         cz[i] = x1[i] * y2[i] - y1[i] * x2[i]
@@ -193,7 +189,6 @@ def scalar_projection_xyz(vx, vy, vz, ax, ay, az):
     out = empty(n, dtype=float64)
 
     for i in range(n):
-
         mag = sqrt(ax[i] * ax[i] + ay[i] * ay[i] + az[i] * az[i])
 
         if mag == 0.0:
@@ -216,17 +211,14 @@ def project_xyz(vx, vy, vz, ax, ay, az):
     pz = empty(n)
 
     for i in range(n):
-
         mag = sqrt(ax[i] * ax[i] + ay[i] * ay[i] + az[i] * az[i])
 
         if mag == 0.0:
-
             px[i] = 0.0
             py[i] = 0.0
             pz[i] = 0.0
 
         else:
-
             inv = 1.0 / mag
 
             scale = vx[i] * ax[i] * inv + vy[i] * ay[i] * inv + vz[i] * az[i] * inv
@@ -257,14 +249,12 @@ def perpendicular_xyz(x1, y1, z1, x2, y2, z2, normalized=True):
     pz = empty(n, dtype=float64)
 
     for i in range(n):
-
         # Cross product
         cx = y1[i] * z2[i] - z1[i] * y2[i]
         cy = z1[i] * x2[i] - x1[i] * z2[i]
         cz = x1[i] * y2[i] - y1[i] * x2[i]
 
         if normalized:
-
             mag = sqrt(cx * cx + cy * cy + cz * cz)
 
             if mag > 0.0:
@@ -288,7 +278,6 @@ def scale_factor_xyz(x1, y1, z1, x2, y2, z2):
     out = empty(n)
 
     for i in range(n):
-
         denom = x1[i] * x1[i] + y1[i] * y1[i] + z1[i] * z1[i]
 
         if denom == 0.0:
@@ -302,6 +291,7 @@ def scale_factor_xyz(x1, y1, z1, x2, y2, z2):
 ###
 # Numpy
 ###
+
 
 def magnitude(x, y, z):
     """

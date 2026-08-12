@@ -2,4 +2,4 @@
 
 from .application import NeuroGUIApplication
 
-__all__ = ['NeuroGUIApplication']
+__all__ = ["NeuroGUIApplication"]

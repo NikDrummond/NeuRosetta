@@ -1,8 +1,9 @@
 """Graph functions to get indices of vertices."""
+
 from __future__ import annotations
 
-from numpy import where, ndarray, unique, concatenate
 from graph_tool.all import Graph
+from numpy import concatenate, ndarray, unique, where
 
 from .traversals import bf_iterator, df_iterator
 
@@ -87,9 +88,7 @@ def core_indices(g: Graph, include_root: bool = True) -> ndarray:
     return inds
 
 
-def edge_indices(
-    g: Graph, root: int | None = None, traversal_order: str = "Breadth"
-) -> ndarray:
+def edge_indices(g: Graph, root: int | None = None, traversal_order: str = "Breadth") -> ndarray:
     """Return edge index array.
 
     Parameters
@@ -122,15 +121,11 @@ def edge_indices(
         elif traversal_order == "Depth":
             edges = df_iterator(g, root, array=True)
         else:
-            raise ValueError(
-                f"traversal_order must be Breadth or Depth, not {traversal_order}"
-            )
+            raise ValueError(f"traversal_order must be Breadth or Depth, not {traversal_order}")
     return edges
 
 
-def subtree_indices(
-    g: Graph, root: int, traversal_order: str = "Breadth"
-) -> ndarray:
+def subtree_indices(g: Graph, root: int, traversal_order: str = "Breadth") -> ndarray:
     """Return vertex indices of subtree rooted at specified vertex.
 
     Parameters
@@ -158,6 +153,7 @@ def subtree_indices(
         return unique(df_iterator(g, root, array=True))
     raise ValueError(f"traversal_order must be Breadth or Depth, not {traversal_order}")
 
+
 def bifurcation_indices(g: Graph, include_root: bool = False) -> ndarray:
     """Return indices of bifurcation in tree graph.
 
@@ -174,5 +170,5 @@ def bifurcation_indices(g: Graph, include_root: bool = False) -> ndarray:
         Array of bifurcation vertex indices
     """
     if include_root:
-        return where((g.degree_property_map('out').a == 2))[0]
-    return where((g.degree_property_map('out').a == 2) & (g.degree_property_map('in').a != 0))[0]
+        return where(g.degree_property_map("out").a == 2)[0]
+    return where((g.degree_property_map("out").a == 2) & (g.degree_property_map("in").a != 0))[0]

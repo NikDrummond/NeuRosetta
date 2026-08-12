@@ -1,7 +1,8 @@
 """Tests for Stone / Tree core identity, gp truth, and slots."""
 
 import pytest
-from neurosetta.api import Tree, Forest
+
+from neurosetta.api import Forest, Tree
 from neurosetta.core import _Stone
 from neurosetta.ops.tree_graphs import update_reduced
 

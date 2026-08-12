@@ -1,9 +1,9 @@
 """Dendrogram plotting for neuron trees."""
 
-from matplotlib.collections import LineCollection
-from numpy import stack, vstack, arange
-from matplotlib.pyplot import Axes, subplots
 from graph_tool import VertexPropertyMap
+from matplotlib.collections import LineCollection
+from matplotlib.pyplot import Axes, subplots
+from numpy import arange, stack, vstack
 
 from ...core import _Tree
 from ...utils.graph_utils import PostOrderVisitor
@@ -115,9 +115,7 @@ def plot_dendrogram(
     elif root_position == "top":
         axes.yaxis.set_inverted(True)
     else:
-        raise ValueError(
-            f"root_position must be 'top' or 'bottom', got {root_position}"
-        )
+        raise ValueError(f"root_position must be 'top' or 'bottom', got {root_position}")
 
     lc = LineCollection(segments, color="gray", linewidth=1, alpha=1)
 

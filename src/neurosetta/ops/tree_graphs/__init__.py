@@ -1,90 +1,87 @@
 """Tree graph operations."""
 
-from .vertex_inds import (
-    get_root_index,
-    get_leaf_indices,
-    get_branch_indices,
-    get_core_indices,
-    get_subtree_indices,
-    get_edge_indices,
-    get_bifurcation_indices,
+from .coordinate_moments import (
+    coordinate_extent_along_axis,
+    coordinate_mean_absolute_along_axis,
+    coordinate_mean_along_axis,
+    coordinate_minmax_along_axis,
+    coordinate_projection_moments,
+    coordinate_rms_along_axis,
+    coordinate_std_along_axis,
+    coordinate_variance_along_axis,
 )
-
-from .counting import (
-    count_roots,
-    count_nodes,
-    count_edges,
-    count_leaves,
-    count_branches,
-    count_transitive_nodes,
-    count_sections,
-    count_bifurcations,
-)
-
-from .traversals import (
-    breadth_first_search,
-    breadth_first_iterator,
-    depth_first_search,
-    depth_first_iterator,
-    get_node_depth,
-    get_post_order,
-    get_section_angular_deviation,
-)
-
 from .coordinates import (
-    get_node_coordinates,
-    get_root_coordinate,
-    get_subtree_node_coordinates,
-    get_edge_coordinates,
-    get_subtree_edge_coordinates,
     coordinate_pca,
     get_convex_hull,
     get_convex_hull_volume,
+    get_edge_coordinates,
+    get_node_coordinates,
+    get_root_coordinate,
+    get_subtree_edge_coordinates,
+    get_subtree_node_coordinates,
 )
-
-from .coordinate_moments import (
-    coordinate_mean_along_axis,
-    coordinate_variance_along_axis,
-    coordinate_std_along_axis,
-    coordinate_minmax_along_axis,
-    coordinate_extent_along_axis,
-    coordinate_rms_along_axis,
-    coordinate_mean_absolute_along_axis,
-    coordinate_projection_moments,
+from .counting import (
+    count_bifurcations,
+    count_branches,
+    count_edges,
+    count_leaves,
+    count_nodes,
+    count_roots,
+    count_sections,
+    count_transitive_nodes,
 )
-
-from .tree_checks import (
-    check_reduced,
-    update_reduced,
-    has_property,
+from .degrees import (
+    get_degree_distribution,
+    get_degrees,
 )
-
 from .path_lengths import (
     get_edge_length,
     get_total_cable_length,
 )
-
-from .degrees import (
-    get_degrees,
-    get_degree_distribution,
+from .shape_fitting import (
+    fit_circle,
+    fit_line,
+    fit_plane,
+    fit_sphere,
 )
-
+from .subtrees import (
+    get_max_subtree_node,
+    get_partition_asymmetry,
+    get_subtree,
+    get_subtree_scores,
+    mask_subtree_from_root,
+)
+from .traversals import (
+    breadth_first_iterator,
+    breadth_first_search,
+    depth_first_iterator,
+    depth_first_search,
+    get_node_depth,
+    get_post_order,
+    get_section_angular_deviation,
+)
+from .tree_checks import (
+    check_reduced,
+    has_property,
+    update_reduced,
+)
 from .tree_editing import (
     reduce_tree,
     reroot_tree,
 )
-
-from .subtrees import(
-    mask_subtree_from_root,
-    get_subtree_scores,
-    get_max_subtree_node,
-    get_subtree,
-    get_partition_asymmetry,
+from .tree_geometry import (
+    get_bifurcation_angle_sums,
+    get_bifurcation_angles,
+    get_bifurcation_deihedral_beta,
+    get_edge_angle_variance,
+    get_edge_angles,
+    get_mean_edge_angle,
+    get_radial_angle,
 )
-
 from .tree_transformations import (
     align_coordinates,
-    translate_coordinates,
+    align_coordinates_to_vector,
+    apply_rotation_steps_to_coordinates,
     center_coordinates_at_centroid,
     center_coordinates_at_root,
     recenter_coordinates,
@@ -92,26 +89,17 @@ from .tree_transformations import (
     rotate_coordinates_about,
     scale_coordinates,
     scale_coordinates_about,
-    align_coordinates_to_vector,
     scale_coordinates_along_pca,
-    apply_rotation_steps_to_coordinates,
+    translate_coordinates,
 )
-
-from .tree_geometry import (
-    get_edge_angles,
-    get_mean_edge_angle,
-    get_edge_angle_variance,
-    get_radial_angle,
-    get_bifurcation_angles,
-    get_bifurcation_angle_sums,
-    get_bifurcation_deihedral_beta,
-)
-
-from .shape_fitting import (
-    fit_sphere,
-    fit_line,
-    fit_plane,
-    fit_circle,
+from .vertex_inds import (
+    get_bifurcation_indices,
+    get_branch_indices,
+    get_core_indices,
+    get_edge_indices,
+    get_leaf_indices,
+    get_root_index,
+    get_subtree_indices,
 )
 
 __all__ = [

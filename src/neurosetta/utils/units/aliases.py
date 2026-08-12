@@ -29,7 +29,7 @@ UNIT_DEFINITIONS: tuple[UnitDefinition, ...] = (
     ),
     UnitDefinition(
         canonical="micron",
-        aliases=("micron", "micrometer", "Micron","Micrometer","Microns","um", "µm", "microns"),
+        aliases=("micron", "micrometer", "Micron", "Micrometer", "Microns", "um", "µm", "microns"),
         notes="Default harmonization target for forests.",
     ),
     UnitDefinition(

@@ -1,6 +1,7 @@
 # tests/test_errors.py
 import pytest
 from graph_tool.all import Graph
+
 from neurosetta.utils.graph_utils.gt_properties import (
     _InternalPropertyMissingError,
     raise_internal_property_missing,

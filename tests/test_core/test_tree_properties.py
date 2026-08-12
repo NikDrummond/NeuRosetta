@@ -2,7 +2,7 @@
 
 import pytest
 from graph_tool.all import Graph
-from numpy import array, allclose, arange, stack
+from numpy import allclose, arange, array, stack
 
 from neurosetta.api import Tree
 
@@ -127,9 +127,7 @@ def test_create_vector_property(simple_tree):
     n = tree.graph.num_vertices()
     data = array([[i, i + 1] for i in range(n)], dtype=float)
 
-    tree.set_property(
-        "extra_vec", data, "v", dtype="vector<double>", create=True
-    )
+    tree.set_property("extra_vec", data, "v", dtype="vector<double>", create=True)
     got = tree.get_property("extra_vec")
     assert got.shape == (n, 2)
     assert allclose(got, data)

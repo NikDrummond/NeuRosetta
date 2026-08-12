@@ -19,11 +19,11 @@ Neuropils : class
     Container for multiple Neuropil objects.
 """
 
-from .tree_class import Tree
 from .forest_class import Forest
-from .tree_mesh_class import Tree_mesh
-from .neuropil_class import Neuropil
 from .forest_mesh_class import Forest_mesh
+from .neuropil_class import Neuropil
 from .neuropils_class import Neuropils
+from .tree_class import Tree
+from .tree_mesh_class import Tree_mesh
 
 __all__ = ["Tree", "Forest", "Tree_mesh", "Neuropil", "Forest_mesh", "Neuropils"]

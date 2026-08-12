@@ -1,8 +1,10 @@
 """Logging utilities for the Neurosetta GUI application."""
 
 import logging
-from PySide6.QtWidgets import QTextEdit
+
 from PySide6.QtCore import QTimer
+from PySide6.QtWidgets import QTextEdit
+
 from ..config import LOGGING_CONFIG
 
 
@@ -22,8 +24,7 @@ class QTextEditLogger(logging.Handler):
 
         # Set up formatter
         formatter = logging.Formatter(
-            LOGGING_CONFIG["FORMAT"],
-            datefmt=LOGGING_CONFIG["DATE_FORMAT"]
+            LOGGING_CONFIG["FORMAT"], datefmt=LOGGING_CONFIG["DATE_FORMAT"]
         )
         self.setFormatter(formatter)
 
@@ -68,8 +69,7 @@ def setup_logging(text_edit: QTextEdit = None) -> None:
     # Add console handler for development
     console_handler = logging.StreamHandler()
     console_formatter = logging.Formatter(
-        LOGGING_CONFIG["FORMAT"],
-        datefmt=LOGGING_CONFIG["DATE_FORMAT"]
+        LOGGING_CONFIG["FORMAT"], datefmt=LOGGING_CONFIG["DATE_FORMAT"]
     )
     console_handler.setFormatter(console_formatter)
     logger.addHandler(console_handler)

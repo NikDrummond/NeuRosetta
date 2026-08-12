@@ -1,9 +1,9 @@
+import numba  # noqa: F401 — required by geometry_utils JIT kernels
 import pytest
 from graph_tool.all import Graph
-from neurosetta.core import _Tree
 from numpy import array, ones_like
 
-import numba  # noqa: F401 — required by geometry_utils JIT kernels
+from neurosetta.core import _Tree
 
 
 @pytest.fixture
@@ -34,36 +34,40 @@ def simple_tree() -> Graph:
         ]
     )
     # node coordinates
-    coords = array([[0,0,0],
-            [0,1,0],
-            [1,0,0],
-            [1,1,0],
-            [2,0,0],
-            [1,-2,0],
-            [2,1,0],
-            [3,1,0],
-            [3,2,0],
-            [5,1,0],
-            [4,2,0],
-            [5,0,0],
-            [3.5,0,0],
-            [5,-1,0],
-            [7,0,0],
-            [2,-2,0],
-            [5,-2,0]])
-    n_types = array([-1,0,5,6,0,0,0,5,0,0,6,5,6,6,6,0,6])
+    coords = array(
+        [
+            [0, 0, 0],
+            [0, 1, 0],
+            [1, 0, 0],
+            [1, 1, 0],
+            [2, 0, 0],
+            [1, -2, 0],
+            [2, 1, 0],
+            [3, 1, 0],
+            [3, 2, 0],
+            [5, 1, 0],
+            [4, 2, 0],
+            [5, 0, 0],
+            [3.5, 0, 0],
+            [5, -1, 0],
+            [7, 0, 0],
+            [2, -2, 0],
+            [5, -2, 0],
+        ]
+    )
+    n_types = array([-1, 0, 5, 6, 0, 0, 0, 5, 0, 0, 6, 5, 6, 6, 6, 0, 6])
     radius = ones_like(n_types)
 
     # generate graph
     g = Graph(edges, directed=True, hashed=True)
-    
+
     # add basic properties
     g.vp["x"] = g.new_vp("double", coords[:, 0])
     g.vp["y"] = g.new_vp("double", coords[:, 1])
     g.vp["z"] = g.new_vp("double", coords[:, 2])
     g.vp["radius"] = g.new_vp("double", radius)
     g.vp["node_type"] = g.new_vp("int", n_types)
-    
+
     return g
 
 

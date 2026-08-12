@@ -1,9 +1,10 @@
 from pathlib import Path
 from typing import overload
+
 from graph_tool.all import load_graph
 
-from ..core import _Tree, _Forest
-from .io_utils import _map_with_progress, _bind_core, _foreach_with_progress, _apply_import_units
+from ..core import _Forest, _Tree
+from .io_utils import _apply_import_units, _bind_core, _foreach_with_progress, _map_with_progress
 
 
 @overload
@@ -18,6 +19,7 @@ def load(
     max_workers: int | None = None,
     show_progress: bool = False,
 ) -> _Tree: ...
+
 
 @overload
 def load(
@@ -44,7 +46,6 @@ def load(
     max_workers: int | None = None,
     show_progress: bool = False,
 ):
-
     """
     Load one or more trees from disk.
 
@@ -91,7 +92,7 @@ def load(
     FileNotFoundError
         If ``fpath`` does not exist, if no `.nr` files are found in a directory,
         or if the requested ``tree_id`` file does not exist.
-    
+
     Notes
     -----
     Each loaded graph has its source file path recorded in
@@ -112,7 +113,7 @@ def load(
         tree = load("trees/", tree_id=42)
     """
 
-    from ..api import Tree, Forest
+    from ..api import Forest, Tree
 
     p = Path(fpath)
 
@@ -163,6 +164,7 @@ def save(
     fpath: str | Path | None = None,
 ) -> Path: ...
 
+
 @overload
 def save(
     tree: _Forest,
@@ -182,7 +184,6 @@ def save(
     max_workers: int | None = None,
     show_progress: bool = False,
 ):
-
     """
     Save a tree or forest to disk in `.nr` format.
 
@@ -214,7 +215,7 @@ def save(
     Returns
     -------
     None
-        
+
     Raises
     ------
     ValueError
@@ -240,7 +241,6 @@ def save(
 
         save(forest, "output_trees/", parallel=True, progress=True)
     """
-
 
     def _save_one(t, base: Path) -> Path:
         _bind_core(t)
@@ -269,10 +269,7 @@ def save(
         return
 
     # ---- Forest ----
-    if fpath is None:
-        base = Path.cwd()
-    else:
-        base = Path(fpath)
+    base = Path.cwd() if fpath is None else Path(fpath)
 
     if base.suffix:
         raise ValueError("Cannot save a Forest to a single .nr file")
