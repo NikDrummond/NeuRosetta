@@ -117,4 +117,4 @@ def test_parse_docs_sample_header():
         pytest.skip("sample SWC not available")
 
     meta = parse_swc_header(sample)
-    assert units_from_swc_header(meta) == "1 dimensionless"
+    assert units_from_swc_header(meta) == "nanometer"
