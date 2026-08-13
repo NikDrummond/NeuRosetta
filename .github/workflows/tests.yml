@@ -23,6 +23,6 @@ jobs:
         shell: bash -l {0}
         run: python -c "import neurosetta as nr; print(nr.__version__)"
 
-      - name: Run smoke tests
+      - name: Run tests
         shell: bash -l {0}
-        run: pytest -q -o addopts= tests/test_core.py tests/test_errors.py tests/test_tree_graphs/test_counting.py
+        run: pytest -q

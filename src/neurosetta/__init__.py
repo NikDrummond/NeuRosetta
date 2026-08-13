@@ -12,7 +12,16 @@ os.environ["OMP_WAIT_POLICY"] = "passive"
 from .analysis import reconstruct_neuropil_surface
 from .api import Forest, Forest_mesh, Neuropil, Neuropils, Tree, Tree_mesh
 from .gui import start_GUI
-from .io import export_mesh, export_swc, import_mesh, import_swc, load, save
+from .io import (
+    example_data_dir,
+    export_mesh,
+    export_swc,
+    import_mesh,
+    import_swc,
+    load,
+    load_example_data,
+    save,
+)
 from .ops.neuropils import distance_from_neuropil_surface, neuropil_point_depth
 from .ops.plotting import Viewer, build_3d_subtree, plot_2d, plot_3d, plot_dendrogram
 from .ops.tree_graphs import (
@@ -80,6 +89,8 @@ __all__ = [
     "export_mesh",
     "load",
     "save",
+    "example_data_dir",
+    "load_example_data",
     "Viewer",
     "plot_2d",
     "plot_3d",
