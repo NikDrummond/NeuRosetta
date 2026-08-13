@@ -445,3 +445,8 @@ def get_bifurcation_deihedral_beta(tree: _Tree, degrees: bool = False) -> ndarra
 
     # Dihedral beta - angle between parent and bisector from perspective of normal
     return planar_angle(*sb, *cc_bisector, *normal, degrees=degrees)
+
+
+from .._doc_helpers import enrich_tree_graph_docstrings
+
+enrich_tree_graph_docstrings(globals())

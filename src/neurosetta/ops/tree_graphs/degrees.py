@@ -56,3 +56,8 @@ def get_degree_distribution(
         and counts are their frequencies (normalized if mass=True).
     """
     return degree_distribution(tree.graph, deg, mass)
+
+
+from .._doc_helpers import enrich_tree_graph_docstrings
+
+enrich_tree_graph_docstrings(globals())

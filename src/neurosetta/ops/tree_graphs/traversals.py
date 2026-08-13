@@ -313,3 +313,8 @@ def get_section_angular_deviation(
         return vis
 
     return vis.mean_angles, vis.angle_variances
+
+
+from .._doc_helpers import enrich_tree_graph_docstrings
+
+enrich_tree_graph_docstrings(globals())

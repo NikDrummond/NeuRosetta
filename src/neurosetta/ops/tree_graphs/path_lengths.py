@@ -75,3 +75,8 @@ def get_total_cable_length(tree: _Tree) -> float:
         lengths = get_edge_length(tree, bind=False)
 
     return float(lengths.sum())
+
+
+from .._doc_helpers import enrich_tree_graph_docstrings
+
+enrich_tree_graph_docstrings(globals())

@@ -157,3 +157,8 @@ def count_bifurcations(tree: _Tree, include_root: bool = False) -> int:
         Number of bifurcation points within the neuron.
     """
     return _count_bifurcations(tree.graph, include_root=include_root)
+
+
+from .._doc_helpers import enrich_tree_graph_docstrings
+
+enrich_tree_graph_docstrings(globals())

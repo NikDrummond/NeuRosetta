@@ -77,15 +77,16 @@ nr.start_GUI()
 
 - **Tree & Forest APIs**: directed tree graphs for single neurons and batched
   collections (`filter`, `apply`, parallel I/O) with flexible and fast subsetting and parallelisation.
-- **I/O**: SWC and native `.nr` (graph-tool) import/export; mesh I/O via vedo/trimesh
+- **I/O**: SWC and native `.nr` (graph-tool) import/export; mesh I/O via vedo/trimesh.
 - **Graph operations**: counts, traversals, subtree extraction, rerooting,
-  reduction, cable length, partition asymmetry, degree statistics
+  reduction, cable length, partition asymmetry, degree statistics.
 - **Tree Geometry**: Geometric analysis of neuron morphology using a custom (fast!) 3-dimensional geometry numba backend.
-- **Plotting**: 2D/3D matplotlib and vedo views, dendrograms, interactive `Viewer`
-- **Units**: Pint-backed spatial metadata (nm, µm, voxels) with in-place conversion
+- **Plotting**: 2D/3D matplotlib and vedo views, dendrograms, interactive `Viewer`.
+- **Units**: Pint-backed spatial metadata (nm, µm, voxels) with in-place conversion.
 - **Neuropils & meshes**: surface containers, point-to-surface distances,
-  alpha-shape neuropil reconstruction from forest coordinates
-- **GUI**: PySide6 desktop app for inspection, rerooting, and subtree picking
+  alpha-shape neuropil reconstruction from forest coordinates.
+- **GUI**: PySide6 desktop app for inspection, rerooting, and subtree picking.
+- **Extendable** NeuRosetta has (to my mind at least??) been built in a way which allows for easy extendability and adding features. It is worrth reading the `Architecture` section of the documentation though.
 
 ## Contributing
 

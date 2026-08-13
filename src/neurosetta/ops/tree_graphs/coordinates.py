@@ -211,3 +211,8 @@ def get_convex_hull_volume(tree: _Tree, bind: bool = False) -> float:
     else:
         cv = get_convex_hull(tree, bind=False)
         return cv.volume
+
+
+from .._doc_helpers import enrich_tree_graph_docstrings
+
+enrich_tree_graph_docstrings(globals())

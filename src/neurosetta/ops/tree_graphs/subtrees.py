@@ -152,3 +152,8 @@ def get_partition_asymmetry(
         partition_asymmetry(tree.graph, weighted=weighted, bind=bind)
         return
     return partition_asymmetry(tree.graph, weighted=weighted, bind=bind)
+
+
+from .._doc_helpers import enrich_tree_graph_docstrings
+
+enrich_tree_graph_docstrings(globals())

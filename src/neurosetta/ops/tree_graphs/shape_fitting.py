@@ -96,3 +96,8 @@ def fit_circle(tree: _Tree) -> tuple:
         (center, radius, normal_to_circle).
     """
     return _fit_circle(vertex_coordinates(tree.graph))
+
+
+from .._doc_helpers import enrich_tree_graph_docstrings
+
+enrich_tree_graph_docstrings(globals())

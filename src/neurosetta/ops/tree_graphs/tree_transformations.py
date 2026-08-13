@@ -700,3 +700,8 @@ def apply_rotation_steps_to_coordinates(
     x, y, z = _maybe_recenter_at_centroid(x, y, z, recenter)
     x, y, z = apply_rotation_steps(x, y, z, step1, step2)
     return _apply_node_coordinates(tree, x, y, z, bind)
+
+
+from .._doc_helpers import enrich_tree_graph_docstrings
+
+enrich_tree_graph_docstrings(globals())

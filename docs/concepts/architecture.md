@@ -118,8 +118,8 @@ Easy to confuse — they solve different problems:
 
 Thin user-facing classes:
 
-- {class}`~neurosetta.api.Tree` — binds ~all of `ops/tree_graphs` + plotting + units
-- {class}`~neurosetta.api.Forest` — per-tree batch binds + `filter`, `apply`, parallel I/O
+- {class}`~neurosetta.api.Tree` — binds ~all tree ops + plotting + units ({doc}`../api/tree`, {doc}`../api/tree_ops/index`)
+- {class}`~neurosetta.api.Forest` — per-tree batch binds + `filter`, `apply`, parallel I/O ({doc}`../api/forest`)
 - Mesh classes — `Tree_mesh`, `Forest_mesh`, `Neuropil`, `Neuropils`
 
 The binding machinery in `forest_class.py` introspects function signatures so

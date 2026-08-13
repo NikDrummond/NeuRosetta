@@ -56,3 +56,8 @@ def reroot_tree(tree: _Tree, root: int, inplace: bool = False) -> Graph | None:
         tree.graph = g
         return None
     return g
+
+
+from .._doc_helpers import enrich_tree_graph_docstrings
+
+enrich_tree_graph_docstrings(globals())

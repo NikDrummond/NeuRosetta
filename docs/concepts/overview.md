@@ -82,8 +82,8 @@ See {doc}`../reference/units` and the units section in
 
 ## Two ways to call the same thing
 
-Almost every `tree.some_method()` is a thin bind of a function in
-{mod}`neurosetta.ops.tree_graphs`:
+Almost every `tree.some_method()` is a thin bind of a function documented under
+{doc}`../api/tree_ops/index`:
 
 ```python
 import neurosetta as nr

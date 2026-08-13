@@ -234,3 +234,8 @@ def coordinate_projection_moments(
     """
     x, y, z, ax, ay, az = _node_coordinate_arrays(tree, axis, subset)
     return projection_moments(x, y, z, ax, ay, az)
+
+
+from .._doc_helpers import enrich_tree_graph_docstrings
+
+enrich_tree_graph_docstrings(globals())

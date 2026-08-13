@@ -147,3 +147,8 @@ def get_bifurcation_indices(tree: _Tree, include_root: bool = False) -> ndarray:
         Node indices of bifurcation points
     """
     return bifurcation_indices(tree.graph, include_root=include_root)
+
+
+from .._doc_helpers import enrich_tree_graph_docstrings
+
+enrich_tree_graph_docstrings(globals())

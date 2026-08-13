@@ -2,27 +2,30 @@
 
 NeuRosetta's public surface is organised as:
 
-- **API classes** — `Tree`, `Forest`, mesh/neuropil containers
+- **Tree** — single-neuron container and method index
+- **Forest** — multi-tree batch operations
+- **Tree ops** — lower-level functions grouped by operation type
 - **I/O** — SWC, native `.nr`, and mesh files
 - **Plotting** — 2D/3D/dendrogram and `Viewer`
 - **Analysis** — neuropil surface reconstruction
-- **Functional ops** — lower-level functions bound onto `Tree` / `Forest`
+- **Mesh & neuropil classes** — mesh containers
 
 ```{note}
-Many `Tree` methods are bound aliases of functions in
-{mod}`neurosetta.ops.tree_graphs`. The class page lists the method names;
-full parameter documentation lives with the underlying ops functions.
+Most {class}`~neurosetta.api.tree_class.Tree` methods are bound aliases of
+functions in {doc}`tree_ops/index`. The Tree page lists method names; parameter
+documentation lives with the underlying ops.
 ```
 
 ```{toctree}
 :maxdepth: 2
 
 package
-api_classes
+tree
+forest
+tree_ops/index
 io
 plotting
 analysis
-tree_graphs
+api_classes
 neuropils
 gui
-```

@@ -58,3 +58,8 @@ def has_property(tree: _Tree, prop: str, level: str = "all") -> bool:
         If level is not None or one of ['g', 'v', 'e'].
     """
     return g_has_property(tree.graph, prop, level)
+
+
+from .._doc_helpers import enrich_tree_graph_docstrings
+
+enrich_tree_graph_docstrings(globals())
