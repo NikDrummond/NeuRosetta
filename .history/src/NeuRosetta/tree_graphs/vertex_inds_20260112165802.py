@@ -76,11 +76,9 @@ def get_core_inds(tree: _Tree, include_root: bool = True) -> ndarray:
 
     inds = unique(concatenate([l_inds, b_inds]))
 
-
     root = get_root(tree)
 
     if ~include_root:
         inds = inds[inds != get_root(tree)]
 
     return inds
-

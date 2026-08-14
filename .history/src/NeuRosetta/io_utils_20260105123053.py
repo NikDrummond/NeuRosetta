@@ -13,6 +13,7 @@ from typing import List
 
 ### read swc
 
+
 def _table_from_swc(file_path: str) -> DataFrame:
     """
     Node table from swc file, using pandas
@@ -102,9 +103,6 @@ def read_swc(fpath: str, units=None, meta=None) -> Tree_graph:
     df = _table_from_swc(fpath)
     graph = _graph_from_table(df)
     return Tree_graph(ID=ID, units=units, meta=meta, graph=graph)
-
-
-
 
 
 def write_swc(tree: Tree_graph, fpath: str) -> None:

@@ -91,9 +91,7 @@ def get_core_inds(tree: _Tree, include_root: bool = True) -> ndarray:
     return inds
 
 
-def get_edges(
-    tree: _Tree, root: int | None = None, subset: str | None = None
-) -> ndarray:
+def get_edges(tree: _Tree, root: int | None = None, subset: str | None = None) -> ndarray:
     """
     Returns nx2 array of edge indices going parent -> child.
 
@@ -104,7 +102,7 @@ def get_edges(
     root : int | None, optional
         If provided, will return all edges downstream of the given root in a breadth first search ordering, If not provided, we default to the root node of the neuron. By default None
     subset : str | None, optional
-        Can be None (default), 'Internal', or 'External'. Subset is geneated is done after rooting, so 
+        Can be None (default), 'Internal', or 'External'. Subset is geneated is done after rooting, so
         If None, all edges are returned.
         If 'Internal' only internal edges are returned (those with no leaf node as the target)
         if 'External' ony external edges are returned (those terminating in a leaf node)
@@ -137,6 +135,4 @@ def get_edges(
         l_inds = get_leaves(tree)
         return edges[isin(edges[:, 1], l_inds)]
     else:
-        raise ValueError(
-            f"Given Subset {subset} is not valid, expected one of {expected_subsets}"
-        )
+        raise ValueError(f"Given Subset {subset} is not valid, expected one of {expected_subsets}")

@@ -1,4 +1,4 @@
-""" Functions for reading and writing .swc files"""
+"""Functions for reading and writing .swc files"""
 
 ### Imports
 from numpy import int32, float64, unique, where, ndarray, zeros_like, vstack, array, savetxt
@@ -9,26 +9,27 @@ from graph_tool.all import Graph
 import os
 
 
-
 ### swc utils
+
 
 def _check_swc_columns(df, error_type=ValueError):
     """
     Checks if required columns exist in a DataFrame.
-    
+
     Parameters:
         df (pd.DataFrame): The DataFrame to check.
         required_columns (list): List of required column names.
         error_type (Exception): Type of exception to raise (default: ValueError).
-        
+
     Raises:
         error_type: If any required column is missing.
     """
-    required_columns = ['node_id','type','x','y','z','radius','parent_id']
+    required_columns = ["node_id", "type", "x", "y", "z", "radius", "parent_id"]
     missing = [col for col in required_columns if col not in df.columns]
-    
+
     if missing:
         raise error_type(f"Missing required columns: {missing}")
+
 
 def _table_from_swc(file_path: str) -> DataFrame:
     """
@@ -58,6 +59,7 @@ def _table_from_swc(file_path: str) -> DataFrame:
 
     return df
 
+
 def _node_inds(g: Graph, df: DataFrame) -> List[int]:
     """
     Given a graph, with ids as a vp, and a df with the same set of ids, find the order of indicies to order things going from the table to the graph
@@ -71,6 +73,7 @@ def _node_inds(g: Graph, df: DataFrame) -> List[int]:
     inds = [where(nodes == i)[0][0] for i in ids]
 
     return inds
+
 
 def _graph_from_table(df: DataFrame) -> Graph:
     """
@@ -95,7 +98,7 @@ def _graph_from_table(df: DataFrame) -> Graph:
     # initilise vertex properties - radius, coordinates
     vprop_rad = g.new_vp("double")
     vprop_coords = g.new_vp("vector<double>")
-    
+
     # populate them
     vprop_rad.a = df.radius.values[inds]
     vprop_coords.set_2d_array(df[["x", "y", "z"]].values[inds].T)
@@ -105,10 +108,8 @@ def _graph_from_table(df: DataFrame) -> Graph:
     g.vp["coordinates"] = vprop_coords
 
     # add type to nodes (-1:root, 5:branch, 6:leaf, 0:transitory; Note, this add property)
-    
+
     # we only actualy need this when saving, so move?
     # _infer_node_types(g)
-
-
 
     return g

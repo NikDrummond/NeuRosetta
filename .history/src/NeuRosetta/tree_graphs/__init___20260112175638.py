@@ -16,5 +16,4 @@ __all__ = [
     "count_roots",
     "count_vertices",
     "cont_edges",
-
 ]

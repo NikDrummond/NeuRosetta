@@ -1,3 +1,3 @@
 from .tree_class import *
 
-__all__ = ['Tree']
+__all__ = ["Tree"]

@@ -32,10 +32,7 @@ def plot_3d(
     # get the plottable objects
     if not hasattr(tree, "_plot_dict"):
         plot_dict = _build_3d(
-            tree=tree, 
-            line_kwargs=line_kwargs, 
-            root_kwargs=root_kwargs, 
-            cache=False
+            tree=tree, line_kwargs=line_kwargs, root_kwargs=root_kwargs, cache=False
         )
     else:
         plot_dict = tree._plot_dict

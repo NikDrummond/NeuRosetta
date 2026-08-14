@@ -8,8 +8,10 @@ from typing import TYPE_CHECKING
 
 from ..errors.errors import _check_internal_property
 from ..core import _Tree
+
 if TYPE_CHECKING:
     from ..classes import Tree
+
 
 def _bind_core(tree: _Tree):
     """
@@ -18,15 +20,16 @@ def _bind_core(tree: _Tree):
 
     # check if we have bound ID
     try:
-        _check_internal_property(tree.graph, 'ID')
+        _check_internal_property(tree.graph, "ID")
     except:
-        tree.graph.gp['ID'] = tree.graph.new_gp('string', str(tree.ID))
+        tree.graph.gp["ID"] = tree.graph.new_gp("string", str(tree.ID))
 
     # check if we have bound metadata
     try:
-        _check_internal_property(tree.graph, 'metadata')
+        _check_internal_property(tree.graph, "metadata")
     except:
-        tree.graph.gp['metadata'] = tree.graph.new_gp('object', tree.metadata)
+        tree.graph.gp["metadata"] = tree.graph.new_gp("object", tree.metadata)
+
 
 def save(tree: _Tree, fpath: PathLike | None = None) -> Path:
     """

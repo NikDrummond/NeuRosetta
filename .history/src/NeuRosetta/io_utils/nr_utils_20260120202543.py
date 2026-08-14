@@ -6,8 +6,10 @@ from typing import TYPE_CHECKING
 
 from ..errors.errors import _check_internal_property
 from ..core import _Tree
+
 if TYPE_CHECKING:
     from ..classes import Tree
+
 
 def _bind_core(tree: _Tree):
     """
@@ -16,15 +18,16 @@ def _bind_core(tree: _Tree):
 
     # check if we have bound ID
     try:
-        _check_internal_property(tree.graph, 'ID')
+        _check_internal_property(tree.graph, "ID")
     except:
-        tree.graph.gp['ID'] = tree.graph.new_gp('string', str(tree.ID))
+        tree.graph.gp["ID"] = tree.graph.new_gp("string", str(tree.ID))
 
     # check if we have bound metadata
     try:
-        _check_internal_property(tree.graph, 'metadata')
+        _check_internal_property(tree.graph, "metadata")
     except:
-        tree.graph.gp['metadata'] = tree.graph.new_gp('object', tree.metadata)
+        tree.graph.gp["metadata"] = tree.graph.new_gp("object", tree.metadata)
+
 
 def save(tree: _Tree, fpath: str | None):
     """Save tree as .nr file
@@ -51,7 +54,8 @@ def save(tree: _Tree, fpath: str | None):
         sp = fpath + str(tree.ID) + ".nr"
 
     # save
-    tree.graph.save(sp, fmt = "gt")
+    tree.graph.save(sp, fmt="gt")
+
 
 def load(fpath: str) -> "Tree":
     """_summary_
@@ -68,7 +72,6 @@ def load(fpath: str) -> "Tree":
     """
     from ..classes import Tree
 
-    g = load_graph(fpath, fmt = 'gt')
+    g = load_graph(fpath, fmt="gt")
 
-    return Tree(ID = g.gp['ID'], metadata = g.gp['metadata'], graph = g)
-
+    return Tree(ID=g.gp["ID"], metadata=g.gp["metadata"], graph=g)

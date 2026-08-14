@@ -13,5 +13,5 @@ __all__ = [
     "vertex_coordinates",
     "edge_coordinates",
     # counts
-    "count_roots"
+    "count_roots",
 ]

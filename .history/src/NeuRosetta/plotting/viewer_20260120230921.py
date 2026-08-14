@@ -11,7 +11,7 @@ settings.use_parallel_projection = True
 
 from ..core import _Tree
 
-Actor = Any 
+Actor = Any
 
 
 @dataclass(slots=True)
@@ -135,4 +135,3 @@ class Viewer:
         root_kwargs : dict, optional
             _description_, by default {}
         """
-        

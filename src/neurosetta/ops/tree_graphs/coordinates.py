@@ -139,9 +139,7 @@ def get_subtree_edge_coordinates(
     return edge_coordinates_subtree(tree.graph, root, traversal_order, SoA)
 
 
-def coordinate_pca(
-    tree: _Tree, robust: bool = True, norm: bool = True
-) -> tuple[ndarray, ndarray]:
+def coordinate_pca(tree: _Tree, robust: bool = True, norm: bool = True) -> tuple[ndarray, ndarray]:
     """Perform PCA on tree node coordinates.
 
     Parameters

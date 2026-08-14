@@ -7,9 +7,8 @@ from ..io_utils.swc_utils import write_swc as _write_swc_func
 
 
 class Tree_graph(_Tree):
-
-    def __init__(self, ID:int, units:str, meta:dict, graph:Graph) -> None:
-        super().__init__(ID = ID, units = units, meta = meta, graph = graph)
+    def __init__(self, ID: int, units: str, meta: dict, graph: Graph) -> None:
+        super().__init__(ID=ID, units=units, meta=meta, graph=graph)
 
     ### get node inds
     root_index = get_root
@@ -21,7 +20,5 @@ class Tree_graph(_Tree):
     ### coordinates
     get_node_coordinates = vertex_coordinates
 
-
     # saving
     write_swc = _write_swc_func
-

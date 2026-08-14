@@ -90,7 +90,8 @@ def get_core_inds(tree: _Tree, include_root: bool = True) -> ndarray:
 
     return inds
 
-def get_edges(tree, root: int|None = None, subset: str|None = None) -> np.ndarray:
+
+def get_edges(tree, root: int | None = None, subset: str | None = None) -> np.ndarray:
     """
     Returns n
 
@@ -118,8 +119,8 @@ def get_edges(tree, root: int|None = None, subset: str|None = None) -> np.ndarra
     if root is None:
         edges = tree.graph.get_edges()
     else:
-        edges = bfs_iterator(tree.graph,root, array = True)
-    
+        edges = bfs_iterator(tree.graph, root, array=True)
+
     ### Subset if needed
     expected_subsets = ["None", "Internal", "External"]
     if subset == None:
@@ -131,6 +132,4 @@ def get_edges(tree, root: int|None = None, subset: str|None = None) -> np.ndarra
         l_inds = get_leaves(tree)
         return edges[isin(edges[:, 1], l_inds)]
     else:
-        raise ValueError(
-            f"Given Subset {subset} is not valid, expected one of {expected_subsets}"
-        )
+        raise ValueError(f"Given Subset {subset} is not valid, expected one of {expected_subsets}")

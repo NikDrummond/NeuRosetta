@@ -20,12 +20,14 @@ import os
 from typing import TYPE_CHECKING
 
 from ..core import _Tree
+
 if TYPE_CHECKING:
     from ..classes import Tree
 
 from ..tree_graphs.tree_checks import check_reduced
 
 ### swc utils
+
 
 def _check_swc_columns(df, error_type=ValueError):
     """
@@ -89,6 +91,7 @@ def _node_inds(g: Graph, df: DataFrame) -> List[int]:
 
     return inds
 
+
 def _infer_node_types(g: Graph) -> ndarray:
     """
     Infer node types as root(-1), branch (5), terminal (6), and transitory (0) based on in/out degree
@@ -108,6 +111,7 @@ def _infer_node_types(g: Graph) -> ndarray:
     node_types[root] = -1
 
     return node_types
+
 
 def _graph_from_table(df: DataFrame) -> Graph:
     """
@@ -140,9 +144,10 @@ def _graph_from_table(df: DataFrame) -> Graph:
     # add them
     g.vp["radius"] = vprop_rad
     g.vp["coordinates"] = vprop_coords
-    g.vp['node_type'] = g.new_vp('int', _infer_node_types(g))
+    g.vp["node_type"] = g.new_vp("int", _infer_node_types(g))
 
     return g
+
 
 def _swc_table(tree: _Tree) -> DataFrame:
 
@@ -177,19 +182,18 @@ def _swc_table(tree: _Tree) -> DataFrame:
 
     return df
 
+
 def _base_meta():
-    """ Basic metadata info"""
-    meta = {"ID":1,
-        "units":"Undefined",
-        "file_path":"",
-        "isReduced": False}
+    """Basic metadata info"""
+    meta = {"ID": 1, "units": "Undefined", "file_path": "", "isReduced": False}
 
     return meta
+
 
 ### read and write
 
 
-def import_swc(fpath: str, ID:str|None = None, metadata:dict|None=None) -> "Tree":
+def import_swc(fpath: str, ID: str | None = None, metadata: dict | None = None) -> "Tree":
     """Import and .swc neuron as a NeuRosetta.Tree_graph
 
     Parameters
@@ -208,23 +212,23 @@ def import_swc(fpath: str, ID:str|None = None, metadata:dict|None=None) -> "Tree
     """
 
     from ..classes import Tree
-    
+
     # generate dataframe and then graph
     df = _table_from_swc(fpath)
     graph = _graph_from_table(df)
 
-        # if ID and meta not given, generate simplest versions
+    # if ID and meta not given, generate simplest versions
     if ID is None:
         ID = int(os.path.splitext(os.path.basename(fpath))[0])
     if metadata is None:
         meta = _base_meta()
         meta["ID"] = ID
-        meta['units'] = 'undefined'
-        meta['file_path'] = fpath
-        meta['isReduced'] = False
-    
+        meta["units"] = "undefined"
+        meta["file_path"] = fpath
+        meta["isReduced"] = False
+
     # generate neuron
-    N = Tree(ID = ID, metadata = meta, graph = graph)
+    N = Tree(ID=ID, metadata=meta, graph=graph)
 
     return N
 

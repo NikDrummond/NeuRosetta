@@ -1,4 +1,4 @@
-""" Functions for reading and writing .swc files"""
+"""Functions for reading and writing .swc files"""
 
 ### Imports
 from numpy import int32, float64, unique, where, ndarray, zeros_like, vstack, array, savetxt
@@ -9,26 +9,27 @@ from graph_tool.all import Graph
 import os
 
 
-
 ### swc utils
+
 
 def _check_swc_columns(df, error_type=ValueError):
     """
     Checks if required columns exist in a DataFrame.
-    
+
     Parameters:
         df (pd.DataFrame): The DataFrame to check.
         required_columns (list): List of required column names.
         error_type (Exception): Type of exception to raise (default: ValueError).
-        
+
     Raises:
         error_type: If any required column is missing.
     """
-    required_columns = ['node_id','type','x','y','z','radius','parent_id']
+    required_columns = ["node_id", "type", "x", "y", "z", "radius", "parent_id"]
     missing = [col for col in required_columns if col not in df.columns]
-    
+
     if missing:
         raise error_type(f"Missing required columns: {missing}")
+
 
 def _table_from_swc(file_path: str) -> DataFrame:
     """
@@ -58,6 +59,7 @@ def _table_from_swc(file_path: str) -> DataFrame:
 
     return df
 
+
 def _node_inds(g: Graph, df: DataFrame) -> List[int]:
     """
     Given a graph, with ids as a vp, and a df with the same set of ids, find the order of indicies to order things going from the table to the graph
@@ -71,6 +73,7 @@ def _node_inds(g: Graph, df: DataFrame) -> List[int]:
     inds = [where(nodes == i)[0][0] for i in ids]
 
     return inds
+
 
 def _graph_from_table(df: DataFrame) -> Graph:
     """
@@ -95,7 +98,7 @@ def _graph_from_table(df: DataFrame) -> Graph:
     # initilise vertex properties - radius, coordinates
     vprop_rad = g.new_vp("double")
     vprop_coords = g.new_vp("vector<double>")
-    
+
     # populate them
     vprop_rad.a = df.radius.values[inds]
     vprop_coords.set_2d_array(df[["x", "y", "z"]].values[inds].T)
@@ -106,51 +109,53 @@ def _graph_from_table(df: DataFrame) -> Graph:
 
     return g
 
+
 def _infer_node_types(g: Graph) -> ndarray:
     """
     Infer node types as root(-1), branch (5), terminal (6), and transitory (0) based on in/out degree
-    
+
     Returns a np.array
 
     """
-        # indicies
+    # indicies
     out_deg = g.get_out_degrees(g.get_vertices())
     in_deg = g.get_in_degrees(g.get_vertices())
     ends = where(out_deg == 0)
     branches = where(out_deg > 1)
     root = where(in_deg == 0)
-    node_types = zeros_like(g.get_vertices(), dtype = int32)
+    node_types = zeros_like(g.get_vertices(), dtype=int32)
     node_types[ends] = 6
     node_types[branches] = 5
     node_types[root] = -1
 
     return node_types
-    
-def _swc_table(tree:Tree_graph) -> DataFrame:
+
+
+def _swc_table(tree: Tree_graph) -> DataFrame:
 
     # get node ids, radius and cooridnates
-    ids = tree.graph.vp['ids'].a
-    radius = tree.graph.vp['radius'].a
-    coords = tree.graph.vp['coordinates'].get_2d_array().T
+    ids = tree.graph.vp["ids"].a
+    radius = tree.graph.vp["radius"].a
+    coords = tree.graph.vp["coordinates"].get_2d_array().T
     # get edges - reorder columns so node to parent
-    edges = tree.graph.get_edges()[:,[1,0]]
+    edges = tree.graph.get_edges()[:, [1, 0]]
 
     # get node types
     node_types = _infer_node_types(tree.graph)
 
     # append root,-1 to the top of the edge list
-    edges = vstack((array([0,-1]), edges))
+    edges = vstack((array([0, -1]), edges))
 
     df = (
         DataFrame(
             {
-                "node_id": edges[:,0],
+                "node_id": edges[:, 0],
                 "type": node_types,
                 "x": coords[:, 0],
                 "y": coords[:, 1],
                 "z": coords[:, 2],
                 "radius": radius,
-                "parent_id": edges[:,1],
+                "parent_id": edges[:, 1],
             }
         )
         .sort_values("node_id")
@@ -159,7 +164,9 @@ def _swc_table(tree:Tree_graph) -> DataFrame:
 
     return df
 
+
 ### read and write
+
 
 def read_swc(fpath: str, units=None, meta=None) -> Tree_graph:
 
@@ -167,4 +174,3 @@ def read_swc(fpath: str, units=None, meta=None) -> Tree_graph:
     df = _table_from_swc(fpath)
     graph = _graph_from_table(df)
     return Tree_graph(ID=ID, units=units, meta=meta, graph=graph)
-

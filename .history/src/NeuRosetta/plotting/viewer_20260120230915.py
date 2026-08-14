@@ -11,7 +11,7 @@ settings.use_parallel_projection = True
 
 from ..core import _Tree
 
-Actor = Any 
+Actor = Any
 
 
 @dataclass(slots=True)

@@ -2,13 +2,12 @@ import vedo as vd
 from ..core import _Tree
 
 
-
-
-
-def plot_3d(tree: _Tree, 
-            line_kwargs:dict = {"c":"k4", "lw":1,"alpha":1.0}, 
-            root_kwargs: dict = {"r":12, "c": 'k4', "alpha":1.0},
-            plot_kwargs: dict = {"axes": None}) -> vd.Plotter:
+def plot_3d(
+    tree: _Tree,
+    line_kwargs: dict = {"c": "k4", "lw": 1, "alpha": 1.0},
+    root_kwargs: dict = {"r": 12, "c": "k4", "alpha": 1.0},
+    plot_kwargs: dict = {"axes": None},
+) -> vd.Plotter:
     """On the fly 3D neuron plotting. Opens an interactive vedo.Plotter instance with the neuron.
 
     Parameters
@@ -22,7 +21,7 @@ def plot_3d(tree: _Tree,
         keyword arguments passed to vedo.Point to customise how the soma is plotted.
         By default {"r":12, "c": 'k4', "alpha":1.0}
     plot_kwargs : dict, optional
-        Keyword arguments passed to vedo.show. 
+        Keyword arguments passed to vedo.show.
         By default {"axes": None}
 
     Returns

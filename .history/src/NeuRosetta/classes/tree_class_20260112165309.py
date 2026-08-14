@@ -8,9 +8,8 @@ from ..io_utils.swc_utils import write_swc as _write_swc_func
 
 
 class Tree_graph(_Tree):
-
-    def __init__(self, ID:int, units:str, meta:dict, graph:Graph) -> None:
-        super().__init__(ID = ID, units = units, meta = meta, graph = graph)
+    def __init__(self, ID: int, units: str, meta: dict, graph: Graph) -> None:
+        super().__init__(ID=ID, units=units, meta=meta, graph=graph)
 
     ### get node inds
 
@@ -24,4 +23,3 @@ class Tree_graph(_Tree):
 
     # saving
     write_swc = _write_swc_func
-

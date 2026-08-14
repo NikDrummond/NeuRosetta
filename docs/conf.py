@@ -40,35 +40,28 @@ html_theme_options = {
         # Microscopy slate — teal accent on warm stone canvas
         "color-brand-primary": "#0d9488",
         "color-brand-content": "#0f766e",
-
         "color-background-primary": "#fafaf9",
         "color-background-secondary": "#f0fdfa",
         "color-background-border": "#e7e5e4",
         "color-background-hover": "#ccfbf1",
-
         "color-foreground-primary": "#1c1917",
         "color-foreground-secondary": "#57534e",
         "color-foreground-muted": "#78716c",
         "color-foreground-border": "#d6d3d1",
-
         "color-admonition-background": "#fffbeb",
         "color-code-background": "#ecfdf5",
     },
-
     "dark_css_variables": {
         "color-brand-primary": "#2dd4bf",
         "color-brand-content": "#5eead4",
-
         "color-background-primary": "#0c1222",
         "color-background-secondary": "#111827",
         "color-background-border": "#1e293b",
         "color-background-hover": "#134e4a",
-
         "color-foreground-primary": "#f8fafc",
         "color-foreground-secondary": "#cbd5e1",
         "color-foreground-muted": "#94a3b8",
         "color-foreground-border": "#334155",
-
         "color-admonition-background": "#422006",
         "color-code-background": "#042f2e",
     },

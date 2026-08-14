@@ -20,12 +20,14 @@ import os
 from typing import TYPE_CHECKING
 
 from ..core import _Tree
+
 if TYPE_CHECKING:
     from ..classes import Tree_graph
 
 from ..tree_graphs.tree_checks import check_reduced
 
 ### swc utils
+
 
 def _check_swc_columns(df, error_type=ValueError):
     """
@@ -179,7 +181,8 @@ def _swc_table(tree: _Tree) -> DataFrame:
 
     return df
 
-def check_basic_meta(tree: _Tree, meta:dict, fpath:str) -> dict:
+
+def check_basic_meta(tree: _Tree, meta: dict, fpath: str) -> dict:
     """_summary_
 
     Parameters
@@ -197,15 +200,18 @@ def check_basic_meta(tree: _Tree, meta:dict, fpath:str) -> dict:
         _description_
     """
     # see if we can / need to update anything in meta
-    if 'File_path' not in meta.keys():
-        meta['Fie_path'] = fpath
-    if 'is_Reduced' not in meta.keys():
-        meta['is_Reduced'] = check_reduced(N)
+    if "File_path" not in meta.keys():
+        meta["Fie_path"] = fpath
+    if "is_Reduced" not in meta.keys():
+        meta["is_Reduced"] = check_reduced(N)
+
 
 ### read and write
 
 
-def import_swc(fpath: str, name:str|None = None, units:str="Undefined", meta:dict|None=None) -> "Tree_graph":
+def import_swc(
+    fpath: str, name: str | None = None, units: str = "Undefined", meta: dict | None = None
+) -> "Tree_graph":
     """Import and .swc neuron as a NeuRosetta.Tree_graph
 
     Parameters
@@ -224,21 +230,19 @@ def import_swc(fpath: str, name:str|None = None, units:str="Undefined", meta:dic
     """
 
     from ..classes import Tree_graph
-    
+
     # generate dataframe and then graph
     df = _table_from_swc(fpath)
     graph = _graph_from_table(df)
 
-        # if name and meta not given, generate simplest versions
+    # if name and meta not given, generate simplest versions
     if name is None:
         name = os.path.splitext(os.path.basename(fpath))[0]
     if meta is None:
-        meta = {'File_path':fpath}
-    
+        meta = {"File_path": fpath}
+
     # generate neuron
-    N = Tree_graph(name = name, units = units, meta = meta, graph = graph)
-
-
+    N = Tree_graph(name=name, units=units, meta=meta, graph=graph)
 
     return N
 

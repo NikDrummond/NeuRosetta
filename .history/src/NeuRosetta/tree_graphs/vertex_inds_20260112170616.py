@@ -81,11 +81,9 @@ def get_core_inds(tree: _Tree, include_root: bool = True) -> ndarray:
     # check if the root is in inds
     root_in = any(inds == root)
 
-
     if include_root and not root_in:
         inds = concatenate(())
     elif ~(include_root) & (root_in):
         inds = inds[inds != root]
 
     return inds
-

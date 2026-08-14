@@ -13,7 +13,7 @@ from ..core import _Tree
 from .utils import _build_3d
 
 
-Actor = Any 
+Actor = Any
 
 
 @dataclass(slots=True)
@@ -125,7 +125,9 @@ class Viewer:
         return getattr(self._plotter, name)
 
     ### Add neuron
-    def add_neuron(tree: _Tree, cache: bool = False, line_kwargs: dict = {}, root_kwargs: dict = {}) -> None:
+    def add_neuron(
+        tree: _Tree, cache: bool = False, line_kwargs: dict = {}, root_kwargs: dict = {}
+    ) -> None:
         """_summary_
 
         Parameters
@@ -139,4 +141,3 @@ class Viewer:
         root_kwargs : dict, optional
             _description_, by default {}
         """
-        

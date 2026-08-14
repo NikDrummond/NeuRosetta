@@ -14,5 +14,5 @@ __all__ = [
     "edge_coordinates",
     # counts
     "count_roots",
-    "count_vertices"
+    "count_vertices",
 ]

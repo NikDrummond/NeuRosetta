@@ -26,7 +26,7 @@ def plot_3d(
     plot_kwargs : dict, optional
         Keyword arguments passed to vedo.show.
     cache : bool
-        Weather or not to keep a 
+        Weather or not to keep a
 
     Returns
     -------
@@ -37,10 +37,7 @@ def plot_3d(
     # get the plottable objects
     if not hasattr(tree, "_plot_dict"):
         plot_dict = _build_3d(
-            tree=tree, 
-            line_kwargs=line_kwargs, 
-            root_kwargs=root_kwargs, 
-            cache=False
+            tree=tree, line_kwargs=line_kwargs, root_kwargs=root_kwargs, cache=False
         )
     else:
         plot_dict = tree._plot_dict

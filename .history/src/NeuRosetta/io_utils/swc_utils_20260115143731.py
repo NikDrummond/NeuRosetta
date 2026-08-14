@@ -20,12 +20,14 @@ import os
 from typing import TYPE_CHECKING
 
 from ..core import _Tree
+
 if TYPE_CHECKING:
     from ..classes import Tree_graph
 
 from ..tree_graphs.tree_checks import check_reduced
 
 ### swc utils
+
 
 def _check_swc_columns(df, error_type=ValueError):
     """
@@ -145,6 +147,7 @@ def _infer_node_types(g: Graph) -> ndarray:
 
     return node_types
 
+
 def _swc_table(tree: _Tree) -> DataFrame:
 
     # get node ids, radius and cooridnates
@@ -178,19 +181,18 @@ def _swc_table(tree: _Tree) -> DataFrame:
 
     return df
 
+
 def _base_meta():
-    """ Basic metadata info"""
-    meta = {"ID":"",
-        "units":"Undefined",
-        "file_path":"",
-        "isReduced": False}
+    """Basic metadata info"""
+    meta = {"ID": "", "units": "Undefined", "file_path": "", "isReduced": False}
 
     return meta
+
 
 ### read and write
 
 
-def import_swc(fpath: str, ID:str|None = None, metadata:dict|None=None) -> "Tree_graph":
+def import_swc(fpath: str, ID: str | None = None, metadata: dict | None = None) -> "Tree_graph":
     """Import and .swc neuron as a NeuRosetta.Tree_graph
 
     Parameters
@@ -209,23 +211,23 @@ def import_swc(fpath: str, ID:str|None = None, metadata:dict|None=None) -> "Tree
     """
 
     from ..classes import Tree_graph
-    
+
     # generate dataframe and then graph
     df = _table_from_swc(fpath)
     graph = _graph_from_table(df)
 
-        # if ID and meta not given, generate simplest versions
+    # if ID and meta not given, generate simplest versions
     if ID is None:
         ID = os.path.splitext(os.path.basename(fpath))[0]
     if metadata is None:
         meta = _base_meta()
         meta["ID"] = ID
-        meta['units'] = 'undefined'
-        meta['file_path'] = fpath
-        meta['']
-    
+        meta["units"] = "undefined"
+        meta["file_path"] = fpath
+        meta[""]
+
     # generate neuron
-    N = Tree_graph(ID = ID, metadata = metadata, graph = graph)
+    N = Tree_graph(ID=ID, metadata=metadata, graph=graph)
 
     return N
 

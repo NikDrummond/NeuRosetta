@@ -7,7 +7,8 @@ from ..errors.errors import _check_internal_property
 
 ### Node indicies
 
-def get_root(tree:_Tree) -> int:
+
+def get_root(tree: _Tree) -> int:
     """
     Get index of root node
     Parameters
@@ -22,7 +23,8 @@ def get_root(tree:_Tree) -> int:
     """
     return where(tree.graph.degree_property_map("in").a == 0)[0]
 
-def get_leaves(tree:_Tree) -> ndarray:
+
+def get_leaves(tree: _Tree) -> ndarray:
     """
     Get index of leaves nodes
     Parameters
@@ -37,7 +39,8 @@ def get_leaves(tree:_Tree) -> ndarray:
     """
     return where(tree.graph.degree_property_map("out").a == 0)[0]
 
-def get_branches(tree:_Tree) -> ndarray:
+
+def get_branches(tree: _Tree) -> ndarray:
     """
     Get index of branches nodes
     Parameters
@@ -52,7 +55,8 @@ def get_branches(tree:_Tree) -> ndarray:
     """
     return where(tree.graph.degree_property_map("out").a > 1)[0]
 
-def get_core_inds(tree:_Tree, root = True) -> ndarray:
+
+def get_core_inds(tree: _Tree, root=True) -> ndarray:
     """
     Get index of core nodes (branch and leaf nodes, optionally including root)
     Parameters

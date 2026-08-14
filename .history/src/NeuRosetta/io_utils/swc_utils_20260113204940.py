@@ -20,9 +20,11 @@ import os
 from typing import TYPE_CHECKING
 
 from ..core import _Tree
+
 if TYPE_CHECKING:
     from ..classes import Tree_graph
 ### swc utils
+
 
 def _check_swc_columns(df, error_type=ValueError):
     """
@@ -180,7 +182,7 @@ def _swc_table(tree: _Tree) -> DataFrame:
 ### read and write
 
 
-def import_swc(fpath: str, name = None, units=None, meta=None) -> "Tree_graph":
+def import_swc(fpath: str, name=None, units=None, meta=None) -> "Tree_graph":
     """Import and .swc neuron as a NeuRosetta.Tree_graph
 
     Parameters

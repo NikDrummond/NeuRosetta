@@ -3,7 +3,8 @@ from ..core import _Tree
 
 vd.settings.default_backend = "vtk"
 
-def _vd_tree_lines(tree:_Tree_graph, kwargs: dict) -> vd.Lines:
+
+def _vd_tree_lines(tree: _Tree_graph, kwargs: dict) -> vd.Lines:
     """generate a vedo.Lines object for a neuron
 
     Parameters
@@ -11,7 +12,7 @@ def _vd_tree_lines(tree:_Tree_graph, kwargs: dict) -> vd.Lines:
     tree : nr.Tree_graph
         Neuron tree
     kwargs : dict, optional
-        kwargs passed to vedo.Lines. 
+        kwargs passed to vedo.Lines.
         If nothing is passed, uses {"c":"k4", "lw":1,"alpha":1.0} by default.
 
     Returns
@@ -24,16 +25,20 @@ def _vd_tree_lines(tree:_Tree_graph, kwargs: dict) -> vd.Lines:
 
     return lns
 
+
 def _vd_tree_root(tree, kwargs: dict) -> vd.Point:
 
-    r_coords = tree.get_node_coordinates(subset = tree.root_index())
+    r_coords = tree.get_node_coordinates(subset=tree.root_index())
     pnt = vd.Point(r_coords, **kwargs)
     return pnt
 
-def plot_3d(tree: nr.Tree_graph, 
-            line_kwargs:dict = {"c":"k4", "lw":1,"alpha":1.0}, 
-            root_kwargs: dict = {"r":12, "c": 'k4', "alpha":1.0},
-            plot_kwargs: dict = {"axes": None}) -> vd.Plotter:
+
+def plot_3d(
+    tree: nr.Tree_graph,
+    line_kwargs: dict = {"c": "k4", "lw": 1, "alpha": 1.0},
+    root_kwargs: dict = {"r": 12, "c": "k4", "alpha": 1.0},
+    plot_kwargs: dict = {"axes": None},
+) -> vd.Plotter:
     """On the fly 3D neuron plotting. Opens an interactive vedo.Plotter instance with the neuron.
 
     Parameters
@@ -47,7 +52,7 @@ def plot_3d(tree: nr.Tree_graph,
         keyword arguments passed to vedo.Point to customise how the soma is plotted.
         By default {"r":12, "c": 'k4', "alpha":1.0}
     plot_kwargs : dict, optional
-        Keyword arguments passed to vedo.show. 
+        Keyword arguments passed to vedo.show.
         By default {"axes": None}
 
     Returns

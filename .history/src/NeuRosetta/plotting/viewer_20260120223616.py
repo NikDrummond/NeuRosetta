@@ -6,7 +6,7 @@ from typing import Any, Iterable, Sequence
 from vedo.plotter import Plotter
 
 
-Actor = Any 
+Actor = Any
 
 
 @dataclass(slots=True)

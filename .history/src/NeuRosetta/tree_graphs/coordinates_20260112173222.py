@@ -8,8 +8,9 @@ from typing import List
 from ..errors.errors import _check_internal_property
 from .vertex_inds import get_edges
 
-def vertex_coordinates(tree:_Tree, subset : int | List | bool = None) -> ndarray:
-    """Returns an n by 3 np.array of node coordinates within the neuron 
+
+def vertex_coordinates(tree: _Tree, subset: int | List | bool = None) -> ndarray:
+    """Returns an n by 3 np.array of node coordinates within the neuron
 
     Parameters
     ----------
@@ -24,16 +25,19 @@ def vertex_coordinates(tree:_Tree, subset : int | List | bool = None) -> ndarray
         Numpy array of node coordinates
     """
 
-    _check_internal_property(tree.graph,'coordinates')
+    _check_internal_property(tree.graph, "coordinates")
 
-    coords = tree.graph.vp['coordinates'].get_2d_array().T
+    coords = tree.graph.vp["coordinates"].get_2d_array().T
 
     if subset is not None:
         coords = coords[subset]
 
     return coords
 
-def edge_coordinates(tree:_Tree, root:int|None = None,subset:str|None = None) -> Tuple[ndarray,ndarray]:
+
+def edge_coordinates(
+    tree: _Tree, root: int | None = None, subset: str | None = None
+) -> Tuple[ndarray, ndarray]:
     """
 
     Parameters
@@ -52,11 +56,11 @@ def edge_coordinates(tree:_Tree, root:int|None = None,subset:str|None = None) ->
     Returns
     -------
     Tuple[ndarray,ndarray]
-        Tuple of node coordinates paired for each edge, 
+        Tuple of node coordinates paired for each edge,
     """
 
     edges = get_edges(tree, root, subset)
     coords = vertex_coordinates(tree)
-    p1 = coords[edges[:,0]]
-    p2 = coords[edges[:,1]]
+    p1 = coords[edges[:, 0]]
+    p2 = coords[edges[:, 1]]
     return p1, p2

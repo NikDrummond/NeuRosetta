@@ -8,7 +8,7 @@ from vedo.plotter import Plotter
 vd.settings.default_backend = "vtk"
 
 
-Actor = Any 
+Actor = Any
 
 
 @dataclass(slots=True)

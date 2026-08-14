@@ -88,4 +88,3 @@ def get_core_inds(tree: _Tree, include_root: bool = True) -> ndarray:
         inds = inds[inds != root]
 
     return inds
-

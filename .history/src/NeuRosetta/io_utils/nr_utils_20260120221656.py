@@ -28,6 +28,7 @@ def _bind_core(tree: _Tree):
 
     # isReduced
 
+
 def save(tree: _Tree, fpath: str | Path | None = None) -> Path:
     """
     Save tree as a .nr file and return the written file path.

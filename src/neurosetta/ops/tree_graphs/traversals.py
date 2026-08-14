@@ -186,9 +186,7 @@ def depth_first_iterator(
 
 
 # depths
-def get_node_depth(
-    tree: _Tree, root: int | None = None, bind: bool = True
-) -> ndarray | None:
+def get_node_depth(tree: _Tree, root: int | None = None, bind: bool = True) -> ndarray | None:
     """Compute node depths from root using breadth-first search.
 
     Parameters
@@ -224,9 +222,7 @@ def get_node_depth(
 
 
 # post-order traversal
-def get_post_order(
-    tree: _Tree, root: int | None = None, bind: bool = True
-) -> None | DFSVisitor:
+def get_post_order(tree: _Tree, root: int | None = None, bind: bool = True) -> None | DFSVisitor:
     """Get post-order traversal of tree using depth-first search.
 
     Parameters
@@ -250,9 +246,7 @@ def get_post_order(
     vis = depth_first_search(tree=tree, visitor=PostOrderVisitor, root=root)
 
     if bind:
-        tree.graph.vertex_properties["post_order"] = tree.graph.new_vp(
-            "int", vis.post_order
-        )
+        tree.graph.vertex_properties["post_order"] = tree.graph.new_vp("int", vis.post_order)
         return None
 
     return vis

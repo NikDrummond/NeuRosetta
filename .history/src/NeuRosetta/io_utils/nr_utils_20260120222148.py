@@ -26,6 +26,7 @@ def _bind_core(tree: _Tree):
     except:
         tree.graph.gp["metadata"] = tree.graph.new_gp("object", tree.metadata)
 
+
 def save(tree: _Tree, fpath: str | Path | None = None) -> Path:
     """
     Save tree as a .nr file and return the written file path.
@@ -90,5 +91,5 @@ def load(fpath: str | Path, *, tree_id: int | None = None) -> "Tree":
         raise FileNotFoundError(f"File not found: {p}")
 
     g = load_graph(str(p), fmt="gt")
-    g.gp['metadata']['file_path']
+    g.gp["metadata"]["file_path"]
     return Tree(ID=g.gp["ID"], metadata=g.gp["metadata"], graph=g)

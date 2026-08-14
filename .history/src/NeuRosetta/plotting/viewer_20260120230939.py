@@ -13,7 +13,7 @@ from ..core import _Tree
 from .utils import _build_3d
 
 
-Actor = Any 
+Actor = Any
 
 
 @dataclass(slots=True)
@@ -137,4 +137,3 @@ class Viewer:
         root_kwargs : dict, optional
             _description_, by default {}
         """
-

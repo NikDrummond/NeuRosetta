@@ -1,2 +1,1 @@
-""" Functions for reading and writing .swc files"""
-
+"""Functions for reading and writing .swc files"""

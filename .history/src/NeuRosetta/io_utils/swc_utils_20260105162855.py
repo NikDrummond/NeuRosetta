@@ -20,9 +20,11 @@ import os
 from typing import TYPE_CHECKING
 
 from ..core import _Tree
+
 if TYPE_CHECKING:
     from ..classes import Tree_graph
 ### swc utils
+
 
 def _check_swc_columns(df, error_type=ValueError):
     """
@@ -186,7 +188,7 @@ def import_swc(fpath: str, units=None, meta=None) -> "Tree_graph":
     Parameters
     ----------
     fpath : str
-        Path to 
+        Path to
     units : _type_, optional
         _description_, by default None
     meta : _type_, optional

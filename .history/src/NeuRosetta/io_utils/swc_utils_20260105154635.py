@@ -1,1 +1,1 @@
-""" Functions for reading and writing """
+"""Functions for reading and writing"""

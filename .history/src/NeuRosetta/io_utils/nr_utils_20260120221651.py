@@ -26,7 +26,6 @@ def _bind_core(tree: _Tree):
     except:
         tree.graph.gp["metadata"] = tree.graph.new_gp("object", tree.metadata)
 
-    
 
 def save(tree: _Tree, fpath: str | Path | None = None) -> Path:
     """

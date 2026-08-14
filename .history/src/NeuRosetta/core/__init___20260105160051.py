@@ -1,5 +1,5 @@
-""" Base classes and core"""
+"""Base classes and core"""
 
 from .core import *
 
-__all__ = ['_Stone','']
+__all__ = ["_Stone", ""]

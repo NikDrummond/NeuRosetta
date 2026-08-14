@@ -5,6 +5,7 @@
 from ..errors.errors import _check_internal_property
 from ..core.core import _Tree
 
+
 def _bind_core(tree: _Tree):
     """
     Make sure ID and metadata are bound to the graph
@@ -12,15 +13,16 @@ def _bind_core(tree: _Tree):
 
     # check if we have bound ID
     try:
-        _check_internal_property(tree.graph, 'ID')
+        _check_internal_property(tree.graph, "ID")
     except:
-        tree.graph.gp['ID'] = tree.graph.new_gp('string', str(tree.ID))
+        tree.graph.gp["ID"] = tree.graph.new_gp("string", str(tree.ID))
 
     # check if we have bound metadata
     try:
-        _check_internal_property(tree.graph, 'metadata')
+        _check_internal_property(tree.graph, "metadata")
     except:
-        tree.graph.gp['metadata'] = tree.graph.new_gp('object', tree.metadata)
+        tree.graph.gp["metadata"] = tree.graph.new_gp("object", tree.metadata)
+
 
 def save(tree: _Tree, fpath: str | None):
 
@@ -34,9 +36,9 @@ def save(tree: _Tree, fpath: str | None):
         sp = fpath + str(tree.ID) + ".nr"
 
     # save
-    tree.graph.save(sp, fmt = "gt")
+    tree.graph.save(sp, fmt="gt")
+
 
 def load(fpath):
 
     g = load_graph
-    

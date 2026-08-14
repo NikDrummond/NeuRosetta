@@ -9,7 +9,7 @@ vd.settings.default_backend = "vtk"
 vd.settings.use_parallel_projection = True
 
 
-Actor = Any 
+Actor = Any
 
 
 @dataclass(slots=True)

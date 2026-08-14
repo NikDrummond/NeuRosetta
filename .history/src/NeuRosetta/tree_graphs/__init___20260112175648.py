@@ -17,6 +17,4 @@ __all__ = [
     "count_vertices",
     "count_edges",
     "count_branches",
-    
-
 ]

@@ -32,37 +32,41 @@ def simple_tree() -> Graph:
         ]
     )
     # node coordinates
-    coords = array([[0,0,0],
-            [0,1,0],
-            [1,0,0],
-            [1,1,0],
-            [2,0,0],
-            [1,-2,0],
-            [2,1,0],
-            [3,1,0],
-            [3,2,0],
-            [5,1,0],
-            [4,2,0],
-            [4,2,0],
-            [5,0,0],
-            [3.5,0,0],
-            [5,-1,0],
-            [7,0,0],
-            [2,-2,0],
-            [5,-2,0]])
-    n_types = array([-1,0,5,6,0,0,0,5,0,0,6,5,6,6,6,0,6])
+    coords = array(
+        [
+            [0, 0, 0],
+            [0, 1, 0],
+            [1, 0, 0],
+            [1, 1, 0],
+            [2, 0, 0],
+            [1, -2, 0],
+            [2, 1, 0],
+            [3, 1, 0],
+            [3, 2, 0],
+            [5, 1, 0],
+            [4, 2, 0],
+            [4, 2, 0],
+            [5, 0, 0],
+            [3.5, 0, 0],
+            [5, -1, 0],
+            [7, 0, 0],
+            [2, -2, 0],
+            [5, -2, 0],
+        ]
+    )
+    n_types = array([-1, 0, 5, 6, 0, 0, 0, 5, 0, 0, 6, 5, 6, 6, 6, 0, 6])
     radius = ones_like(n_types)
 
     # generate graph
     g = Graph(edges, directed=True, hashed=True)
-    
+
     # add basic properties
     c_vp = g.new_vp("vector<double>")
     c_vp.set_2d_array(coords.T)
-    g.vp['coordinates'] = c_vp
-    g.vp['radius'] = g.new_vp('double', radius)
-    g.vp['node_type'] = g.new_vp('int', n_types)
-    
+    g.vp["coordinates"] = c_vp
+    g.vp["radius"] = g.new_vp("double", radius)
+    g.vp["node_type"] = g.new_vp("int", n_types)
+
     return g
 
 

@@ -3,6 +3,7 @@ from numpy import where
 
 from ..core import _Tree
 
+
 def count_roots(tree: _Tree) -> int:
     """_summary_
 

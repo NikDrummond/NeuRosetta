@@ -4,6 +4,7 @@ from numpy import where
 from ..core import _Tree
 from .vertex_inds import get_leaves, get_branches
 
+
 def count_roots(tree: _Tree) -> int:
     """
     Returns the number of root nodes (those with in degree = 0)
@@ -20,6 +21,7 @@ def count_roots(tree: _Tree) -> int:
     """
     return len(where(tree.graph.degree_property_map("in").a == 0))
 
+
 def count_vertices(tree: _Tree) -> int:
     """
 
@@ -34,6 +36,7 @@ def count_vertices(tree: _Tree) -> int:
         _description_
     """
     return tree.graph.num_vertices()
+
 
 def count_edges(tree: _Tree) -> int:
     """_summary_
@@ -50,6 +53,7 @@ def count_edges(tree: _Tree) -> int:
     """
     return tree.graph.num_edges()
 
+
 def count_leaves(tree: _Tree) -> int:
     """_summary_
 
@@ -64,6 +68,7 @@ def count_leaves(tree: _Tree) -> int:
         _description_
     """
     return len(get_leaves(tree))
+
 
 def count_branches(tree: _Tree) -> int:
     """_summary_

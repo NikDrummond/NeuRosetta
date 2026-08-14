@@ -91,9 +91,7 @@ def get_core_inds(tree: _Tree, include_root: bool = True) -> ndarray:
     return inds
 
 
-def get_edges(
-    tree: _Tree, root: int | None = None, subset: str | None = None
-) -> ndarray:
+def get_edges(tree: _Tree, root: int | None = None, subset: str | None = None) -> ndarray:
     """
     Returns nx2 array of edge indicies going parent -> child.
 
@@ -134,6 +132,4 @@ def get_edges(
         l_inds = get_leaves(tree)
         return edges[isin(edges[:, 1], l_inds)]
     else:
-        raise ValueError(
-            f"Given Subset {subset} is not valid, expected one of {expected_subsets}"
-        )
+        raise ValueError(f"Given Subset {subset} is not valid, expected one of {expected_subsets}")

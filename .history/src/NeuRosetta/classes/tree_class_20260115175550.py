@@ -2,7 +2,13 @@ from graph_tool.all import Graph
 
 from ..core import _Tree
 from ..tree_graphs.vertex_inds import get_root, get_leaves, get_branches, get_core_inds, get_edges
-from ..tree_graphs.counting import count_roots, count_edges, count_branches, count_leaves, count_vertices
+from ..tree_graphs.counting import (
+    count_roots,
+    count_edges,
+    count_branches,
+    count_leaves,
+    count_vertices,
+)
 from ..tree_graphs.coordinates import vertex_coordinates, edge_coordinates
 from ..plotting.plot_2d import plot_2d
 
@@ -10,11 +16,10 @@ from ..io_utils.swc_utils import write_swc as _write_swc_func
 
 
 class Tree_graph(_Tree):
+    def __init__(self, ID: int, metadata: dict, graph: Graph) -> None:
+        super().__init__(ID=ID, metadata=metadata, graph=graph)
 
-    def __init__(self, ID:int, metadata:dict, graph:Graph) -> None:
-        super().__init__(ID = ID, metadata = metadata, graph = graph)
-
-    ### get indices 
+    ### get indices
     root_index = get_root
     leaf_indices = get_leaves
     branch_indices = get_branches
@@ -37,4 +42,3 @@ class Tree_graph(_Tree):
 
     # plotting
     plot_2d = plot_2d
-

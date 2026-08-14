@@ -81,9 +81,7 @@ def get_core_indices(tree: _Tree, include_root: bool = True) -> ndarray:
     return core_indices(tree.graph, include_root)
 
 
-def get_subtree_indices(
-    tree: _Tree, root: int, traversal_order: str = "Breadth"
-) -> ndarray:
+def get_subtree_indices(tree: _Tree, root: int, traversal_order: str = "Breadth") -> ndarray:
     """Get node indices of subtree rooted at specified vertex.
 
     Parameters
