@@ -20,6 +20,7 @@ from ...utils.geometry_utils.transforms import (
     translate,
 )
 from ...utils.graph_utils.gt_properties import _set_coords_prop
+from .._doc_helpers import enrich_tree_graph_docstrings
 from .coordinates import get_node_coordinates, get_root_coordinate
 
 CenterMode = Literal["centroid", "root"]
@@ -378,7 +379,9 @@ def rotate_coordinates_about(
         If *center_mode* is not ``"centroid"`` or ``"root"``.
     """
     if center_mode not in ("centroid", "root"):
-        raise ValueError(f"center_mode must be 'centroid' or 'root', not {center_mode!r}")
+        raise ValueError(
+            f"center_mode must be 'centroid' or 'root', not {center_mode!r}"
+        )
 
     x, y, z = get_node_coordinates(tree, SoA=True)
     cx, cy, cz = _resolve_transform_center(tree, x, y, z, center, center_mode)
@@ -440,7 +443,9 @@ def scale_coordinates(
     reflect coordinates through *center* while scaling their magnitude.
     """
     if center_mode not in ("centroid", "root"):
-        raise ValueError(f"center_mode must be 'centroid' or 'root', not {center_mode!r}")
+        raise ValueError(
+            f"center_mode must be 'centroid' or 'root', not {center_mode!r}"
+        )
 
     x, y, z = get_node_coordinates(tree, SoA=True)
     cx, cy, cz = _resolve_transform_center(tree, x, y, z, center, center_mode)
@@ -502,7 +507,9 @@ def scale_coordinates_about(
     :func:`scale_coordinates`.
     """
     if center_mode not in ("centroid", "root"):
-        raise ValueError(f"center_mode must be 'centroid' or 'root', not {center_mode!r}")
+        raise ValueError(
+            f"center_mode must be 'centroid' or 'root', not {center_mode!r}"
+        )
 
     if isinstance(scale, (float, int)):
         sx = sy = sz = float(scale)
@@ -577,7 +584,9 @@ def align_coordinates_to_vector(
     else:
         v1 = asarray(source, dtype=float).ravel()
         if v1.shape != (3,):
-            raise ValueError(f"source must be 'pc1' or a three-component vector, not {source!r}")
+            raise ValueError(
+                f"source must be 'pc1' or a three-component vector, not {source!r}"
+            )
 
     tx, ty, tz = target
     axis, angle = minimum_rotation_to_align(*v1, tx, ty, tz)
@@ -701,7 +710,5 @@ def apply_rotation_steps_to_coordinates(
     x, y, z = apply_rotation_steps(x, y, z, step1, step2)
     return _apply_node_coordinates(tree, x, y, z, bind)
 
-
-from .._doc_helpers import enrich_tree_graph_docstrings
 
 enrich_tree_graph_docstrings(globals())

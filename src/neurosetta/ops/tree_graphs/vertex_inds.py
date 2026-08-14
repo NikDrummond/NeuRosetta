@@ -12,6 +12,7 @@ from ...utils.graph_utils import (
     root_index,
     subtree_indices,
 )
+from .._doc_helpers import enrich_tree_graph_docstrings
 
 
 def get_root_index(tree: _Tree) -> int:
@@ -80,7 +81,9 @@ def get_core_indices(tree: _Tree, include_root: bool = True) -> ndarray:
     return core_indices(tree.graph, include_root)
 
 
-def get_subtree_indices(tree: _Tree, root: int, traversal_order: str = "Breadth") -> ndarray:
+def get_subtree_indices(
+    tree: _Tree, root: int, traversal_order: str = "Breadth"
+) -> ndarray:
     """Get node indices of subtree rooted at specified vertex.
 
     Parameters
@@ -148,7 +151,5 @@ def get_bifurcation_indices(tree: _Tree, include_root: bool = False) -> ndarray:
     """
     return bifurcation_indices(tree.graph, include_root=include_root)
 
-
-from .._doc_helpers import enrich_tree_graph_docstrings
 
 enrich_tree_graph_docstrings(globals())

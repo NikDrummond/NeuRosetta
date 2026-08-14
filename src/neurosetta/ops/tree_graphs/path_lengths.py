@@ -9,6 +9,7 @@ from ...utils.graph_utils import (
     edge_coordinates,
     g_has_property,
 )
+from .._doc_helpers import enrich_tree_graph_docstrings
 from .tree_checks import check_reduced
 
 
@@ -76,7 +77,5 @@ def get_total_cable_length(tree: _Tree) -> float:
 
     return float(lengths.sum())
 
-
-from .._doc_helpers import enrich_tree_graph_docstrings
 
 enrich_tree_graph_docstrings(globals())

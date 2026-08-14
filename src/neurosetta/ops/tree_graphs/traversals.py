@@ -20,10 +20,10 @@ from ...utils.graph_utils import (
     leaf_indices,
     root_index,
 )
+from .._doc_helpers import enrich_tree_graph_docstrings
+
 
 ### Generic BF Search
-
-
 def breadth_first_search(
     tree: _Tree,
     visitor: BFSVisitor,
@@ -186,7 +186,9 @@ def depth_first_iterator(
 
 
 # depths
-def get_node_depth(tree: _Tree, root: int | None = None, bind: bool = True) -> ndarray | None:
+def get_node_depth(
+    tree: _Tree, root: int | None = None, bind: bool = True
+) -> ndarray | None:
     """Compute node depths from root using breadth-first search.
 
     Parameters
@@ -222,7 +224,9 @@ def get_node_depth(tree: _Tree, root: int | None = None, bind: bool = True) -> n
 
 
 # post-order traversal
-def get_post_order(tree: _Tree, root: int | None = None, bind: bool = True) -> None | DFSVisitor:
+def get_post_order(
+    tree: _Tree, root: int | None = None, bind: bool = True
+) -> None | DFSVisitor:
     """Get post-order traversal of tree using depth-first search.
 
     Parameters
@@ -246,7 +250,9 @@ def get_post_order(tree: _Tree, root: int | None = None, bind: bool = True) -> N
     vis = depth_first_search(tree=tree, visitor=PostOrderVisitor, root=root)
 
     if bind:
-        tree.graph.vertex_properties["post_order"] = tree.graph.new_vp("int", vis.post_order)
+        tree.graph.vertex_properties["post_order"] = tree.graph.new_vp(
+            "int", vis.post_order
+        )
         return None
 
     return vis
@@ -314,7 +320,5 @@ def get_section_angular_deviation(
 
     return vis.mean_angles, vis.angle_variances
 
-
-from .._doc_helpers import enrich_tree_graph_docstrings
 
 enrich_tree_graph_docstrings(globals())

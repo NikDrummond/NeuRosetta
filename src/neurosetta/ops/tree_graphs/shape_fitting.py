@@ -20,6 +20,7 @@ from ...utils.vedo_utils import (
 from ...utils.vedo_utils import (
     fit_sphere as _fit_sphere,
 )
+from .._doc_helpers import enrich_tree_graph_docstrings
 
 
 def fit_sphere(tree: _Tree, return_obj: bool = False) -> Sphere | tuple:
@@ -97,7 +98,5 @@ def fit_circle(tree: _Tree) -> tuple:
     """
     return _fit_circle(vertex_coordinates(tree.graph))
 
-
-from .._doc_helpers import enrich_tree_graph_docstrings
 
 enrich_tree_graph_docstrings(globals())

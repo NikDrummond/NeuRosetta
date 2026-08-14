@@ -20,6 +20,7 @@ from ...utils.graph_utils import (
     get_property,
     set_property,
 )
+from .._doc_helpers import enrich_tree_graph_docstrings
 from .coordinates import get_edge_coordinates, get_root_coordinate
 from .counting import count_edges
 
@@ -97,7 +98,9 @@ def get_edge_angles(
 
     if bind:
         c = not g_has_property(tree.graph, "Edge_angle", "e")
-        set_property(tree.graph, "Edge_angle", edge_angles, "e", dtype="double", create=c)
+        set_property(
+            tree.graph, "Edge_angle", edge_angles, "e", dtype="double", create=c
+        )
         return
     return edge_angles
 
@@ -357,7 +360,9 @@ def _get_bifurcation_unit_vectors(tree: _Tree) -> BifurcationUnitVectors:
     return normalize(*v_bc1), normalize(*v_bc2), normalize(*v_sb)
 
 
-def get_bifurcation_angles(tree: _Tree, degrees: bool = False) -> tuple[ndarray, ndarray, ndarray]:
+def get_bifurcation_angles(
+    tree: _Tree, degrees: bool = False
+) -> tuple[ndarray, ndarray, ndarray]:
     """Compute planar angles at each bifurcation node.
 
     For each bifurcation, returns the parent-to-first-child angle
@@ -446,7 +451,5 @@ def get_bifurcation_deihedral_beta(tree: _Tree, degrees: bool = False) -> ndarra
     # Dihedral beta - angle between parent and bisector from perspective of normal
     return planar_angle(*sb, *cc_bisector, *normal, degrees=degrees)
 
-
-from .._doc_helpers import enrich_tree_graph_docstrings
 
 enrich_tree_graph_docstrings(globals())

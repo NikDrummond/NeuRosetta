@@ -2,6 +2,7 @@
 
 from ...core import _Tree
 from ...utils.graph_utils import count_transitive_vertices, g_has_property
+from .._doc_helpers import enrich_tree_graph_docstrings
 
 
 def check_reduced(tree: _Tree) -> bool:
@@ -59,7 +60,5 @@ def has_property(tree: _Tree, prop: str, level: str = "all") -> bool:
     """
     return g_has_property(tree.graph, prop, level)
 
-
-from .._doc_helpers import enrich_tree_graph_docstrings
 
 enrich_tree_graph_docstrings(globals())

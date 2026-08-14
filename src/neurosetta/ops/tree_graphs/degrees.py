@@ -7,6 +7,7 @@ from numpy import ndarray
 
 from ...core import _Tree
 from ...utils.graph_utils import degree_distribution, get_vertex_degrees
+from .._doc_helpers import enrich_tree_graph_docstrings
 
 
 def get_degrees(
@@ -57,7 +58,5 @@ def get_degree_distribution(
     """
     return degree_distribution(tree.graph, deg, mass)
 
-
-from .._doc_helpers import enrich_tree_graph_docstrings
 
 enrich_tree_graph_docstrings(globals())

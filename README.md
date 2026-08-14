@@ -13,6 +13,8 @@ I/O, 2D/3D plotting, neuropil surface reconstruction, and a PySide6 GUI.
 
 **Documentation:** [https://nikdrummond.github.io/NeuRosetta/](https://nikdrummond.github.io/NeuRosetta/)
 
+`NeuRosetta` is *very* much in active development, so features will be added quickly in the coming months.
+
 ## Requirements
 
 - Python 3.11 or 3.12

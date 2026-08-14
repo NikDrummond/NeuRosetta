@@ -12,11 +12,14 @@ from ...utils.graph_utils import (
     partition_asymmetry,
     subgraph_score,
 )
+from .._doc_helpers import enrich_tree_graph_docstrings
 from .path_lengths import get_edge_length
 from .tree_checks import has_property
 
 
-def mask_subtree_from_root(tree: _Tree, root: int, bind: bool = True) -> SubtreeMaskVisitor | None:
+def mask_subtree_from_root(
+    tree: _Tree, root: int, bind: bool = True
+) -> SubtreeMaskVisitor | None:
     """Create vertex and edge masks for a subtree rooted at the given vertex.
 
     Parameters
@@ -153,7 +156,5 @@ def get_partition_asymmetry(
         return
     return partition_asymmetry(tree.graph, weighted=weighted, bind=bind)
 
-
-from .._doc_helpers import enrich_tree_graph_docstrings
 
 enrich_tree_graph_docstrings(globals())

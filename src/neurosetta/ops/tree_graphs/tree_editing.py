@@ -6,6 +6,7 @@ from graph_tool.all import Graph
 
 from ...core import _Tree
 from ...utils.graph_utils import reduce_graph, reroot_graph
+from .._doc_helpers import enrich_tree_graph_docstrings
 
 
 def reduce_tree(tree: _Tree, inplace: bool = False) -> Graph | None:
@@ -57,7 +58,5 @@ def reroot_tree(tree: _Tree, root: int, inplace: bool = False) -> Graph | None:
         return None
     return g
 
-
-from .._doc_helpers import enrich_tree_graph_docstrings
 
 enrich_tree_graph_docstrings(globals())

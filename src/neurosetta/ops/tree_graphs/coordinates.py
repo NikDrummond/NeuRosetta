@@ -11,6 +11,7 @@ from ...utils.graph_utils import (
     vertex_coordinates,
     vertex_coordinates_subtree,
 )
+from .._doc_helpers import enrich_tree_graph_docstrings
 
 
 def get_node_coordinates(
@@ -138,7 +139,9 @@ def get_subtree_edge_coordinates(
     return edge_coordinates_subtree(tree.graph, root, traversal_order, SoA)
 
 
-def coordinate_pca(tree: _Tree, robust: bool = True, norm: bool = True) -> tuple[ndarray, ndarray]:
+def coordinate_pca(
+    tree: _Tree, robust: bool = True, norm: bool = True
+) -> tuple[ndarray, ndarray]:
     """Perform PCA on tree node coordinates.
 
     Parameters
@@ -212,7 +215,5 @@ def get_convex_hull_volume(tree: _Tree, bind: bool = False) -> float:
         cv = get_convex_hull(tree, bind=False)
         return cv.volume
 
-
-from .._doc_helpers import enrich_tree_graph_docstrings
 
 enrich_tree_graph_docstrings(globals())

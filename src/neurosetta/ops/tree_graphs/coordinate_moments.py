@@ -13,6 +13,7 @@ from ...utils.geometry_utils.points import (
     std_along_axis,
     variance_along_axis,
 )
+from .._doc_helpers import enrich_tree_graph_docstrings
 from .coordinates import get_node_coordinates
 
 
@@ -235,7 +236,5 @@ def coordinate_projection_moments(
     x, y, z, ax, ay, az = _node_coordinate_arrays(tree, axis, subset)
     return projection_moments(x, y, z, ax, ay, az)
 
-
-from .._doc_helpers import enrich_tree_graph_docstrings
 
 enrich_tree_graph_docstrings(globals())
