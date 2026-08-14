@@ -199,6 +199,7 @@ These rules keep the graph layer testable without pulling in plotting or Qt.
 
 ## Related reading
 
-- {doc}`overview` — objects, file formats, workflows
-- {doc}`../tutorials/03_tree_basics` — graph properties in practice
+- {doc}`../getting_started/overview` — objects, file formats, workflows
+- {doc}`../tutorials/tree_basics` — graph properties in practice
+- {doc}`extending_nr` — user-level and library extension patterns
 - {doc}`../api/index` — generated API reference

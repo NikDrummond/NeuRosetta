@@ -40,7 +40,11 @@
 
   function setMode(mode) {
     const value = normalizeMode(mode);
-    document.body.dataset.fontMode = value;
+    if (value === "default") {
+      delete document.body.dataset.fontMode;
+    } else {
+      document.body.dataset.fontMode = value;
+    }
     try {
       localStorage.setItem(STORAGE_KEY, value);
       localStorage.removeItem(LEGACY_KEY);

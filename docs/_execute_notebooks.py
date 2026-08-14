@@ -1,4 +1,4 @@
-"""Execute docs notebooks to refresh committed outputs (for myst-nb)."""
+"""Execute tutorial notebooks to refresh committed outputs (for myst-nb)."""
 
 from __future__ import annotations
 
@@ -7,12 +7,19 @@ from pathlib import Path
 import nbformat
 from nbclient import NotebookClient
 
-NOTEBOOK_DIR = Path(__file__).resolve().parent
-NOTEBOOKS = sorted(NOTEBOOK_DIR.glob("*.ipynb"))
+DOCS_DIR = Path(__file__).resolve().parent
+NOTEBOOK_DIRS = (
+    DOCS_DIR / "getting_started",
+    DOCS_DIR / "tutorials",
+    DOCS_DIR / "development",
+)
+NOTEBOOKS = sorted(
+    notebook for notebook_dir in NOTEBOOK_DIRS for notebook in notebook_dir.glob("*.ipynb")
+)
 
 
 def execute_notebook(path: Path) -> None:
-    print(f"Executing {path.name} ...")
+    print(f"Executing {path.relative_to(DOCS_DIR.parent)} ...")
     nb = nbformat.read(path, as_version=4)
     client = NotebookClient(
         nb,
@@ -27,7 +34,8 @@ def execute_notebook(path: Path) -> None:
 
 def main() -> None:
     if not NOTEBOOKS:
-        raise SystemExit(f"No notebooks found in {NOTEBOOK_DIR}")
+        dirs = ", ".join(str(d) for d in NOTEBOOK_DIRS)
+        raise SystemExit(f"No notebooks found in {dirs}")
     for notebook in NOTEBOOKS:
         execute_notebook(notebook)
 

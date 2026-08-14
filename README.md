@@ -111,7 +111,7 @@ Contributions are welcome — bug reports, docs fixes, tests, and new features.
 
 2. **Make changes** on a feature branch. Keep new tree/forest logic in `ops/`
    (not `utils/` or `core/` directly); see the
-   [architecture guide](https://nikdrummond.github.io/NeuRosetta/concepts/architecture.html)
+   [architecture guide](https://nikdrummond.github.io/NeuRosetta/development/architecture.html)
    for layer rules.
 
 3. **Test & lint** before opening a PR:

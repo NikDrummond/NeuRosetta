@@ -75,6 +75,8 @@ myst_enable_extensions = [
 myst_heading_anchors = 3
 
 # Notebooks (myst-nb): render committed outputs; re-execute locally when updating.
+#   mamba activate nr && python docs/_execute_notebooks.py
+# Scans docs/getting_started/, docs/tutorials/, and docs/development/.
 nb_execution_mode = "off"
 nb_merge_streams = True
 nb_show_stderr = "warning"

@@ -39,7 +39,7 @@ Each node (vertex) carries morphology data as **bound properties**, usually:
 
 Edges carry derived geometry (`Path_length`, `Euclidean_length`, …) when you
 compute them. Custom analysis outputs can be attached the same way — see
-{doc}`../tutorials/03_tree_basics`.
+{doc}`../tutorials/tree_basics`.
 
 **Root index is always 0** after import. Node indices align across all vertex
 properties, so `tree.get_branch_indices()` subsets `tree.get_property('radius')`
@@ -59,7 +59,7 @@ Rule of thumb:
 - **NR for everything else** — editing sessions, custom graph properties, units,
   reduced-tree flags.
 
-Details: {doc}`../tutorials/02_io`.
+Details: {doc}`io`.
 
 ## Reduced trees
 
@@ -69,7 +69,7 @@ nodes — smaller graphs, less memory, faster ops.
 
 NeuRosetta tracks reduction in `metadata["isReduced"]`. Cable-length semantics
 change after reduction: compute `Path_length` **before** reducing if you need
-path length along the original arbor. See {doc}`../tutorials/04_tree_surgery`.
+path length along the original arbor. See {doc}`../tutorials/tree_surgery`.
 
 ## Spatial units
 
@@ -78,7 +78,7 @@ NeuRosetta stores scale in `metadata["units"]` (via Pint), supports nm/µm/voxel
 specs, and can rescale geometry in place.
 
 See {doc}`../reference/units` and the units section in
-{doc}`../tutorials/03_tree_basics`.
+{doc}`../tutorials/tree_basics`.
 
 ## Two ways to call the same thing
 
@@ -88,7 +88,7 @@ Almost every `tree.some_method()` is a thin bind of a function documented under
 ```python
 import neurosetta as nr
 
-tree = nr.import_swc("docs/data/1.swc")
+tree = nr.load_example_data(720575940596125868)
 assert tree.count_nodes() == nr.count_nodes(tree)
 ```
 
@@ -98,7 +98,7 @@ assert tree.count_nodes() == nr.count_nodes(tree)
 | **Functions** (`nr.count_nodes(tree)`) | Pipelines, `Forest.apply`, custom wrappers |
 
 `Forest` adds batch versions of the same ops plus `filter`, `apply`, and parallel
-I/O. See {doc}`../tutorials/06_forests`.
+I/O. See {doc}`../tutorials/forests`.
 
 ## Package layout
 
@@ -106,14 +106,14 @@ NeuRosetta is layered (`gui` → `analysis` → `io` → `api` → `ops` → `ut
 `core`). User code normally stops at `import neurosetta as nr`.
 
 For the full layer diagram, `ops/` vs `utils/` split, call chains, and
-contribution rules, see {doc}`architecture`.
+contribution rules, see {doc}`../development/architecture`.
 
 ## Scripting vs GUI
 
 | Task | Best tool |
 |------|-----------|
 | Batch import, metrics, figures | Python API |
-| Quick inspection, reroot, subtree pick | {doc}`../tutorials/09_gui` (`run_neuro_GUI`) |
+| Quick inspection, reroot, subtree pick | {doc}`../tutorials/gui` (`run_neuro_GUI`) |
 | Publication plots | matplotlib (`show_2d`, dendrogram) + vedo (`show_3d`, `Viewer`) |
 
 The GUI calls the same ops as the library; prefer scripting for reproducible
@@ -143,12 +143,13 @@ forest.save_forest("out/nr/")
 
 ## Reading order
 
-1. {doc}`../tutorials/01_installation` — conda env + editable install
-2. {doc}`../tutorials/02_io` — SWC vs NR
-3. {doc}`../tutorials/03_tree_basics` — properties, counts, coordinates
-4. Pick what you need: surgery, plotting, forests, meshes, surface recon, GUI
-5. {doc}`../api/index` — full parameter docs
-6. {doc}`architecture` — layer diagram and `ops/` vs `utils/` (contributors)
+1. {doc}`installation` — conda env + editable install
+2. {doc}`example_data` — bundled FlyWire morphologies
+3. {doc}`io` — SWC vs NR
+4. {doc}`../tutorials/tree_basics` — properties, counts, coordinates
+5. Pick what you need: surgery, plotting, forests, meshes, surface recon, GUI
+6. {doc}`../api/index` — full parameter docs
+7. {doc}`../development/architecture` — layer diagram and `ops/` vs `utils/` (contributors)
 
 ## Limitations (current)
 
@@ -156,6 +157,6 @@ Worth knowing up front:
 
 - **graph-tool** requires conda-forge; not pip-installable alone.
 - **SWC metadata** does not round-trip on export yet.
-- **Subtree extraction** can break plotting until save/reload ({doc}`../tutorials/04_tree_surgery`).
+- **Subtree extraction** can break plotting until save/reload ({doc}`../tutorials/tree_surgery`).
 - **Forest 3D** is limited by vedo thread-safety and graph-tool serialisation.
 - **Package distribution**: install from source for now; PyPI / conda-forge planned.

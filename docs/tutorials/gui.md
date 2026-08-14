@@ -27,7 +27,7 @@ nr.start_GUI()
 3. **Inspect** — rotate/zoom the 3D view; toggle units (nm / µm) and scale
    bar; adjust neuron colour.
 4. **Edit** — reroot from a picked point; extract a subtree from a picked
-   point (same conceptual ops as {doc}`04_tree_surgery`).
+   point (same conceptual ops as {doc}`tree_surgery`).
 5. **Overlay** — show a mesh (for example a neuropil) with the neuron.
 6. **Save** — write edited trees back to `.nr` (preferred) or SWC.
 

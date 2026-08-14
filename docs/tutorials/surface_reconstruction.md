@@ -70,4 +70,4 @@ points = forest.by_id(forest.ids()[0]).get_node_coordinates()
 # depth = neuropil_point_depth(neuropil, points)
 ```
 
-Next: {doc}`09_gui`.
+Next: {doc}`gui`.

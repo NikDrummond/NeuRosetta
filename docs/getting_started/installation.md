@@ -258,7 +258,7 @@ problematic** in practice:
 - For heavy 3D work, run NeuRosetta on a native **Linux** or **macOS** machine
   if possible.
 
-See {doc}`05_plotting` for more on 2D/3D plotting options.
+See {doc}`../tutorials/plotting` for more on 2D/3D plotting options.
 
 ## Troubleshooting
 
@@ -279,5 +279,5 @@ mamba activate nr
 
 ## Next steps
 
-Continue with {doc}`02_io` to load SWC morphologies from the bundled sample
-data under `docs/data/`.
+Continue with {doc}`example_data` and {doc}`io` to load morphologies from the
+bundled sample data under `docs/data/`.

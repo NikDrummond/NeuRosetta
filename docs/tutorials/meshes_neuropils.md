@@ -49,4 +49,4 @@ import neurosetta as nr
 2. NeuRosetta analysis → {func}`~neurosetta.reconstruct_neuropil_surface`
    (next tutorial)
 
-Next: {doc}`08_surface_reconstruction`.
+Next: {doc}`surface_reconstruction`.

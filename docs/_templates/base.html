@@ -30,9 +30,11 @@
     ) {
       _fontMode = "default";
     }
-    document.body.dataset.fontMode = _fontMode;
+    if (_fontMode !== "default") {
+      document.body.dataset.fontMode = _fontMode;
+    }
   } catch (e) {
-    document.body.dataset.fontMode = "default";
+    /* leave body without data-font-mode → Furo system stack */
   }
   try {
     document.body.dataset.bionicReading =
