@@ -8,17 +8,42 @@ It targets connectomics-style workflows — FlyWire, CATMAID exports, lab SWC
 pipelines — where you need reliable graph operations on large arbor data, not
 just coordinate arrays.
 
+We are still in the early days of NeuRosetta, so many more features are in the works. This includes, for release soon, integration of synaptic data and topological analyses of neuron morrphology, for example, as well as fleshing out mesh handling, which is curently short of a few features we have in development.
+
 ## Core objects
 
-| Object | What it is | Typical input |
-|--------|------------|---------------|
-| {class}`~neurosetta.api.Tree` | One neuron morphology | single `.swc` / `.nr` |
-| {class}`~neurosetta.api.Forest` | Ordered collection of trees | directory of SWC/NR files |
-| `Tree_mesh` / `Forest_mesh` | Neuron surface meshes (vedo) | `.ply`, etc. |
-| `Neuropil` / `Neuropils` | Brain-region surface meshes | `.ply`, or built via {func}`~neurosetta.reconstruct_neuropil_surface` |
+NeuRosetta is built around a few core objects which handle the majority of things you aer likely to need:
 
-Everything user-facing hangs off **ID + metadata + graph** (for trees) or
-**ID + metadata + mesh** (for mesh containers).
+| Object                          | What it is                   | Typical input                                                         |
+| ------------------------------- | ---------------------------- | --------------------------------------------------------------------- |
+| {class}`~neurosetta.api.Tree`   | One neuron morphology        | single `.swc` / `.nr`                                                 |
+| {class}`~neurosetta.api.Forest` | Ordered collection of trees  | directory of SWC/NR files                                             |
+| `Tree_mesh` / `Forest_mesh`     | Neuron surface meshes (vedo) | `.ply`, etc.                                                          |
+| `Neuropil` / `Neuropils`        | Brain-region surface meshes  | `.ply`, or built via {func}`~neurosetta.reconstruct_neuropil_surface` |
+
+Single objects (single Trees or meshes) have the same 'core' properties: **ID + metadata + graph** for a `Tree`, or **ID + metadata + mesh** for mesh objects (`Tree_mesh`,`Neuropil`). Collections (`Forest`,`Forerst_mesh`,`Neuropils`) are also derived from the same containers with similar `apply` and `filter` functionality, see {doc}`../tutorials/forests` 
+
+## Two ways to call the same thing
+
+Almost every `tree.some_method()` is a thin bind of a function documented under
+{doc}`../api/tree_ops/index`:
+
+```python
+import neurosetta as nr
+
+tree = nr.load_example_data(720575940596125868)
+assert tree.count_nodes() == nr.count_nodes(tree)
+```
+
+| Style                                  | Use when                                   |
+| -------------------------------------- | ------------------------------------------ |
+| **Methods** (`tree.count_nodes()`)     | Interactive work, notebooks                |
+| **Functions** (`nr.count_nodes(tree)`) | Pipelines, `Forest.apply`, custom wrappers |
+
+`Forest` adds batch versions of the same ops plus `filter`, `apply`, and parallel
+I/O. See {doc}`../tutorials/forests`.
+
+Regardless of the above rercomendation, it is really up to the use preferrence if you want to call things as methods on your object, or using the function based implementation. We aim for both use cases to wok in parrrallel with eachother and be completely interchangeable. 
 
 ## Mental model: the graph is the source of truth
 
@@ -41,17 +66,23 @@ Edges carry derived geometry (`Path_length`, `Euclidean_length`, …) when you
 compute them. Custom analysis outputs can be attached the same way — see
 {doc}`../tutorials/tree_basics`.
 
+```{note}
+### The `bind` argument
+
+Whenever a function has a `bind` kwarg it means that whatever is being computed can be intenalised to the `Graph` representation of the neuron. This can be done with *any* python object in theory, and additionally if the object can be pickled it will be saved along with the `.nr` file for the neuron persistently. This means the output of analyses pipelines will pesist with your dataset and be bound to you dataset. See {doc}`..tutorials/tree_basics` for more about properties.
+```
+
 **Root index is always 0** after import. Node indices align across all vertex
 properties, so `tree.get_branch_indices()` subsets `tree.get_property('radius')`
 directly.
 
 ## File formats: when to use what
 
-| Format | Role | Metadata & custom properties |
-|--------|------|------------------------------|
-| **SWC** | Interchange with other tools | Lost on export (currently) |
-| **NR** | Native NeuRosetta / graph-tool format | Fully preserved |
-| **Mesh** | Surfaces for rendering & distance ops | Partial (via vedo + metadata) |
+| Format   | Role                                  | Metadata & custom properties                                                  |
+| -------- | ------------------------------------- | ----------------------------------------------------------------------------- |
+| **SWC**  | Interchange with other tools          | Lost on export typically (or limited, depending on what goes into the header) |
+| **NR**   | Native NeuRosetta / graph-tool format | Fully preserved                                                               |
+| **Mesh** | Surfaces for rendering & distance ops | Partial (via vedo + metadata)                                                 |
 
 Rule of thumb:
 
@@ -61,11 +92,13 @@ Rule of thumb:
 
 Details: {doc}`io`.
 
+NeuRosetta generally much prefers `.nr` files, and they are geneally significantly smaller/faster to read and write than standad text based `.swc` files. We will include other file formats eventually however.
+
 ## Reduced trees
 
 Full SWC reconstructions contain many **transitive** nodes (degree-2 chain
 points). **Reduction** collapses those while keeping root, branch, and leaf
-nodes — smaller graphs, less memory, faster ops.
+nodes — smaller graphs, less memory, faster ops. Additionally, NeuRosetta will do it's best to preserve elements from the 'full' reconstuction across to the 'reduced' version, such as cable length. 
 
 NeuRosetta tracks reduction in `metadata["isReduced"]`. Cable-length semantics
 change after reduction: compute `Path_length` **before** reducing if you need
@@ -80,26 +113,6 @@ specs, and can rescale geometry in place.
 See {doc}`../reference/units` and the units section in
 {doc}`../tutorials/tree_basics`.
 
-## Two ways to call the same thing
-
-Almost every `tree.some_method()` is a thin bind of a function documented under
-{doc}`../api/tree_ops/index`:
-
-```python
-import neurosetta as nr
-
-tree = nr.load_example_data(720575940596125868)
-assert tree.count_nodes() == nr.count_nodes(tree)
-```
-
-| Style | Use when |
-|-------|----------|
-| **Methods** (`tree.count_nodes()`) | Interactive work, notebooks |
-| **Functions** (`nr.count_nodes(tree)`) | Pipelines, `Forest.apply`, custom wrappers |
-
-`Forest` adds batch versions of the same ops plus `filter`, `apply`, and parallel
-I/O. See {doc}`../tutorials/forests`.
-
 ## Package layout
 
 NeuRosetta is layered (`gui` → `analysis` → `io` → `api` → `ops` → `utils` →
@@ -110,14 +123,14 @@ contribution rules, see {doc}`../development/architecture`.
 
 ## Scripting vs GUI
 
-| Task | Best tool |
-|------|-----------|
-| Batch import, metrics, figures | Python API |
-| Quick inspection, reroot, subtree pick | {doc}`../tutorials/gui` (`run_neuro_GUI`) |
-| Publication plots | matplotlib (`show_2d`, dendrogram) + vedo (`show_3d`, `Viewer`) |
+| Task                                   | Best tool                                                       |
+| -------------------------------------- | --------------------------------------------------------------- |
+| Batch import, metrics, figures         | Python API                                                      |
+| Quick inspection, reroot, subtree pick | {doc}`../tutorials/gui` (`run_neuro_GUI`)                       |
+| Publication plots                      | matplotlib (`show_2d`, dendrogram) + vedo (`show_3d`, `Viewer`) |
 
 The GUI calls the same ops as the library; prefer scripting for reproducible
-pipelines.
+pipelines. However, for opertation such as re-rooting neuron morphologies, or specifying a specific sub-tree from a node, this can be done and verified manually using the GUI (and viewed, saved, or flagged). See {doc}`..tutorials/gui`.
 
 ## Typical workflow
 
@@ -128,35 +141,17 @@ import neurosetta as nr
 # 1. Load
 forest = nr.import_swc(Path("swc_dir/"), set_units="nm", progress=True)
 
-# 2. Analyse
+# 2. Analyse - get the total cabloe length of every neuron in the forest
 lengths = forest.get_total_cable_length()
 
-# 3. Edit (optional)
+# 3. Edit (optional) - reduce the first tree in the forest in place
 forest.by_id(forest.ids()[0]).get_reduced_tree(inplace=True)
 
-# 4. Visualise
+# 4. Visualise - open a 3D inteactive viewer plotting all neuons in the forest
 forest.show_3d()
 
 # 5. Save native format
 forest.save_forest("out/nr/")
 ```
 
-## Reading order
-
-1. {doc}`installation` — conda env + editable install
-2. {doc}`example_data` — bundled FlyWire morphologies
-3. {doc}`io` — SWC vs NR
-4. {doc}`../tutorials/tree_basics` — properties, counts, coordinates
-5. Pick what you need: surgery, plotting, forests, meshes, surface recon, GUI
-6. {doc}`../api/index` — full parameter docs
-7. {doc}`../development/architecture` — layer diagram and `ops/` vs `utils/` (contributors)
-
-## Limitations (current)
-
-Worth knowing up front:
-
-- **graph-tool** requires conda-forge; not pip-installable alone.
-- **SWC metadata** does not round-trip on export yet.
-- **Subtree extraction** can break plotting until save/reload ({doc}`../tutorials/tree_surgery`).
-- **Forest 3D** is limited by vedo thread-safety and graph-tool serialisation.
-- **Package distribution**: install from source for now; PyPI / conda-forge planned.
+Next: {doc}`installation`.

@@ -36,6 +36,11 @@ To get up and running quickly, you first need to create a conda/mamba environmen
 mamba create -n nr -c conda-forge python=3.11 graph-tool pyside6
 mamba activate nr
 ```
+PySide6, although available from PyPI needs to come from conda-forge. Also, it is only needed for the GUI. In bash, with you virtual environment created and activated, you can install NeuRosetta:
+
+```bash
+pip install "git+https://github.com/NikDrummond/NeuRosetta.git"
+```
 
 ## Example Data
 
@@ -48,6 +53,25 @@ import neurosetta as nr
 forest = nr.load_example_data()
 forest
 ```
+You can get the path to the directorry the example data is stored in using:
+
+```python
+nr.example_data_dir()
+```
+
+## Starting the GUI
+
+You can start the GUI from python using:
+
+```python
+import neurosetta as nr
+nr.start_GUI()
+```
+or from the command line using:
+```bash
+run_neuo_GUI
+```
+You can load the diectory with the example data in, or any other neuron morphology files you have. You can read moer about the GUI in {doc}`tutorials/gui`.
 
 ## Documentation Overview
 
