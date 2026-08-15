@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
+from inspect import cleandoc
 from typing import Any
 
 # Tree method name when it differs from the underlying op function name.
@@ -98,7 +99,6 @@ def api_binding_note(func_name: str) -> str:
 
     tree_method = TREE_METHOD_ALIASES.get(func_name, func_name)
     lines = [
-        "",
         "See Also",
         "--------",
         f":meth:`~neurosetta.api.tree_class.Tree.{tree_method}`",
@@ -118,7 +118,6 @@ def enrich_tree_graph_docstrings(module_globals: dict[str, Any]) -> None:
             continue
         if getattr(obj, "__module__", None) != module_name:
             continue
-        note = api_binding_note(name)
-        doc = obj.__doc__ or ""
+        doc = cleandoc(obj.__doc__ or "")
         if "See Also" not in doc:
-            obj.__doc__ = doc.rstrip() + note
+            obj.__doc__ = f"{doc}\n\n{api_binding_note(name)}"

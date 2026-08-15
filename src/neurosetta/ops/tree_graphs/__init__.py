@@ -44,6 +44,7 @@ from .shape_fitting import (
     fit_plane,
     fit_sphere,
 )
+from .summary import SummaryTable, summary_table, tree_summary
 from .subtrees import (
     get_max_subtree_node,
     get_partition_asymmetry,
@@ -178,4 +179,7 @@ __all__ = [
     "fit_line",
     "fit_plane",
     "fit_circle",
+    "tree_summary",
+    "summary_table",
+    "SummaryTable",
 ]

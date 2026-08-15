@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pint import UnitRegistry
 
-ureg = UnitRegistry()
+ureg = UnitRegistry(on_redefinition="ignore")
 ureg.define("micron = micrometer = um = µm")
 
 DEFAULT_UNITS = "dimensionless"

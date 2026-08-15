@@ -139,20 +139,9 @@ class NeuronTools:
         """
         return self.current_neuron is not None and len(selected_indices) == 1
 
-    def set_flag_state(self) -> None:
-        """Boolian graph property for neurons to flag"""
-        if not self.current_neuron.has_property("flag", "g"):
-            self.current_neuron.graph.gp["flag"] = self.current_neuron.graph.new_gp("bool", False)
-
     def update_flag_state(self, flag_state: bool) -> None:
-        """Boolian graph property for neurons to flag"
-        Args:
-            flag_state: Boolean value to set the flag
-        Returns:
-            True if flagged, otherwise False
-        """
-
-        self.current_neuron.graph.gp["flag"] = flag_state
+        """Set the Flag entry in the neuron's metadata."""
+        self.current_neuron.metadata["Flag"] = flag_state
 
     def get_flag_state(self) -> bool:
         """Get the flag state of the current neuron.
@@ -163,7 +152,4 @@ class NeuronTools:
         if self.current_neuron is None:
             return False
 
-        if not self.current_neuron.has_property("flag", "g"):
-            raise AttributeError("Flag property not found")
-
-        return self.current_neuron.graph.gp["flag"]
+        return bool(self.current_neuron.metadata.get("Flag", False))

@@ -31,6 +31,8 @@ from ..ops.forest_ops import (
     fit_plane_forest,
     fit_sphere_forest,
     forest_pca,
+    forest_summary,
+    forest_summary_table,
     get_forest_convex_hull,
     get_forest_convex_hull_volume,
     recenter_forest,
@@ -495,6 +497,12 @@ class Forest(_Forest):
 
     save_forest = save
     """Save forest to file."""
+
+    summary = forest_summary
+    """Return a formatted summary table for all trees in the forest (HTML in notebooks)."""
+
+    summary_table = forest_summary_table
+    """Return per-tree summary metrics as a DataFrame."""
 
     # --- plotting ---
     def show_3d(self, return_viewer: bool = False, **kwargs) -> "Viewer":

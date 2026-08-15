@@ -69,7 +69,7 @@ compute them. Custom analysis outputs can be attached the same way — see
 ```{note}
 ### The `bind` argument
 
-Whenever a function has a `bind` kwarg it means that whatever is being computed can be intenalised to the `Graph` representation of the neuron. This can be done with *any* python object in theory, and additionally if the object can be pickled it will be saved along with the `.nr` file for the neuron persistently. This means the output of analyses pipelines will pesist with your dataset and be bound to you dataset. See {doc}`..tutorials/tree_basics` for more about properties.
+Whenever a function has a `bind` kwarg it means that whatever is being computed can be intenalised to the `Graph` representation of the neuron. This can be done with *any* python object in theory, and additionally if the object can be pickled it will be saved along with the `.nr` file for the neuron persistently. This means the output of analyses pipelines will pesist with your dataset and be bound to you dataset. See {doc}`../tutorials/tree_basics` for more about properties.
 ```
 
 **Root index is always 0** after import. Node indices align across all vertex
@@ -113,14 +113,6 @@ specs, and can rescale geometry in place.
 See {doc}`../reference/units` and the units section in
 {doc}`../tutorials/tree_basics`.
 
-## Package layout
-
-NeuRosetta is layered (`gui` → `analysis` → `io` → `api` → `ops` → `utils` →
-`core`). User code normally stops at `import neurosetta as nr`.
-
-For the full layer diagram, `ops/` vs `utils/` split, call chains, and
-contribution rules, see {doc}`../development/architecture`.
-
 ## Scripting vs GUI
 
 | Task                                   | Best tool                                                       |
@@ -130,7 +122,7 @@ contribution rules, see {doc}`../development/architecture`.
 | Publication plots                      | matplotlib (`show_2d`, dendrogram) + vedo (`show_3d`, `Viewer`) |
 
 The GUI calls the same ops as the library; prefer scripting for reproducible
-pipelines. However, for opertation such as re-rooting neuron morphologies, or specifying a specific sub-tree from a node, this can be done and verified manually using the GUI (and viewed, saved, or flagged). See {doc}`..tutorials/gui`.
+pipelines. However, for opertation such as re-rooting neuron morphologies, or specifying a specific sub-tree from a node, this can be done and verified manually using the GUI (and viewed, saved, or flagged). See {doc}`../tutorials/gui`.
 
 ## Typical workflow
 
@@ -153,5 +145,44 @@ forest.show_3d()
 # 5. Save native format
 forest.save_forest("out/nr/")
 ```
+## Making Contributions
+
+Contributions are welcome — bug reports, docs fixes, tests, and new features. Make sure to open an issue on the NeuRosetta GitHub repository for improvements, feature suggestions, critisisms as long as they are amusingly worded, or any other suggestions!
+
+1. **Fork & clone** the repo, then create a conda environment:
+
+   ```bash
+   git clone https://github.com/NikDrummond/NeuRosetta.git
+   cd NeuRosetta
+   mamba env create -f environment.yml
+   mamba activate nr
+   ```
+
+   Or, if dependencies are already installed:
+
+   ```bash
+   python -m pip install -e ".[dev,docs]"
+   ```
+
+2. **Make changes** on a feature branch. Keep new tree/forest logic in `ops/`
+   (not `utils/` or `core/` directly); see the
+   [architecture guide](https://nikdrummond.github.io/NeuRosetta/development/architecture.html)
+   for layer rules.
+
+3. **Test & lint** before opening a PR:
+
+   ```bash
+   python -m pytest
+   ruff check src tests
+   ruff format src tests
+   ```
+
+4. **Open a pull request** against `main` with a short description of the
+   change. Link any related
+   [issue](https://github.com/NikDrummond/NeuRosetta/issues) if one exists.
+
+Questions or ideas with no code yet? Open an issue first.
+
+Before diving into adding your own things, it is a good idea to know about the achitectural stucture of NeuRosetta, so have a look at {doc}`../development/architecture`.
 
 Next: {doc}`installation`.

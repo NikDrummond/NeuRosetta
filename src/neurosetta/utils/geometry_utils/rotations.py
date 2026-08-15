@@ -1,12 +1,10 @@
 """ """
 
 from numba import njit
-from numpy import array, asarray, cos, empty, float64, isclose, pi, sin, sqrt, arctan2
-from numpy.linalg import norm
+from numpy import arctan2, cos, empty, float64, pi, sin
 
 from ._validation import _broadcast_vectors, _check_scalar, _check_vector_broadcast
-from .algebra import cross_scalar, dot_scalar, normalize_scalar, magnitude_scalar
-from .angles import angle_scalar, signed_angle_scalar
+from .algebra import cross_scalar, dot_scalar, magnitude_scalar, normalize_scalar
 
 _JIT = dict(nogil=True, fastmath=True, cache=True, inline="always")
 
@@ -312,7 +310,6 @@ def minimum_rotation_to_align(x1, y1, z1, x2, y2, z2, assume_normalized=False):
         cos_theta = -1.0
 
     if sin_theta < 1e-12:
-
         if cos_theta > 0.0:
             return (1.0, 0.0, 0.0), 0.0
 
@@ -488,7 +485,6 @@ def compute_alignment_rotation(
         )
         < 0.0
     ):
-
         e1x = -e1x
         e1y = -e1y
         e1z = -e1z
@@ -505,7 +501,6 @@ def compute_alignment_rotation(
         )
         < 0.0
     ):
-
         e2x = -e2x
         e2y = -e2y
         e2z = -e2z
@@ -551,7 +546,6 @@ def compute_alignment_rotation(
     )
 
     if (triple_e < 0.0) != (triple_b < 0.0):
-
         e3x = -e3x
         e3y = -e3y
         e3z = -e3z

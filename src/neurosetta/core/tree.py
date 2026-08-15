@@ -27,6 +27,7 @@ class _Tree(_Stone):
         # Bind / overwrite core gps (graph is source of truth)
         self.ID = ID
         self.metadata = metadata
+        _ensure_edge_lengths(self)
 
     # --- identity (graph gp) ---
 
@@ -51,6 +52,7 @@ class _Tree(_Stone):
     def metadata(self, value: dict) -> None:
         if not isinstance(value, dict):
             raise TypeError("metadata must be a dict")
+        value.setdefault("Flag", False)
         g = self.graph
         if "metadata" not in g.gp:
             g.gp["metadata"] = g.new_gp("object", value)
@@ -62,7 +64,12 @@ class _Tree(_Stone):
     @classmethod
     def from_graph(cls, graph: Graph) -> Self:
         """Wrap a graph that already has ``gp['ID']`` and ``gp['metadata']``."""
-        return cls(ID=int(graph.gp["ID"]), metadata=graph.gp["metadata"], graph=graph)
+        meta = graph.gp["metadata"]
+        if "flag" in graph.gp:
+            meta.setdefault("Flag", bool(graph.gp["flag"]))
+            del graph.gp["flag"]
+        meta.setdefault("Flag", False)
+        return cls(ID=int(graph.gp["ID"]), metadata=meta, graph=graph)
 
     def copy(self) -> Self:
         """Shallow graph copy with a shallow-copied metadata dict."""
@@ -194,3 +201,21 @@ class _Tree(_Stone):
         if cache:
             self.plot3d = plot
         return plot
+
+
+def _ensure_edge_lengths(tree: _Tree) -> None:
+    """Bind ``Path_length`` or ``Euclidean_length`` when not already present.
+
+    Reduced trees may carry ``Path_length`` from the full reconstruction; in
+    that case lengths are left unchanged. Graphs without coordinates are skipped
+    (not yet valid neuron trees).
+    """
+    from ..ops.tree_graphs.path_lengths import get_edge_length
+    from ..ops.tree_graphs.tree_checks import has_property
+    from ..utils.graph_utils import g_has_property
+
+    if has_property(tree, "Path_length", "e") or has_property(tree, "Euclidean_length", "e"):
+        return
+    if not all(g_has_property(tree.graph, c, "v") for c in ("x", "y", "z")):
+        return
+    get_edge_length(tree, bind=True)

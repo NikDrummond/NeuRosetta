@@ -425,8 +425,6 @@ class NeuroGUIApplication:
 
                 self.neuron_indices = neuron.get_core_indices()
                 self.neuron_tools.set_neuron(neuron)
-                # Initialize and get flag state for the new neuron
-                self.neuron_tools.set_flag_state()
                 self.flag_state = self.neuron_tools.get_flag_state()
 
                 # render neuron or subtree

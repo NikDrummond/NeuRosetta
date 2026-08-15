@@ -27,7 +27,7 @@ def test_has_property(simple_tree):
     tree = Tree(ID=1, metadata={}, graph=simple_tree)
     assert tree.has_property("x", "v")
     assert tree.has_property("ID", "g")
-    assert not tree.has_property("Path_length", "e")
+    assert tree.has_property("Path_length", "e")
 
 
 def test_get_set_scalar_vertex_property(simple_tree):

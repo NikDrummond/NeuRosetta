@@ -92,7 +92,9 @@ from ..ops.tree_graphs import (
     scale_coordinates,
     scale_coordinates_about,
     scale_coordinates_along_pca,
+    summary_table,
     translate_coordinates,
+    tree_summary,
     update_reduced,
 )
 from ..ops.units import (
@@ -405,6 +407,12 @@ class Tree(_Tree):
 
     check_units_defined = check_units_defined
     """Raise when tree units are dimensionless."""
+
+    summary = tree_summary
+    """Return a formatted summary table for this tree (HTML in notebooks)."""
+
+    summary_table = summary_table
+    """Return summary metrics as a one-row DataFrame."""
 
     # has_property / list_properties / get_property / set_property /
     # del_property / revert_core_properties inherited from _Tree

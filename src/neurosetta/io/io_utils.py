@@ -206,7 +206,7 @@ def _swc_table(tree: _Tree) -> DataFrame:
 
 def _base_meta():
     """Basic metadata info (identity lives on ``tree.ID`` / ``gp['ID']``, not here)."""
-    return {"units": DEFAULT_UNITS, "file_path": "", "isReduced": False}
+    return {"units": DEFAULT_UNITS, "file_path": "", "isReduced": False, "Flag": False}
 
 
 def _apply_import_units(
