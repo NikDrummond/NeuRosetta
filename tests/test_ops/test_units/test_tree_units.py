@@ -101,7 +101,10 @@ def test_ensure_forest_units_raises_on_dimensionless(simple_tree):
     t2 = Tree(ID=2, metadata={}, graph=simple_tree.copy())
     forest = Forest([t1, t2])
 
-    with pytest.raises(ValueError, match="dimensionless"):
+    with (
+        pytest.warns(UserWarning, match="dimensionless"),
+        pytest.raises(ValueError, match="dimensionless"),
+    ):
         ensure_forest_units(forest)
 
 
@@ -110,7 +113,8 @@ def test_ensure_forest_units_harmonizes_defined_trees(simple_tree):
     t2 = Tree(ID=2, metadata={"units": "micron"}, graph=simple_tree.copy())
     forest = Forest([t1, t2])
 
-    ensure_forest_units(forest)
+    with pytest.warns(UserWarning, match="mixed units"):
+        ensure_forest_units(forest)
 
     assert get_units(t1) == "micron"
     assert get_units(t2) == "micron"

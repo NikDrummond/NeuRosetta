@@ -7,7 +7,7 @@ from typing import Literal
 import pandas as pd
 
 from ...core import _Forest
-from ..tree_graphs.summary import (
+from ..tree_graphs.tree_summary import (
     SUMMARY_COLUMNS,
     SummaryTable,
     _build_summary_table,

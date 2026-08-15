@@ -18,12 +18,14 @@ coordinate_moments
 path_lengths
 degrees
 traversals
+tree_structure
 tree_geometry
 shape_fitting
 subtrees
 tree_editing
 tree_checks
 transformations
+tree_summary
 ```
 
 ## Choosing an entry point

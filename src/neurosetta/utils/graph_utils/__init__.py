@@ -15,6 +15,7 @@ from .counting import (
     count_sections,
     count_transitive_vertices,
     count_vertices,
+    count_core_vertices,
 )
 from .degrees import degree_distribution, get_vertex_degrees
 from .graph_editing import reduce_graph, reroot_graph
@@ -83,6 +84,7 @@ __all__ = [
     "count_transitive_vertices",
     "count_sections",
     "count_bifurcations",
+    "count_core_vertices",
     "bfsearch",
     "bf_iterator",
     "dfsearch",

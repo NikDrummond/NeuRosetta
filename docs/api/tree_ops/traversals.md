@@ -1,9 +1,8 @@
 # Traversals
 
-Breadth- and depth-first search, iterators, post-order, node depth, and
-section angular deviation.
+Breadth- and depth-first search, iterators, and post-order traversal.
 
 ```{eval-rst}
-.. automodule:: neurosetta.ops.tree_graphs.traversals
+.. automodule:: neurosetta.ops.tree_graphs.tree_traversals
    :members:
 ```

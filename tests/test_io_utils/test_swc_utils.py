@@ -78,7 +78,8 @@ def test_swc_read_write(simple_tree):
         path = Path(tmpdir) / "1.swc"
 
         # Write then read
-        export_swc(tree=tree, fpath=path)
+        with pytest.warns(UserWarning, match="dimensionless"):
+            export_swc(tree=tree, fpath=path)
         result = import_swc(path)
 
     # assert metadata and ID
@@ -108,7 +109,8 @@ def test_swc_roundtrip_non_contiguous_ids(tmp_path):
 
     original = import_swc(swc_file)
     out_file = tmp_path / "99.swc"
-    export_swc(original, out_file)
+    with pytest.warns(UserWarning, match="dimensionless"):
+        export_swc(original, out_file)
     result = import_swc(out_file)
 
     assert array_equal(original.graph.vp["ids"].a, result.graph.vp["ids"].a)
@@ -122,7 +124,8 @@ def test_swc_roundtrip_reordered_ids(tmp_path):
 
     original = import_swc(swc_file)
     out_file = tmp_path / "99.swc"
-    export_swc(original, out_file)
+    with pytest.warns(UserWarning, match="dimensionless"):
+        export_swc(original, out_file)
     result = import_swc(out_file)
 
     assert array_equal(original.graph.vp["ids"].a, result.graph.vp["ids"].a)

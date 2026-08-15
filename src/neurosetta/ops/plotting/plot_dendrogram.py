@@ -7,135 +7,263 @@ from numpy import arange, stack, vstack
 
 from ...core import _Tree
 from ...utils.graph_utils import PostOrderVisitor
-from ..tree_graphs import get_node_depth, get_post_order
+from ..tree_graphs import get_max_width, get_node_depth, get_post_order
 
 
 def compute_dend_x(
     tree: _Tree,
-    root: int,
-    depth: VertexPropertyMap,
     post_order: PostOrderVisitor,
-    x_spacing: float = 1.0,
 ) -> dict[int, float]:
-    """Derive x coordinates from depth and the post-order visit list.
+    """Compute relative x coordinates from the tree topology.
 
-    Children of v are simply its neighbours at depth depth[v] + 1.
+    Leaves are assigned consecutive x positions. Internal vertices are
+    positioned at the mean x-coordinate of their children.
 
     Parameters
     ----------
     tree : _Tree
         Neuron tree.
-    root : int
-        Root vertex index.
-    depth : graph_tool.VertexPropertyMap
-        Vertex property map containing depth values.
     post_order : PostOrderVisitor
-        PostOrderVisitor instance with post_order list.
-    x_spacing : float, optional
-        Spacing between leaves on x-axis. By default 1.0.
+        Post-order traversal of the tree.
 
     Returns
     -------
     dict[int, float]
-        Dictionary mapping vertex index to x-coordinate.
+        Mapping from vertex index to relative x-coordinate.
     """
-    x = {}
-    counter = 0
+    x: dict[int, float] = {}
+    leaf_index = 0
 
-    for v in post_order.post_order:
-        # children = neighbours one level deeper
-        ch = tree.graph.get_out_neighbors(v)
-        # v is a leaf
-        if not ch.size > 0:
-            x[v] = counter * x_spacing
-            counter += 1
-        # v is not a leaf
+    for vertex in post_order.post_order:
+        vertex = int(vertex)
+        children = tree.graph.get_out_neighbors(vertex)
+
+        if children.size == 0:
+            x[vertex] = float(leaf_index)
+            leaf_index += 1
         else:
-            x[v] = sum([x[c] for c in ch]) / ch.size
+            x[vertex] = sum(x[int(child)] for child in children) / children.size
 
     return x
 
 
 def plot_dendrogram(
     tree: _Tree,
-    ax_pad: float = 1,
+    x_width: float | None = None,
+    x_spacing: float | None = None,
+    x_pad: float = 1.0,
+    y_pad: float = 2.0,
     root_position: str = "bottom",
-    x_spacing: float = 0.3,
+    # ylabel: bool = False,
+    line_kwargs: dict | None = None,
     axes: Axes | None = None,
 ) -> Axes:
-    """Plot tree as a dendrogram.
+    """Plot a neuron tree as a dendrogram.
+
+    Horizontal positions are determined from the tree topology. Leaves are
+    assigned consecutive positions and internal vertices are positioned at
+    the mean x-coordinate of their children. The resulting coordinates can
+    either be scaled to a specified total width or use a fixed spacing
+    between consecutive leaves.
 
     Parameters
     ----------
     tree : _Tree
-        Neuron tree.
-    ax_pad : float, optional
-        Padding for axis limits. By default 1.
-    root_position : str, optional
-        Position of root: "bottom" or "top". By default "bottom".
-    x_spacing : float, optional
-        Spacing between leaves on x-axis. By default 0.3.
-    axes : Axes | None, optional
-        Matplotlib axes to plot on. If None, creates new figure. By default None.
+        Neuron tree to plot.
+
+    x_width : float or None, optional
+        Desired horizontal width of the dendrogram. If ``None``, the maximum
+        width returned by :func:`get_max_width` is used. Ignored when
+        ``x_spacing`` is provided.
+
+    x_spacing : float or None, optional
+        Spacing between consecutive leaf positions. If provided, this takes
+        precedence over ``x_width``. By default, ``None``.
+
+    x_pad : float, optional
+        Horizontal padding added to the x-axis limits on either side of the
+        dendrogram. By default, 1.0.
+
+    y_pad : float, optional
+        Vertical padding added to the y-axis limits on either side of the
+        dendrogram. By default, 1.0.
+
+    root_position : {"bottom", "top"}, optional
+        Position of the root on the plot. ``"bottom"`` places the root at
+        the bottom of the dendrogram, while ``"top"`` inverts the y-axis so
+        that the root appears at the top. By default, ``"bottom"``.
+
+    ylabel : bool, optional
+        Whether to display the y-axis label. By default, ``False``.
+
+    line_kwargs : dict or None, optional
+        Keyword arguments passed to
+        :class:`matplotlib.collections.LineCollection` when drawing the
+        dendrogram edges. This can be used to customize properties such as
+        line color, linewidth, linestyle, alpha, and cap style.
+
+        For example::
+
+            line_kwargs={
+                "color": "black",
+                "linewidth": 2,
+                "alpha": 0.8,
+            }
+
+        If ``None``, the default line properties are used.
+
+    axes : matplotlib.axes.Axes or None, optional
+        Matplotlib axes on which to draw the dendrogram. If ``None``, a new
+        figure and axes are created. By default, ``None``.
 
     Returns
     -------
-    Axes
-        The matplotlib Axes object with the dendrogram plot.
+    matplotlib.axes.Axes
+        The matplotlib Axes object containing the dendrogram.
 
     Raises
     ------
     ValueError
-        If root_position is not "top" or "bottom".
+        If ``root_position`` is not ``"top"`` or ``"bottom"``.
+    ValueError
+        If ``x_width`` is provided and is not positive.
+    ValueError
+        If ``x_spacing`` is provided and is not positive.
+
+    Notes
+    -----
+    The root vertex is assumed to have index 0.
+
+    The graph is assumed to be directed, with outgoing edges representing
+    parent-to-child relationships.
+
+    ``x_width`` and ``x_spacing`` describe different aspects of the
+    horizontal layout. ``x_width`` controls the total horizontal extent of
+    the dendrogram, whereas ``x_spacing`` controls the distance between
+    consecutive leaves. If both are provided, ``x_spacing`` takes
+    precedence.
+
+    The default horizontal width is determined by ``get_max_width(tree)``.
+    This controls the overall scale of the dendrogram but does not determine
+    the number of leaf positions, which is determined by the tree topology.
     """
+    if root_position not in {"top", "bottom"}:
+        raise ValueError(
+            f"root_position must be 'top' or 'bottom', got {root_position!r}"
+        )
+
+    if x_width is not None and x_width <= 0:
+        raise ValueError(f"x_width must be positive, got {x_width}")
+
+    if x_spacing is not None and x_spacing <= 0:
+        raise ValueError(f"x_spacing must be positive, got {x_spacing}")
+
+    if line_kwargs is None:
+        line_kwargs = {}
+
     depth = get_node_depth(tree, bind=False)
     post_order = get_post_order(tree, bind=False)
+    x = compute_dend_x(tree, post_order)
 
-    x = compute_dend_x(tree, 0, depth, post_order, x_spacing=x_spacing)
+    # Convert topology-based x coordinates into physical coordinates.
+    #
+    # x_spacing takes precedence over x_width. Otherwise, x_width defaults
+    # to the maximum width of the tree.
+    if x_spacing is not None:
+        x = {vertex: value * x_spacing for vertex, value in x.items()}
+    else:
+        if x_width is None:
+            x_width = float(get_max_width(tree))
 
-    # build a drawable position property
-    pos = tree.graph.new_vertex_property("vector<double>")
-    for v in tree.graph.vertices():
-        pos[v] = [x[int(v)], depth[int(v)]]
+        x_min = min(x.values())
+        x_max = max(x.values())
+        topology_width = x_max - x_min
 
-    coords = pos.get_2d_array().T
-    edges = tree.get_edge_indices()
-
-    starts = coords[edges[:, 0]]
-    stops = coords[edges[:, 1]]
-
-    segments = stack([starts, stops], axis=1)
+        if topology_width > 0:
+            scale = x_width / topology_width
+            x = {vertex: (value - x_min) * scale for vertex, value in x.items()}
+        else:
+            # Single-node tree.
+            x = {vertex: 0.0 for vertex in x}
 
     if axes is None:
-        fig, axes = subplots()
+        _, axes = subplots()
 
-    # sort out y inversion
-    if root_position == "bottom":
-        pass
-    elif root_position == "top":
-        axes.yaxis.set_inverted(True)
+    # Build a coordinate array indexed by graph vertex index.
+    n_vertices = tree.graph.num_vertices()
+    coords = stack(
+        (
+            [x[i] for i in range(n_vertices)],
+            [depth[i] for i in range(n_vertices)],
+        ),
+        axis=1,
+    )
+
+    edges = tree.get_edge_indices()
+
+    if edges.size == 0:
+        # Handle a tree consisting only of the root.
+        root_x = coords[0, 0]
+        root_y = coords[0, 1]
+
+        axes.set_xlim(
+            root_x - x_pad,
+            root_x + x_pad,
+        )
+        axes.set_ylim(
+            root_y - y_pad,
+            root_y + y_pad,
+        )
     else:
-        raise ValueError(f"root_position must be 'top' or 'bottom', got {root_position}")
+        starts = coords[edges[:, 0]]
+        stops = coords[edges[:, 1]]
 
-    lc = LineCollection(segments, color="gray", linewidth=1, alpha=1)
+        segments = stack(
+            (starts, stops),
+            axis=1,
+        )
 
-    axes.add_collection(lc)
+        line_collection = LineCollection(
+            segments,
+            **line_kwargs,
+        )
+        axes.add_collection(line_collection)
 
-    # adjust limits
-    all_pts = vstack((starts, stops))
-    axes.set_xlim(all_pts[:, 0].min() - ax_pad, all_pts[:, 0].max() + ax_pad)
-    axes.set_ylim(all_pts[:, 1].min() - ax_pad, all_pts[:, 1].max() + ax_pad)
+        all_points = vstack(
+            (starts, stops),
+        )
 
-    axes.set_aspect("equal")
+        axes.set_xlim(
+            all_points[:, 0].min() - x_pad,
+            all_points[:, 0].max() + x_pad,
+        )
+        axes.set_ylim(
+            all_points[:, 1].min() - y_pad,
+            all_points[:, 1].max() + y_pad,
+        )
+
+    if root_position == "top":
+        axes.yaxis.set_inverted(True)
+
+    # Highlight the root vertex. The root is guaranteed to be vertex 0.
+    axes.scatter(
+        coords[0, 0],
+        coords[0, 1],
+        c="r",
+        zorder=100,
+    )
+
     axes.spines["top"].set_visible(False)
     axes.spines["right"].set_visible(False)
     axes.spines["bottom"].set_visible(False)
+
     axes.set_xticks([])
 
-    axes.scatter(coords[0, 0], coords[0, 1], c="r", zorder=100)
-
+    # if ylabel:
+    #     axes.set_ylabel("Tree Depth")
+    # else:
+    #     # axes.spines["left"].set_visible(False)
     axes.set_ylabel("Tree Depth")
-    axes.set_aspect("equal")
-    axes.set_yticks(arange(0, depth.max() + 1, 2))
+    axes.set_aspect("auto")
 
     return axes

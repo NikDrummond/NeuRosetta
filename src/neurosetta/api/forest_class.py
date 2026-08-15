@@ -68,6 +68,7 @@ from ..ops.tree_graphs import (
     count_roots,
     count_sections,
     count_transitive_nodes,
+    count_core_nodes,
     fit_circle,
     fit_line,
     fit_plane,
@@ -92,6 +93,14 @@ from ..ops.tree_graphs import (
     get_mean_edge_angle,
     get_node_coordinates,
     get_node_depth,
+    get_max_depth,
+    get_mean_depth,
+    get_median_depth,
+    get_tree_widths,
+    get_max_width,
+    get_mean_width,
+    get_median_width,
+    get_binary_ratio,
     get_partition_asymmetry,
     get_radial_angle,
     get_root_coordinate,
@@ -110,7 +119,12 @@ from ..ops.tree_graphs import (
     translate_coordinates,
     update_reduced,
 )
-from ..ops.units import convert_units, ensure_forest_units, get_units, harmonize_forest_units
+from ..ops.units import (
+    convert_units,
+    ensure_forest_units,
+    get_units,
+    harmonize_forest_units,
+)
 
 # apply and global method doc strings
 _FOREST_EXECUTION_PARAMETERS = """
@@ -174,7 +188,9 @@ def _forest_op(
     ):
         if global_:
             if global_fn is None:
-                raise ValueError(f"{fn.__name__} does not provide a global implementation.")
+                raise ValueError(
+                    f"{fn.__name__} does not provide a global implementation."
+                )
 
             kwargs = dict(func_kwargs)
             if "bind" in signature(global_fn).parameters:
@@ -257,6 +273,9 @@ class Forest(_Forest):
 
     count_bifurcations = _forest_op(count_bifurcations)
     """Count the number of bifurcating nodes in all trees"""
+
+    count_core_nodes = _forest_op(count_core_nodes)
+    """Count the number of core nodes in all trees"""
 
     # --- coordinates ---
     get_node_coordinates = _forest_op(get_node_coordinates)
@@ -369,6 +388,30 @@ class Forest(_Forest):
     # --- topology ---
     get_node_depth = _forest_op(get_node_depth)
     """Get node depths for all trees."""
+
+    get_max_depth = _forest_op(get_max_depth)
+    """Get maximum node depth for all trees."""
+
+    get_mean_depth = _forest_op(get_mean_depth)
+    """Get mean node depth for all trees."""
+
+    get_median_depth = _forest_op(get_median_depth)
+    """Get median node depth for all trees."""
+
+    get_tree_widths = _forest_op(get_tree_widths)
+    """Get node counts per depth level for all trees."""
+
+    get_max_width = _forest_op(get_max_width)
+    """Get maximum width at any depth level for all trees."""
+
+    get_mean_width = _forest_op(get_mean_width)
+    """Get mean width across depth levels for all trees."""
+
+    get_median_width = _forest_op(get_median_width)
+    """Get median width across depth levels for all trees."""
+
+    get_binary_ratio = _forest_op(get_binary_ratio)
+    """Get binary branching ratio for all trees."""
 
     get_degrees = _forest_op(get_degrees)
     """Get degree arrays for all trees."""

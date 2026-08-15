@@ -14,7 +14,7 @@ from ...utils.geometry_utils.points import (
     variance_along_axis,
 )
 from .._doc_helpers import enrich_tree_graph_docstrings
-from .coordinates import get_node_coordinates
+from .tree_coordinates import get_node_coordinates
 
 
 def _node_coordinate_arrays(

@@ -1,6 +1,7 @@
 """Functions for 3D geometric analysis of tree graphs."""
 
-from numpy import isin, ndarray
+from numpy import isin, ndarray, hstack
+from graph_tool.all import DFSVisitor
 
 from ...core import _Tree
 from ...utils.geometry_utils import (
@@ -19,10 +20,15 @@ from ...utils.graph_utils import (
     g_has_property,
     get_property,
     set_property,
+    root_index,
+    branch_indices,
+    leaf_indices,
+    AngleVisitor,
 )
 from .._doc_helpers import enrich_tree_graph_docstrings
-from .coordinates import get_edge_coordinates, get_root_coordinate
-from .counting import count_edges
+from .tree_coordinates import get_edge_coordinates, get_root_coordinate
+from .tree_counting import count_edges
+from .tree_traversals import depth_first_search
 
 UnitVector = tuple[ndarray, ndarray, ndarray]
 BifurcationUnitVectors = tuple[UnitVector, UnitVector, UnitVector]
@@ -98,7 +104,9 @@ def get_edge_angles(
 
     if bind:
         c = not g_has_property(tree.graph, "Edge_angle", "e")
-        set_property(tree.graph, "Edge_angle", edge_angles, "e", dtype="double", create=c)
+        set_property(
+            tree.graph, "Edge_angle", edge_angles, "e", dtype="double", create=c
+        )
         return
     return edge_angles
 
@@ -358,7 +366,9 @@ def _get_bifurcation_unit_vectors(tree: _Tree) -> BifurcationUnitVectors:
     return normalize(*v_bc1), normalize(*v_bc2), normalize(*v_sb)
 
 
-def get_bifurcation_angles(tree: _Tree, degrees: bool = False) -> tuple[ndarray, ndarray, ndarray]:
+def get_bifurcation_angles(
+    tree: _Tree, degrees: bool = False
+) -> tuple[ndarray, ndarray, ndarray]:
     """Compute planar angles at each bifurcation node.
 
     For each bifurcation, returns the parent-to-first-child angle
@@ -446,6 +456,69 @@ def get_bifurcation_deihedral_beta(tree: _Tree, degrees: bool = False) -> ndarra
 
     # Dihedral beta - angle between parent and bisector from perspective of normal
     return planar_angle(*sb, *cc_bisector, *normal, degrees=degrees)
+
+
+# angular mean/var of sections for non-reduced trees
+def get_section_angular_deviation(
+    tree: _Tree, return_Visitor: bool = False
+) -> tuple[ndarray, ndarray] | DFSVisitor:
+    """Compute per-section angular mean and variance for a non-reduced tree.
+
+    Sections run between branch nodes (and the root) and end at branch or
+    leaf nodes. For each section, edge directions are compared to the section
+    axis and summarised with :func:`angular_mean` and :func:`angular_var`.
+
+    Parameters
+    ----------
+    tree : _Tree
+        Neuron tree. Must not be reduced.
+    return_Visitor : bool, optional
+        If True, return the underlying :class:`AngleVisitor` instead of the
+        summary arrays. By default False.
+
+    Returns
+    -------
+    tuple[list, list] | AngleVisitor
+        ``(mean_angles, angle_variances)`` per section when
+        return_Visitor=False; otherwise the visitor instance.
+
+    Raises
+    ------
+    AttributeError
+        If the tree is reduced.
+    """
+    if tree.is_reduced():
+        raise AttributeError("Cannot calculate angular deviation for a reduced Neuron")
+
+    root = root_index(tree.graph)
+
+    # get start and stop inds of graph if reduced
+    b_inds = branch_indices(tree.graph)
+    l_inds = leaf_indices(tree.graph)
+
+    # starts are branches and the root
+    starts = hstack([b_inds, [root]]) if root not in b_inds else b_inds
+    # stops are branches (without the root!) and leaves
+    stops = hstack([b_inds[b_inds != root], l_inds])
+
+    vis = depth_first_search(
+        tree=tree,
+        visitor=AngleVisitor,
+        root=root,
+        init_kwargs={
+            "graph": tree.graph,
+            "starts": starts,
+            "stops": stops,
+            "x_prop": tree.graph.vp["x"],
+            "y_prop": tree.graph.vp["y"],
+            "z_prop": tree.graph.vp["z"],
+        },
+    )
+
+    if return_Visitor:
+        return vis
+
+    return vis.mean_angles, vis.angle_variances
 
 
 enrich_tree_graph_docstrings(globals())

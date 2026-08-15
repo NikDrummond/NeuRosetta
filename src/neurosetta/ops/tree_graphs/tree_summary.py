@@ -9,8 +9,8 @@ import pandas as pd
 from ...core import _Tree
 from .._doc_helpers import enrich_tree_graph_docstrings
 from ..units import get_units
-from .counting import count_branches, count_leaves, count_nodes
-from .path_lengths import get_total_cable_length
+from .tree_counting import count_branches, count_leaves, count_nodes
+from .tree_path_lengths import get_total_cable_length
 
 SUMMARY_COLUMNS = ("ID", "nodes", "branches", "leaves", "cable", "units", "isReduced", "Flag")
 NUMERIC_SUMMARY_COLUMNS = ("nodes", "branches", "leaves", "cable")
@@ -61,12 +61,7 @@ class SummaryTable:
 
     def _repr_html_(self) -> str:
         table = self.frame.to_html(index=False, border=0)
-        return (
-            "<div>"
-            f'<p style="margin:0 0 0.5em 0;"><strong>{self.title}</strong></p>'
-            f"{table}"
-            "</div>"
-        )
+        return f'<div><p style="margin:0 0 0.5em 0;"><strong>{self.title}</strong></p>{table}</div>'
 
     def _repr_markdown_(self) -> str:
         return self.to_markdown()
@@ -170,7 +165,9 @@ def _build_summary_table(
     style: Literal["plain", "markdown"] = "plain",
 ) -> SummaryTable:
     display_rows = [_format_display_row(row) for row in rows]
-    display_rows.extend(_format_display_row(row) for row in _aggregate_rows(rows, aggregate=aggregate))
+    display_rows.extend(
+        _format_display_row(row) for row in _aggregate_rows(rows, aggregate=aggregate)
+    )
     frame = pd.DataFrame(display_rows, columns=list(SUMMARY_COLUMNS))
     return SummaryTable(title, frame, style=style)
 

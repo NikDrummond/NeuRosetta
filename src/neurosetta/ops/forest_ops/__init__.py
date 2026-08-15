@@ -1,6 +1,5 @@
 """Global forest-level coordinate and transform operations."""
 
-from .forest_summary import forest_summary, forest_summary_table
 from .forest_coordinate_moments import (
     coordinate_extent_along_axis_forest,
     coordinate_mean_absolute_along_axis_forest,
@@ -17,6 +16,7 @@ from .forest_shape_fitting import (
     fit_plane_forest,
     fit_sphere_forest,
 )
+from .forest_summary import forest_summary, forest_summary_table
 from .forest_transforms import (
     align_forest,
     align_forest_to_vector,

@@ -71,7 +71,8 @@ def test_set_square_vector_warns_assume_soa():
     # identity as SoA: dim i is one-hot on vertex i
     soa = eye(3)
     tree = Tree(ID=1, metadata={}, graph=g)
-    tree.set_property("extra_vec", soa, "v", dtype="vector<double>", create=True)
+    with pytest.warns(UserWarning, match="assuming SoA"):
+        tree.set_property("extra_vec", soa, "v", dtype="vector<double>", create=True)
 
     # overwrite with same square shape → warning, assume SoA
     with pytest.warns(UserWarning, match="assuming SoA"):

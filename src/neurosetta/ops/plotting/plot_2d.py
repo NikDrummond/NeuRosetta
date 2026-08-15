@@ -59,7 +59,13 @@ def plot_2d(
         line_kwargs = {"color": "gray", "linewidth": 1, "alpha": 1}
     if center is None:
         center = array([0, 0])
-    starts, stops = tree.get_edge_coordinates()
+
+    # get coodinates
+    edges = tree.get_edge_indices()
+    coords = tree.align_coordinates(bind=False, robust=False)
+    starts = coords[edges[:, 0]]
+    stops = coords[edges[:, 1]]
+
     # remove z axis
     starts = starts[:, [0, 1]]
     stops = stops[:, [0, 1]]

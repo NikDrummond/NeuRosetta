@@ -1,7 +1,7 @@
 """Tests for Tree.summary and Forest.summary."""
 
 from neurosetta.api import Forest, Tree
-from neurosetta.ops.tree_graphs.summary import SummaryTable, _summary_row
+from neurosetta.ops.tree_graphs.tree_summary import SummaryTable, _summary_row
 
 
 def test_summary_row_values(simple_tree):

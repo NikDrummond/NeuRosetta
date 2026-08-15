@@ -5,7 +5,7 @@ from __future__ import annotations
 from graph_tool.all import Graph
 from numpy import hstack, where
 
-from .vertex_inds import bifurcation_indices, branch_indices, leaf_indices
+from .vertex_inds import bifurcation_indices, branch_indices, leaf_indices, core_indices
 
 
 def count_roots(g: Graph) -> int:
@@ -103,7 +103,11 @@ def count_transitive_vertices(g: Graph) -> int:
     int
         Number of transitive vertices.
     """
-    return int(sum((g.degree_property_map("out").a == 1) & (g.degree_property_map("in").a == 1)))
+    return int(
+        sum(
+            (g.degree_property_map("out").a == 1) & (g.degree_property_map("in").a == 1)
+        )
+    )
 
 
 def count_sections(g: Graph) -> int:
@@ -143,3 +147,21 @@ def count_bifurcations(g: Graph, include_root: bool = False) -> int:
         Number of bifurcations
     """
     return len(bifurcation_indices(g, include_root=include_root))
+
+
+def count_core_vertices(g: Graph, include_root: bool = True) -> int:
+    """_summary_
+
+    Parameters
+    ----------
+    g : Graph
+        Directed tree graph
+    include_root : bool, optional
+        If True, include root index in count of core vertices, by default False, by default True
+
+    Returns
+    -------
+    int
+        Number of core vertices
+    """
+    return len(core_indices(g, include_root=include_root))

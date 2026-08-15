@@ -15,7 +15,8 @@ def test_tree_gp_is_source_of_truth(simple_tree):
     assert "metadata" in tree.graph.gp
     assert int(tree.graph.gp["ID"]) == 1
     assert tree.metadata is tree.graph.gp["metadata"]
-    assert tree.metadata is meta
+    assert meta == {"units": "nm", "isReduced": False}
+    assert tree.metadata == {**meta, "Flag": False}
 
 
 def test_tree_id_setter_writes_gp(simple_tree):

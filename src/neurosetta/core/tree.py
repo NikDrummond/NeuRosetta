@@ -52,6 +52,7 @@ class _Tree(_Stone):
     def metadata(self, value: dict) -> None:
         if not isinstance(value, dict):
             raise TypeError("metadata must be a dict")
+        value = dict(value)
         value.setdefault("Flag", False)
         g = self.graph
         if "metadata" not in g.gp:
@@ -210,7 +211,7 @@ def _ensure_edge_lengths(tree: _Tree) -> None:
     that case lengths are left unchanged. Graphs without coordinates are skipped
     (not yet valid neuron trees).
     """
-    from ..ops.tree_graphs.path_lengths import get_edge_length
+    from ..ops.tree_graphs.tree_path_lengths import get_edge_length
     from ..ops.tree_graphs.tree_checks import has_property
     from ..utils.graph_utils import g_has_property
 

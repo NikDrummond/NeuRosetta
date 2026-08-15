@@ -13,7 +13,7 @@ from ...utils.graph_utils import (
     subgraph_score,
 )
 from .._doc_helpers import enrich_tree_graph_docstrings
-from .path_lengths import get_edge_length
+from .tree_path_lengths import get_edge_length
 from .tree_checks import has_property
 
 
@@ -115,7 +115,7 @@ def get_subtree(tree: _Tree, revert_properties: bool = True) -> None:
 def get_partition_asymmetry(
     tree: _Tree, weighted: bool = True, bind: bool = False
 ) -> ndarray | None:
-    """Compute partition asymmetry at each branching node in a directed tree graph.
+    r"""Compute partition asymmetry at each branching node in a directed tree graph.
 
     For a binary branching node with downstream leaf counts r and s (one per child
     subtree), the unweighted partition asymmetry is:

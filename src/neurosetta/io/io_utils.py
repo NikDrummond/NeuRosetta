@@ -55,7 +55,7 @@ def _table_from_swc(file_path: str) -> DataFrame:
         names=["node_id", "type", "x", "y", "z", "radius", "parent_id"],
         comment="#",
         engine="c",
-        sep="\s+",
+        sep=r"\s+",
         dtype={
             "node_id": int32,
             "type": int32,

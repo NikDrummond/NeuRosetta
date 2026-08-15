@@ -45,6 +45,7 @@ from ..ops.tree_graphs import (
     count_roots,
     count_sections,
     count_transitive_nodes,
+    count_core_nodes,
     depth_first_iterator,
     depth_first_search,
     fit_circle,
@@ -71,6 +72,14 @@ from ..ops.tree_graphs import (
     get_mean_edge_angle,
     get_node_coordinates,
     get_node_depth,
+    get_max_depth,
+    get_mean_depth,
+    get_median_depth,
+    get_tree_widths,
+    get_max_width,
+    get_mean_width,
+    get_median_width,
+    get_binary_ratio,
     get_partition_asymmetry,
     get_post_order,
     get_radial_angle,
@@ -183,6 +192,9 @@ class Tree(_Tree):
 
     count_bifurcations = count_bifurcations
     """Count the number of bifurcating nodes"""
+
+    count_core_nodes = count_core_nodes
+    """Count the number of core nodes"""
 
     # --- coordinates ---
     get_node_coordinates = get_node_coordinates
@@ -304,6 +316,30 @@ class Tree(_Tree):
     # --- Topological bits ---
     get_node_depth = get_node_depth
     """Compute node depths from root."""
+
+    get_max_depth = get_max_depth
+    """Get the maximum node depth from the root."""
+
+    get_mean_depth = get_mean_depth
+    """Get the mean node depth from the root."""
+
+    get_median_depth = get_median_depth
+    """Get the median node depth from the root."""
+
+    get_tree_widths = get_tree_widths
+    """Get the number of nodes at each depth level."""
+
+    get_max_width = get_max_width
+    """Get the maximum width (node count) at any depth level."""
+
+    get_mean_width = get_mean_width
+    """Get the mean width across depth levels."""
+
+    get_median_width = get_median_width
+    """Get the median width across depth levels."""
+
+    get_binary_ratio = get_binary_ratio
+    """Compute the binary branching ratio of the tree."""
 
     # --- Tree Surgery / editing ---
     get_reduced_tree = reduce_tree

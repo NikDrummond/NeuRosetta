@@ -112,7 +112,9 @@ def test_warn_if_export_dimensionless(simple_tree):
 
 
 def test_parse_docs_sample_header():
-    sample = Path(__file__).resolve().parents[2] / "docs" / "data" / "720575940596125868.swc"
+    sample = (
+        Path(__file__).resolve().parents[2] / "docs" / "data" / "swc" / "720575940596125868.swc"
+    )
     if not sample.exists():
         pytest.skip("sample SWC not available")
 

@@ -20,4 +20,4 @@ def test_tree_initialization(simple_tree):
 def test_tree_inherits_from_stone(simple_tree):
     tree = _Tree(ID=1, metadata={"test": 123}, graph=simple_tree)
     assert isinstance(tree, _Stone)
-    assert tree.metadata == {"test": 123}
+    assert tree.metadata == {"test": 123, "Flag": False}

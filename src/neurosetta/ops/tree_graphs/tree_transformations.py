@@ -21,7 +21,7 @@ from ...utils.geometry_utils.transforms import (
 )
 from ...utils.graph_utils.gt_properties import _set_coords_prop
 from .._doc_helpers import enrich_tree_graph_docstrings
-from .coordinates import get_node_coordinates, get_root_coordinate
+from .tree_coordinates import get_node_coordinates, get_root_coordinate
 
 CenterMode = Literal["centroid", "root"]
 SourceMode = Literal["pc1"]

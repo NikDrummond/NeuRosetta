@@ -19,7 +19,7 @@ from ...utils.geometry_utils.transforms import (
     translate,
 )
 from ...utils.graph_utils.gt_properties import _set_coords_prop
-from ..tree_graphs.coordinates import get_root_coordinate
+from ..tree_graphs.tree_coordinates import get_root_coordinate
 from ..tree_graphs.tree_transformations import (
     CenterMode,
     SourceVector,
