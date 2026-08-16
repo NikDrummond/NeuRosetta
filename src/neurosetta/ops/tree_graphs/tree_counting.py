@@ -7,6 +7,7 @@ from ...utils.graph_utils import (
 from ...utils.graph_utils import (
     count_branches as _count_branches,
 )
+from ...utils.graph_utils import count_core_vertices as _count_core_vertices
 from ...utils.graph_utils import (
     count_edges as _count_edges,
 )
@@ -24,9 +25,6 @@ from ...utils.graph_utils import (
 )
 from ...utils.graph_utils import (
     count_vertices as _count_vertices,
-)
-from ...utils.graph_utils import (
-    count_core_vertices as _count_core_vertices
 )
 from .._doc_helpers import enrich_tree_graph_docstrings
 
@@ -162,6 +160,7 @@ def count_bifurcations(tree: _Tree, include_root: bool = False) -> int:
     """
     return _count_bifurcations(tree.graph, include_root=include_root)
 
+
 def count_core_nodes(tree: _Tree, include_root: bool = True) -> int:
     """_summary_
 
@@ -170,7 +169,8 @@ def count_core_nodes(tree: _Tree, include_root: bool = True) -> int:
     tree : _Tree
         Neuron tree
     include_root : bool, optional
-        If True, count the root node in core nodes. There is little reason this should eve be False, kept fo consistency. By default True
+        If True, count the root node in core nodes.
+        Should never really be False, kept for consistency. By default True
 
     Returns
     -------
@@ -178,5 +178,6 @@ def count_core_nodes(tree: _Tree, include_root: bool = True) -> int:
         Number of core nodes (sum of oot, banch and leaf counts)
     """
     return _count_core_vertices(tree.graph, include_root=include_root)
+
 
 enrich_tree_graph_docstrings(globals())

@@ -1,24 +1,22 @@
 """Functions for tree structural metrics."""
 
-from numpy import ndarray, bincount, median
+from numpy import bincount, median, ndarray
 
 from ...core import _Tree
 from ...utils.graph_utils import (
-    count_core_vertices,
-    count_branches,
-    root_index,
     TreeDepthVisitor,
+    count_branches,
+    count_core_vertices,
     g_has_property,
     get_property,
+    root_index,
 )
 from .._doc_helpers import enrich_tree_graph_docstrings
 from .tree_traversals import breadth_first_search
 
 
 # depths
-def get_node_depth(
-    tree: _Tree, root: int | None = None, bind: bool = True
-) -> ndarray | None:
+def get_node_depth(tree: _Tree, root: int | None = None, bind: bool = True) -> ndarray | None:
     """Compute node depths from root using breadth-first search.
 
     Parameters

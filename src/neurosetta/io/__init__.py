@@ -1,4 +1,4 @@
-from .example_data import example_data_dir, load_example_data
+from .example_data import example_data_dir, example_ids, load_example_data
 from .mesh_utils import export_mesh, import_mesh
 from .nr_utils import load, save
 from .swc_utils import export_swc, import_swc
@@ -12,4 +12,5 @@ __all__ = [
     "export_mesh",
     "example_data_dir",
     "load_example_data",
+    "example_ids",
 ]

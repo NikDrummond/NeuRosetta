@@ -10,6 +10,13 @@ from .nr_utils import load
 
 ExampleFormat = Literal["nr", "swc"]
 
+example_ids = [
+    720575940596125868,
+    720575940599459782,
+    720575940599704006,
+    720575940599729862,
+]
+
 
 def example_data_dir(*, format: ExampleFormat = "nr") -> Path:
     """
@@ -54,7 +61,7 @@ def load_example_data(
     set_units: str | None = None,
     voxel_size: float | None = None,
     voxel_unit: str | None = None,
-    parallel: bool = False,
+    parallel: bool | None = None,
     max_workers: int | None = None,
     show_progress: bool = False,
 ) -> _Tree: ...
@@ -67,7 +74,7 @@ def load_example_data(
     set_units: str | None = None,
     voxel_size: float | None = None,
     voxel_unit: str | None = None,
-    parallel: bool = False,
+    parallel: bool | None = None,
     max_workers: int | None = None,
     show_progress: bool = False,
 ) -> _Forest: ...
@@ -79,7 +86,7 @@ def load_example_data(
     set_units: str | None = None,
     voxel_size: float | None = None,
     voxel_unit: str | None = None,
-    parallel: bool = False,
+    parallel: bool | None = None,
     max_workers: int | None = None,
     show_progress: bool = False,
 ):

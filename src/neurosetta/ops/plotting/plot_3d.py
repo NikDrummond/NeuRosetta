@@ -1,5 +1,8 @@
 """3D plotting of neuron morphologies."""
 
+from typing import Any
+
+from ...config.vedo_settings import is_notebook_vedo_backend
 from ...core import _Tree
 from .viewer import Viewer
 
@@ -12,7 +15,7 @@ def plot_3d(
     root_kwargs: dict = None,
     plot_kwargs: dict = None,
     force_refresh: bool = False,
-) -> Viewer:
+) -> Viewer | Any:
     """On-the-fly 3D neuron plotting. Opens an interactive vedo.Plotter instance.
 
     Parameters
@@ -37,8 +40,10 @@ def plot_3d(
 
     Returns
     -------
-    Viewer
-        The vedo Viewer instance.
+    Viewer | Any
+        The :class:`~neurosetta.ops.plotting.viewer.Viewer` for desktop ``vtk``
+        backends. For notebook backends (e.g. ``k3d``), the inline widget
+        returned by vedo ``show()``.
     """
     # set up viewer
     if plot_kwargs is None:
@@ -56,7 +61,8 @@ def plot_3d(
         root_kwargs=root_kwargs,
         force_refresh=force_refresh,
     )
-    # show and set to close upon close
-    view.show(**plot_kwargs).close()
-
+    shown = view.show(**plot_kwargs)
+    if is_notebook_vedo_backend():
+        return shown
+    shown.close()
     return view

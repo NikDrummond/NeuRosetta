@@ -11,13 +11,45 @@ from numpy import asarray, ndarray
 
 Level = Literal["g", "v", "e"]
 _LEVEL_MAP = {"g": "gp", "v": "vp", "e": "ep"}
+_LEVEL_ALIASES: dict[str, Level | Literal["all"]] = {
+    "g": "g",
+    "graph": "g",
+    "v": "v",
+    "vertex": "v",
+    "node": "v",
+    "n": "v",
+    "e": "e",
+    "edge": "e",
+    "all": "all",
+}
+_ACCEPTED_LEVEL_NAMES = tuple(_LEVEL_ALIASES)
+
+
+def _normalize_level(level: str) -> Level | Literal["all"]:
+    """Map short or long level names to canonical ``g`` / ``v`` / ``e`` / ``all``."""
+    key = level.lower().strip()
+    try:
+        return _LEVEL_ALIASES[key]
+    except KeyError:
+        raise AttributeError(
+            f"level must be one of {_ACCEPTED_LEVEL_NAMES} "
+            "(short forms g/v/e/n, or graph/vertex|node/edge)"
+        ) from None
+
+
+def _normalize_levels(level: str | list[str]) -> str | list[str]:
+    if isinstance(level, str):
+        return _normalize_level(level)
+    return [_normalize_level(lev) for lev in level]
 
 
 ### getting properties
 
 
-def _property_maps(g: Graph, level: Level):
+def _property_maps(g: Graph, level: Level | str):
     """Return the property map dict for a level (gp / vp / ep)."""
+    if isinstance(level, str):
+        level = _normalize_level(level)
     if level not in _LEVEL_MAP:
         raise AttributeError(f"level must be one of {list(_LEVEL_MAP)}")
     return getattr(g, _LEVEL_MAP[level])
@@ -57,8 +89,8 @@ def _get_properties(g: Graph, level: str | list[str] = "all") -> list[str] | dic
     g : Graph
         Graph to inspect.
     level : str | List[str], optional
-        Property level to retrieve. Can be "g" (graph), "v" (vertex), "e" (edge),
-        "all" (all levels), or a list of levels. By default "all".
+        Property level to retrieve. Accepts ``"g"``/``"graph"``, ``"v"``/``"vertex"``/``"node"``,
+        ``"e"``/``"edge"``, ``"all"``, or a list thereof. By default ``"all"``.
 
     Returns
     -------
@@ -71,11 +103,8 @@ def _get_properties(g: Graph, level: str | list[str] = "all") -> list[str] | dic
     AttributeError
         If level is a string not in {"g", "v", "e", "all"}.
     """
-    # accepted levels
+    level = _normalize_levels(level)
     accepted_levels = ["g", "v", "e", "all"]
-    # raise if wrong value passed
-    if isinstance(level, str) and level not in accepted_levels:
-        raise AttributeError(f"level must be one of {accepted_levels}")
 
     # property dict
     prop_keys = _property_dict(g)
@@ -135,8 +164,8 @@ def g_has_property(g: Graph, prop: str, level: str | list[str] = "all") -> bool:
     prop : str
         Property name to search for.
     level : str | List[str], optional
-        Property level(s) to search. Can be "g", "v", "e", "all", or list
-        thereof. By default "all".
+        Property level(s) to search. Accepts ``"g"``/``"graph"``, ``"v"``/``"vertex"``/``"node"``,
+        ``"e"``/``"edge"``, ``"all"``, or a list thereof. By default ``"all"``.
 
     Returns
     -------
@@ -307,7 +336,7 @@ def list_properties(g: Graph, level: str | list[str] = "all") -> list[str] | dic
         Graph to inspect.
     level : str | list[str], optional
         ``"all"`` → ``{"g": [...], "v": [...], "e": [...]}``.
-        ``"g"`` / ``"v"`` / ``"e"`` → list of names at that level.
+        ``"g"``/``"graph"``, ``"v"``/``"vertex"``/``"node"``, ``"e"``/``"edge"`` → list of names.
         A list of levels → dict subset.
     """
     if level == "all":
@@ -356,8 +385,9 @@ def get_property(
         Graph to read from.
     name : str
         Property name.
-    level : {"g", "v", "e"} or None, optional
-        Property level. If ``None`` (default), search all levels. A single
+    level : str or None, optional
+        Property level: ``"g"``/``"graph"``, ``"v"``/``"vertex"``/``"node"``, or
+        ``"e"``/``"edge"``. If ``None`` (default), search all levels. A single
         match is returned directly; if the name exists at multiple levels,
         warn and return ``{level: value, ...}``.
     as_array : bool, optional
@@ -415,8 +445,8 @@ def set_property(
         ``(d, n)`` (dimensions × vertices/edges, graph-tool SoA) or
         ``(n, d)`` (AoS); layout is inferred from ``n`` at ``level``.
         Written via ``set_2d_array``.
-    level : {"g", "v", "e"}
-        Property level.
+    level : str
+        Property level: ``"g"``/``"graph"``, ``"v"``/``"vertex"``/``"node"``, or ``"e"``/``"edge"``.
     dtype : str, optional
         Required when ``create=True`` (e.g. ``"double"``, ``"vector<double>"``).
     create : bool, optional

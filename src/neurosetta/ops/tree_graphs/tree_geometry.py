@@ -1,7 +1,7 @@
 """Functions for 3D geometric analysis of tree graphs."""
 
-from numpy import isin, ndarray, hstack
 from graph_tool.all import DFSVisitor
+from numpy import hstack, isin, ndarray
 
 from ...core import _Tree
 from ...utils.geometry_utils import (
@@ -16,14 +16,14 @@ from ...utils.geometry_utils import (
     signed_angle,
 )
 from ...utils.graph_utils import (
+    AngleVisitor,
     bifurcation_indices,
+    branch_indices,
     g_has_property,
     get_property,
-    set_property,
-    root_index,
-    branch_indices,
     leaf_indices,
-    AngleVisitor,
+    root_index,
+    set_property,
 )
 from .._doc_helpers import enrich_tree_graph_docstrings
 from .tree_coordinates import get_edge_coordinates, get_root_coordinate
@@ -104,9 +104,7 @@ def get_edge_angles(
 
     if bind:
         c = not g_has_property(tree.graph, "Edge_angle", "e")
-        set_property(
-            tree.graph, "Edge_angle", edge_angles, "e", dtype="double", create=c
-        )
+        set_property(tree.graph, "Edge_angle", edge_angles, "e", dtype="double", create=c)
         return
     return edge_angles
 
@@ -366,9 +364,7 @@ def _get_bifurcation_unit_vectors(tree: _Tree) -> BifurcationUnitVectors:
     return normalize(*v_bc1), normalize(*v_bc2), normalize(*v_sb)
 
 
-def get_bifurcation_angles(
-    tree: _Tree, degrees: bool = False
-) -> tuple[ndarray, ndarray, ndarray]:
+def get_bifurcation_angles(tree: _Tree, degrees: bool = False) -> tuple[ndarray, ndarray, ndarray]:
     """Compute planar angles at each bifurcation node.
 
     For each bifurcation, returns the parent-to-first-child angle

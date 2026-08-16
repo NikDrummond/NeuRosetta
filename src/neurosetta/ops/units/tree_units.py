@@ -3,8 +3,12 @@
 from __future__ import annotations
 
 import warnings
+from typing import Literal
+
+import numpy as np
 
 from ...core import _Forest, _Tree
+from ...core.metadata import del_core_meta, set_core_meta
 from ...utils.graph_utils import g_has_property
 from ...utils.units import (
     DEFAULT_UNITS,
@@ -125,12 +129,13 @@ def _commit_units_metadata(tree: _Tree, pending: dict) -> None:
     -------
     None
     """
-    tree.metadata["units"] = pending["units"]
+    set_core_meta(tree.metadata, "units", pending["units"])
     if is_voxel_units(pending["units"]):
-        tree.metadata["voxel_size"] = pending["voxel_size"]
-        tree.metadata["voxel_unit"] = pending["voxel_unit"]
+        set_core_meta(tree.metadata, "voxel_size", pending["voxel_size"])
+        set_core_meta(tree.metadata, "voxel_unit", pending["voxel_unit"])
     else:
-        clear_voxel_metadata(tree.metadata)
+        del_core_meta(tree.metadata, "voxel_size")
+        del_core_meta(tree.metadata, "voxel_unit")
 
 
 def get_units(tree: _Tree) -> str:
@@ -168,7 +173,7 @@ def get_voxel_spec(tree: _Tree) -> tuple[float, str] | None:
 
 def set_units(
     tree: _Tree,
-    units: str,
+    units: str | None = None,
     *,
     convert: bool = False,
     voxel_size: float | None = None,
@@ -180,8 +185,9 @@ def set_units(
     ----------
     tree : _Tree
         Target tree.
-    units : str
-        Canonical unit string or ``"voxel"``.
+    units : str or None, optional
+        Canonical unit string or ``"voxel"``. When omitted, both *voxel_size*
+        and *voxel_unit* must be given and units are set to ``"voxel"``.
     convert : bool, optional
         Rescale coordinates, radii, and edge lengths when changing units.
         By default False.
@@ -194,7 +200,17 @@ def set_units(
     Returns
     -------
     None
+
+    Raises
+    ------
+    ValueError
+        If *units* is omitted without both *voxel_size* and *voxel_unit*.
     """
+    if units is None:
+        if voxel_size is None or voxel_unit is None:
+            raise ValueError("set_units() requires units, or both voxel_size and voxel_unit.")
+        units = VOXEL_UNITS
+
     old_meta = dict(tree.metadata)
     current = normalize_units_str(old_meta.get("units"))
     pending, target = _pending_units_metadata(
@@ -251,7 +267,7 @@ def set_voxel_units(
 
 def convert_units(
     tree: _Tree,
-    target_units: str,
+    target_units: str | None = None,
     *,
     in_place: bool = True,
     voxel_size: float | None = None,
@@ -263,8 +279,9 @@ def convert_units(
     ----------
     tree : _Tree
         Tree to convert.
-    target_units : str
-        Destination unit string.
+    target_units : str or None, optional
+        Destination unit string. When omitted, both *voxel_size* and
+        *voxel_unit* must be given and the target is ``"voxel"``.
     in_place : bool, optional
         Mutate *tree* in place. By default True.
     voxel_size : float | None, optional
@@ -276,12 +293,30 @@ def convert_units(
     -------
     _Tree
         Converted tree (same object when in_place=True).
+
+    Raises
+    ------
+    ValueError
+        If *target_units* is omitted without both *voxel_size* and
+        *voxel_unit*, or if the tree is dimensionless.
     """
+    if target_units is None:
+        if voxel_size is None or voxel_unit is None:
+            raise ValueError(
+                "convert_units() requires target_units, or both voxel_size and voxel_unit."
+            )
+        target_units = VOXEL_UNITS
+
     if not in_place:
         tree = tree.copy()
 
     old_meta = dict(tree.metadata)
     current = normalize_units_str(old_meta.get("units"))
+    if is_dimensionless(current):
+        raise ValueError(
+            "Cannot convert from dimensionless units; use tree.set_units() "
+            "to assign spatial units first."
+        )
     pending, target = _pending_units_metadata(
         tree.metadata,
         target_units,
@@ -300,6 +335,69 @@ def convert_units(
         _set_edge_lengths(tree, factor)
 
     _commit_units_metadata(tree, pending)
+    return tree
+
+
+_VoxelSnapMethod = Literal["floor", "round", "ceil"]
+
+
+def snap_voxel_coordinates(
+    tree: _Tree,
+    *,
+    method: _VoxelSnapMethod = "floor",
+    recalculate_edge_lengths: bool = True,
+) -> _Tree:
+    """Snap node coordinates to integer voxel grid indices.
+
+    The tree must already use voxel units (continuous index coordinates).
+    Coordinates are mapped to integer cell indices; radii are unchanged.
+
+    Parameters
+    ----------
+    tree : _Tree
+        Tree with ``units == "voxel"`` and valid voxel metadata.
+    method : {"floor", "round", "ceil"}, optional
+        Rounding rule applied per axis. By default ``"floor"``.
+    recalculate_edge_lengths : bool, optional
+        Recompute cached ``Path_length`` / ``Euclidean_length`` edge properties
+        from snapped coordinates. By default True.
+
+    Returns
+    -------
+    _Tree
+        The same tree instance (mutated in place).
+
+    Raises
+    ------
+    ValueError
+        If the tree is not in voxel units or *method* is invalid.
+    """
+    if not is_voxel_units(get_units(tree)):
+        raise ValueError(
+            "snap_voxel_coordinates() requires voxel units; convert to voxels before snapping."
+        )
+    validate_voxel_metadata(tree.metadata)
+
+    if method not in ("floor", "round", "ceil"):
+        raise ValueError("method must be 'floor', 'round', or 'ceil'.")
+
+    coords = tree.get_node_coordinates()
+    if method == "floor":
+        snapped = np.floor(coords)
+    elif method == "round":
+        snapped = np.round(coords)
+    else:
+        snapped = np.ceil(coords)
+
+    tree.graph.vp["x"].a = snapped[:, 0]
+    tree.graph.vp["y"].a = snapped[:, 1]
+    tree.graph.vp["z"].a = snapped[:, 2]
+
+    if recalculate_edge_lengths:
+        from ..tree_graphs.tree_path_lengths import get_edge_length
+
+        get_edge_length(tree, bind=True, recalculate=True)
+
     return tree
 
 
@@ -418,6 +516,7 @@ __all__ = [
     "set_units",
     "set_voxel_units",
     "convert_units",
+    "snap_voxel_coordinates",
     "check_units_defined",
     "harmonize_forest_units",
     "ensure_forest_units",

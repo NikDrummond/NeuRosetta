@@ -10,6 +10,7 @@ from .tree_units import (
     harmonize_forest_units,
     set_units,
     set_voxel_units,
+    snap_voxel_coordinates,
 )
 
 __all__ = [
@@ -19,6 +20,7 @@ __all__ = [
     "set_units",
     "set_voxel_units",
     "convert_units",
+    "snap_voxel_coordinates",
     "check_units_defined",
     "harmonize_forest_units",
     "ensure_forest_units",

@@ -7,14 +7,11 @@ from collections.abc import Sequence
 from dataclasses import dataclass, field
 from typing import Any
 
-from vedo import settings
 from vedo.plotter import Plotter
 
+from ...config import get_settings, sync_vedo_runtime
 from ...core import _Forest, _Tree
 from .utils import TreePlot3D
-
-settings.default_backend = "vtk"
-settings.use_parallel_projection = True
 
 Actor = Any
 
@@ -41,13 +38,13 @@ class Viewer:
         Whether to run in interactive mode. By default True.
     """
 
-    # ---- user-facing defaults ----
-    size: tuple[int, int] = (1200, 800)
-    bg: str | Sequence[float] = "white"
+    # ---- user-facing defaults (None → global vedo settings) ----
+    size: tuple[int, int] | None = None
+    bg: str | Sequence[float] | None = None
     bg2: str | Sequence[float] | None = None
     axes: int | bool | str = 0
     title: str = ""
-    offscreen: bool = False
+    offscreen: bool | None = None
     interactive: bool = True
 
     # ---- internal state ----
@@ -59,6 +56,14 @@ class Viewer:
 
     def __post_init__(self) -> None:
         """Initialize the vedo Plotter."""
+        vedo_cfg = get_settings().vedo
+        sync_vedo_runtime(vedo_cfg)
+        if self.size is None:
+            self.size = vedo_cfg.window_size
+        if self.bg is None:
+            self.bg = vedo_cfg.default_bg
+        if self.offscreen is None:
+            self.offscreen = vedo_cfg.offscreen
         self._plotter = Plotter(
             size=self.size,
             bg=self.bg,
@@ -259,7 +264,7 @@ class Viewer:
         **build_kwargs : dict
             Additional keyword arguments passed to forest.build_3d().
         """
-        forest.build_3d(force_refresh=force_refresh, **build_kwargs, show_progress=True)
+        forest.build_3d(force_refresh=force_refresh, **build_kwargs, show_progress=None)
 
         # Batch all actors into a single add call
         all_actors = []

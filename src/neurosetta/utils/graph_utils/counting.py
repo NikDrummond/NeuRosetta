@@ -5,7 +5,7 @@ from __future__ import annotations
 from graph_tool.all import Graph
 from numpy import hstack, where
 
-from .vertex_inds import bifurcation_indices, branch_indices, leaf_indices, core_indices
+from .vertex_inds import bifurcation_indices, branch_indices, core_indices, leaf_indices
 
 
 def count_roots(g: Graph) -> int:
@@ -103,11 +103,7 @@ def count_transitive_vertices(g: Graph) -> int:
     int
         Number of transitive vertices.
     """
-    return int(
-        sum(
-            (g.degree_property_map("out").a == 1) & (g.degree_property_map("in").a == 1)
-        )
-    )
+    return int(sum((g.degree_property_map("out").a == 1) & (g.degree_property_map("in").a == 1)))
 
 
 def count_sections(g: Graph) -> int:

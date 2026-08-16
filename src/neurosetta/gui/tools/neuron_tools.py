@@ -141,7 +141,7 @@ class NeuronTools:
 
     def update_flag_state(self, flag_state: bool) -> None:
         """Set the Flag entry in the neuron's metadata."""
-        self.current_neuron.metadata["Flag"] = flag_state
+        self.current_neuron.set_flag(flag_state)
 
     def get_flag_state(self) -> bool:
         """Get the flag state of the current neuron.

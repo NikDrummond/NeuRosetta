@@ -25,7 +25,9 @@ def reduce_tree(tree: _Tree, inplace: bool = False) -> Graph | None:
     Graph | None
         Reduced graph if inplace=False, otherwise None.
     """
-    g = reduce_graph(tree.graph)
+    g = tree.graph if inplace else tree.graph.copy()
+
+    g = reduce_graph(g)
 
     if inplace:
         tree.graph = g

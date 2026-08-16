@@ -7,6 +7,7 @@ from numpy import concatenate, vstack
 
 from .coordinates import vertex_coordinates
 from .gt_properties import raise_internal_property_missing
+from .node_types import infer_node_types
 from .traversals import ReduceVisitor, bf_iterator, dfsearch
 from .vertex_inds import branch_indices, core_indices, root_index
 
@@ -126,8 +127,8 @@ def reroot_graph(g: Graph, root: int) -> Graph:
     g_new.vp["x"] = g_new.new_vp("double", g_view.vp["x"].a[ids])
     g_new.vp["y"] = g_new.new_vp("double", g_view.vp["y"].a[ids])
     g_new.vp["z"] = g_new.new_vp("double", g_view.vp["z"].a[ids])
-    # node_type
-    g_new.vp["node_type"] = g_new.new_vp("int", g_view.vp["node_type"].a[g_new.vp["ids"].a])
+    # node_type (re-infer from rerooted directed topology)
+    g_new.vp["node_type"] = g_new.new_vp("int", infer_node_types(g_new))
     # radius
     g_new.vp["radius"] = g_new.new_vp("double", g_view.vp["radius"].a[g_new.vp["ids"].a])
 

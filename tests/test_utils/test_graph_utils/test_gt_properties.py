@@ -23,6 +23,27 @@ def test_g_has_property(simple_tree):
     assert not g_has_property(simple_tree, "missing", "v")
 
 
+@pytest.mark.parametrize("level", ["v", "n", "vertex", "node"])
+def test_vertex_level_aliases(simple_tree, level):
+    assert g_has_property(simple_tree, "x", level)
+    assert "x" in list_properties(simple_tree, level=level)
+
+
+@pytest.mark.parametrize("level", ["e", "edge"])
+def test_edge_level_aliases(graph_with_path_length, level):
+    assert g_has_property(graph_with_path_length, "Path_length", level)
+
+
+@pytest.mark.parametrize("level", ["g", "graph"])
+def test_graph_level_aliases(reduced_graph_fixture, level):
+    assert g_has_property(reduced_graph_fixture, "ID", level)
+
+
+def test_invalid_level_alias_raises(simple_tree):
+    with pytest.raises(AttributeError, match="level must be one of"):
+        g_has_property(simple_tree, "x", "vertices")
+
+
 def test_list_properties(simple_tree):
     props = list_properties(simple_tree, level="v")
     assert {"x", "y", "z"}.issubset(props)

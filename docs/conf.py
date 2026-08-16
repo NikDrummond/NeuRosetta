@@ -89,7 +89,6 @@ autodoc_default_options = {
     "members": True,
     "undoc-members": False,
     "show-inheritance": True,
-    "inherited-members": False,
 }
 
 # Document class-level function bindings (Tree/Forest method aliases).

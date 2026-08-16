@@ -13,8 +13,8 @@ from ...utils.graph_utils import (
     subgraph_score,
 )
 from .._doc_helpers import enrich_tree_graph_docstrings
-from .tree_path_lengths import get_edge_length
 from .tree_checks import has_property
+from .tree_path_lengths import get_edge_length
 
 
 def mask_subtree_from_root(tree: _Tree, root: int, bind: bool = True) -> SubtreeMaskVisitor | None:

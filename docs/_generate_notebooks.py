@@ -236,7 +236,7 @@ print(tree.metadata["units"])"""
             md(
                 """Every tree method mirrors a function in {doc}`../api/tree_ops/index`.
 
-Next: {doc}`tree_surgery`."""
+Next: {doc}`forests`."""
             ),
         ],
     )
@@ -284,7 +284,7 @@ if len(branches):
     tree.get_subtree()
     print("subtree nodes:", tree.count_nodes())"""
             ),
-            md("Next: {doc}`plotting`."),
+            md("Next: {doc}`gui`."),
         ],
     )
 
@@ -321,7 +321,7 @@ with Viewer(interactive=False) as viewer:
     viewer.screenshot(str(out))
     print("wrote", out)"""
             ),
-            md("Next: {doc}`forests`."),
+            md("Next: {doc}`tree_surgery`."),
         ],
     )
 
@@ -351,7 +351,7 @@ print(forest.get_total_cable_length())"""
                 """counts = forest.apply(lambda t: t.count_nodes(), parallel=False)
 print(counts)"""
             ),
-            md("Next: {doc}`meshes_neuropils`."),
+            md("Next: {doc}`plotting`."),
         ],
     )
 

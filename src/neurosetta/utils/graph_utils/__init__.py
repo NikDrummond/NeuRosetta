@@ -9,13 +9,13 @@ from .coordinates import (
 from .counting import (
     count_bifurcations,
     count_branches,
+    count_core_vertices,
     count_edges,
     count_leaves,
     count_roots,
     count_sections,
     count_transitive_vertices,
     count_vertices,
-    count_core_vertices,
 )
 from .degrees import degree_distribution, get_vertex_degrees
 from .graph_editing import reduce_graph, reroot_graph
@@ -31,6 +31,7 @@ from .gt_properties import (
     revert_core_properties,
     set_property,
 )
+from .node_types import infer_node_types
 from .subgraphs import (
     extract_subgraph,
     max_subgraph_ind,
@@ -100,6 +101,7 @@ __all__ = [
     "edge_coordinates_subtree",
     "reduce_graph",
     "reroot_graph",
+    "infer_node_types",
     "subgraph_score",
     "max_subgraph_ind",
     "extract_subgraph",

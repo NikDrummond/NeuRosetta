@@ -1,5 +1,10 @@
 """Tree graph operations."""
 
+from .tree_checks import (
+    check_reduced,
+    has_property,
+    update_reduced,
+)
 from .tree_coordinate_moments import (
     coordinate_extent_along_axis,
     coordinate_mean_absolute_along_axis,
@@ -23,47 +28,17 @@ from .tree_coordinates import (
 from .tree_counting import (
     count_bifurcations,
     count_branches,
+    count_core_nodes,
     count_edges,
     count_leaves,
     count_nodes,
     count_roots,
     count_sections,
     count_transitive_nodes,
-    count_core_nodes,
 )
 from .tree_degrees import (
     get_degree_distribution,
     get_degrees,
-)
-from .tree_path_lengths import (
-    get_edge_length,
-    get_total_cable_length,
-)
-from .tree_shape_fitting import (
-    fit_circle,
-    fit_line,
-    fit_plane,
-    fit_sphere,
-)
-from .tree_subtrees import (
-    get_max_subtree_node,
-    get_partition_asymmetry,
-    get_subtree,
-    get_subtree_scores,
-    mask_subtree_from_root,
-)
-from .tree_summary import SummaryTable, summary_table, tree_summary
-from .tree_traversals import (
-    breadth_first_iterator,
-    breadth_first_search,
-    depth_first_iterator,
-    depth_first_search,
-    get_post_order,
-)
-from .tree_checks import (
-    check_reduced,
-    has_property,
-    update_reduced,
 )
 from .tree_editing import (
     reduce_tree,
@@ -79,6 +54,35 @@ from .tree_geometry import (
     get_radial_angle,
     get_section_angular_deviation,
 )
+from .tree_path_lengths import (
+    get_edge_length,
+    get_total_cable_length,
+)
+from .tree_shape_fitting import (
+    fit_circle,
+    fit_line,
+    fit_plane,
+    fit_sphere,
+)
+from .tree_structure import (
+    get_binary_ratio,
+    get_max_depth,
+    get_max_width,
+    get_mean_depth,
+    get_mean_width,
+    get_median_depth,
+    get_median_width,
+    get_node_depth,
+    get_tree_widths,
+)
+from .tree_subtrees import (
+    get_max_subtree_node,
+    get_partition_asymmetry,
+    get_subtree,
+    get_subtree_scores,
+    mask_subtree_from_root,
+)
+from .tree_summary import SummaryTable, summary_table, tree_summary
 from .tree_transformations import (
     align_coordinates,
     align_coordinates_to_vector,
@@ -93,6 +97,13 @@ from .tree_transformations import (
     scale_coordinates_along_pca,
     translate_coordinates,
 )
+from .tree_traversals import (
+    breadth_first_iterator,
+    breadth_first_search,
+    depth_first_iterator,
+    depth_first_search,
+    get_post_order,
+)
 from .tree_vertex_inds import (
     get_bifurcation_indices,
     get_branch_indices,
@@ -101,17 +112,6 @@ from .tree_vertex_inds import (
     get_leaf_indices,
     get_root_index,
     get_subtree_indices,
-)
-from .tree_structure import (
-    get_node_depth,
-    get_max_depth,
-    get_mean_depth,
-    get_median_depth,
-    get_tree_widths,
-    get_max_width,
-    get_mean_width,
-    get_median_width,
-    get_binary_ratio,
 )
 
 __all__ = [

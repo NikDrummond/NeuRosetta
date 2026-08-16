@@ -27,10 +27,18 @@ import neurosetta as nr
 
 tree.set_voxel_units(8, "nm")          # 8 nm cubic voxels
 tree.set_units("voxel", voxel_size=8, voxel_unit="nm")  # equivalent
+tree.set_units(voxel_size=8, voxel_unit="nm")           # equivalent
 
 tree.get_voxel_spec()                  # -> (8.0, "nanometer")
 tree.convert_units("micron")           # rescale geometry to microns
+tree.convert_units(voxel_size=8, voxel_unit="nm")  # convert to voxels (tree must already have units)
+tree.snap_voxel_coordinates()                      # snap to integer voxel indices
 ```
+
+After ``convert_units`` to voxels, coordinates are continuous indices (fractional
+voxel positions). Use ``snap_voxel_coordinates()`` to round them to integer grid
+indices; default ``method="floor"`` (also ``"round"`` or ``"ceil"``). Cached edge
+lengths are recomputed from snapped coordinates.
 
 Required metadata when ``units == "voxel"``:
 

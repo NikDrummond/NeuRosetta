@@ -80,6 +80,7 @@ You can load the diectory with the example data in, or any other neuron morpholo
 :caption: Getting started
 
 getting_started/overview
+getting_started/roadmap
 getting_started/installation
 getting_started/example_data
 getting_started/io
@@ -90,11 +91,9 @@ getting_started/io
 :caption: Tutorials
 
 tutorials/tree_basics
-tutorials/tree_surgery
-tutorials/plotting
 tutorials/forests
-tutorials/meshes_neuropils
-tutorials/surface_reconstruction
+tutorials/plotting
+tutorials/tree_surgery
 tutorials/gui
 ```
 
@@ -112,6 +111,8 @@ development/extending_nr
 
 reference/example_data
 reference/units
+reference/configuration
+reference/metrics
 ```
 
 ```{toctree}

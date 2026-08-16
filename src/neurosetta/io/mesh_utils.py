@@ -114,7 +114,7 @@ def export_mesh(
     mesh: _Forest,
     fpath: str | Path,
     *,
-    parallel: bool = False,
+    parallel: bool | None = None,
     max_workers: int | None = None,
     show_progress: bool = False,
 ) -> list[Path]: ...
@@ -126,7 +126,7 @@ def export_mesh(
     fileoutput: str = ".ply",
     *,
     binary: bool = True,
-    parallel: bool = False,
+    parallel: bool | None = None,
     max_workers: int | None = None,
     show_progress: bool = False,
 ):

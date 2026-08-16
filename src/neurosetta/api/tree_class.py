@@ -39,13 +39,13 @@ from ..ops.tree_graphs import (
     coordinate_variance_along_axis,
     count_bifurcations,
     count_branches,
+    count_core_nodes,
     count_edges,
     count_leaves,
     count_nodes,
     count_roots,
     count_sections,
     count_transitive_nodes,
-    count_core_nodes,
     depth_first_iterator,
     depth_first_search,
     fit_circle,
@@ -56,6 +56,7 @@ from ..ops.tree_graphs import (
     get_bifurcation_angles,
     get_bifurcation_deihedral_beta,
     get_bifurcation_indices,
+    get_binary_ratio,
     get_branch_indices,
     get_convex_hull,
     get_convex_hull_volume,
@@ -68,18 +69,16 @@ from ..ops.tree_graphs import (
     get_edge_indices,
     get_edge_length,
     get_leaf_indices,
+    get_max_depth,
     get_max_subtree_node,
+    get_max_width,
+    get_mean_depth,
     get_mean_edge_angle,
+    get_mean_width,
+    get_median_depth,
+    get_median_width,
     get_node_coordinates,
     get_node_depth,
-    get_max_depth,
-    get_mean_depth,
-    get_median_depth,
-    get_tree_widths,
-    get_max_width,
-    get_mean_width,
-    get_median_width,
-    get_binary_ratio,
     get_partition_asymmetry,
     get_post_order,
     get_radial_angle,
@@ -92,6 +91,7 @@ from ..ops.tree_graphs import (
     get_subtree_node_coordinates,
     get_subtree_scores,
     get_total_cable_length,
+    get_tree_widths,
     mask_subtree_from_root,
     recenter_coordinates,
     reduce_tree,
@@ -113,6 +113,7 @@ from ..ops.units import (
     get_voxel_spec,
     set_units,
     set_voxel_units,
+    snap_voxel_coordinates,
 )
 
 
@@ -441,6 +442,9 @@ class Tree(_Tree):
     convert_units = convert_units
     """Convert coordinates and radii to target units."""
 
+    snap_voxel_coordinates = snap_voxel_coordinates
+    """Snap continuous voxel coordinates to integer grid indices."""
+
     check_units_defined = check_units_defined
     """Raise when tree units are dimensionless."""
 
@@ -450,5 +454,11 @@ class Tree(_Tree):
     summary_table = summary_table
     """Return summary metrics as a one-row DataFrame."""
 
-    # has_property / list_properties / get_property / set_property /
-    # del_property / revert_core_properties inherited from _Tree
+    # --- core helpers inherited from _Stone / _Tree ---
+    # copy / clone / from_graph
+    # get_meta / set_meta / del_meta / has_meta / list_meta / meta_summary / set_flag
+    # list_properties / has_property / get_property / set_property / del_property
+    # revert_core_properties / plot3d / make_plot3d / build_3d (Forest only)
+    # Container & batch helpers on Forest: apply / filter / map / append / extend /
+    # insert / remove / remove_id / pop / clear / by_id / ids / copy / __contains__
+    # and metadata batch helpers — see _Forest and docs/api/forest.md

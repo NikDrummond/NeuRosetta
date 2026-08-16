@@ -9,16 +9,16 @@ from graph_tool.all import Graph
 from numpy import (
     float64,
     int32,
-    ndarray,
     unique,
     where,
-    zeros_like,
 )
 from pandas import DataFrame, read_csv
 from tqdm import tqdm
 
+from ..config import ParallelScope, resolve_max_workers, resolve_parallel, resolve_show_progress
 from ..core import _Tree
 from ..ops.tree_graphs import has_property
+from ..utils.graph_utils.node_types import infer_node_types
 from ..utils.graph_utils.vertex_inds import root_index
 from ..utils.units import DEFAULT_UNITS
 
@@ -88,27 +88,6 @@ def _node_inds(g: Graph, df: DataFrame) -> list[int]:
     return inds
 
 
-def _infer_node_types(g: Graph) -> ndarray:
-    """
-    Infer node types: root (-1), branch (5), terminal (6), transitory (0).
-
-    Returns a np.array
-
-    """
-    # indicies
-    out_deg = g.get_out_degrees(g.get_vertices())
-    in_deg = g.get_in_degrees(g.get_vertices())
-    ends = where(out_deg == 0)
-    branches = where(out_deg > 1)
-    root = where(in_deg == 0)
-    node_types = zeros_like(g.get_vertices(), dtype=int32)
-    node_types[ends] = 6
-    node_types[branches] = 5
-    node_types[root] = -1
-
-    return node_types
-
-
 def _graph_from_table(df: DataFrame) -> Graph:
     """
     From a node table, generate a graph-tool graph
@@ -146,7 +125,7 @@ def _graph_from_table(df: DataFrame) -> Graph:
     g.vp["x"] = vprop_x
     g.vp["y"] = vprop_y
     g.vp["z"] = vprop_z
-    g.vp["node_type"] = g.new_vp("int", _infer_node_types(g))
+    g.vp["node_type"] = g.new_vp("int", infer_node_types(g))
 
     return g
 
@@ -160,7 +139,7 @@ def _swc_table(tree: _Tree) -> DataFrame:
     g = tree.graph
     ids = g.vp["ids"].a if "ids" in g.vp else g.get_vertices()
     root = root_index(g)
-    node_types = _infer_node_types(g)
+    node_types = infer_node_types(g)
 
     x = g.vp["x"].a
     y = g.vp["y"].a
@@ -248,11 +227,15 @@ def _map_with_progress(
     fn: Callable[[T], T],
     items: list[T],
     *,
-    parallel: bool,
-    max_workers: int | None,
-    show_progress: bool,
+    parallel: bool | None = None,
+    max_workers: int | None = None,
+    show_progress: bool | None = None,
     desc: str,
+    scope: ParallelScope = "io",
 ) -> list[T]:
+    parallel = resolve_parallel(explicit=parallel, scope=scope)
+    max_workers = resolve_max_workers(explicit=max_workers)
+    show_progress = resolve_show_progress(explicit=show_progress)
     if parallel:
         with ThreadPoolExecutor(max_workers=max_workers) as ex:
             futures = [ex.submit(fn, item) for item in items]
@@ -267,11 +250,15 @@ def _foreach_with_progress(
     fn: Callable[[T], None],
     items: list[T],
     *,
-    parallel: bool,
-    max_workers: int | None,
-    show_progress: bool,
+    parallel: bool | None = None,
+    max_workers: int | None = None,
+    show_progress: bool | None = None,
     desc: str,
+    scope: ParallelScope = "io",
 ) -> None:
+    parallel = resolve_parallel(explicit=parallel, scope=scope)
+    max_workers = resolve_max_workers(explicit=max_workers)
+    show_progress = resolve_show_progress(explicit=show_progress)
     if parallel:
         with ThreadPoolExecutor(max_workers=max_workers) as ex:
             futures = [ex.submit(fn, item) for item in items]

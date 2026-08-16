@@ -4,10 +4,15 @@ from __future__ import annotations
 
 from typing import Any
 
+import numpy as np
 from numpy.random import choice
-from vedo import Lines, Point
+from vedo import Lines, Point, Sphere
+from vedo.pointcloud.core import Points
 
+from ...config import get_settings
 from ...core import _Tree
+
+RootActor = Points | Sphere
 
 
 class TreePlot3D:
@@ -23,7 +28,7 @@ class TreePlot3D:
         Keyword arguments forwarded to the vedo Lines constructor.
         By default None.
     root_kwargs : dict | None, optional
-        Keyword arguments forwarded to the vedo Point constructor.
+        Keyword arguments forwarded to the vedo Point (or Sphere for k3d) constructor.
         By default None.
     random_c : bool, optional
         Pick a random line colour. By default False.
@@ -43,7 +48,7 @@ class TreePlot3D:
         """
         self._show_root = show_root
         self._lines: Lines | None = None
-        self._root: Point | None = None
+        self._root: RootActor | None = None
 
         if tree is not None:
             c = self._random_c() if random_c else "k"
@@ -61,10 +66,31 @@ class TreePlot3D:
         return Lines(starts, stops, **kwargs)
 
     @staticmethod
-    def _make_root(tree: _Tree, kwargs: dict) -> Point:
-        """Build a vedo Point object at the tree root."""
+    def _make_root(tree: _Tree, kwargs: dict) -> RootActor:
+        """Build a root marker at the tree root.
+
+        Uses :class:`vedo.Sphere` for the k3d backend because single-point
+        :class:`vedo.Point` actors have zero average size and break k3d export.
+        """
         r_coords = tree.get_node_coordinates(subset=tree.get_root_index())
+        pos = np.asarray(r_coords).reshape(-1, 3)[0]
+        if get_settings().vedo.backend == "k3d":
+            return Sphere(pos, **kwargs)
         return Point(r_coords, **kwargs)
+
+    @staticmethod
+    def _get_root_size(root: RootActor) -> float:
+        if isinstance(root, Sphere):
+            return float(root.radius)
+        return float(root.ps())
+
+    @staticmethod
+    def _set_root_size(root: RootActor, size: float) -> None:
+        if isinstance(root, Sphere):
+            root.scale(size / root.radius)
+            root.radius = size
+        else:
+            root.ps(size)
 
     @staticmethod
     def _random_c() -> list:
@@ -78,8 +104,8 @@ class TreePlot3D:
         return self._lines
 
     @property
-    def root(self) -> Point | None:
-        """Vedo Point actor at the tree root, or None if empty."""
+    def root(self) -> RootActor | None:
+        """Root marker actor at the tree root, or None if empty."""
         return self._root
 
     @property
@@ -117,10 +143,10 @@ class TreePlot3D:
     @property
     def root_size(self) -> float | None:
         """Current root marker radius, or None if no root actor exists."""
-        return self._root.ps() if self._root is not None else None
+        return self._get_root_size(self._root) if self._root is not None else None
 
     @property
-    def actors(self) -> list[Lines | Point | None]:
+    def actors(self) -> list[Lines | RootActor | None]:
         """Flattened list of vedo actors ready to pass to a Plotter."""
         actors = [self._lines]
         if self._show_root:
@@ -174,8 +200,8 @@ class TreePlot3D:
         if alpha is not None:
             self._lines.alpha(alpha)
             self._root.alpha(alpha)
-        if root_size is not None:
-            self._root.ps(root_size)
+        if root_size is not None and self._root is not None:
+            self._set_root_size(self._root, root_size)
         if show_root is not None:
             self._show_root = show_root
 
@@ -200,7 +226,7 @@ class TreePlot3D:
         line_kwargs : dict | None, optional
             Override kwargs for the vedo Lines constructor. By default None.
         root_kwargs : dict | None, optional
-            Override kwargs for the vedo Point constructor. By default None.
+            Override kwargs for the root marker constructor. By default None.
 
         Returns
         -------

@@ -6,6 +6,11 @@ Most methods are bound aliases of functions in {doc}`tree_ops/index`. Use the
 sections below as a method index; full parameter documentation lives with the
 underlying op.
 
+Core graph, metadata, property, and copy helpers inherited from
+{class}`~neurosetta.core.tree._Tree` and {class}`~neurosetta.core.stone._Stone`
+are included below (``get_meta``, ``set_property``, ``copy``, ``from_graph``,
+``make_plot3d``, etc.).
+
 ```{seealso}
 Method groups map to the tree-ops reference:
 
@@ -31,6 +36,6 @@ Method groups map to the tree-ops reference:
 ```{eval-rst}
 .. autoclass:: neurosetta.api.tree_class.Tree
    :members:
-   :inherited-members:
+   :inherited-members: _Tree, _Stone
    :show-inheritance:
 ```

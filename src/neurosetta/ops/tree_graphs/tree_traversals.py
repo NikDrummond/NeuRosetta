@@ -5,19 +5,15 @@ from __future__ import annotations
 from collections.abc import Iterable
 
 from graph_tool.all import BFSVisitor, DFSVisitor
-from numpy import hstack, ndarray
+from numpy import ndarray
 
 from ...core import _Tree
 from ...utils.graph_utils import (
-    AngleVisitor,
     PostOrderVisitor,
-    TreeDepthVisitor,
     bf_iterator,
     bfsearch,
-    branch_indices,
     df_iterator,
     dfsearch,
-    leaf_indices,
     root_index,
 )
 from .._doc_helpers import enrich_tree_graph_docstrings
@@ -217,5 +213,6 @@ def get_post_order(tree: _Tree, root: int | None = None, bind: bool = True) -> N
         return None
 
     return vis
+
 
 enrich_tree_graph_docstrings(globals())

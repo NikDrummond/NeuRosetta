@@ -38,7 +38,7 @@ def import_swc(
     set_units: str | None = None,
     voxel_size: float | None = None,
     voxel_unit: str | None = None,
-    parallel: bool = False,
+    parallel: bool | None = None,
     max_workers: int | None = None,
     show_progress: bool = False,
 ) -> _Tree: ...
@@ -51,7 +51,7 @@ def import_swc(
     set_units: str | None = None,
     voxel_size: float | None = None,
     voxel_unit: str | None = None,
-    parallel: bool = False,
+    parallel: bool | None = None,
     max_workers: int | None = None,
     show_progress: bool = False,
 ) -> _Forest: ...
@@ -63,7 +63,7 @@ def import_swc(
     set_units: str | None = None,
     voxel_size: float | None = None,
     voxel_unit: str | None = None,
-    parallel: bool = False,
+    parallel: bool | None = None,
     max_workers: int | None = None,
     show_progress: bool = False,
 ):
@@ -213,7 +213,7 @@ def export_swc(
     fpath: str | Path,
     *,
     header: str | None = None,
-    parallel: bool = False,
+    parallel: bool | None = None,
     max_workers: int | None = None,
     show_progress: bool = False,
 ) -> None: ...
@@ -224,7 +224,7 @@ def export_swc(
     fpath: str | Path,
     *,
     header: str | None = None,
-    parallel: bool = False,
+    parallel: bool | None = None,
     max_workers: int | None = None,
     show_progress: bool = False,
 ) -> None:

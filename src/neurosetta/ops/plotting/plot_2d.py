@@ -16,6 +16,7 @@ def plot_2d(
     point_kwargs: dict = None,
     root_kwargs: dict = None,
     axes: Axes | None = None,
+    force_perspective: bool = True,
 ) -> Axes:
     """Generate a simple 2D plot of a neuron morphology.
 
@@ -44,6 +45,12 @@ def plot_2d(
     axes : matplotlib.pyplot.Axes, optional
         If provided, plot on these axes. Otherwise, create new Figure and Axes.
         By default None.
+    force_perspective: bool, optional
+        If True, the neuron is plotted aligned to maximise viewing perspective and orientation with
+        the x/y axis.
+        If False, the raw x/y neuron coordinates are used and projected onto the z-basis.
+        By default True.
+
 
     Returns
     -------
@@ -61,10 +68,13 @@ def plot_2d(
         center = array([0, 0])
 
     # get coodinates
-    edges = tree.get_edge_indices()
-    coords = tree.align_coordinates(bind=False, robust=False)
-    starts = coords[edges[:, 0]]
-    stops = coords[edges[:, 1]]
+    if force_perspective:
+        edges = tree.get_edge_indices()
+        coords = tree.align_coordinates(bind=False, robust=False)
+        starts = coords[edges[:, 0]]
+        stops = coords[edges[:, 1]]
+    else:
+        starts, stops = tree.get_edge_coordinates()
 
     # remove z axis
     starts = starts[:, [0, 1]]

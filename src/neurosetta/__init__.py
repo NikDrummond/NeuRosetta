@@ -5,15 +5,20 @@ This package provides tools for working with tree-like structures,
 spatial coordinates, and graph-based morphological data.
 """
 
-import os
-
-os.environ["OMP_WAIT_POLICY"] = "passive"
-
 from .analysis import reconstruct_neuropil_surface
 from .api import Forest, Forest_mesh, Neuropil, Neuropils, Tree, Tree_mesh
+from .config import (
+    configure,
+    get_settings,
+    openmp_context,
+    openmp_enabled,
+    settings,
+    sync_vedo_runtime,
+)
 from .gui import start_GUI
 from .io import (
     example_data_dir,
+    example_ids,
     export_mesh,
     export_swc,
     import_mesh,
@@ -72,7 +77,9 @@ from .ops.units import (
     harmonize_forest_units,
     set_units,
     set_voxel_units,
+    snap_voxel_coordinates,
 )
+from .utils.metrics import format_metrics_reference_table, list_metric_definitions
 from .utils.units import format_units_reference_table, list_unit_definitions
 
 # Public API
@@ -91,6 +98,7 @@ __all__ = [
     "save",
     "example_data_dir",
     "load_example_data",
+    "example_ids",
     "Viewer",
     "plot_2d",
     "plot_3d",
@@ -140,11 +148,20 @@ __all__ = [
     "set_units",
     "set_voxel_units",
     "convert_units",
+    "snap_voxel_coordinates",
     "check_units_defined",
     "harmonize_forest_units",
     "ensure_forest_units",
     "list_unit_definitions",
     "format_units_reference_table",
+    "list_metric_definitions",
+    "format_metrics_reference_table",
+    "configure",
+    "get_settings",
+    "settings",
+    "openmp_context",
+    "openmp_enabled",
+    "sync_vedo_runtime",
     "start_GUI",
     "reconstruct_neuropil_surface",
 ]

@@ -1,6 +1,7 @@
 """Various checks for tree graphs."""
 
 from ...core import _Tree
+from ...core.metadata import set_core_meta
 from ...utils.graph_utils import count_transitive_vertices, g_has_property
 from .._doc_helpers import enrich_tree_graph_docstrings
 
@@ -29,10 +30,7 @@ def update_reduced(tree: _Tree) -> None:
     tree : _Tree
         Neuron tree.
     """
-    if check_reduced(tree):
-        tree.metadata["isReduced"] = True
-    else:
-        tree.metadata["isReduced"] = False
+    set_core_meta(tree.metadata, "isReduced", check_reduced(tree))
 
 
 def has_property(tree: _Tree, prop: str, level: str = "all") -> bool:

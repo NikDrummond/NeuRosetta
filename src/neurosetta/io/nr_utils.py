@@ -15,7 +15,7 @@ def load(
     set_units: str | None = None,
     voxel_size: float | None = None,
     voxel_unit: str | None = None,
-    parallel: bool = False,
+    parallel: bool | None = None,
     max_workers: int | None = None,
     show_progress: bool = False,
 ) -> _Tree: ...
@@ -29,7 +29,7 @@ def load(
     set_units: str | None = None,
     voxel_size: float | None = None,
     voxel_unit: str | None = None,
-    parallel: bool = False,
+    parallel: bool | None = None,
     max_workers: int | None = None,
     show_progress: bool = False,
 ) -> _Forest: ...
@@ -42,7 +42,7 @@ def load(
     set_units: str | None = None,
     voxel_size: float | None = None,
     voxel_unit: str | None = None,
-    parallel: bool = False,
+    parallel: bool | None = None,
     max_workers: int | None = None,
     show_progress: bool = False,
 ):
@@ -114,12 +114,13 @@ def load(
     """
 
     from ..api import Forest, Tree
+    from ..core.metadata import set_core_meta
 
     p = Path(fpath)
 
     def _load_one(path: Path) -> _Tree:
         g = load_graph(str(path), fmt="gt")
-        g.gp["metadata"]["file_path"] = str(path)
+        set_core_meta(g.gp["metadata"], "file_path", str(path))
         tree = Tree.from_graph(g)
         _apply_import_units(
             tree,
@@ -170,7 +171,7 @@ def save(
     tree: _Forest,
     fpath: str | Path,
     *,
-    parallel: bool = False,
+    parallel: bool | None = None,
     max_workers: int | None = None,
     progress: bool = False,
 ) -> list[Path]: ...
@@ -180,7 +181,7 @@ def save(
     tree: _Tree | _Forest,
     fpath: str | Path | None = None,
     *,
-    parallel: bool = False,
+    parallel: bool | None = None,
     max_workers: int | None = None,
     show_progress: bool = False,
 ):

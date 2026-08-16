@@ -6,7 +6,20 @@ from typing import TYPE_CHECKING, Self
 
 from graph_tool.all import Graph
 
+from .metadata import (
+    PROTECTED_META_KEYS,
+    _MetadataDict,
+    check_protected_meta_key,
+    set_core_meta,
+)
 from .stone import _Stone
+from .tree_helpers import (
+    bind_tree_id,
+    bind_tree_metadata,
+    copy_tree_graph,
+    ensure_edge_lengths,
+    metadata_from_graph,
+)
 
 if TYPE_CHECKING:
     from ..ops.plotting.utils import TreePlot3D
@@ -24,10 +37,9 @@ class _Tree(_Stone):
     def __init__(self, ID: int, metadata: dict, graph: Graph) -> None:
         self.graph = graph
         self._3d_plot = None
-        # Bind / overwrite core gps (graph is source of truth)
         self.ID = ID
         self.metadata = metadata
-        _ensure_edge_lengths(self)
+        ensure_edge_lengths(self)
 
     # --- identity (graph gp) ---
 
@@ -37,54 +49,80 @@ class _Tree(_Stone):
 
     @ID.setter
     def ID(self, value: int) -> None:
-        value = int(value)
-        g = self.graph
-        if "ID" not in g.gp:
-            g.gp["ID"] = g.new_gp("long", value)
-        else:
-            g.gp["ID"] = value
+        bind_tree_id(self.graph, value)
 
     @property
-    def metadata(self) -> dict:
+    def metadata(self) -> _MetadataDict:
         return self.graph.gp["metadata"]
 
     @metadata.setter
-    def metadata(self, value: dict) -> None:
-        if not isinstance(value, dict):
-            raise TypeError("metadata must be a dict")
-        value = dict(value)
-        value.setdefault("Flag", False)
-        g = self.graph
-        if "metadata" not in g.gp:
-            g.gp["metadata"] = g.new_gp("object", value)
-        else:
-            g.gp["metadata"] = value
+    def metadata(self, value: dict | _MetadataDict) -> None:
+        bind_tree_metadata(self.graph, value)
+
+    # --- user metadata (protected core keys) ---
+
+    def set_meta(self, key: str, value) -> None:
+        """Set a user metadata entry.
+
+        Core keys (``units``, ``file_path``, ``isReduced``, ``Flag``, and
+        voxel fields) are protected — use the dedicated tree APIs instead.
+        """
+        check_protected_meta_key(key)
+        self.metadata[key] = value
+
+    def del_meta(self, key: str) -> None:
+        """Delete a user metadata entry.
+
+        Core keys are protected — use the dedicated tree APIs instead.
+        """
+        check_protected_meta_key(key)
+        del self.metadata[key]
+
+    def list_meta(self, *, include_protected: bool = False) -> list[str]:
+        """List metadata keys present on this tree.
+
+        By default only user-editable keys are returned. Pass
+        ``include_protected=True`` to include core metadata keys as well.
+        """
+        keys = list(self.metadata)
+        if include_protected:
+            return sorted(keys)
+        return sorted(k for k in keys if k not in PROTECTED_META_KEYS)
+
+    def meta_summary(self, *, include_protected: bool = False) -> dict[str, int]:
+        """Return ``{key: 1}`` for each metadata key defined on this tree."""
+        return {key: 1 for key in self.list_meta(include_protected=include_protected)}
+
+    def set_flag(self, value: bool) -> None:
+        """Set the ``Flag`` metadata entry."""
+        set_core_meta(self.metadata, "Flag", bool(value))
 
     # --- constructors / copy ---
 
     @classmethod
     def from_graph(cls, graph: Graph) -> Self:
         """Wrap a graph that already has ``gp['ID']`` and ``gp['metadata']``."""
-        meta = graph.gp["metadata"]
-        if "flag" in graph.gp:
-            meta.setdefault("Flag", bool(graph.gp["flag"]))
-            del graph.gp["flag"]
-        meta.setdefault("Flag", False)
+        meta = metadata_from_graph(graph)
         return cls(ID=int(graph.gp["ID"]), metadata=meta, graph=graph)
 
     def copy(self) -> Self:
         """Shallow graph copy with a shallow-copied metadata dict."""
-        g = self.graph.copy()
-        meta = dict(g.gp["metadata"])
-        g.gp["metadata"] = meta
-        return type(self)(ID=int(g.gp["ID"]), metadata=meta, graph=g)
+        tree_id, meta, graph = copy_tree_graph(self.graph)
+        return type(self)(ID=tree_id, metadata=meta, graph=graph)
 
     clone = copy
 
-    # --- repr / graph properties ---
+    def __eq__(self, other: object) -> bool:
+        """Return True when *other* is a tree wrapping the same graph object."""
+        if not isinstance(other, _Tree):
+            return NotImplemented
+        return self.graph is other.graph
 
     def __repr__(self) -> str:
+        """Return a short summary of tree ID and node count."""
         return f"Tree(ID={self.ID}) with {self.graph.num_vertices()} nodes"
+
+    # --- graph properties ---
 
     def list_properties(self, level: str = "all") -> list | dict:
         """List bound property names.
@@ -169,6 +207,7 @@ class _Tree(_Stone):
 
     @property
     def plot3d(self) -> TreePlot3D | None:
+        """Cached 3D plot handle for this tree, or ``None`` if not built yet."""
         return self._3d_plot
 
     @plot3d.setter
@@ -188,7 +227,7 @@ class _Tree(_Stone):
         Parameters
         ----------
         cache : bool, optional
-            Store the result on ``self._plot3d``, by default True.
+            Store the result on ``self.plot3d``, by default True.
         """
         from ..ops.plotting.utils import TreePlot3D  # runtime import
 
@@ -202,21 +241,3 @@ class _Tree(_Stone):
         if cache:
             self.plot3d = plot
         return plot
-
-
-def _ensure_edge_lengths(tree: _Tree) -> None:
-    """Bind ``Path_length`` or ``Euclidean_length`` when not already present.
-
-    Reduced trees may carry ``Path_length`` from the full reconstruction; in
-    that case lengths are left unchanged. Graphs without coordinates are skipped
-    (not yet valid neuron trees).
-    """
-    from ..ops.tree_graphs.tree_path_lengths import get_edge_length
-    from ..ops.tree_graphs.tree_checks import has_property
-    from ..utils.graph_utils import g_has_property
-
-    if has_property(tree, "Path_length", "e") or has_property(tree, "Euclidean_length", "e"):
-        return
-    if not all(g_has_property(tree.graph, c, "v") for c in ("x", "y", "z")):
-        return
-    get_edge_length(tree, bind=True)

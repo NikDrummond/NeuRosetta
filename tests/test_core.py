@@ -1,4 +1,5 @@
 # tests/test_core.py
+import pytest
 from graph_tool.all import Graph
 
 from neurosetta.core import _Stone, _Tree
@@ -8,6 +9,20 @@ def test_stone_initialization():
     stone = _Stone(ID=1, metadata={"key": "value"})
     assert stone.ID == 1
     assert stone.metadata == {"key": "value"}
+    assert stone.get_meta("key") == "value"
+    assert stone.has_meta("key")
+    assert stone.list_meta() == ["key"]
+    assert stone.meta_summary() == {"key": 1}
+
+
+def test_stone_default_metadata_empty():
+    stone = _Stone(ID=1)
+    assert stone.metadata == {}
+
+
+def test_stone_bool_id_raises():
+    with pytest.raises(TypeError, match="must not be a bool"):
+        _Stone(ID=True, metadata={})
 
 
 def test_tree_initialization(simple_tree):
