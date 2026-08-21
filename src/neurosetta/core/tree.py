@@ -30,15 +30,24 @@ class _Tree(_Stone):
 
     ``ID`` and ``metadata`` are properties over ``graph.gp`` — the graph is
     the source of truth. Parent ``_Stone`` slots for those names are unused.
+
+    Attributes
+    ----------
+    plot3d : TreePlot3D
+        3D plot bound to this tree, styleable straight away but holding no vedo
+        actors until :meth:`make_plot3d` (or ``plot3d.build()``) generates them.
     """
 
-    __slots__ = ("graph", "_3d_plot")
+    __slots__ = ("graph", "plot3d")
 
     def __init__(self, ID: int, metadata: dict, graph: Graph) -> None:
+        from ..ops.plotting.utils import TreePlot3D  # runtime import
+
         self.graph = graph
-        self._3d_plot = None
         self.ID = ID
         self.metadata = metadata
+        # Bound but unbuilt: styling and graph lookups work before any geometry.
+        self.plot3d = TreePlot3D(tree=self, build=False)
         ensure_edge_lengths(self)
 
     # --- identity (graph gp) ---
@@ -205,39 +214,58 @@ class _Tree(_Stone):
 
     # --- 3d plot cache ---
 
-    @property
-    def plot3d(self) -> TreePlot3D | None:
-        """Cached 3D plot handle for this tree, or ``None`` if not built yet."""
-        return self._3d_plot
-
-    @plot3d.setter
-    def plot3d(self, value: TreePlot3D | None) -> None:
-        self._3d_plot = value
-
     def make_plot3d(
         self,
-        show_root: bool = True,
+        show_root: bool | None = None,
         line_kwargs: dict | None = None,
         root_kwargs: dict | None = None,
         random_c: bool = False,
         cache: bool = True,
+        force_refresh: bool = False,
+        **style_kwargs,
     ) -> TreePlot3D:
-        """Build a TreePlot3D for this tree.
+        """Build or return the cached :class:`~neurosetta.ops.plotting.utils.TreePlot3D`.
+
+        Style arguments are applied whether or not geometry needs building, so this
+        is safe to call repeatedly.
 
         Parameters
         ----------
+        show_root : bool | None, optional
+            Whether the root marker is included in the plot's actors.
+            By default None (leave the plot's current setting).
+        line_kwargs, root_kwargs : dict | None, optional
+            Raw vedo constructor kwargs for the lines and root marker.
+        random_c : bool, optional
+            Pick a random colour, honoured only when geometry is actually built.
+            By default False.
         cache : bool, optional
-            Store the result on ``self.plot3d``, by default True.
+            Populate ``self.plot3d`` when True. When False, return a standalone
+            copy that inherits the stored style without modifying the tree's
+            plot. By default True.
+        force_refresh : bool, optional
+            Rebuild vedo actors even when a cached plot exists. By default False.
+        **style_kwargs
+            Further style overrides accepted by ``TreePlot3D.set_style``.
         """
-        from ..ops.plotting.utils import TreePlot3D  # runtime import
+        if not cache:
+            plot = self.plot3d.copy()
+            return plot.build(
+                self,
+                show_root=show_root,
+                line_kwargs=line_kwargs,
+                root_kwargs=root_kwargs,
+                random_c=random_c,
+                force=True,
+                **style_kwargs,
+            )
 
-        plot = TreePlot3D(
-            tree=self,
+        return self.plot3d.build(
+            self,
             show_root=show_root,
             line_kwargs=line_kwargs,
             root_kwargs=root_kwargs,
             random_c=random_c,
+            force=force_refresh,
+            **style_kwargs,
         )
-        if cache:
-            self.plot3d = plot
-        return plot

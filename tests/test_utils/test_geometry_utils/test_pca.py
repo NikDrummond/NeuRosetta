@@ -46,3 +46,38 @@ def test_robust_covariance_runs():
     z = np.zeros(4)
     cov = pca.robust_covariance_xyz(x, y, z)
     assert cov.shape == (3, 3)
+
+
+def test_robust_covariance_downweights_outlier():
+    x = np.linspace(0.0, 1.0, 20)
+    y = np.zeros(20)
+    z = np.zeros(20)
+    y[-1] = 100.0
+    sample = pca.covariance_xyz(x, y, z)
+    robust = pca.robust_covariance_xyz(x, y, z)
+    assert robust[1, 1] < sample[1, 1]
+
+
+def test_eig_decomp_robust():
+    x = np.linspace(0.0, 10.0, 30)
+    y = np.zeros(30)
+    z = np.zeros(30)
+    evals, evecs = pca.eig_decomp(x, y, z, robust=True)
+    assert evals.shape == (3,)
+    assert abs(evecs[0, 0]) == pytest.approx(1.0, abs=1e-5)
+
+
+def test_covariance_eigh_right_handed():
+    v0 = np.array([1.0, 0.0, 0.0])
+    v1 = np.array([0.0, 1.0, 0.0])
+    v2 = np.array([0.0, 0.0, -1.0])
+    vecs = np.column_stack([v0, v1, v2])
+    evals = np.array([5.0, 3.0, 1.0])
+    cov = vecs @ np.diag(evals) @ vecs.T
+    _, evecs = pca.covariance_eigh(cov)
+    assert np.linalg.det(evecs) > 0.0
+
+
+def test_eig_decomp_rejects_2d():
+    with pytest.raises(ValueError, match="shape"):
+        pca.eig_decomp(np.zeros((2, 3)), np.zeros(3), np.zeros(3))

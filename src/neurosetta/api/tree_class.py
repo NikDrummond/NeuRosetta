@@ -414,7 +414,7 @@ class Tree(_Tree):
     """Create 2D matplotlib plot of the tree."""
 
     show_3d = plot_3d
-    """Create interactive 3D plot with vedo."""
+    """Show an interactive 3D plot using ``tree.plot3d``."""
 
     show_dendrogram = plot_dendrogram
     """Create dendrogram plot of the tree."""

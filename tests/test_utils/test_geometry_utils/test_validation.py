@@ -53,3 +53,55 @@ def test_columnize_from_1d_length_3():
 def test_raise_dimension_error_message():
     with pytest.raises(ValueError, match="Not sure what to do"):
         val.raise_dimension_error(np.zeros((2, 3, 4)))
+
+
+def test_raise_dimension_error_two_inputs():
+    with pytest.raises(ValueError, match="dimension"):
+        val.raise_dimension_error(np.zeros((2,)), np.zeros((3, 4)))
+
+
+def test_check_value_none_and_non_array():
+    with pytest.raises(ValueError, match="None"):
+        val.check_value(None, (3,), name="coords")
+    with pytest.raises(ValueError, match="list"):
+        val.check_value([1.0, 2.0, 3.0], (3,), name="coords")
+
+
+def test_check_value_any_no_shapes_and_mismatch():
+    with pytest.raises(ValueError, match="At least one shape"):
+        val.check_value_any(np.zeros((3,)))
+    with pytest.raises(ValueError, match="shape"):
+        val.check_value_any(np.zeros((2, 2)), (-1, 3), (3,), name="coords")
+
+
+def test_columnize_restore():
+    arr = np.array([1.0, 2.0, 3.0])
+    out, was_col, restore = val.columnize(arr, shape=(-1, 3))
+    assert was_col is False
+    assert restore(out).shape == (3,)
+
+
+def test_columnize_invalid_shape():
+    arr = np.zeros((2, 3))
+    with pytest.raises(ValueError, match="tuple"):
+        val.columnize(arr, shape=[-1, 3])
+    with pytest.raises(ValueError, match="two dimensions"):
+        val.columnize(arr, shape=(-1,))
+
+
+def test_check_scalar_inconsistent_shapes():
+    with pytest.raises(ValueError, match="inconsistent"):
+        val._check_scalar(1.0, np.array([1.0]), 0.0)
+
+
+def test_check_vector_broadcast_and_broadcast_three():
+    x = np.array([1.0, 2.0])
+    y = np.zeros(2)
+    z = np.zeros(2)
+    assert val._check_vector_broadcast(x, y, z, 0.0, 1.0, 0.0) is True
+    assert val._check_vector_broadcast(x, y, z, x, y, z) is False
+    bx = val._broadcast_vectors(x, y, z, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0)
+    assert len(bx) == 9
+    assert np.allclose(bx[3], 0.0)
+    assert np.allclose(bx[4], 1.0)
+    assert np.allclose(bx[8], 1.0)

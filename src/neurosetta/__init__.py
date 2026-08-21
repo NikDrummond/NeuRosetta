@@ -28,7 +28,15 @@ from .io import (
     save,
 )
 from .ops.neuropils import distance_from_neuropil_surface, neuropil_point_depth
-from .ops.plotting import Viewer, build_3d_subtree, plot_2d, plot_3d, plot_dendrogram
+from .ops.plotting import (
+    Plot3DStyle,
+    TreePlot3D,
+    Viewer,
+    build_3d_subtree,
+    plot_2d,
+    plot_3d,
+    plot_dendrogram,
+)
 from .ops.tree_graphs import (
     breadth_first_iterator,
     breadth_first_search,
@@ -100,6 +108,8 @@ __all__ = [
     "load_example_data",
     "example_ids",
     "Viewer",
+    "TreePlot3D",
+    "Plot3DStyle",
     "plot_2d",
     "plot_3d",
     "plot_dendrogram",

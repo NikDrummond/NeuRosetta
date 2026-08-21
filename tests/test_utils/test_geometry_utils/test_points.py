@@ -68,3 +68,48 @@ def test_average_weighted():
     mx, my, mz, sw = points.average(x, y, z, weights)
     assert mx == pytest.approx(1.5)
     assert sw == pytest.approx(4.0)
+
+
+def test_euclidean_distance_broadcast():
+    x1 = np.array([0.0, 3.0])
+    y1 = np.zeros(2)
+    z1 = np.zeros(2)
+    d = points.euclidean_distance(x1, y1, z1, 0.0, 0.0, 0.0)
+    assert d == pytest.approx(np.array([0.0, 3.0]))
+
+
+def test_argapex_empty():
+    empty = np.array([])
+    assert points.argapex(empty, empty, empty, 1.0, 0.0, 0.0) == -1
+    assert points.apex_and_opposite(empty, empty, empty, 1.0, 0.0, 0.0) == (-1, -1)
+
+
+def test_within_radius_boundary():
+    x = np.array([1.0])
+    y = np.zeros(1)
+    z = np.zeros(1)
+    # strict < (radius + atol)**2; exact radius with atol=0 is outside
+    mask = points.within_radius(x, y, z, 0.0, 0.0, 0.0, 1.0, atol=0.0)
+    assert mask.tolist() == [False]
+    mask = points.within_radius(x, y, z, 0.0, 0.0, 0.0, 1.0, atol=1e-8)
+    assert mask.tolist() == [True]
+
+
+def test_projection_moments_along_x():
+    x = np.array([0.0, 2.0, 4.0])
+    y = np.zeros(3)
+    z = np.zeros(3)
+    ax, ay, az = 1.0, 0.0, 0.0
+    mean, var, std, pmin, pmax = points.projection_moments(x, y, z, ax, ay, az)
+    assert mean == pytest.approx(2.0)
+    assert var == pytest.approx(8.0 / 3.0)
+    assert std == pytest.approx(np.sqrt(8.0 / 3.0))
+    assert pmin == pytest.approx(0.0)
+    assert pmax == pytest.approx(4.0)
+    assert points.mean_along_axis(x, y, z, ax, ay, az) == pytest.approx(2.0)
+    assert points.variance_along_axis(x, y, z, ax, ay, az) == pytest.approx(8.0 / 3.0)
+    assert points.std_along_axis(x, y, z, ax, ay, az) == pytest.approx(np.sqrt(8.0 / 3.0))
+    assert points.minmax_along_axis(x, y, z, ax, ay, az) == pytest.approx((0.0, 4.0))
+    assert points.extent_along_axis(x, y, z, ax, ay, az) == pytest.approx(4.0)
+    assert points.rms_along_axis(x, y, z, ax, ay, az) == pytest.approx(np.sqrt(20.0 / 3.0))
+    assert points.mean_absolute_along_axis(x, y, z, ax, ay, az) == pytest.approx(2.0)

@@ -69,5 +69,10 @@ def test_forest_contains_has_docstring():
     assert "tree ID" in Forest.__contains__.__doc__
 
 
-def test_tree_plot3d_property_has_docstring():
-    assert Tree.plot3d.__doc__ and Tree.plot3d.__doc__.strip()
+def test_tree_plot3d_starts_as_empty_shell():
+    from neurosetta.ops.plotting.utils import TreePlot3D
+    from neurosetta.testing import make_synthetic_tree
+
+    tree = make_synthetic_tree(n=5, seed=0)
+    assert isinstance(tree.plot3d, TreePlot3D)
+    assert not tree.plot3d.is_built

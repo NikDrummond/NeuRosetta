@@ -64,15 +64,14 @@ class NeuronRenderer:
         #     r=RENDERING_CONSTANTS['SOMA_RADIUS']
         # )
         # plot_dict = _build_3d(tree = neuron, cache = False)
-        plot = TreePlot3D(tree=neuron)
+        plot = TreePlot3D(tree=neuron, colour=self.neuron_color)
 
         # Store references
         self.current_lines = plot.lines
         self.soma = plot.root
 
         # Display as assembly
-        assembly = vd.Assembly([plot.lines, plot.root])
-        self._display(assembly)
+        self._display(plot.assembly())
 
         logging.info("Rendered neuron with lines and soma")
 
@@ -102,9 +101,7 @@ class NeuronRenderer:
         # soma
         # root_coords = nr.g_vert_coords(neuron, nr.g_root_ind(neuron))[0]
         root_coords = neuron.get_node_coordinates(subset=neuron.get_root_index())
-        soma = vd.Point(
-            root_coords, c=RENDERING_CONSTANTS["SOMA_COLOR"], r=RENDERING_CONSTANTS["SOMA_RADIUS"]
-        )
+        soma = vd.Point(root_coords, c=self.neuron_color, r=RENDERING_CONSTANTS["SOMA_RADIUS"])
         self.soma = soma
         actors.append(soma)
         # Display subtree

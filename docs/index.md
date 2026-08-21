@@ -20,6 +20,39 @@ The first lets you switch between your system font, [Atkinson Hyperlegeble](http
 The second button switches to a [Bionic Reading](https://bionic-reading.com/br-about/) mode which is supposed to help with attention (the jury is out with this one though, to be fair, but why not?).
 ```
 
+## Why aren't we on Pip or conda yet?
+
+Simply, we are in the early days of `NeuRosetta`. It doesn't even have a cool logo yet! There are a number of additions I have implemented, or 90% complete, which are not yet built into the `NeuRosetta` architecture. Something about doing a PhD and everything being in piles that only God and myslef understand, and most of the time only God.
+
+Once I get close to a `v.1` release, the build will be stable enough to justify Pip or conda. right now, as I am adding features at a fairly fast pace, there doesn't seem much point.
+
+Below I've listed what is likely to be built in (very) soon, as it pretty much already exists, and what will come further in the future. Or sooner if I descide it is important.
+
+### Coming (very) soon
+
+- Synaptic data, connectivity within forests, etc.
+- Topological descriptors on tree graphs (through `Ghudi`).
+- Expanded compartmentalisation of neuron morphology.
+- Fleshed out mesh API.
+- stochastic block models / other graph theory approaches through `graph-tool` and syanapse update.
+
+### Future planned updates
+
+- Expanded GUI.
+- Multi-type representation (Mesh/Neuron/Reduced Neuron in the same class).
+- Workspaces: a single compressed workspace folder to work on which has datasets and extracted metrics.
+- Dynamics (This is a BIG one, likely a later version release)
+- Functional models
+- Bridging to other toolboxes - Jaxley and Connectome explorer have been discussed
+
+### My (big picture) Wishlist
+
+- Data accesing API tools (Flywire, microns, neuromorpho, etc).
+- Repository of neuronal network graphs.
+- Cell typing.
+- Generative Models.
+- Statistical modeling.
+
 ## Quick Start
 
 If you haven't, install [Miniforge](https://github.com/conda-forge/miniforge) (recommended —

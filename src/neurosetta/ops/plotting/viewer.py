@@ -127,12 +127,18 @@ class Viewer:
         Viewer
             Self for method chaining.
         """
-        if not actors:
+        flat: list[Actor] = []
+        for actor in actors:
+            if isinstance(actor, (list, tuple, set)):
+                flat.extend(a for a in actor if a is not None)
+            elif actor is not None:
+                flat.append(actor)
+
+        if not flat:
             return self
 
-        payload = list(actors) if len(actors) > 1 else actors[0]
-        self._plotter.add(payload)
-        self._actors.extend(actors)
+        self._plotter.add(flat if len(flat) > 1 else flat[0])
+        self._actors.extend(flat)
         return self
 
     def show(
@@ -208,23 +214,24 @@ class Viewer:
     def add_neuron(
         self,
         tree: _Tree,
-        show_root: bool = True,
+        show_root: bool | None = None,
         cache: bool = True,
         line_kwargs: dict | None = None,
         root_kwargs: dict | None = None,
         force_refresh: bool = False,
-    ) -> None:
+        **style_kwargs,
+    ) -> TreePlot3D:
         """Add a neuron tree to the viewer.
 
         Parameters
         ----------
         tree : _Tree
             The tree to plot.
-        show_root : bool, optional
-            Whether to show the root (soma) marker. By default True.
+        show_root : bool | None, optional
+            Whether to show the root (soma) marker. None leaves the plot's
+            current setting. By default None.
         cache : bool, optional
-            Cache the TreePlot3D object on the tree as `tree._3d_plot`.
-            By default True.
+            Populate ``tree.plot3d`` when True. By default True.
         line_kwargs : dict | None, optional
             Keyword arguments passed to the vedo Lines constructor. By default None.
         root_kwargs : dict | None, optional
@@ -232,20 +239,24 @@ class Viewer:
         force_refresh : bool, optional
             Force a rebuild of the plot objects even if a cached version exists.
             By default False.
+        **style_kwargs
+            Further style overrides accepted by ``TreePlot3D.set_style``.
+
+        Returns
+        -------
+        TreePlot3D
+            The plot that was added, for further styling.
         """
-        # Use cached plot if available and no refresh forced
-        if not force_refresh and tree.plot3d is not None:
-            plot = tree.plot3d
-        else:
-            plot = TreePlot3D(tree=tree, line_kwargs=line_kwargs, root_kwargs=root_kwargs)
-
-        if cache:
-            tree.plot3d = plot
-
-        # set soma
-        plot.show_root = show_root
-
-        self.add(plot.actors)
+        plot = tree.make_plot3d(
+            show_root=show_root,
+            line_kwargs=line_kwargs,
+            root_kwargs=root_kwargs,
+            cache=cache,
+            force_refresh=force_refresh,
+            **style_kwargs,
+        )
+        self.add(*plot.actors)
+        return plot
 
     def add_forest(
         self,
@@ -269,7 +280,6 @@ class Viewer:
         # Batch all actors into a single add call
         all_actors = []
         for tree in forest:
-            if tree.plot3d is not None:
-                all_actors.extend(tree.plot3d.actors)
+            all_actors.extend(tree.plot3d.actors)
 
         self.add(all_actors)

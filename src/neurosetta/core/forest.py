@@ -555,15 +555,12 @@ class _Forest(Sequence):
     ):
         """Build and cache TreePlot3D for all trees."""
 
-        if force_refresh:
-            for tree in self:
-                tree.plot3d = None
-
         self.apply(
             lambda t, **kw: t.make_plot3d(**kw),
             parallel=parallel,
             cache=True,
             random_c=random_c,
             show_root=show_root,
+            force_refresh=force_refresh,
             **kwargs,
         )
