@@ -10,19 +10,23 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: mamba-org/setup-micromamba@v2
+      - uses: mamba-org/setup-micromamba@v3
         with:
           environment-file: environment.yml
           environment-name: nr
           create-args: >-
             -y
 
+      - name: Install xvfb
+        run: sudo apt-get update && sudo apt-get install -y xvfb
+
       - name: Run smoke import
-        shell: bash -l {0}
+        shell: bash -el {0}
         run: python -c "import neurosetta as nr; print(nr.__version__)"
 
       - name: Run tests
-        shell: bash -l {0}
-        run: pytest -q
+        shell: bash -el {0}
+        # VTK/vedo Plotter needs a display; CI runners have none → exit 139 without xvfb
+        run: xvfb-run -a pytest -q
