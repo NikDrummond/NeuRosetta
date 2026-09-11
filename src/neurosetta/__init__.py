@@ -6,7 +6,16 @@ spatial coordinates, and graph-based morphological data.
 """
 
 from .analysis import reconstruct_neuropil_surface
-from .api import Forest, Forest_mesh, Neuropil, Neuropils, Tree, Tree_mesh
+from .api import (
+    AnatomicalFrame,
+    Forest,
+    Forest_mesh,
+    FrameRequirementError,
+    Neuropil,
+    Neuropils,
+    Tree,
+    Tree_mesh,
+)
 from .config import (
     configure,
     get_settings,
@@ -87,7 +96,7 @@ from .ops.units import (
     set_voxel_units,
     snap_voxel_coordinates,
 )
-from .utils.metrics import format_metrics_reference_table, list_metric_definitions
+from .utils.metrics import describe, format_metrics_reference_table, list_metric_definitions
 from .utils.units import format_units_reference_table, list_unit_definitions
 
 # Public API
@@ -98,6 +107,8 @@ __all__ = [
     "Forest_mesh",
     "Neuropil",
     "Neuropils",
+    "AnatomicalFrame",
+    "FrameRequirementError",
     "import_swc",
     "export_swc",
     "import_mesh",
@@ -166,6 +177,7 @@ __all__ = [
     "format_units_reference_table",
     "list_metric_definitions",
     "format_metrics_reference_table",
+    "describe",
     "configure",
     "get_settings",
     "settings",

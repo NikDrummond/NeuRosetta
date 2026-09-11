@@ -22,6 +22,18 @@ from .gt_properties import (
 )
 
 
+def _cable_length_property(g: Graph):
+    """Return the edge property map used as physical cable length.
+
+    Prefers ``Path_length``; falls back to ``Euclidean_length`` (reduced trees).
+    """
+    if g_has_property(g, "Path_length", "e"):
+        return g.ep["Path_length"]
+    if g_has_property(g, "Euclidean_length", "e"):
+        return g.ep["Euclidean_length"]
+    raise_internal_property_missing(g, "Path_length", "e")
+
+
 def subgraph_score(g: Graph, bind: bool = True) -> None | ndarray:
     """Compute subgraph score for each vertex in a directed tree.
 
@@ -34,7 +46,8 @@ def subgraph_score(g: Graph, bind: bool = True) -> None | ndarray:
     Parameters
     ----------
     g : Graph
-        Directed tree graph with edge property "Path_length".
+        Directed tree graph with edge property ``Path_length`` or
+        ``Euclidean_length``.
     bind : bool, optional
         If True, bind the result as vertex property "subgraph_score" and return
         None. If False, return the score array. By default True.
@@ -45,11 +58,8 @@ def subgraph_score(g: Graph, bind: bool = True) -> None | ndarray:
         If bind=False, returns array of scores with shape (n_vertices,).
         Otherwise returns None and adds "subgraph_score" vertex property.
     """
-    # make sure we have path length
-    raise_internal_property_missing(g, "Path_length", "e")
-
     # globals
-    path_length = g.ep["Path_length"]
+    path_length = _cable_length_property(g)
 
     total_cable = path_length.a.sum()
     out_degrees = g.get_out_degrees(g.get_vertices())
@@ -170,9 +180,10 @@ def partition_asymmetry(g: Graph, weighted: bool = False, bind: bool = True) -> 
     ----------
     g : Graph
         A graph-tool Graph object representing a directed tree. Must carry an
-        edge property "Path_length" when ``weighted=True``.
+        edge property ``Path_length`` or ``Euclidean_length`` when
+        ``weighted=True``.
     weighted : bool, optional
-        If True compute the cable-weighted version. Requires the "Path_length"
+        If True compute the cable-weighted version. Requires a cable-length
         edge property. By default False.
     bind : bool, optional
         If True attach the result as vertex property
@@ -186,16 +197,13 @@ def partition_asymmetry(g: Graph, weighted: bool = False, bind: bool = True) -> 
         root receive a score of 0. Non-NaN values exist only for branching nodes
         (out-degree >= 2).
     """
-    if weighted:
-        raise_internal_property_missing(g, "Path_length", "e")
-
     n = g.num_vertices()
     out_degrees = g.get_out_degrees(g.get_vertices())
     is_leaf = out_degrees == 0
 
     # Edge lookups
     if weighted:
-        path_length = g.ep["Path_length"]
+        path_length = _cable_length_property(g)
         edges = g.get_edges([path_length])
         e_pl = edges[:, 2]
         total_cable = e_pl.sum()

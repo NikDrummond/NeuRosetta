@@ -63,7 +63,9 @@ def get_subtree_scores(tree: _Tree, bind: bool = True) -> ndarray | None:
     ndarray | None
         Array of subgraph scores if bind=False, otherwise None.
     """
-    if not has_property(tree, "Path_length", "e"):
+    if not (
+        has_property(tree, "Path_length", "e") or has_property(tree, "Euclidean_length", "e")
+    ):
         get_edge_length(tree, bind=True)
 
     score = subgraph_score(tree.graph, bind)
@@ -149,6 +151,11 @@ def get_partition_asymmetry(
         root receive a score of 0. Non-zero values exist only for branching nodes
         (out-degree >= 2).
     """
+    if weighted and not (
+        has_property(tree, "Path_length", "e") or has_property(tree, "Euclidean_length", "e")
+    ):
+        get_edge_length(tree, bind=True)
+
     if bind:
         partition_asymmetry(tree.graph, weighted=weighted, bind=bind)
         return

@@ -52,13 +52,13 @@ def fit_plane(tree: _Tree, return_obj: bool = False) -> Plane | tuple:
         Neuron tree.
     return_obj : bool, optional
         If True, return a vedo :class:`Plane` object. If False, return
-        ``(normal, center, variances)``. By default False.
+        ``(normal, center, variance)``. By default False.
 
     Returns
     -------
     Plane | tuple
         When *return_obj* is True, a vedo Plane. Otherwise
-        ``(normal, center, variances)``.
+        ``(normal, center, variance)``.
     """
     return _fit_plane(vertex_coordinates(tree.graph), return_obj=return_obj)
 

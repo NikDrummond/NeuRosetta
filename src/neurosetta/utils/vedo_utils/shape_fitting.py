@@ -81,12 +81,12 @@ def fit_plane(points: ndarray, return_obj: bool = False) -> Plane | tuple:
     -------
     Plane | tuple
         When *return_obj* is True, a vedo Plane. Otherwise
-        ``(normal, center, variances)``.
+        ``(normal, center, variance)``.
     """
     plane = _fit_plane(points)
     if return_obj:
         return plane
-    return plane.normal, plane.center, plane.variances
+    return plane.normal, plane.center, plane.variance
 
 
 def fit_circle(points: ndarray) -> tuple:

@@ -243,49 +243,14 @@ Next: {doc}`forests`."""
 
 
 def build_tree_surgery() -> None:
-    write(
-        DOCS / "tutorials" / "tree_surgery.ipynb",
-        [
-            md(
-                """# Tree surgery and subtrees
+    """Hand-authored in tutorials/tree_surgery.ipynb — do not overwrite from here.
 
-Reduce morphologies, reroot, and extract subtrees.
-
-```{important}
-`get_reduced_tree(inplace=False)` and `get_rerooted_tree(..., inplace=False)` return a
-**graph-tool Graph**, not a `Tree`. `get_subtree()` edits the tree **in place**.
-```"""
-            ),
-            code(SETUP),
-            md("## Reduce"),
-            code(
-                """print("before:", tree.count_nodes(), "reduced?", tree.is_reduced())
-tree.get_reduced_tree(inplace=True)
-print("after:", tree.count_nodes(), "reduced?", tree.is_reduced())"""
-            ),
-            md("## Reroot"),
-            code(
-                """tree = nr.load_example_data(EXAMPLE_ID)
-leaves = tree.get_leaf_indices()
-tree.get_rerooted_tree(int(leaves[0]), inplace=True)
-print("new root index:", tree.get_root_index())"""
-            ),
-            md("## Subtree scores and extraction"),
-            code(
-                """tree = nr.load_example_data(EXAMPLE_ID)
-scores = tree.get_subtree_scores(bind=False)
-best = tree.get_max_subtree_node()
-print("best subtree root:", best, "score:", scores[best])
-
-branches = tree.get_branch_indices()
-if len(branches):
-    v = int(branches[0])
-    tree.subtree_mask_from_root(v)
-    tree.get_subtree()
-    print("subtree nodes:", tree.count_nodes())"""
-            ),
-            md("Next: {doc}`gui`."),
-        ],
+    Re-execute with ``python docs/_execute_notebooks.py`` after edits.
+    """
+    path = DOCS / "tutorials" / "tree_surgery.ipynb"
+    print(
+        f"skip {path.relative_to(DOCS)} "
+        "(hand-authored; edit the notebook, then _execute_notebooks.py)"
     )
 
 
@@ -357,55 +322,14 @@ print(counts)"""
 
 
 def build_extending() -> None:
-    write(
-        DOCS / "development" / "extending_nr.ipynb",
-        [
-            md(
-                """# Extending NeuRosetta
+    """Hand-authored in development/extending_nr.ipynb — do not overwrite.
 
-Patterns for custom analysis without forking the library. Read
-{doc}`architecture` first for the layer model (`utils` → `ops` → `api`).
-
-This notebook shows **user-level extension**: attach analysis results as graph
-properties and reuse the functional API."""
-            ),
-            code(SETUP),
-            md("## Attach a custom vertex property"),
-            code(
-                """import numpy as np
-
-# Example: distance of each node from the root in microns
-tree.set_units("nm")
-root = tree.get_root_coordinate()
-coords = tree.get_node_coordinates()
-dist_nm = np.linalg.norm(coords - root, axis=1)
-tree.set_property("dist_from_root", dist_nm, level="v", create=True, dtype="double")
-print(tree.get_property("dist_from_root")[:5])"""
-            ),
-            md("## Persist custom properties in `.nr`"),
-            code(
-                """out = Path(tempfile.mkdtemp())
-tree.save_tree(out / f"{tree.ID}.nr")
-reloaded = nr.load(out / f"{tree.ID}.nr")
-print(reloaded.has_property("dist_from_root", level="v"))
-print(reloaded.get_property("dist_from_root")[:5])"""
-            ),
-            md("## Functional API + `Forest.apply`"),
-            code(
-                """def mean_radius(t):
-    return float(t.get_property("radius").mean())
-
-radii = forest.apply(mean_radius, parallel=False)
-print(dict(zip(forest.ids(), radii)))"""
-            ),
-            md(
-                """To add a **library** operation, implement graph logic in `utils/`, wrap in
-`ops/tree_graphs/`, bind on {class}`~neurosetta.api.Tree`, and optionally re-export
-from `neurosetta.__init__`. See {doc}`architecture`.
-
-Next: {doc}`../api/index`."""
-            ),
-        ],
+    Re-execute with ``python docs/_execute_notebooks.py`` after edits.
+    """
+    path = DOCS / "development" / "extending_nr.ipynb"
+    print(
+        f"skip {path.relative_to(DOCS)} "
+        "(hand-authored; edit the notebook, then _execute_notebooks.py)"
     )
 
 

@@ -67,21 +67,21 @@ def plot_2d(
     if center is None:
         center = array([0, 0])
 
-    # get coodinates
+    # get coordinates (same frame for edges and nodes)
     if force_perspective:
         edges = tree.get_edge_indices()
         coords = tree.align_coordinates(bind=False, robust=False)
         starts = coords[edges[:, 0]]
         stops = coords[edges[:, 1]]
     else:
+        coords = tree.get_node_coordinates()
         starts, stops = tree.get_edge_coordinates()
 
-    # remove z axis
-    starts = starts[:, [0, 1]]
-    stops = stops[:, [0, 1]]
+    # remove z axis and apply centering
+    starts = starts[:, [0, 1]] - center
+    stops = stops[:, [0, 1]] - center
+    node_coords = coords[:, [0, 1]] - center
 
-    starts -= center
-    stops -= center
     # stack starts and end into a segments array
     segments = stack([starts, stops], axis=1)
     # create LineCollection
@@ -92,17 +92,16 @@ def plot_2d(
 
     axes.add_collection(lc)
 
-    # plot points
-    coords = tree.get_node_coordinates()
-
     if show_root:
         # generate mask to subset out root
-        mask = ones(coords.shape[0], dtype=bool)
+        mask = ones(node_coords.shape[0], dtype=bool)
         mask[tree.get_root_index()] = False
-        axes.scatter(coords[mask, 0], coords[mask, 1], **point_kwargs)
-        axes.scatter(coords[~mask, 0], coords[~mask, 1], **root_kwargs)
+        # axes.scatter(node_coords[mask, 0], node_coords[mask, 1], **point_kwargs)
+        axes.scatter(
+            node_coords[~mask, 0], node_coords[~mask, 1], **root_kwargs, zorder=200
+        )
     else:
-        axes.scatter(coords[:, 0], coords[:, 1], **point_kwargs)
+        axes.scatter(node_coords[:, 0], node_coords[:, 1], **point_kwargs)
 
     # adjust limits
     all_pts = vstack((starts, stops))
