@@ -15,6 +15,8 @@ For how the codebase is organised today, see {doc}`../development/architecture`.
 - **GUI** — interactive inspection, reroot, subtree extraction
 - **Units** — pint-backed spatial units on trees and forests
 - **Neuropil surfaces** — reconstruction helpers and distance ops (early API)
+- **Synapses** — attach / map / filter / density / 2D–3D plot / `.nr` round-trip
+  (see {doc}`../tutorials/synapses`)
 
 See {doc}`overview` for the mental model, then {doc}`installation` and
 {doc}`example_data` to get running.
@@ -23,7 +25,8 @@ See {doc}`overview` for the mental model, then {doc}`installation` and
 
 | Area                 | Direction                                                            |
 | -------------------- | -------------------------------------------------------------------- |
-| **Synaptic data**    | Integrate synapse / connectivity data alongside morphology           |
+| **Connectivity**     | SBM / PageRank / motif wrappers on top of `get_connectivity_graph()` |
+| **Synapse analysis** | Cable distances between synapses, clustering, I/O segregation        |
 | **Topology**         | Morphology analyses beyond geometry (branching structure, motifs)    |
 | **Meshes**           | Round out neuron and neuropil mesh import/export and batch workflows |
 | **Metrics**          | Expand the descriptives registry — see {doc}`../reference/metrics`   |

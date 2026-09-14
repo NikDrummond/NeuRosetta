@@ -127,6 +127,7 @@ tutorials/tree_basics
 tutorials/forests
 tutorials/plotting
 tutorials/tree_surgery
+tutorials/synapses
 tutorials/gui
 ```
 

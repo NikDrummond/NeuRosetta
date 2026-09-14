@@ -24,14 +24,38 @@ def reduce_tree(tree: _Tree, inplace: bool = False) -> Graph | None:
     -------
     Graph | None
         Reduced graph if inplace=False, otherwise None.
-    """
-    g = tree.graph if inplace else tree.graph.copy()
 
-    g = reduce_graph(g)
+    Notes
+    -----
+    When *inplace* is True and synapses are already mapped, edge locations are
+    transferred onto reduced section edges using cable-distance provenance
+    (raw / mapped coordinates and ``distance_to_tree`` are unchanged). Unmapped
+    synapses are preserved as raw observations.
+
+    Recommended workflow for exact morphology-relative positions::
+
+        tree.set_synapses(data)
+        tree.map_synapses()
+        tree.get_reduced_tree(inplace=True)
+    """
+    from .tree_path_lengths import get_edge_length
+    from .tree_synapses import _bind_synapses_gp, get_synapses
+
+    syn = get_synapses(tree)
+    # Ensure Path_length exists (required by reduce_graph).
+    get_edge_length(tree, bind=True)
 
     if inplace:
+        g, reduction_map = reduce_graph(tree.graph, return_mapping=True)
         tree.graph = g
+        if syn is not None:
+            syn = syn.copy()
+            if syn.is_mapped:
+                syn.remap_edges_through_reduction(reduction_map)
+            _bind_synapses_gp(tree, syn)
         return None
+
+    g = reduce_graph(tree.graph.copy())
     return g
 
 
@@ -52,11 +76,22 @@ def reroot_tree(tree: _Tree, root: int, inplace: bool = False) -> Graph | None:
     -------
     Graph | None
         Rerooted graph if inplace=False, otherwise None.
+
+    Notes
+    -----
+    Raw synapse coordinates are unchanged. Edge mappings are invalidated when
+    *inplace* is True because edge indices are rebuilt by rerooting.
     """
+    from .tree_synapses import _bind_synapses_gp, get_synapses, invalidate_synapse_mapping
+
+    syn = get_synapses(tree)
     g = reroot_graph(tree.graph, root)
 
     if inplace:
         tree.graph = g
+        if syn is not None:
+            _bind_synapses_gp(tree, syn)
+            invalidate_synapse_mapping(tree)
         return None
     return g
 

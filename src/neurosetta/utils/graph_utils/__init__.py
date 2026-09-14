@@ -32,6 +32,7 @@ from .gt_properties import (
     set_property,
 )
 from .node_types import infer_node_types
+from .reduction_map import ReductionMap
 from .subgraphs import (
     extract_subgraph,
     max_subgraph_ind,
@@ -101,6 +102,7 @@ __all__ = [
     "edge_coordinates_subtree",
     "reduce_graph",
     "reroot_graph",
+    "ReductionMap",
     "infer_node_types",
     "subgraph_score",
     "max_subgraph_ind",

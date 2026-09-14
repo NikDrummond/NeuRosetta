@@ -270,44 +270,73 @@ class PostOrderVisitor(DFSVisitor):
 
 
 class ReduceVisitor(DFSVisitor):
-    """Visitor class to obtain graph edges removing transitive vertices."""
+    """Visitor class to obtain graph edges removing transitive vertices.
 
-    def __init__(self, graph, starts, stops):
+    Also records the ordered original edges that compose each reduced section
+    (used when ``reduce_graph(..., return_mapping=True)``).
+    """
+
+    def __init__(self, graph, starts, stops, length_prop="Path_length"):
         """Initialize visitor for graph reduction.
 
         Parameters
         ----------
         graph : graph_tool.Graph
-            Input graph with 'Path_length' edge property.
+            Input graph with a cable-length edge property.
         starts : array-like
             Vertex indices to start new edges from (branches and root).
         stops : array-like
             Vertex indices to end edges at (branches and leaves, excluding root).
+        length_prop : str, optional
+            Edge property name for cable length (``Path_length`` or
+            ``Euclidean_length``). By default ``Path_length``.
         """
         self.graph = graph
         self.starts = starts
         self.stops = stops
+        self.length_prop = length_prop
         self.curr_length = 0.0
         self.edge_source = []
         self.edge_target = []
         self.path_lengths = []
+        # Per reduced section: original edge indices / lengths in directed order.
+        self.section_edge_indices: list[list[int]] = []
+        self.section_edge_lengths: list[list[float]] = []
+        self._section_edges: list[int] = []
+        self._section_lengths: list[float] = []
+        edges = graph.get_edges()
+        self._edge_lookup = {(int(s), int(t)): i for i, (s, t) in enumerate(edges)}
 
     def tree_edge(self, e):
         """Edge behaviour during traversal."""
+        src = int(e.source())
+        tgt = int(e.target())
+        length = float(self.graph.ep[self.length_prop][e])
+        eidx = self._edge_lookup[(src, tgt)]
+
         # add length
-        self.curr_length += self.graph.ep["Path_length"][e]
+        self.curr_length += length
         # if source in starts
         if e.source() in self.starts:
             # add to starts
-            self.edge_source.append(int(e.source()))
+            self.edge_source.append(src)
             # set current length to length of this (starting) edge
-            self.curr_length = self.graph.ep["Path_length"][e]
+            self.curr_length = length
+            self._section_edges = [eidx]
+            self._section_lengths = [length]
+        else:
+            self._section_edges.append(eidx)
+            self._section_lengths.append(length)
         # if the target is in stops
         if e.target() in self.stops:
             # add to targets
-            self.edge_target.append(int(e.target()))
+            self.edge_target.append(tgt)
             # add current length to path_lengths
             self.path_lengths.append(self.curr_length)
+            self.section_edge_indices.append(list(self._section_edges))
+            self.section_edge_lengths.append(list(self._section_lengths))
+            self._section_edges = []
+            self._section_lengths = []
 
 
 class AngleVisitor(DFSVisitor):

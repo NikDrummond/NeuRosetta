@@ -24,10 +24,10 @@ from ...core import _Forest, _Tree
 from ...ops.tree_graphs.tree_coordinates import get_node_coordinates
 from ...ops.units import get_units
 from .registry import (
+    _METRIC_DOMAINS,
     METRIC_DEFINITIONS,
     MetricDefinition,
     MetricDomain,
-    _METRIC_DOMAINS,
 )
 
 DescribeOutput = Literal["wide", "long"]
@@ -109,9 +109,7 @@ def _normalize_domains(
     out: list[MetricDomain] = []
     for item in items:
         if item not in _METRIC_DOMAINS:
-            raise ValueError(
-                f"invalid domain {item!r}; expected one of {sorted(_METRIC_DOMAINS)}"
-            )
+            raise ValueError(f"invalid domain {item!r}; expected one of {sorted(_METRIC_DOMAINS)}")
         out.append(item)  # type: ignore[arg-type]
     # Preserve caller order but drop duplicates.
     seen: set[str] = set()
@@ -126,10 +124,7 @@ def _normalize_domains(
 def _normalize_metrics(metrics: str | Sequence[str] | None) -> tuple[str, ...] | None:
     if metrics is None:
         return None
-    if isinstance(metrics, str):
-        names = (metrics,)
-    else:
-        names = tuple(metrics)
+    names = (metrics,) if isinstance(metrics, str) else tuple(metrics)
     known = {defn.name for defn in METRIC_DEFINITIONS}
     unknown = [name for name in names if name not in known]
     if unknown:
@@ -414,9 +409,7 @@ def _descriptor_items(
 
     if kind == "numeric_distribution":
         arr = _to_float_array(raw)
-        return [
-            (label, summary, _summary_value(arr, summary), unit) for summary in summaries
-        ]
+        return [(label, summary, _summary_value(arr, summary), unit) for summary in summaries]
 
     if kind == "structured_pca":
         evals, _evecs = raw
@@ -560,11 +553,7 @@ def _append_metadata(
     if keys is None:
         # Conservative defaults: only stable, flat keys when present.
         keys = ("units",)
-    trees: Sequence[_Tree]
-    if isinstance(obj, (_Tree, Tree)):
-        trees = (obj,)
-    else:
-        trees = list(obj)
+    trees: Sequence[_Tree] = (obj,) if isinstance(obj, (_Tree, Tree)) else list(obj)
 
     meta_cols: dict[str, list[Any]] = {f"meta.{key}": [] for key in keys}
     for tree in trees:
@@ -658,8 +647,7 @@ def describe(
 
     if embedding_requested and frame is None:
         raise ValueError(
-            "domains includes 'embedding' but no reference_frame / AnatomicalFrame "
-            "was supplied"
+            "domains includes 'embedding' but no reference_frame / AnatomicalFrame was supplied"
         )
 
     # Explicit request for unsupported / missing-reference metrics → error.
@@ -677,9 +665,7 @@ def describe(
                 )
             if defn.requires_reference_frame and not _frame_can_run(frame, name):
                 if frame is None:
-                    raise ValueError(
-                        f"metric {name!r} requires reference_frame / AnatomicalFrame"
-                    )
+                    raise ValueError(f"metric {name!r} requires reference_frame / AnatomicalFrame")
                 frame.require_for_metric(name)
 
     definitions = select_describe_definitions(

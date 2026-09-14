@@ -77,42 +77,37 @@ def split_style_kwargs(kwargs: dict | None, aliases: dict[str, str]) -> tuple[di
 
 @dataclass
 class Plot3DStyle:
-    """Visual style of a :class:`~neurosetta.ops.plotting.utils.TreePlot3D`.
-
-    Attributes
-    ----------
-    colour : Any
-        Line colour, as any vedo colour specifier.
-    lw : float
-        Line width.
-    alpha : float
-        Line opacity in ``[0, 1]``.
-    root_colour : Any | None
-        Root marker colour. None follows :attr:`colour`.
-    root_alpha : float | None
-        Root marker opacity. None follows :attr:`alpha`.
-    root_size : float
-        Root marker point size (or sphere radius on the k3d backend).
-    show_root : bool
-        Whether the root marker is included in the plot's actor list.
-    cmap : str | None
-        Colour map name used when edges are coloured by scalar values.
-    line_kwargs : dict
-        Extra vedo ``Lines`` kwargs with no dedicated style field.
-    root_kwargs : dict
-        Extra root marker kwargs with no dedicated style field.
-    """
+    """Visual style of a :class:`~neurosetta.ops.plotting.utils.TreePlot3D`."""
 
     colour: Any = DEFAULT_COLOUR
+    """Line colour, as any vedo colour specifier."""
+
     lw: float = DEFAULT_LW
+    """Line width."""
+
     alpha: float = DEFAULT_ALPHA
+    """Line opacity in ``[0, 1]``."""
+
     root_colour: Any | None = None
+    """Root marker colour. None follows :attr:`colour`."""
+
     root_alpha: float | None = None
+    """Root marker opacity. None follows :attr:`alpha`."""
+
     root_size: float = DEFAULT_ROOT_SIZE
+    """Root marker point size (or sphere radius on the k3d backend)."""
+
     show_root: bool = True
+    """Whether the root marker is included in the plot's actor list."""
+
     cmap: str | None = None
+    """Colour map name used when edges are coloured by scalar values."""
+
     line_kwargs: dict = field(default_factory=dict)
+    """Extra vedo ``Lines`` kwargs with no dedicated style field."""
+
     root_kwargs: dict = field(default_factory=dict)
+    """Extra root marker kwargs with no dedicated style field."""
 
     @property
     def effective_root_colour(self) -> Any:

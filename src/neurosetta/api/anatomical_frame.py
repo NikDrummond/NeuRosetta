@@ -9,8 +9,8 @@ classes or algorithms.
 
 from __future__ import annotations
 
-from collections.abc import Mapping, Sequence
-from typing import Any, Hashable
+from collections.abc import Hashable, Mapping, Sequence
+from typing import Any
 
 import numpy as np
 from numpy.linalg import norm
@@ -64,8 +64,10 @@ METRIC_FRAME_REQUIREMENTS: dict[str, tuple[tuple[str, ...], ...]] = {
 
 
 def _is_mesh_like(obj: Any) -> bool:
-    return obj is not None and hasattr(obj, "mesh") and not isinstance(
-        obj, (list, tuple, np.ndarray, str, dict)
+    return (
+        obj is not None
+        and hasattr(obj, "mesh")
+        and not isinstance(obj, (list, tuple, np.ndarray, str, dict))
     )
 
 
@@ -144,8 +146,7 @@ class AnatomicalFrame:
     ) -> None:
         if (inner_surface is None) ^ (outer_surface is None):
             raise ValueError(
-                "inner_surface and outer_surface must be supplied together "
-                "(or neither)"
+                "inner_surface and outer_surface must be supplied together (or neither)"
             )
         for label, obj in (
             ("reference_mesh", reference_mesh),
@@ -168,8 +169,7 @@ class AnatomicalFrame:
         if default_axis is not None:
             if default_axis not in normalized_axes:
                 raise ValueError(
-                    f"default_axis {default_axis!r} not in axes "
-                    f"{sorted(normalized_axes)}"
+                    f"default_axis {default_axis!r} not in axes {sorted(normalized_axes)}"
                 )
         elif "depth" in normalized_axes:
             default_axis = "depth"
@@ -366,8 +366,7 @@ class AnatomicalFrame:
             return
         if not units_are_equal(frame_units, other_units):
             raise ValueError(
-                f"AnatomicalFrame units {frame_units!r} incompatible with "
-                f"{other_units!r}"
+                f"AnatomicalFrame units {frame_units!r} incompatible with {other_units!r}"
             )
 
     def describe(self, obj, **kwargs):

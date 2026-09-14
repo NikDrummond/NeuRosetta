@@ -44,9 +44,16 @@ def metadata_from_graph(graph: Graph) -> dict:
 
 
 def copy_tree_graph(graph: Graph) -> tuple[int, dict, Graph]:
-    """Return ``(ID, metadata, graph)`` for a shallow tree copy."""
+    """Return ``(ID, metadata, graph)`` for a shallow tree copy.
+
+    Attached :class:`~neurosetta.core.synapses.Synapses` (if any) are deep-copied
+    so edits on the clone do not mutate the original table.
+    """
     copied = graph.copy()
     meta = unwrap_metadata(copied.gp["metadata"]).copy()
+    if "synapses" in copied.gp and copied.gp["synapses"] is not None:
+        syn = copied.gp["synapses"]
+        copied.gp["synapses"] = syn.copy()
     return int(copied.gp["ID"]), meta, copied
 
 

@@ -26,6 +26,7 @@ Method groups map to the tree-ops reference:
 | Angles & bifurcations | {doc}`tree_ops/tree_geometry` |
 | Shape fitting | {doc}`tree_ops/shape_fitting` |
 | Subtrees | {doc}`tree_ops/subtrees` |
+| Synapses | {doc}`tree_ops/synapses` |
 | Editing | {doc}`tree_ops/tree_editing` |
 | Checks | {doc}`tree_ops/tree_checks` |
 | Transforms | {doc}`tree_ops/transformations` |

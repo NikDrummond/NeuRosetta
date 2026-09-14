@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+from fixtures import make_invariance_tree
+from invariance_helpers import TRANSLATION
 from numpy.testing import assert_allclose
 from vedo import Mesh
 
@@ -11,9 +13,6 @@ import neurosetta as nr
 from neurosetta.api.anatomical_frame import FrameRequirementError
 from neurosetta.core.mesh import _Mesh
 from neurosetta.testing import make_synthetic_forest
-
-from fixtures import make_invariance_tree
-from invariance_helpers import TRANSLATION
 
 
 def _triangle_mesh(offset=(0.0, 0.0, 0.0)) -> _Mesh:

@@ -1,5 +1,6 @@
 """Tree graph operations."""
 
+from ...core.synapses import synapses_from_arrays
 from .tree_checks import (
     check_reduced,
     has_property,
@@ -83,6 +84,22 @@ from .tree_subtrees import (
     mask_subtree_from_root,
 )
 from .tree_summary import SummaryTable, summary_table, tree_summary
+from .tree_synapses import (
+    add_synapses,
+    clear_synapses,
+    count_synapses,
+    get_edge_synapse_counts,
+    get_edge_synapse_density,
+    get_synapse_euclidean_distance_from_root,
+    get_synapse_path_distance,
+    get_synapses,
+    has_synapses,
+    invalidate_synapse_mapping,
+    map_synapses,
+    set_synapses,
+    synapse_density,
+    synapse_mapping_summary,
+)
 from .tree_transformations import (
     align_coordinates,
     align_coordinates_to_vector,
@@ -202,4 +219,19 @@ __all__ = [
     "tree_summary",
     "summary_table",
     "SummaryTable",
+    "set_synapses",
+    "add_synapses",
+    "clear_synapses",
+    "get_synapses",
+    "has_synapses",
+    "map_synapses",
+    "synapse_mapping_summary",
+    "get_synapse_path_distance",
+    "get_synapse_euclidean_distance_from_root",
+    "count_synapses",
+    "synapse_density",
+    "get_edge_synapse_counts",
+    "get_edge_synapse_density",
+    "invalidate_synapse_mapping",
+    "synapses_from_arrays",
 ]

@@ -28,15 +28,60 @@ SourceMode = Literal["pc1"]
 SourceVector = SourceMode | tuple | ndarray
 
 
+def _transform_synapses_soa(
+    tree: _Tree,
+    fn,
+    *,
+    distance_scale: float | None = None,
+) -> None:
+    """Apply an SoA coordinate transform to attached synapses (raw + mapped)."""
+    from .tree_synapses import _bind_synapses_gp, get_synapses
+
+    syn = get_synapses(tree)
+    if syn is None or len(syn) == 0:
+        return
+
+    def _apply(coords: ndarray) -> tuple[ndarray, ndarray, ndarray]:
+        x = coords[:, 0].copy()
+        y = coords[:, 1].copy()
+        z = coords[:, 2].copy()
+        return fn(x, y, z)
+
+    x, y, z = _apply(syn.coordinates)
+    syn._df["x"] = x
+    syn._df["y"] = y
+    syn._df["z"] = z
+    if syn.is_mapped:
+        x, y, z = _apply(syn.mapped_coordinates)
+        syn._df["nearest_x"] = x
+        syn._df["nearest_y"] = y
+        syn._df["nearest_z"] = z
+        if distance_scale is not None:
+            syn._df["distance_to_tree"] = syn._df["distance_to_tree"].to_numpy(dtype=float) * float(
+                distance_scale
+            )
+    _bind_synapses_gp(tree, syn)
+
+
 def _apply_node_coordinates(
     tree: _Tree,
     x: ndarray,
     y: ndarray,
     z: ndarray,
     bind: bool,
+    *,
+    synapse_soa_fn=None,
+    distance_scale: float | None = None,
 ) -> ndarray | None:
-    """Write transformed node coordinates to the graph or return them."""
+    """Write transformed node coordinates to the graph or return them.
+
+    When *bind* is True and *synapse_soa_fn* is provided, the same SoA
+    transform is applied to attached synapse coordinates so morphology and
+    synapses stay in one coordinate frame.
+    """
     if bind:
+        if synapse_soa_fn is not None:
+            _transform_synapses_soa(tree, synapse_soa_fn, distance_scale=distance_scale)
         _set_coords_prop(tree.graph, array([x, y, z]))
         return None
     return array([x, y, z]).T
@@ -133,7 +178,8 @@ def align_coordinates(
     is computed. Node radii are not modified by this operation.
     """
     coords = get_node_coordinates(tree, SoA=True)
-    coords -= coords.mean(axis=1, keepdims=True)
+    mean = coords.mean(axis=1, keepdims=True)
+    coords = coords - mean
     x = coords[0]
     y = coords[1]
     z = coords[2]
@@ -147,8 +193,13 @@ def align_coordinates(
     step1, step2 = compute_alignment_rotation(ev1, ev2, ev3, b1, b2, b3)
 
     xr, yr, zr = apply_rotation_steps(x, y, z, step1, step2)
+    cx, cy, cz = float(mean[0, 0]), float(mean[1, 0]), float(mean[2, 0])
 
-    return _apply_node_coordinates(tree, xr, yr, zr, bind)
+    def _syn(sx, sy, sz):
+        ox, oy, oz = recenter(sx, sy, sz, cx, cy, cz)
+        return apply_rotation_steps(ox, oy, oz, step1, step2)
+
+    return _apply_node_coordinates(tree, xr, yr, zr, bind, synapse_soa_fn=_syn if bind else None)
 
 
 def translate_coordinates(
@@ -183,8 +234,12 @@ def translate_coordinates(
         Translated (N, 3) coordinates when bind=False; None when bind=True.
     """
     x, y, z = get_node_coordinates(tree, SoA=True)
-    x, y, z = translate(x, y, z, dx, dy, dz)
-    return _apply_node_coordinates(tree, x, y, z, bind)
+
+    def _syn(sx, sy, sz):
+        return translate(sx, sy, sz, dx, dy, dz)
+
+    x, y, z = _syn(x, y, z)
+    return _apply_node_coordinates(tree, x, y, z, bind, synapse_soa_fn=_syn if bind else None)
 
 
 def center_coordinates_at_centroid(
@@ -216,8 +271,12 @@ def center_coordinates_at_centroid(
     recentering step performed internally by :func:`align_coordinates` before PCA.
     """
     x, y, z = get_node_coordinates(tree, SoA=True)
-    x, y, z, _, _, _ = center_at_centroid(x, y, z)
-    return _apply_node_coordinates(tree, x, y, z, bind)
+    x, y, z, cx, cy, cz = center_at_centroid(x, y, z)
+
+    def _syn(sx, sy, sz):
+        return recenter(sx, sy, sz, cx, cy, cz)
+
+    return _apply_node_coordinates(tree, x, y, z, bind, synapse_soa_fn=_syn if bind else None)
 
 
 def center_coordinates_at_root(
@@ -286,8 +345,12 @@ def recenter_coordinates(
     """
     x, y, z = get_node_coordinates(tree, SoA=True)
     cx, cy, cz = center
-    x, y, z = recenter(x, y, z, cx, cy, cz)
-    return _apply_node_coordinates(tree, x, y, z, bind)
+
+    def _syn(sx, sy, sz):
+        return recenter(sx, sy, sz, cx, cy, cz)
+
+    x, y, z = _syn(x, y, z)
+    return _apply_node_coordinates(tree, x, y, z, bind, synapse_soa_fn=_syn if bind else None)
 
 
 def rotate_coordinates(
@@ -328,8 +391,12 @@ def rotate_coordinates(
     """
     x, y, z = get_node_coordinates(tree, SoA=True)
     ax, ay, az = axis
-    x, y, z = rotate(x, y, z, ax, ay, az, angle, assume_normalized)
-    return _apply_node_coordinates(tree, x, y, z, bind)
+
+    def _syn(sx, sy, sz):
+        return rotate(sx, sy, sz, ax, ay, az, angle, assume_normalized)
+
+    x, y, z = _syn(x, y, z)
+    return _apply_node_coordinates(tree, x, y, z, bind, synapse_soa_fn=_syn if bind else None)
 
 
 def rotate_coordinates_about(
@@ -384,10 +451,14 @@ def rotate_coordinates_about(
     x, y, z = get_node_coordinates(tree, SoA=True)
     cx, cy, cz = _resolve_transform_center(tree, x, y, z, center, center_mode)
     ax, ay, az = axis
-    x, y, z = recenter(x, y, z, cx, cy, cz)
-    x, y, z = rotate(x, y, z, ax, ay, az, angle, assume_normalized)
-    x, y, z = translate(x, y, z, cx, cy, cz)
-    return _apply_node_coordinates(tree, x, y, z, bind)
+
+    def _syn(sx, sy, sz):
+        ox, oy, oz = recenter(sx, sy, sz, cx, cy, cz)
+        ox, oy, oz = rotate(ox, oy, oz, ax, ay, az, angle, assume_normalized)
+        return translate(ox, oy, oz, cx, cy, cz)
+
+    x, y, z = _syn(x, y, z)
+    return _apply_node_coordinates(tree, x, y, z, bind, synapse_soa_fn=_syn if bind else None)
 
 
 def scale_coordinates(
@@ -445,8 +516,20 @@ def scale_coordinates(
 
     x, y, z = get_node_coordinates(tree, SoA=True)
     cx, cy, cz = _resolve_transform_center(tree, x, y, z, center, center_mode)
-    x, y, z = scale_about(x, y, z, factor, factor, factor, cx, cy, cz)
-    out = _apply_node_coordinates(tree, x, y, z, bind)
+
+    def _syn(sx, sy, sz):
+        return scale_about(sx, sy, sz, factor, factor, factor, cx, cy, cz)
+
+    x, y, z = _syn(x, y, z)
+    out = _apply_node_coordinates(
+        tree,
+        x,
+        y,
+        z,
+        bind,
+        synapse_soa_fn=_syn if bind else None,
+        distance_scale=float(factor) if bind else None,
+    )
     if bind and scale_radii:
         _scale_tree_radii(tree, factor)
     return out
@@ -512,8 +595,22 @@ def scale_coordinates_about(
 
     x, y, z = get_node_coordinates(tree, SoA=True)
     cx, cy, cz = _resolve_transform_center(tree, x, y, z, center, center_mode)
-    x, y, z = scale_about(x, y, z, sx, sy, sz, cx, cy, cz)
-    out = _apply_node_coordinates(tree, x, y, z, bind)
+
+    def _syn(ax, ay, az):
+        return scale_about(ax, ay, az, sx, sy, sz, cx, cy, cz)
+
+    x, y, z = _syn(x, y, z)
+    # Anisotropic: scale distances by geometric mean of axis scales.
+    dist_scale = float((abs(sx) * abs(sy) * abs(sz)) ** (1.0 / 3.0))
+    out = _apply_node_coordinates(
+        tree,
+        x,
+        y,
+        z,
+        bind,
+        synapse_soa_fn=_syn if bind else None,
+        distance_scale=dist_scale if bind else None,
+    )
     if bind and scale_radii:
         _scale_tree_radii(tree, (sx + sy + sz) / 3.0)
     return out
@@ -570,6 +667,11 @@ def align_coordinates_to_vector(
     modified by this operation.
     """
     x, y, z = get_node_coordinates(tree, SoA=True)
+    # Capture centroid before optional recenter so synapses use the same shift.
+    if recenter:
+        _, _, _, cx, cy, cz = center_at_centroid(x, y, z)
+    else:
+        cx = cy = cz = 0.0
     x, y, z = _maybe_recenter_at_centroid(x, y, z, recenter)
 
     if source == "pc1":
@@ -582,8 +684,15 @@ def align_coordinates_to_vector(
 
     tx, ty, tz = target
     axis, angle = minimum_rotation_to_align(*v1, tx, ty, tz)
+
+    def _syn(sx, sy, sz):
+        ox, oy, oz = sx, sy, sz
+        if recenter:
+            ox, oy, oz = recenter(ox, oy, oz, cx, cy, cz)
+        return rotate(ox, oy, oz, *axis, angle, assume_normalized=True)
+
     x, y, z = rotate(x, y, z, *axis, angle, assume_normalized=True)
-    return _apply_node_coordinates(tree, x, y, z, bind)
+    return _apply_node_coordinates(tree, x, y, z, bind, synapse_soa_fn=_syn if bind else None)
 
 
 def scale_coordinates_along_pca(

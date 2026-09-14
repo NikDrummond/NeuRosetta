@@ -5,16 +5,13 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 import pytest
+from fixtures import make_invariance_tree
 from vedo import Mesh
 
 from neurosetta import describe
-from neurosetta.api import Forest
 from neurosetta.core.mesh import _Mesh
 from neurosetta.testing import make_synthetic_forest
 from neurosetta.utils.metrics.descriptors import select_describe_definitions
-from neurosetta.utils.metrics.registry import METRIC_DEFINITIONS
-
-from fixtures import make_invariance_tree
 
 
 @pytest.fixture
@@ -46,9 +43,7 @@ def test_describe_forest_one_row_per_tree(forest):
 
 def test_describe_domain_topology_only(tree):
     df = describe(tree, domains="topology", parallel=False)
-    assert all(
-        c == "neuron_id" or c.startswith("topology.") for c in df.columns
-    )
+    assert all(c == "neuron_id" or c.startswith("topology.") for c in df.columns)
     assert not any("intrinsic_geometry." in c for c in df.columns)
     assert not any(c.startswith("embedding.") for c in df.columns)
 

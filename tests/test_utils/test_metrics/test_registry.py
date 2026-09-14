@@ -1,14 +1,13 @@
 """Tests for documented metric catalog."""
 
+import pandas as pd
 import pytest
 
-import pandas as pd
-
 from neurosetta.utils.metrics.registry import (
-    METRIC_DEFINITIONS,
-    MetricDefinition,
     _METRIC_DOMAINS,
     _METRIC_LEVELS,
+    METRIC_DEFINITIONS,
+    MetricDefinition,
     format_metrics_classification_markdown,
     format_metrics_reference_markdown,
     format_metrics_reference_table,

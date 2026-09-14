@@ -20,6 +20,7 @@ from ..ops.plotting import (
     plot_dendrogram,
 )
 from ..ops.tree_graphs import (
+    add_synapses,
     align_coordinates,
     align_coordinates_to_vector,
     apply_rotation_steps_to_coordinates,
@@ -28,6 +29,7 @@ from ..ops.tree_graphs import (
     center_coordinates_at_centroid,
     center_coordinates_at_root,
     check_reduced,
+    clear_synapses,
     coordinate_extent_along_axis,
     coordinate_mean_absolute_along_axis,
     coordinate_mean_along_axis,
@@ -45,6 +47,7 @@ from ..ops.tree_graphs import (
     count_nodes,
     count_roots,
     count_sections,
+    count_synapses,
     count_transitive_nodes,
     depth_first_iterator,
     depth_first_search,
@@ -68,6 +71,8 @@ from ..ops.tree_graphs import (
     get_edge_coordinates,
     get_edge_indices,
     get_edge_length,
+    get_edge_synapse_counts,
+    get_edge_synapse_density,
     get_leaf_indices,
     get_max_depth,
     get_max_subtree_node,
@@ -90,8 +95,11 @@ from ..ops.tree_graphs import (
     get_subtree_indices,
     get_subtree_node_coordinates,
     get_subtree_scores,
+    get_synapse_euclidean_distance_from_root,
+    get_synapse_path_distance,
     get_total_cable_length,
     get_tree_widths,
+    map_synapses,
     mask_subtree_from_root,
     recenter_coordinates,
     reduce_tree,
@@ -101,7 +109,10 @@ from ..ops.tree_graphs import (
     scale_coordinates,
     scale_coordinates_about,
     scale_coordinates_along_pca,
+    set_synapses,
     summary_table,
+    synapse_density,
+    synapse_mapping_summary,
     translate_coordinates,
     tree_summary,
     update_reduced,
@@ -259,6 +270,40 @@ class Tree(_Tree):
 
     get_total_cable_length = get_total_cable_length
     """Get total cable length of the tree."""
+
+    # --- synapses ---
+    set_synapses = set_synapses
+    """Attach (replace) a synapse table on this tree."""
+
+    add_synapses = add_synapses
+    """Append synapses to any existing table."""
+
+    clear_synapses = clear_synapses
+    """Remove all attached synapses."""
+
+    map_synapses = map_synapses
+    """Map synapses onto nearest morphology edges."""
+
+    synapse_mapping_summary = synapse_mapping_summary
+    """Return mapping QC summary statistics."""
+
+    get_synapse_path_distance = get_synapse_path_distance
+    """Cable path distance from root to each mapped synapse."""
+
+    get_synapse_euclidean_distance_from_root = get_synapse_euclidean_distance_from_root
+    """Euclidean distance from root to each synapse."""
+
+    count_synapses = count_synapses
+    """Count attached synapses (optionally filtered)."""
+
+    synapse_density = synapse_density
+    """Synapses per unit cable length."""
+
+    get_edge_synapse_counts = get_edge_synapse_counts
+    """Per-edge synapse counts."""
+
+    get_edge_synapse_density = get_edge_synapse_density
+    """Per-edge synapse density (count / length)."""
 
     # --- Geometry ---
     get_edge_angles = get_edge_angles

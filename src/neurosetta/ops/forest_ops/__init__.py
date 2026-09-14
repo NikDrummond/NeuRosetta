@@ -1,5 +1,11 @@
-"""Global forest-level coordinate and transform operations."""
-
+from .forest_connectivity import (
+    get_connectivity_graph,
+    get_connectivity_table,
+    get_in_degree,
+    get_in_strength,
+    get_out_degree,
+    get_out_strength,
+)
 from .forest_coordinate_moments import (
     coordinate_extent_along_axis_forest,
     coordinate_mean_absolute_along_axis_forest,
@@ -63,4 +69,10 @@ __all__ = [
     "fit_line_forest",
     "fit_plane_forest",
     "fit_sphere_forest",
+    "get_connectivity_table",
+    "get_connectivity_graph",
+    "get_in_degree",
+    "get_out_degree",
+    "get_in_strength",
+    "get_out_strength",
 ]

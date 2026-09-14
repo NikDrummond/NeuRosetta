@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import math
-from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
 
@@ -106,7 +105,8 @@ EXCLUSIONS: tuple[Exclusion, ...] = (
     ),
     Exclusion(
         "get_convex_hull",
-        "Returns SciPy ConvexHull with absolute vertices; volume tested via get_convex_hull_volume.",
+        "Returns SciPy ConvexHull with absolute vertices; "
+        "volume tested via get_convex_hull_volume.",
     ),
     Exclusion(
         "fit_sphere",
@@ -134,7 +134,8 @@ EXCLUSIONS: tuple[Exclusion, ...] = (
     ),
     Exclusion(
         "coordinate_pca",
-        "Returns (evals, evecs); evecs have sign ambiguity. Eigenvalue TI/RI covered by dedicated PCA tests.",
+        "Returns (evals, evecs); evecs have sign ambiguity. "
+        "Eigenvalue TI/RI covered by dedicated PCA tests.",
     ),
 )
 

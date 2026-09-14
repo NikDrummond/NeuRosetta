@@ -22,6 +22,7 @@ tree_structure
 tree_geometry
 shape_fitting
 subtrees
+synapses
 tree_editing
 tree_checks
 transformations

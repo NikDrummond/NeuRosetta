@@ -6,26 +6,47 @@ from graph_tool.all import Graph, GraphView
 from numpy import concatenate, vstack
 
 from .coordinates import vertex_coordinates
-from .gt_properties import raise_internal_property_missing
+from .gt_properties import g_has_property, raise_internal_property_missing
 from .node_types import infer_node_types
+from .reduction_map import ReductionMap
 from .traversals import ReduceVisitor, bf_iterator, dfsearch
 from .vertex_inds import branch_indices, core_indices, root_index
 
 
-def reduce_graph(g: Graph) -> Graph:
+def _cable_length_prop_name(g: Graph) -> str:
+    """Return the edge property used as physical cable length."""
+    if g_has_property(g, "Path_length", "e"):
+        return "Path_length"
+    if g_has_property(g, "Euclidean_length", "e"):
+        return "Euclidean_length"
+    raise_internal_property_missing(g, "Path_length", "e")
+    return "Path_length"  # unreachable
+
+
+def reduce_graph(
+    g: Graph,
+    *,
+    return_mapping: bool = False,
+) -> Graph | tuple[Graph, ReductionMap]:
     """Reduce a graph by collapsing transitive vertices.
 
     Parameters
     ----------
     g : Graph
         Input graph with vertex properties 'x', 'y', 'z', 'radius', 'node_type',
-        edge property 'Path_length', and graph properties 'ID' and 'metadata'.
+        edge property ``Path_length`` or ``Euclidean_length``, and graph
+        properties 'ID' and 'metadata'.
+    return_mapping : bool, optional
+        If True, also return a :class:`~neurosetta.utils.graph_utils.reduction_map.ReductionMap`
+        describing which original edges compose each reduced section.
+        By default False (unchanged return type for existing callers).
 
     Returns
     -------
-    Graph
+    Graph or (Graph, ReductionMap)
         Reduced graph with only branch and leaf vertices (plus root), preserving
         path lengths, coordinates, radii, node types, and graph metadata.
+        When *return_mapping* is True, also returns the section provenance map.
     """
     # we need path a bunch of properties
     raise_internal_property_missing(g, "metadata", "g")
@@ -35,7 +56,7 @@ def reduce_graph(g: Graph) -> Graph:
     raise_internal_property_missing(g, "z", "v")
     raise_internal_property_missing(g, "radius", "v")
     raise_internal_property_missing(g, "node_type", "v")
-    raise_internal_property_missing(g, "Path_length", "e")
+    length_prop = _cable_length_prop_name(g)
 
     # get root
     root = root_index(g)
@@ -53,7 +74,7 @@ def reduce_graph(g: Graph) -> Graph:
     vis = dfsearch(
         g,
         ReduceVisitor,
-        {"graph": g, "starts": starts, "stops": stops},
+        {"graph": g, "starts": starts, "stops": stops, "length_prop": length_prop},
         root=root,
         bind=False,
     )
@@ -62,7 +83,7 @@ def reduce_graph(g: Graph) -> Graph:
     edges = vstack((vis.edge_source, vis.edge_target)).T
     # make graph from edge list
     g_red = Graph(edges, hashed=True, hash_type=int)
-    # add path lengths to edges
+    # add path lengths to edges (reduced sections always use Path_length)
     g_red.ep["Path_length"] = g_red.new_ep("float", vis.path_lengths)
     # add coordinates to verts
     coords = vertex_coordinates(g)[g_red.vp["ids"].a]
@@ -81,7 +102,16 @@ def reduce_graph(g: Graph) -> Graph:
     # node type
     g_red.vp["node_type"] = g_red.new_vp("int", g.vp["node_type"].a[g_red.vp["ids"].a])
 
-    return g_red
+    if not return_mapping:
+        return g_red
+
+    reduction_map = ReductionMap.from_sections(
+        vis.section_edge_indices,
+        vis.section_edge_lengths,
+        n_original_edges=g.num_edges(),
+        n_original_vertices=g.num_vertices(),
+    )
+    return g_red, reduction_map
 
 
 def reroot_graph(g: Graph, root: int) -> Graph:

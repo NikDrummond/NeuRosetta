@@ -57,6 +57,10 @@ from .rotations import (
     rotate_about,
 )
 from .scaling import scale_along_basis
+from .segments import (
+    project_points_to_segments,
+    project_points_to_segments_bruteforce,
+)
 from .tolerance import almost_collinear, almost_equal, almost_unit_length, almost_zero
 from .transforms import (
     center_at_centroid,
@@ -116,6 +120,8 @@ __all__ = [
     "mean_absolute_along_axis",
     "projection_moments",
     "eig_decomp",
+    "project_points_to_segments",
+    "project_points_to_segments_bruteforce",
     "check_value",
     "check_value_any",
     "check",

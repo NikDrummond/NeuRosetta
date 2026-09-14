@@ -212,6 +212,24 @@ class _Tree(_Stone):
 
         _revert(self.graph)
 
+    # --- synapses (graph gp object; not morphological topology) ---
+
+    @property
+    def synapses(self):
+        """Attached :class:`~neurosetta.core.synapses.Synapses`, or ``None``."""
+        from ..ops.tree_graphs.tree_synapses import get_synapses
+
+        return get_synapses(self)
+
+    @synapses.setter
+    def synapses(self, value) -> None:
+        from ..ops.tree_graphs.tree_synapses import _bind_synapses_gp, set_synapses
+
+        if value is None:
+            _bind_synapses_gp(self, None)
+            return
+        set_synapses(self, value)
+
     # --- 3d plot cache ---
 
     def make_plot3d(

@@ -22,9 +22,7 @@ MetricLevel = Literal[
     "population",
 ]
 
-_METRIC_DOMAINS: frozenset[str] = frozenset(
-    {"topology", "intrinsic_geometry", "embedding"}
-)
+_METRIC_DOMAINS: frozenset[str] = frozenset({"topology", "intrinsic_geometry", "embedding"})
 _METRIC_LEVELS: frozenset[str] = frozenset(
     {
         "tree",
@@ -298,10 +296,7 @@ METRIC_DEFINITIONS: tuple[MetricDefinition, ...] = (
         "Summary",
         "tree_summary",
         tree_method="summary_table",
-        notes=(
-            "One-row numeric summary DataFrame. "
-            "Composite: topology counts + cable length."
-        ),
+        notes=("One-row numeric summary DataFrame. Composite: topology counts + cable length."),
         domain="intrinsic_geometry",
         level="tree",
         translation_invariant=True,
@@ -332,10 +327,7 @@ METRIC_DEFINITIONS: tuple[MetricDefinition, ...] = (
         "Summary",
         "tree_summary",
         method="summary_table",
-        notes=(
-            "Per-tree numeric summary DataFrame. "
-            "Composite: topology counts + cable length."
-        ),
+        notes=("Per-tree numeric summary DataFrame. Composite: topology counts + cable length."),
         domain="intrinsic_geometry",
         level="population",
         translation_invariant=True,
@@ -806,9 +798,7 @@ def list_metric_definitions(
         definitions = tuple(item for item in definitions if item.domain == domain)
     if level is not None:
         if level not in _METRIC_LEVELS:
-            raise ValueError(
-                f"invalid level {level!r}; expected one of {sorted(_METRIC_LEVELS)}"
-            )
+            raise ValueError(f"invalid level {level!r}; expected one of {sorted(_METRIC_LEVELS)}")
         definitions = tuple(item for item in definitions if item.level == level)
     return definitions
 
@@ -832,9 +822,7 @@ def _format_tree_column(defn: MetricDefinition, *, rst: bool) -> str:
 
 
 def _format_forest_column(defn: MetricDefinition, *, rst: bool) -> str:
-    if defn.forest_method == "":
-        text = "—"
-    elif defn.forest_method is None:
+    if defn.forest_method == "" or defn.forest_method is None:
         text = "—"
     else:
         text = f"forest.{defn.forest_method}()"

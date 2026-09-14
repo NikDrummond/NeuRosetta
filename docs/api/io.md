@@ -26,3 +26,10 @@
 .. automodule:: neurosetta.io.mesh_utils
    :members:
 ```
+
+## Synapse tables
+
+```{eval-rst}
+.. automodule:: neurosetta.io.synapse_io
+   :members:
+```

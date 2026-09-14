@@ -24,17 +24,24 @@ from .config import (
     settings,
     sync_vedo_runtime,
 )
+from .core import Synapses
 from .gui import start_GUI
 from .io import (
     example_data_dir,
     example_ids,
     export_mesh,
     export_swc,
+    export_synapses,
     import_mesh,
     import_swc,
+    import_synapses,
     load,
     load_example_data,
     save,
+)
+from .ops.forest_ops import (
+    get_connectivity_graph,
+    get_connectivity_table,
 )
 from .ops.neuropils import distance_from_neuropil_surface, neuropil_point_depth
 from .ops.plotting import (
@@ -55,6 +62,7 @@ from .ops.tree_graphs import (
     count_leaves,
     count_nodes,
     count_roots,
+    count_synapses,
     count_transitive_nodes,
     depth_first_iterator,
     depth_first_search,
@@ -65,6 +73,7 @@ from .ops.tree_graphs import (
     get_edge_coordinates,
     get_edge_indices,
     get_edge_length,
+    get_edge_synapse_counts,
     get_leaf_indices,
     get_max_subtree_node,
     get_node_coordinates,
@@ -78,11 +87,16 @@ from .ops.tree_graphs import (
     get_subtree_indices,
     get_subtree_node_coordinates,
     get_subtree_scores,
+    get_synapse_path_distance,
     get_total_cable_length,
     has_property,
+    map_synapses,
     mask_subtree_from_root,
     reduce_tree,
     reroot_tree,
+    set_synapses,
+    synapse_density,
+    synapse_mapping_summary,
     update_reduced,
 )
 from .ops.units import (
@@ -103,6 +117,7 @@ from .utils.units import format_units_reference_table, list_unit_definitions
 __all__ = [
     "Tree",
     "Forest",
+    "Synapses",
     "Tree_mesh",
     "Forest_mesh",
     "Neuropil",
@@ -113,6 +128,8 @@ __all__ = [
     "export_swc",
     "import_mesh",
     "export_mesh",
+    "import_synapses",
+    "export_synapses",
     "load",
     "save",
     "example_data_dir",
@@ -137,6 +154,15 @@ __all__ = [
     "count_leaves",
     "count_branches",
     "count_transitive_nodes",
+    "count_synapses",
+    "set_synapses",
+    "map_synapses",
+    "synapse_density",
+    "synapse_mapping_summary",
+    "get_synapse_path_distance",
+    "get_edge_synapse_counts",
+    "get_connectivity_table",
+    "get_connectivity_graph",
     "breadth_first_search",
     "breadth_first_iterator",
     "depth_first_search",

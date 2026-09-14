@@ -7,6 +7,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass, field
 from typing import Any
 
+import numpy as np
 from vedo.plotter import Plotter
 
 from ...config import get_settings, sync_vedo_runtime
@@ -257,6 +258,122 @@ class Viewer:
         )
         self.add(*plot.actors)
         return plot
+
+    def add_synapses(
+        self,
+        tree: _Tree,
+        *,
+        synapses: bool | str = "both",
+        show_synapses: bool | str | None = None,
+        synapse_position: str = "raw",
+        show_synapse_mapping: bool = False,
+        pre_kwargs: dict | None = None,
+        post_kwargs: dict | None = None,
+        synapse_kwargs: dict | None = None,
+        synapse_colour_by: str | None = None,
+        synapse_cmap: str = "tab10",
+        mapping_line_kwargs: dict | None = None,
+    ) -> list[Actor]:
+        """Add synapse point (and optional mapping) actors for *tree*.
+
+        Parameters
+        ----------
+        tree : _Tree
+            Tree with attached synapses.
+        synapses, show_synapses : {bool, \"pre\", \"post\", \"both\"}
+            Which synapse types to show. ``True`` means ``\"both\"``.
+            ``show_synapses`` is an alias of ``synapses``.
+        synapse_position : {\"raw\", \"mapped\"}
+            Coordinate set to scatter.
+        show_synapse_mapping : bool
+            Draw lines from raw to mapped positions.
+        pre_kwargs, post_kwargs, mapping_line_kwargs : dict | None
+            Vedo constructor kwargs for type-coloured overlays.
+        synapse_kwargs : dict | None
+            Shared Points kwargs when *synapse_colour_by* is set.
+        synapse_colour_by : str | None
+            Synapse table column for categorical colouring.
+        synapse_cmap : str
+            Matplotlib colormap name for categorical colours.
+
+        Returns
+        -------
+        list
+            Actors that were added.
+        """
+        from vedo import Lines, Points
+
+        from .synapse_plot_utils import categorical_rgb, resolve_synapse_overlay, type_mask
+
+        syn = tree.synapses
+        if syn is None or len(syn) == 0:
+            return []
+
+        mode = resolve_synapse_overlay(synapses=synapses, show_synapses=show_synapses)
+        if mode is None and not show_synapse_mapping:
+            return []
+        mode = mode or "both"
+
+        if pre_kwargs is None:
+            pre_kwargs = {"c": "red", "r": 4, "alpha": 0.9}
+        if post_kwargs is None:
+            post_kwargs = {"c": "blue", "r": 4, "alpha": 0.9}
+        if mapping_line_kwargs is None:
+            mapping_line_kwargs = {"c": "gray", "lw": 1, "alpha": 0.6}
+
+        if synapse_position == "mapped":
+            if not syn.is_mapped:
+                raise ValueError("synapse_position='mapped' requires map_synapses()")
+            coords = syn.mapped_coordinates
+        elif synapse_position == "raw":
+            coords = syn.coordinates
+        else:
+            raise ValueError("synapse_position must be 'raw' or 'mapped'")
+
+        df = syn.to_dataframe(copy=False)
+        types = df["type"].to_numpy()
+        sel = type_mask(types, mode)
+        actors: list[Actor] = []
+
+        if synapse_colour_by is not None:
+            if synapse_colour_by not in df.columns:
+                raise KeyError(f"Unknown synapse column {synapse_colour_by!r}")
+            if sel.any():
+                style = {"r": 4, "alpha": 0.9}
+                if synapse_kwargs:
+                    style = {**style, **synapse_kwargs}
+                for key in ("c", "color", "colour"):
+                    style.pop(key, None)
+                labels = df.loc[sel, synapse_colour_by].to_numpy()
+                _, legend = categorical_rgb(labels, cmap=synapse_cmap)
+                # One actor per category — vedo Points.c expects a single colour.
+                sel_idx = np.flatnonzero(sel)
+                for lab, rgb in legend.items():
+                    m = labels == lab
+                    if not np.any(m):
+                        continue
+                    actors.append(Points(coords[sel_idx[m]], c=rgb, **style))
+        else:
+            if mode in ("pre", "both"):
+                m = sel & (types == "pre")
+                if m.any():
+                    actors.append(Points(coords[m], **pre_kwargs))
+            if mode in ("post", "both"):
+                m = sel & (types == "post")
+                if m.any():
+                    actors.append(Points(coords[m], **post_kwargs))
+
+        if show_synapse_mapping:
+            if not syn.is_mapped:
+                raise ValueError("show_synapse_mapping requires map_synapses()")
+            raw = syn.coordinates
+            mapped = syn.mapped_coordinates
+            segs = [[raw[i], mapped[i]] for i in range(len(syn))]
+            actors.append(Lines(segs, **mapping_line_kwargs))
+
+        if actors:
+            self.add(*actors)
+        return actors
 
     def add_forest(
         self,

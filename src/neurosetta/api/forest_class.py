@@ -34,8 +34,14 @@ from ..ops.forest_ops import (
     forest_pca,
     forest_summary,
     forest_summary_table,
+    get_connectivity_graph,
+    get_connectivity_table,
     get_forest_convex_hull,
     get_forest_convex_hull_volume,
+    get_in_degree,
+    get_in_strength,
+    get_out_degree,
+    get_out_strength,
     recenter_forest,
     rotate_forest,
     rotate_forest_about,
@@ -69,6 +75,7 @@ from ..ops.tree_graphs import (
     count_nodes,
     count_roots,
     count_sections,
+    count_synapses,
     count_transitive_nodes,
     fit_circle,
     fit_line,
@@ -90,6 +97,8 @@ from ..ops.tree_graphs import (
     get_edge_coordinates,
     get_edge_indices,
     get_edge_length,
+    get_edge_synapse_counts,
+    get_edge_synapse_density,
     get_leaf_indices,
     get_max_depth,
     get_max_subtree_node,
@@ -107,9 +116,11 @@ from ..ops.tree_graphs import (
     get_root_index,
     get_subtree,
     get_subtree_scores,
+    get_synapse_path_distance,
     get_total_cable_length,
     get_tree_widths,
     has_property,
+    map_synapses,
     recenter_coordinates,
     reduce_tree,
     rotate_coordinates,
@@ -117,6 +128,8 @@ from ..ops.tree_graphs import (
     scale_coordinates,
     scale_coordinates_about,
     scale_coordinates_along_pca,
+    synapse_density,
+    synapse_mapping_summary,
     translate_coordinates,
     update_reduced,
 )
@@ -365,6 +378,15 @@ class Forest(_Forest):
 
     get_total_cable_length = _forest_op(get_total_cable_length)
 
+    # --- synapses ---
+    map_synapses = _forest_op(map_synapses)
+    count_synapses = _forest_op(count_synapses)
+    synapse_density = _forest_op(synapse_density)
+    synapse_mapping_summary = _forest_op(synapse_mapping_summary)
+    get_synapse_path_distance = _forest_op(get_synapse_path_distance)
+    get_edge_synapse_counts = _forest_op(get_edge_synapse_counts)
+    get_edge_synapse_density = _forest_op(get_edge_synapse_density)
+
     # --- Tree geometry ---
     get_edge_angles = _forest_op(get_edge_angles)
 
@@ -493,6 +515,25 @@ class Forest(_Forest):
 
     align_forest = align_coordinates
     """Alias for :meth:`align_coordinates`."""
+
+    # --- synaptic connectivity (network graph, not morphology) ---
+    get_connectivity_table = get_connectivity_table
+    """Directed synapse-count table among trees (and optional external partners)."""
+
+    get_connectivity_graph = get_connectivity_graph
+    """Directed graph-tool connectivity graph (vertices = neurons)."""
+
+    get_in_degree = get_in_degree
+    """Number of distinct input partner neurons per tree ID."""
+
+    get_out_degree = get_out_degree
+    """Number of distinct output partner neurons per tree ID."""
+
+    get_in_strength = get_in_strength
+    """Total input synapse count per tree ID."""
+
+    get_out_strength = get_out_strength
+    """Total output synapse count per tree ID."""
 
     # --- units ---
     get_units = _forest_op(get_units)

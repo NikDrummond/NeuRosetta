@@ -4,19 +4,6 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-from numpy.testing import assert_allclose
-from vedo import Mesh
-
-from neurosetta.api import Forest
-from neurosetta.core.mesh import _Mesh
-from neurosetta.ops.neuropils.distances import (
-    distance_from_neuropil_surface,
-    neuropil_point_depth,
-)
-from neurosetta.ops.tree_graphs.tree_coordinates import get_node_coordinates
-from neurosetta.ops.tree_graphs.tree_transformations import translate_coordinates
-from neurosetta.utils.metrics.registry import METRIC_DEFINITIONS
-
 from fixtures import make_invariance_tree, make_invariance_tree_alt_coords
 from invariance_helpers import (
     EXCLUDED_NAMES,
@@ -32,6 +19,18 @@ from invariance_helpers import (
     testable_definitions,
     translated_tree,
 )
+from numpy.testing import assert_allclose
+from vedo import Mesh
+
+from neurosetta.api import Forest
+from neurosetta.core.mesh import _Mesh
+from neurosetta.ops.neuropils.distances import (
+    distance_from_neuropil_surface,
+    neuropil_point_depth,
+)
+from neurosetta.ops.tree_graphs.tree_coordinates import get_node_coordinates
+from neurosetta.ops.tree_graphs.tree_transformations import translate_coordinates
+from neurosetta.utils.metrics.registry import METRIC_DEFINITIONS
 
 # Dedicated coverage names (must appear in the coverage audit).
 _DEDICATED = frozenset(
@@ -250,9 +249,12 @@ def test_forest_summary_table_stable_under_shared_translation():
     a = forest.summary_table()
     b = moved.summary_table()
     # Topology columns identical; cable lengths unchanged under translation.
-    assert_allclose(a[["nodes", "branches", "leaves", "cable"]].to_numpy(dtype=float),
-                    b[["nodes", "branches", "leaves", "cable"]].to_numpy(dtype=float),
-                    rtol=1e-9, atol=1e-9)
+    assert_allclose(
+        a[["nodes", "branches", "leaves", "cable"]].to_numpy(dtype=float),
+        b[["nodes", "branches", "leaves", "cable"]].to_numpy(dtype=float),
+        rtol=1e-9,
+        atol=1e-9,
+    )
 
 
 def test_fixture_is_nonplanar_asymmetric_and_branched(inv_tree):
