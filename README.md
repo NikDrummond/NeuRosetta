@@ -160,9 +160,7 @@ ruff format src tests
 
 If you use NeuRosetta for any analysis, please cite the paper that first intoduced it:
 
-Population Morphology Implies a Common Developmental Blueprint for Drosophila Motion Detectors
-Nikolas Drummond, Arthur Zhao, Alexander Borst
-bioRxiv 2025.11.15.688637; doi: https://doi.org/10.1101/2025.11.15.688637 
+Drummond N, Zhao A, Borst A (2026) Population morphology implies a common developmental blueprint for Drosophila motion detectors. PLOS Computational Biology 22(8): e1014657. https://doi.org/10.1371/journal.pcbi.1014657
 
 ## References
 
