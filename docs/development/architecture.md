@@ -181,7 +181,13 @@ Thin user-facing classes:
 
 - {class}`~neurosetta.api.Tree` — binds ~all tree ops + plotting + units ({doc}`../api/tree`, {doc}`../api/tree_ops/index`)
 - {class}`~neurosetta.api.Forest` — per-tree batch binds + `filter`, `apply`, parallel I/O ({doc}`../api/forest`)
-- Mesh classes — `Tree_mesh`, `Forest_mesh`, `Neuropil`, `Neuropils`
+- Facets on Tree/Forest — optional attachments, not parallel neuron types:
+  `tree.synapses` ({doc}`../tutorials/synapses`), `tree.mesh`
+  ({doc}`../tutorials/meshes`). `Tree_mesh` / `Forest_mesh` are I/O + payload
+  types for the mesh facet (soft-deprecate mesh-only as the main story).
+- Neuropil classes — `Neuropil` / `Neuropils` (compartment boundaries), plus
+  `AnatomicalFrame` (analysis context wrapping neuropil meshes + axes — not a
+  mesh). Taxonomy / ID policy: {doc}`../api/api_classes`.
 
 ### How methods get onto `Tree`
 
@@ -233,6 +239,8 @@ File ↔ object conversion. Returns `api/` instances, never raw graphs.
 | `io/mesh_utils.py` | `import_mesh`, `export_mesh` |
 
 Single file → `Tree` / mesh object. Directory → `Forest` / mesh collection.
+Neuron mesh files are meant to be **attached** (`Tree.set_mesh` /
+`Forest.set_meshes`); `Tree_mesh` / `Forest_mesh` are the import return types.
 
 `.nr` preserves bound graph properties and metadata — preferred for NeuRosetta
 workflows. SWC is the exchange format. Details: {doc}`../getting_started/io`.

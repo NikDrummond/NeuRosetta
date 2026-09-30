@@ -20,6 +20,14 @@ def unit_triangle_mesh():
     return Mesh([verts, faces])
 
 
+@pytest.fixture
+def large_triangle_mesh():
+    """Coarse triangle where vertex ≠ surface distance for interior points."""
+    verts = np.array([[0.0, 0.0, 0.0], [2.0, 0.0, 0.0], [0.0, 2.0, 0.0]], dtype=float)
+    faces = np.array([[0, 1, 2]], dtype=int)
+    return Mesh([verts, faces])
+
+
 def test_build_submesh_none_returns_original(unit_triangle_mesh):
     assert build_submesh(unit_triangle_mesh, face_indices=None) is unit_triangle_mesh
 
@@ -38,6 +46,17 @@ def test_surface_distance_to_vertex(unit_triangle_mesh):
     assert dists[0] == pytest.approx(0.0)
 
 
+def test_surface_vs_vertex_method(large_triangle_mesh):
+    # Point 1 unit above triangle centroid — true surface dist is 1,
+    # closest-vertex dist is larger.
+    pts = np.array([[2.0 / 3.0, 2.0 / 3.0, 1.0]])
+    d_surf, c_surf = surface_distance(pts, large_triangle_mesh, method="surface")
+    d_vert, _ = surface_distance(pts, large_triangle_mesh, method="vertex")
+    assert d_surf[0] == pytest.approx(1.0)
+    assert c_surf[0] == pytest.approx([2.0 / 3.0, 2.0 / 3.0, 0.0])
+    assert d_vert[0] > d_surf[0] + 0.1
+
+
 def test_compute_face_centroids_and_normals(unit_triangle_mesh):
     centroids, normals = _compute_face_centroids_and_normals(unit_triangle_mesh)
     assert centroids.shape == (1, 3)
@@ -47,7 +66,7 @@ def test_compute_face_centroids_and_normals(unit_triangle_mesh):
 
 def test_get_face_subset_from_dot_both(unit_triangle_mesh):
     inner, outer = _get_face_subset_from_dot(unit_triangle_mesh, t=0.0, face="both")
-    assert len(inner[0]) + len(outer[0]) <= 1
+    assert len(inner) + len(outer) <= 1
 
 
 def test_get_face_subset_invalid_face_raises(unit_triangle_mesh):

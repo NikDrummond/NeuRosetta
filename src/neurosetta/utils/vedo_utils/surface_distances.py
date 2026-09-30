@@ -1,9 +1,17 @@
 """Functions for computing distances from points to mesh surfaces."""
 
-from numpy import asarray, cross, einsum, ndarray, unique, where, zeros
+from __future__ import annotations
+
+from typing import Literal
+
+from numpy import asarray, cross, ndarray, unique, where, zeros
 from numpy.linalg import norm
 from scipy.spatial import KDTree
 from vedo import Mesh
+
+from ..geometry_utils.triangles import project_points_to_triangles
+
+SurfaceDistanceMethod = Literal["surface", "vertex"]
 
 
 def build_submesh(mesh: Mesh, face_indices=None) -> Mesh:
@@ -25,7 +33,7 @@ def build_submesh(mesh: Mesh, face_indices=None) -> Mesh:
     if face_indices is None:
         return mesh
 
-    face_indices = asarray(face_indices)
+    face_indices = _normalize_face_indices(face_indices)
     all_faces = asarray(mesh.cells)  # (F, 3)
     all_verts = asarray(mesh.vertices)  # (V, 3)
 
@@ -39,12 +47,35 @@ def build_submesh(mesh: Mesh, face_indices=None) -> Mesh:
     return Mesh([new_verts, new_faces])
 
 
+def _normalize_face_indices(face_indices) -> ndarray:
+    """Flatten ``np.where`` tuples / nested index arrays to 1-D int indices."""
+    if isinstance(face_indices, tuple):
+        face_indices = face_indices[0]
+    return asarray(face_indices, dtype=int).ravel()
+
+
+def _triangle_corners(mesh: Mesh, face_indices=None):
+    """Return ``(tri_a, tri_b, tri_c)`` vertex arrays for selected faces."""
+    all_faces = asarray(mesh.cells)
+    all_verts = asarray(mesh.vertices, dtype=float)
+    faces = all_faces if face_indices is None else all_faces[_normalize_face_indices(face_indices)]
+    return (
+        all_verts[faces[:, 0]],
+        all_verts[faces[:, 1]],
+        all_verts[faces[:, 2]],
+    )
+
+
 def surface_distance(
     points: ndarray,
     mesh: Mesh,
     face_indices=None,
+    *,
+    method: SurfaceDistanceMethod = "surface",
+    triangle_method: str = "auto",
+    k_candidates: int = 64,
 ) -> tuple[ndarray, ndarray]:
-    """Compute distances from points to the closest vertices on a mesh.
+    """Compute distances from points to a mesh surface.
 
     Parameters
     ----------
@@ -55,21 +86,50 @@ def surface_distance(
     face_indices : array-like, optional
         Indices of faces to restrict the search to. If None, use all faces.
         By default None.
+    method : {\"surface\", \"vertex\"}, optional
+        ``\"surface\"`` (default) is true point-to-triangle distance.
+        ``\"vertex\"`` is the legacy closest-mesh-vertex KDTree query (faster,
+        but can substantially overestimate distance for coarse meshes).
+    triangle_method : {\"bruteforce\", \"centroid_kdtree\", \"auto\"}, optional
+        Backend for ``method=\"surface\"`` (see
+        :func:`~neurosetta.utils.geometry_utils.triangles.project_points_to_triangles`).
+    k_candidates : int, optional
+        Candidate faces for ``centroid_kdtree``. By default 64.
 
     Returns
     -------
     tuple[ndarray, ndarray]
         - dists: Array of distances with shape (N,).
-        - closest_pts: Array of closest vertex coordinates with shape (N, 3).
+        - closest_pts: Closest surface (or vertex) coordinates, shape (N, 3).
     """
-    target = build_submesh(mesh, face_indices)
-    verts = asarray(target.vertices)  # (V, 3)
     points = asarray(points, dtype=float)
+    if points.ndim != 2 or points.shape[1] != 3:
+        raise ValueError(f"points must have shape (N, 3), got {points.shape}")
 
-    kd = KDTree(verts)
-    dists, idx = kd.query(points)  # vectorised, no Python loop
-    closest_pts = verts[idx]
+    if method == "vertex":
+        target = build_submesh(mesh, face_indices)
+        verts = asarray(target.vertices, dtype=float)
+        if verts.shape[0] == 0:
+            raise ValueError("Mesh has no vertices")
+        kd = KDTree(verts)
+        dists, idx = kd.query(points)
+        return asarray(dists, dtype=float), verts[idx]
 
+    if method != "surface":
+        raise ValueError(f"method must be 'surface' or 'vertex', got {method!r}")
+
+    tri_a, tri_b, tri_c = _triangle_corners(mesh, face_indices)
+    if tri_a.shape[0] == 0:
+        raise ValueError("Mesh has no faces to project onto")
+
+    _, closest_pts, dists = project_points_to_triangles(
+        points,
+        tri_a,
+        tri_b,
+        tri_c,
+        method=triangle_method,
+        k_candidates=k_candidates,
+    )
     return dists, closest_pts
 
 
@@ -92,7 +152,9 @@ def _compute_face_centroids_and_normals(mesh: Mesh, face_indices=None):
     all_faces = asarray(mesh.cells)  # (F, 3)
     all_verts = asarray(mesh.vertices)  # (V, 3)
 
-    faces = all_faces[asarray(face_indices)] if face_indices is not None else all_faces
+    faces = (
+        all_faces[_normalize_face_indices(face_indices)] if face_indices is not None else all_faces
+    )
 
     v0 = all_verts[faces[:, 0]]
     v1 = all_verts[faces[:, 1]]
@@ -147,14 +209,14 @@ def _get_face_subset_from_dot(
     to_cent = centroids - origin
     to_cent /= norm(to_cent, axis=1, keepdims=True)
 
-    dot = einsum("ij,ij->i", normals, to_cent)
+    dot = (normals * to_cent).sum(axis=1)
 
     if face == "inner":
-        return where(dot < -t)
+        return where(dot < -t)[0]
     elif face == "outer":
-        return where(dot > t)
+        return where(dot > t)[0]
     elif face == "both":
-        return where(dot < -t), where(dot > t)
+        return where(dot < -t)[0], where(dot > t)[0]
     else:
         raise AttributeError(f'face must be one of ["inner", "outer", "both"] for {face}')
 
@@ -194,7 +256,7 @@ def mesh_surface_depth(
     # get subsets of inner and outer faces
     inner, outer = _get_face_subset_from_dot(mesh, t=t)
 
-    # distances from inner and outer surfaces
+    # distances from inner and outer surfaces (true surface distance)
     in_dists, _ = surface_distance(points, mesh, face_indices=inner)
     out_dists, _ = surface_distance(points, mesh, face_indices=outer)
 

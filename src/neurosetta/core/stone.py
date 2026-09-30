@@ -46,13 +46,18 @@ class _Stone:
         """Delete a metadata entry."""
         del self.metadata[key]
 
-    def list_meta(self) -> list[str]:
-        """Return sorted metadata keys."""
+    def list_meta(self, *, include_protected: bool = False) -> list[str]:
+        """Return sorted metadata keys.
+
+        ``include_protected`` is accepted for API parity with
+        :class:`~neurosetta.core.tree._Tree`. Stones without a protected-key
+        scheme return all keys regardless of the flag.
+        """
         return sorted(self.metadata)
 
-    def meta_summary(self) -> dict[str, int]:
+    def meta_summary(self, *, include_protected: bool = False) -> dict[str, int]:
         """Return ``{key: 1}`` for each metadata key defined on this object."""
-        return {key: 1 for key in self.list_meta()}
+        return {key: 1 for key in self.list_meta(include_protected=include_protected)}
 
     # --- copy ---
 

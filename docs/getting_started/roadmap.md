@@ -17,6 +17,9 @@ For how the codebase is organised today, see {doc}`../development/architecture`.
 - **Neuropil surfaces** — reconstruction helpers and distance ops (early API)
 - **Synapses** — attach / map / filter / density / 2D–3D plot / `.nr` round-trip
   (see {doc}`../tutorials/synapses`)
+- **Neuron meshes** — `tree.mesh` facet (attach / units / `.nr` / `show_3d`
+  overlay / `forest.set_meshes`); `Tree_mesh` kept for I/O + payload
+  (see {doc}`../tutorials/meshes`)
 
 See {doc}`overview` for the mental model, then {doc}`installation` and
 {doc}`example_data` to get running.
@@ -28,7 +31,7 @@ See {doc}`overview` for the mental model, then {doc}`installation` and
 | **Connectivity**     | SBM / PageRank / motif wrappers on top of `get_connectivity_graph()` |
 | **Synapse analysis** | Cable distances between synapses, clustering, I/O segregation        |
 | **Topology**         | Morphology analyses beyond geometry (branching structure, motifs)    |
-| **Meshes**           | Round out neuron and neuropil mesh import/export and batch workflows |
+| **Meshes**           | Neuropil polish; empty-skeleton / synapse-only members later (hard) |
 | **Metrics**          | Expand the descriptives registry — see {doc}`../reference/metrics`   |
 | **Docs & tutorials** | More notebooks, clearer GUI and analysis walkthroughs                |
 

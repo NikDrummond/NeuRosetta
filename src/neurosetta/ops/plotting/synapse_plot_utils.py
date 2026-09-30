@@ -103,6 +103,14 @@ def type_mask(types: ndarray, mode: SynapseOverlay) -> ndarray:
     raise ValueError(f"Invalid synapse overlay mode {mode!r}")
 
 
+def synapse_column(syn: Any, name: str) -> ndarray:
+    """Resolve a synapse table column without building a DataFrame.
+
+    Uses the SoA column resolver (core / mapping / annotations).
+    """
+    return np.asarray(syn._column(name))
+
+
 def categorical_rgb(
     labels: ndarray,
     *,

@@ -68,6 +68,10 @@ from .transforms import (
     scale_about,
     translate,
 )
+from .triangles import (
+    project_points_to_triangles,
+    project_points_to_triangles_bruteforce,
+)
 
 __all__ = [
     "basis",
@@ -122,6 +126,8 @@ __all__ = [
     "eig_decomp",
     "project_points_to_segments",
     "project_points_to_segments_bruteforce",
+    "project_points_to_triangles",
+    "project_points_to_triangles_bruteforce",
     "check_value",
     "check_value_any",
     "check",

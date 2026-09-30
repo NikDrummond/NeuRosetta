@@ -11,7 +11,7 @@ import numpy as np
 from vedo.plotter import Plotter
 
 from ...config import get_settings, sync_vedo_runtime
-from ...core import _Forest, _Tree
+from ...core import _Forest, _Mesh, _Tree
 from .utils import TreePlot3D
 
 Actor = Any
@@ -220,6 +220,10 @@ class Viewer:
         line_kwargs: dict | None = None,
         root_kwargs: dict | None = None,
         force_refresh: bool = False,
+        *,
+        mesh: bool | None = None,
+        show_mesh: bool | None = None,
+        mesh_kwargs: dict | None = None,
         **style_kwargs,
     ) -> TreePlot3D:
         """Add a neuron tree to the viewer.
@@ -240,6 +244,10 @@ class Viewer:
         force_refresh : bool, optional
             Force a rebuild of the plot objects even if a cached version exists.
             By default False.
+        mesh, show_mesh : bool or None, optional
+            Overlay ``tree.mesh`` when attached. By default None (off).
+        mesh_kwargs : dict, optional
+            Forwarded to :meth:`add_mesh`.
         **style_kwargs
             Further style overrides accepted by ``TreePlot3D.set_style``.
 
@@ -248,6 +256,8 @@ class Viewer:
         TreePlot3D
             The plot that was added, for further styling.
         """
+        from .mesh_plot_utils import resolve_mesh_overlay
+
         plot = tree.make_plot3d(
             show_root=show_root,
             line_kwargs=line_kwargs,
@@ -257,6 +267,20 @@ class Viewer:
             **style_kwargs,
         )
         self.add(*plot.actors)
+        if resolve_mesh_overlay(mesh=mesh, show_mesh=show_mesh):
+            attached = tree.mesh
+            if attached is None:
+                import warnings
+
+                warnings.warn(
+                    f"show_mesh=True but tree {tree.ID!r} has no attached mesh "
+                    f"(tree.set_mesh(...) first).",
+                    UserWarning,
+                    stacklevel=2,
+                )
+            else:
+                kwargs = {"alpha": 0.35} if mesh_kwargs is None else dict(mesh_kwargs)
+                self.add_mesh(attached, **kwargs)
         return plot
 
     def add_synapses(
@@ -303,7 +327,12 @@ class Viewer:
         """
         from vedo import Lines, Points
 
-        from .synapse_plot_utils import categorical_rgb, resolve_synapse_overlay, type_mask
+        from .synapse_plot_utils import (
+            categorical_rgb,
+            resolve_synapse_overlay,
+            synapse_column,
+            type_mask,
+        )
 
         syn = tree.synapses
         if syn is None or len(syn) == 0:
@@ -330,13 +359,12 @@ class Viewer:
         else:
             raise ValueError("synapse_position must be 'raw' or 'mapped'")
 
-        df = syn.to_dataframe(copy=False)
-        types = df["type"].to_numpy()
+        types = syn.types
         sel = type_mask(types, mode)
         actors: list[Actor] = []
 
         if synapse_colour_by is not None:
-            if synapse_colour_by not in df.columns:
+            if synapse_colour_by not in syn.columns:
                 raise KeyError(f"Unknown synapse column {synapse_colour_by!r}")
             if sel.any():
                 style = {"r": 4, "alpha": 0.9}
@@ -344,7 +372,7 @@ class Viewer:
                     style = {**style, **synapse_kwargs}
                 for key in ("c", "color", "colour"):
                     style.pop(key, None)
-                labels = df.loc[sel, synapse_colour_by].to_numpy()
+                labels = synapse_column(syn, synapse_colour_by)[sel]
                 _, legend = categorical_rgb(labels, cmap=synapse_cmap)
                 # One actor per category — vedo Points.c expects a single colour.
                 sel_idx = np.flatnonzero(sel)
@@ -379,6 +407,10 @@ class Viewer:
         self,
         forest: _Forest,
         force_refresh: bool = False,
+        *,
+        mesh: bool | None = None,
+        show_mesh: bool | None = None,
+        mesh_kwargs: dict | None = None,
         **build_kwargs,
     ) -> None:
         """Add all neurons in a forest to the viewer.
@@ -389,9 +421,16 @@ class Viewer:
             Forest containing trees to plot.
         force_refresh : bool, optional
             Force rebuild of 3D objects. By default False.
+        mesh, show_mesh : bool or None, optional
+            Overlay each tree's attached ``tree.mesh`` when present.
+            By default None (off).
+        mesh_kwargs : dict, optional
+            Forwarded to :meth:`add_mesh` for each attached mesh.
         **build_kwargs : dict
             Additional keyword arguments passed to forest.build_3d().
         """
+        from .mesh_plot_utils import resolve_mesh_overlay
+
         forest.build_3d(force_refresh=force_refresh, **build_kwargs, show_progress=None)
 
         # Batch all actors into a single add call
@@ -400,3 +439,85 @@ class Viewer:
             all_actors.extend(tree.plot3d.actors)
 
         self.add(all_actors)
+
+        if resolve_mesh_overlay(mesh=mesh, show_mesh=show_mesh):
+            from ...api.forest_mesh_class import Forest_mesh
+
+            attached = [tree.mesh for tree in forest if tree.mesh is not None]
+            if not attached:
+                import warnings
+
+                warnings.warn(
+                    "show_mesh=True but no trees in the forest have an attached "
+                    "mesh (forest.set_meshes(...) first).",
+                    UserWarning,
+                    stacklevel=2,
+                )
+            else:
+                kwargs = {"alpha": 0.35, "colour_cycle": True}
+                if mesh_kwargs:
+                    kwargs.update(mesh_kwargs)
+                self.add_mesh(Forest_mesh(attached), **kwargs)
+
+    def add_mesh(
+        self,
+        mesh: _Mesh | _Forest,
+        *,
+        c: Any = None,
+        alpha: float | None = 0.5,
+        wireframe: bool = False,
+        colour_cycle: bool = True,
+        **style_kwargs: Any,
+    ) -> list[Actor]:
+        """Add one mesh or a mesh collection to the viewer.
+
+        Parameters
+        ----------
+        mesh : _Mesh or _Forest
+            ``Tree_mesh`` / ``Neuropil`` or a mesh collection.
+        c : Any, optional
+            Colour for a single mesh (or all members when *colour_cycle*
+            is False).
+        alpha : float, optional
+            Opacity. By default 0.5.
+        wireframe : bool, optional
+            Wireframe mode. By default False.
+        colour_cycle : bool, optional
+            Distinct colour per collection member. By default True.
+        **style_kwargs
+            Forwarded to :func:`~neurosetta.ops.plotting.plot_mesh.make_mesh_actor`.
+
+        Returns
+        -------
+        list
+            Actors that were added.
+        """
+        from ...utils.vedo_utils.actors import random_colour
+        from .plot_mesh import make_mesh_actor
+
+        if isinstance(mesh, _Forest):
+            actors: list[Actor] = []
+            for i, member in enumerate(mesh):
+                colour = random_colour(seed=i) if colour_cycle else c
+                actors.append(
+                    make_mesh_actor(
+                        member,
+                        c=colour,
+                        alpha=alpha,
+                        wireframe=wireframe,
+                        **style_kwargs,
+                    )
+                )
+            if actors:
+                self.add(*actors)
+            return actors
+
+        actor = make_mesh_actor(
+            mesh,
+            c=c,
+            alpha=alpha,
+            wireframe=wireframe,
+            **style_kwargs,
+        )
+        self.add(actor)
+        return [actor]

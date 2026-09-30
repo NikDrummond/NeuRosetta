@@ -48,7 +48,7 @@ Both enter the same Qt main window.
 | Control | Purpose |
 |---------|---------|
 | Jump to File… | Skip to a neuron by 1-based index or stem name (folder loads) |
-| Set Mesh Path… / Show Mesh | Overlay a mesh (e.g. neuropil) from a directory |
+| Set Mesh Path… / Show Mesh | Overlay a neuron surface: attached `tree.mesh` (e.g. from `.nr`) and/or a same-stem file from a mesh directory |
 | Show Subtree | Toggle visualisation of the current subtree mask |
 | Flag Neuron | Sets `metadata["Flag"]` on the active tree |
 | Reroot Neuron | Enter pick mode → choose new root |
@@ -96,7 +96,8 @@ Point **Load Folder…** at either directory.
 - **Viewer → Units** — switch display between nanometres and micrometres
 - **Toggle Scale Bar** / **Set Scale Bar Size…** — overlay for screenshots
 - **Set Neuron Colour…** — pick a solid colour for the active neuron
-- **Show Mesh** — after **Set Mesh Path…**, overlay a surface for spatial context
+- **Show Mesh** — overlays the attached `tree.mesh` facet when present (e.g.
+  `.nr` with mesh), otherwise a same-stem file from **Set Mesh Path…**
 
 ### 4. Edit — reroot
 
@@ -143,7 +144,7 @@ rely on the library's `tree.plot3d.rebuild()` in a script.
 | Subtree from point | `subtree_mask_from_root` → `get_subtree` |
 | Show subtree | mask + `build_3d_subtree` / plot helpers |
 | Flag | `Tree.set_flag` / `metadata["Flag"]` |
-| Mesh overlay | `import_mesh` + vedo actors |
+| Mesh overlay | attached `tree.mesh` and/or `import_mesh` from mesh dir + vedo actors |
 | Units / scale bar | display-only; units on disk via `set_units` / `convert_units` |
 
 Scripting remains the better path for batch analysis; the GUI is for

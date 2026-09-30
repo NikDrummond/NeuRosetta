@@ -8,10 +8,15 @@ import pytest
 
 from neurosetta.api import Tree
 
+# Unit-unset warnings are covered in test_synapse_units.py.
+pytestmark = pytest.mark.filterwarnings("ignore:.*units.*:UserWarning")
+
 
 @pytest.fixture
 def tree(test_tree) -> Tree:
-    return Tree(ID=test_tree.ID, metadata=dict(test_tree.metadata), graph=test_tree.graph)
+    t = Tree(ID=test_tree.ID, metadata=dict(test_tree.metadata), graph=test_tree.graph)
+    t.set_units("nm")
+    return t
 
 
 @pytest.fixture
@@ -36,6 +41,7 @@ def synapse_df(tree: Tree) -> pd.DataFrame:
 def test_set_and_filter(tree, synapse_df):
     tree.set_synapses(synapse_df)
     assert tree.synapses is not None
+    assert tree.synapses.owner_id == tree.ID
     assert len(tree.synapses) == 3
     assert len(tree.synapses.pre) == 2  # pre + output alias
     assert len(tree.synapses.post) == 1
@@ -44,6 +50,8 @@ def test_set_and_filter(tree, synapse_df):
     assert len(tree.synapses.filter(partner_id=100)) == 2
     assert len(tree.synapses.filter(partner_id=[100, 200])) == 3
     assert "confidence" in tree.synapses.columns
+    # Filtered views keep the owner stamp.
+    assert tree.synapses.pre.owner_id == tree.ID
 
 
 def test_mapping_and_path_distance(tree, synapse_df):
@@ -159,6 +167,7 @@ def test_copy_preserves_synapses(tree, synapse_df):
     assert clone.synapses is not None
     assert len(clone.synapses) == 3
     assert clone.synapses.is_mapped
+    assert clone.synapses.owner_id == clone.ID == tree.ID
 
 
 def test_nr_roundtrip(tree, synapse_df, tmp_path):
@@ -173,6 +182,84 @@ def test_nr_roundtrip(tree, synapse_df, tmp_path):
     assert len(loaded.synapses) == 3
     assert loaded.synapses.is_mapped
     assert "confidence" in loaded.synapses.columns
+    assert loaded.synapses.owner_id == loaded.ID == tree.ID
+
+
+def test_owner_id_stamped_on_bind(tree, synapse_df):
+    from neurosetta import Synapses
+
+    syn = Synapses(synapse_df)
+    assert syn.owner_id is None
+    tree.set_synapses(syn)
+    assert tree.synapses.owner_id == tree.ID
+
+
+def test_owner_id_match_allows_bind(tree, synapse_df):
+    from neurosetta import Synapses
+
+    syn = Synapses(synapse_df, owner_id=tree.ID)
+    tree.set_synapses(syn)
+    assert tree.synapses.owner_id == tree.ID
+
+
+def test_owner_id_numeric_string_compatible(tree, synapse_df):
+    from neurosetta import Synapses
+
+    syn = Synapses(synapse_df, owner_id=str(int(tree.ID)))
+    tree.set_synapses(syn)
+    assert tree.synapses.owner_id == tree.ID
+
+
+def test_owner_id_mismatch_rejects(tree, synapse_df):
+    from neurosetta import Synapses
+
+    syn = Synapses(synapse_df, owner_id=tree.ID + 10_000)
+    with pytest.raises(ValueError, match="owner_id"):
+        tree.set_synapses(syn)
+    assert tree.synapses is None
+
+
+def test_add_synapses_owner_mismatch_rejects(tree, synapse_df):
+    from neurosetta import Synapses
+
+    tree.set_synapses(synapse_df.iloc[:1])
+    bad = Synapses(synapse_df.iloc[1:], owner_id=tree.ID + 99)
+    with pytest.raises(ValueError, match="owner_id"):
+        tree.add_synapses(bad)
+    assert len(tree.synapses) == 1
+    assert tree.synapses.owner_id == tree.ID
+
+
+def test_owner_id_survives_copy_filter_map(tree, synapse_df):
+    tree.set_synapses(synapse_df)
+    tree.map_synapses()
+    clone = tree.synapses.copy()
+    assert clone.owner_id == tree.ID
+    assert clone is not tree.synapses
+    filt = tree.synapses.filter(type="pre")
+    assert filt.owner_id == tree.ID
+    # Remap with new max_distance rebuilds the table — owner must stick.
+    tree.map_synapses(max_distance=1e9, force=True)
+    assert tree.synapses.owner_id == tree.ID
+
+
+def test_owner_id_pickle_roundtrip_and_legacy_state(synapse_df):
+    import pickle
+
+    from neurosetta import Synapses
+
+    syn = Synapses(synapse_df, owner_id=42)
+    restored = pickle.loads(pickle.dumps(syn))
+    assert restored.owner_id == 42
+    assert len(restored) == len(syn)
+
+    # Legacy payloads without owner_id key still load as unbound.
+    legacy = Synapses(synapse_df)
+    state = {"df": legacy.to_dataframe(copy=True), "mapping_meta": {}}
+    bare = Synapses.__new__(Synapses)
+    bare.__setstate__(state)
+    assert bare.owner_id is None
+    assert len(bare) == len(synapse_df)
 
 
 def test_plot_2d_with_synapses(tree, synapse_df):

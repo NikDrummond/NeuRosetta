@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from ...core import _Tree
+from .mesh_plot_utils import resolve_mesh_overlay
 from .synapse_plot_utils import resolve_synapse_overlay
 from .viewer import Viewer
 
@@ -27,6 +28,9 @@ def plot_3d(
     synapse_colour_by: str | None = None,
     synapse_cmap: str = "tab10",
     mapping_line_kwargs: dict | None = None,
+    mesh: bool | None = None,
+    show_mesh: bool | None = None,
+    mesh_kwargs: dict | None = None,
     **style_kwargs,
 ) -> Viewer | Any:
     """Show a 3D plot of *tree* using its :attr:`~neurosetta.core.tree._Tree.plot3d` handle.
@@ -73,6 +77,12 @@ def plot_3d(
         Matplotlib colormap name for categorical colours. By default ``tab10``.
     mapping_line_kwargs : dict, optional
         Vedo Lines kwargs for mapping QC segments.
+    mesh, show_mesh : bool or None, optional
+        Overlay the attached neuron-mesh facet (``tree.mesh``). ``True`` shows
+        it when present; ``show_mesh`` aliases ``mesh``. By default None (off).
+    mesh_kwargs : dict, optional
+        Forwarded to :meth:`~neurosetta.ops.plotting.viewer.Viewer.add_mesh`
+        (e.g. ``c``, ``alpha``, ``wireframe``). Defaults to translucent surface.
     **style_kwargs
         Further style overrides accepted by
         :meth:`~neurosetta.ops.plotting.utils.TreePlot3D.set_style`.
@@ -92,22 +102,39 @@ def plot_3d(
         force_refresh=force_refresh,
         **style_kwargs,
     )
-    mode = resolve_synapse_overlay(synapses=synapses, show_synapses=show_synapses)
-    if mode is None and not show_synapse_mapping:
+    syn_mode = resolve_synapse_overlay(synapses=synapses, show_synapses=show_synapses)
+    want_mesh = resolve_mesh_overlay(mesh=mesh, show_mesh=show_mesh)
+    need_viewer = syn_mode is not None or show_synapse_mapping or want_mesh
+    if not need_viewer:
         return plot.show(**(plot_kwargs or {}))
 
     viewer = Viewer()
     viewer.add(*plot.actors)
-    viewer.add_synapses(
-        tree,
-        synapses=mode or "both",
-        synapse_position=synapse_position,
-        show_synapse_mapping=show_synapse_mapping,
-        pre_kwargs=pre_kwargs,
-        post_kwargs=post_kwargs,
-        synapse_kwargs=synapse_kwargs,
-        synapse_colour_by=synapse_colour_by,
-        synapse_cmap=synapse_cmap,
-        mapping_line_kwargs=mapping_line_kwargs,
-    )
+    if syn_mode is not None or show_synapse_mapping:
+        viewer.add_synapses(
+            tree,
+            synapses=syn_mode or "both",
+            synapse_position=synapse_position,
+            show_synapse_mapping=show_synapse_mapping,
+            pre_kwargs=pre_kwargs,
+            post_kwargs=post_kwargs,
+            synapse_kwargs=synapse_kwargs,
+            synapse_colour_by=synapse_colour_by,
+            synapse_cmap=synapse_cmap,
+            mapping_line_kwargs=mapping_line_kwargs,
+        )
+    if want_mesh:
+        attached = tree.mesh
+        if attached is None:
+            import warnings
+
+            warnings.warn(
+                f"show_mesh=True but tree {tree.ID!r} has no attached mesh "
+                f"(tree.set_mesh(...) first).",
+                UserWarning,
+                stacklevel=2,
+            )
+        else:
+            kwargs = {"alpha": 0.35} if mesh_kwargs is None else dict(mesh_kwargs)
+            viewer.add_mesh(attached, **kwargs)
     return viewer.show(**(plot_kwargs or {}))

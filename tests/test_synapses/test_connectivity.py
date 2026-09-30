@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 import pandas as pd
+import pytest
 from graph_tool.all import Graph
 
 from neurosetta.api import Forest, Tree
+
+pytestmark = pytest.mark.filterwarnings("ignore:.*units.*:UserWarning")
 
 
 def _blank_tree(tree_id: int) -> Tree:
@@ -18,7 +21,9 @@ def _blank_tree(tree_id: int) -> Tree:
     g.vp["node_type"] = g.new_vp("int", [-1])
     g.gp["ID"] = g.new_gp("long", int(tree_id))
     g.gp["metadata"] = g.new_gp("object", {"isReduced": False, "Flag": False, "Neuron_type": "T"})
-    return Tree.from_graph(g)
+    tree = Tree.from_graph(g)
+    tree.set_units("nm")
+    return tree
 
 
 def _syn(sid, typ, partner, cleft, x=0, y=0, z=0):
@@ -132,6 +137,46 @@ def test_connectivity_invariant_to_reduction():
         before.sort_values(["source_id", "target_id"]).reset_index(drop=True),
         after.sort_values(["source_id", "target_id"]).reset_index(drop=True),
     )
+
+
+def test_connectivity_from_mapping_matches_forest():
+    from neurosetta import get_connectivity_table
+
+    a, b, c = _blank_tree(1), _blank_tree(2), _blank_tree(3)
+    _attach(
+        a,
+        [_syn(i, "pre", 2, f"ab{i}") for i in range(3)]
+        + [_syn(10 + i, "pre", 3, f"ac{i}") for i in range(2)],
+    )
+    _attach(b, [_syn(100, "pre", 1, "ba0")])
+    _attach(c, [_syn(200 + i, "pre", 2, f"cb{i}") for i in range(4)])
+    forest = Forest([a, b, c])
+    forest_table = forest.get_connectivity_table(deduplicate="auto")
+
+    mapping = {t.ID: t.synapses.copy() for t in forest}
+    map_table = get_connectivity_table(mapping, deduplicate="auto")
+    pd.testing.assert_frame_equal(
+        forest_table.sort_values(["source_id", "target_id"]).reset_index(drop=True),
+        map_table.sort_values(["source_id", "target_id"]).reset_index(drop=True),
+    )
+
+    # Sequence form requires owner_id on each table.
+    seq_table = get_connectivity_table(list(mapping.values()), deduplicate="auto")
+    pd.testing.assert_frame_equal(
+        forest_table.sort_values(["source_id", "target_id"]).reset_index(drop=True),
+        seq_table.sort_values(["source_id", "target_id"]).reset_index(drop=True),
+    )
+
+
+def test_connectivity_mapping_owner_mismatch():
+    from neurosetta import Synapses, get_connectivity_table
+
+    syn = Synapses(
+        pd.DataFrame([_syn(1, "pre", 2, "x")]),
+        owner_id=99,
+    )
+    with pytest.raises(ValueError, match="owner_id"):
+        get_connectivity_table({1: syn})
 
 
 def test_post_on_a_means_b_to_a():

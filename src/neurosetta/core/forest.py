@@ -39,7 +39,7 @@ class _Forest(Sequence):
         self.extend(trees)
 
     def __repr__(self) -> str:
-        return f"Forest(n={len(self)}, ids={self.ids()})"
+        return f"{type(self).__name__}(n={len(self)}, ids={self.ids()})"
 
     def __len__(self) -> int:
         return len(self._trees)

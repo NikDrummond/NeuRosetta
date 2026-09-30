@@ -491,9 +491,45 @@ class NeuroGUIApplication:
             # Hide current mesh
             self._hide_current_mesh()
 
-    def _load_current_mesh(self) -> None:
-        """Load mesh file corresponding to current neuron."""
+    def _styled_mesh_actor(self, vedo_mesh):
+        """Clone *vedo_mesh* and apply GUI overlay style (do not mutate source)."""
+        actor = vedo_mesh.clone() if hasattr(vedo_mesh, "clone") else vedo_mesh
+        actor.alpha(0.3)
+        actor.c("gray")
+        return actor
+
+    def _resolve_mesh_file_for_current(self) -> str | None:
+        """Return mesh file path matching the current neuron stem, or None."""
         if not self.mesh_directory or not self.files:
+            return None
+
+        filename_stem = pathlib.Path(self.files[self.current_file_index]).stem
+        mesh_dir = pathlib.Path(self.mesh_directory)
+        mesh_extensions = [
+            ".obj",
+            ".ply",
+            ".stl",
+            ".vtk",
+            ".vtp",
+            ".vtu",
+            ".off",
+            ".3ds",
+        ]
+        for ext in mesh_extensions:
+            potential_path = mesh_dir / f"{filename_stem}{ext}"
+            if potential_path.exists():
+                return str(potential_path)
+        return None
+
+    def _load_current_mesh(self) -> None:
+        """Overlay mesh for the current neuron (attached facet or mesh directory).
+
+        Preference order:
+
+        1. Attached ``tree.mesh`` facet (e.g. loaded from ``.nr``).
+        2. File in ``mesh_directory`` whose stem matches the morphology filename.
+        """
+        if not self.files or self.current_neuron is None:
             return
 
         # Don't show mesh when in point selection mode
@@ -501,46 +537,43 @@ class NeuroGUIApplication:
             return
 
         try:
-            # import os
-            # from pathlib import Path
-            # import Neurosetta
+            actor = None
+            source = None
 
-            # Get current filename without extension
-            current_file = self.files[self.current_file_index]
-            filename_stem = pathlib.Path(current_file).stem
-
-            # Try to find mesh file with same name in mesh directory
-            mesh_path = None
-            mesh_dir = pathlib.Path(self.mesh_directory)
-
-            # Common mesh file extensions supported by vedo
-            mesh_extensions = [".obj", ".ply", ".stl", ".vtk", ".vtp", ".vtu", ".off", ".3ds"]
-
-            for ext in mesh_extensions:
-                potential_path = mesh_dir / f"{filename_stem}{ext}"
-                if potential_path.exists():
-                    mesh_path = str(potential_path)
-                    break
-
-            if mesh_path:
-                # Load mesh
-                mesh = import_mesh(mesh_path).mesh
-                mesh.alpha(0.3)
-                mesh.c("gray")
-
-                # Hide previous mesh if it exists
-                self._hide_current_mesh()
-
-                # Store and display new mesh
-                self.current_mesh = mesh
-                self.renderer.add_mesh(mesh)
-
-                logging.info(f"Loaded mesh: {mesh_path}")
+            attached = getattr(self.current_neuron, "mesh", None)
+            if attached is not None and getattr(attached, "mesh", None) is not None:
+                actor = self._styled_mesh_actor(attached.mesh)
+                source = f"attached tree.mesh (ID={getattr(attached, 'ID', None)!r})"
             else:
-                logging.warning(f"No mesh file found for neuron: {filename_stem}")
+                mesh_path = self._resolve_mesh_file_for_current()
+                if mesh_path:
+                    tm = import_mesh(mesh_path, mesh_type="Neuron")
+                    actor = self._styled_mesh_actor(tm.mesh)
+                    source = mesh_path
+
+            if actor is not None:
+                self._hide_current_mesh()
+                self.current_mesh = actor
+                self.renderer.add_mesh(actor)
+                logging.info(f"Loaded mesh overlay: {source}")
+            else:
+                # Clear stale overlay when navigating to a neuron without a mesh
+                self._hide_current_mesh()
+                stem = pathlib.Path(self.files[self.current_file_index]).stem
+                if self.mesh_directory:
+                    logging.warning(
+                        f"No mesh file found for neuron: {stem} (and no attached tree.mesh)"
+                    )
+                else:
+                    logging.warning(
+                        f"show_mesh=True but neuron {stem!r} has no attached "
+                        f"tree.mesh and no mesh directory is set "
+                        f"(Set Mesh Path… or tree.set_mesh / .nr with mesh)."
+                    )
 
         except Exception as e:
             logging.error(f"Failed to load mesh: {e}")
+            self._hide_current_mesh()
 
     def _hide_current_mesh(self) -> None:
         """Hide the currently displayed mesh."""

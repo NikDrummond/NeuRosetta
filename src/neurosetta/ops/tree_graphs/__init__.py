@@ -55,6 +55,12 @@ from .tree_geometry import (
     get_radial_angle,
     get_section_angular_deviation,
 )
+from .tree_mesh import (
+    clear_mesh,
+    get_mesh,
+    has_mesh,
+    set_mesh,
+)
 from .tree_path_lengths import (
     get_edge_length,
     get_total_cable_length,
@@ -225,6 +231,10 @@ __all__ = [
     "get_synapses",
     "has_synapses",
     "map_synapses",
+    "set_mesh",
+    "get_mesh",
+    "has_mesh",
+    "clear_mesh",
     "synapse_mapping_summary",
     "get_synapse_path_distance",
     "get_synapse_euclidean_distance_from_root",

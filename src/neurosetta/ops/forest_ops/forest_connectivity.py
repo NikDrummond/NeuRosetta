@@ -1,8 +1,13 @@
-"""Forest-level synaptic connectivity tables and graphs."""
+"""Forest-level synaptic connectivity tables and graphs.
+
+Accepts a morphology :class:`~neurosetta.core.forest._Forest` **or** a
+morphology-free mapping / sequence of :class:`~neurosetta.core.synapses.Synapses`
+tables keyed by neuron ID (network-only connectomics).
+"""
 
 from __future__ import annotations
 
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Hashable, Mapping, Sequence
 from typing import Any, Literal
 
 import numpy as np
@@ -10,10 +15,11 @@ import pandas as pd
 from graph_tool.all import Graph
 
 from ...core import _Forest, _Tree
-from ...core.synapses import Synapses
+from ...core.synapses import Synapses, owner_ids_compatible
 from ...ops.tree_graphs.tree_synapses import get_synapses
 
 DeduplicateMode = Literal["auto", "id", "none"]
+ConnectivityInput = _Forest | Mapping[Hashable, Synapses] | Sequence[Synapses]
 _META_VERTEX_KEYS = ("cell_type", "Neuron_type", "subtype", "hemisphere", "type")
 
 
@@ -22,7 +28,7 @@ def _resolve_dedupe_column(syn: Synapses, mode: DeduplicateMode) -> str | None:
     if mode == "none":
         return None
     if mode == "id":
-        if "cleft_id" in cols:
+        if "cleft_id" in cols or "cleft_id" in syn.annotations:
             return "cleft_id"
         if "synapse_id" in cols:
             return "synapse_id"
@@ -31,39 +37,40 @@ def _resolve_dedupe_column(syn: Synapses, mode: DeduplicateMode) -> str | None:
         )
     # auto: only globally meaningful IDs (cleft_id). Per-tree synapse_id is not
     # assumed unique across the Forest — use deduplicate='id' to force it.
-    if "cleft_id" in cols:
+    if "cleft_id" in cols or "cleft_id" in syn.annotations:
         return "cleft_id"
     return None
 
 
 def _iter_directed_records(
-    tree: _Tree,
+    owner_id: Hashable,
     syn: Synapses,
     *,
     dedupe_col: str | None,
 ) -> list[tuple[Any, Any, Any]]:
-    """Return list of (source_id, target_id, dedupe_key) for one tree."""
-    df = syn.to_dataframe(copy=False)
-    tree_id = tree.ID
+    """Return list of (source_id, target_id, dedupe_key) for one neuron."""
     records: list[tuple[Any, Any, Any]] = []
-    types = df["type"].to_numpy()
-    partners = df["partner_id"].to_numpy()
+    types = syn.types
+    partners = syn.partner_ids
     if dedupe_col is not None:
-        keys = df[dedupe_col].to_numpy()
+        if dedupe_col in syn.annotations:
+            keys = syn.annotations[dedupe_col]
+        elif dedupe_col == "synapse_id":
+            keys = syn.synapse_ids
+        else:
+            keys = syn._column(dedupe_col)
     else:
-        keys = np.arange(len(df))
-        # Make keys unique per tree so "none" never collapses across trees.
-        keys = np.array([(tree_id, int(k)) for k in keys], dtype=object)
+        keys = np.array([(owner_id, i) for i in range(len(syn))], dtype=object)
 
-    for i in range(len(df)):
+    for i in range(len(syn)):
         partner = partners[i]
         if partner is None or (isinstance(partner, float) and np.isnan(partner)):
             continue
         key = keys[i]
         if types[i] == "pre":
-            records.append((tree_id, partner, key))
+            records.append((owner_id, partner, key))
         else:
-            records.append((partner, tree_id, key))
+            records.append((partner, owner_id, key))
     return records
 
 
@@ -80,8 +87,96 @@ def _apply_synapse_filter(
     raise TypeError("synapse_filter must be a callable or a mapping of filter kwargs")
 
 
+def _coerce_owner_id(key: Hashable, syn: Synapses) -> Hashable:
+    """Resolve the neuron ID for a table in a mapping/sequence input."""
+    if syn.owner_id is None:
+        return key
+    if not owner_ids_compatible(syn.owner_id, key):
+        raise ValueError(f"Synapses.owner_id={syn.owner_id!r} does not match mapping key {key!r}")
+    return syn.owner_id if syn.owner_id == key else key
+
+
+def _resolve_connectivity_entries(
+    source: ConnectivityInput,
+) -> tuple[list[tuple[Hashable, Synapses]], dict[Any, _Tree | None], set[Any]]:
+    """Normalise Forest / mapping / sequence into (owner, syn) entries.
+
+    Returns
+    -------
+    entries
+        Non-empty synapse tables with resolved owner IDs.
+    id_to_tree
+        Tree objects when *source* is a Forest; otherwise empty.
+    member_ids
+        All neuron IDs in the population (forest members or mapping keys),
+        including those with empty/missing synapse tables.
+    """
+    id_to_tree: dict[Any, _Tree | None] = {}
+    member_ids: set[Any] = set()
+    entries: list[tuple[Hashable, Synapses]] = []
+
+    if isinstance(source, _Forest):
+        member_ids = {int(t.ID) for t in source}
+        id_to_tree = {int(t.ID): t for t in source}
+        for tree in source:
+            syn = get_synapses(tree)
+            if syn is None or len(syn) == 0:
+                continue
+            entries.append((tree.ID, syn))
+        return entries, id_to_tree, member_ids
+
+    if isinstance(source, Mapping):
+        for key, syn in source.items():
+            if not isinstance(syn, Synapses):
+                raise TypeError(
+                    f"Mapping values must be Synapses instances; got {type(syn)!r} for key {key!r}"
+                )
+            owner = _coerce_owner_id(key, syn)
+            if len(syn) > 0:
+                entries.append((owner, syn))
+        member_ids = set()
+        for key in source:
+            try:
+                member_ids.add(int(key))  # type: ignore[arg-type]
+            except (TypeError, ValueError):
+                member_ids.add(key)
+        return entries, {}, member_ids
+
+    if isinstance(source, Sequence) and not isinstance(source, (str, bytes)):
+        seen: set[Any] = set()
+        for i, syn in enumerate(source):
+            if not isinstance(syn, Synapses):
+                raise TypeError(
+                    f"Sequence items must be Synapses instances; got {type(syn)!r} at index {i}"
+                )
+            if syn.owner_id is None:
+                raise ValueError(
+                    f"Synapses at index {i} has owner_id=None; set owner_id "
+                    f"before network-only connectivity, or pass a "
+                    f"Mapping[owner_id, Synapses]."
+                )
+            owner = syn.owner_id
+            try:
+                oid = int(owner)  # type: ignore[arg-type]
+            except (TypeError, ValueError):
+                oid = owner
+            if oid in seen:
+                raise ValueError(f"Duplicate Synapses.owner_id={owner!r} in sequence")
+            seen.add(oid)
+            member_ids.add(oid)
+            if len(syn) == 0:
+                continue
+            entries.append((owner, syn))
+        return entries, {}, member_ids
+
+    raise TypeError(
+        "connectivity source must be a Forest, Mapping[id, Synapses], "
+        f"or Sequence[Synapses]; got {type(source)!r}"
+    )
+
+
 def aggregate_connectivity(
-    forest: _Forest,
+    source: ConnectivityInput,
     *,
     include_external: bool = False,
     deduplicate: DeduplicateMode = "auto",
@@ -90,16 +185,23 @@ def aggregate_connectivity(
 ) -> pd.DataFrame:
     """Aggregate directed synaptic counts between neuron IDs.
 
+    Parameters
+    ----------
+    source
+        A :class:`~neurosetta.core.forest._Forest`, a ``Mapping[owner_id,
+        Synapses]``, or a ``Sequence[Synapses]`` whose tables each have
+        ``owner_id`` set. Morphology is not required for mapping/sequence input.
+
     Direction
     ---------
-    - ``pre`` / output on tree A with partner B → ``A → B``
-    - ``post`` / input on tree A with partner B → ``B → A``
+    - ``pre`` / output on neuron A with partner B → ``A → B``
+    - ``post`` / input on neuron A with partner B → ``B → A``
 
     Deduplication
     -------------
     ``auto``
         Use ``cleft_id`` when present; otherwise do not cross-deduplicate
-        (per-tree ``synapse_id`` is not assumed globally unique).
+        (per-neuron ``synapse_id`` is not assumed globally unique).
     ``id``
         Require ``cleft_id`` or ``synapse_id``; each ID counted once.
     ``none``
@@ -111,41 +213,35 @@ def aggregate_connectivity(
     DataFrame
         Columns: ``source_id``, ``target_id``, ``synapse_count``.
     """
-    forest_ids = {int(t.ID) for t in forest}
+    entries, _, member_ids = _resolve_connectivity_entries(source)
     seen_keys: set[Any] = set()
     counts: dict[tuple[Any, Any], int] = {}
 
-    # Resolve dedupe column from the first non-empty synapse table that has one.
     dedupe_col: str | None = None
     if deduplicate != "none":
-        for tree in forest:
-            syn = get_synapses(tree)
-            if syn is None or len(syn) == 0:
+        for _, syn in entries:
+            syn_f = _apply_synapse_filter(syn, synapse_filter)
+            if len(syn_f) == 0:
                 continue
-            syn = _apply_synapse_filter(syn, synapse_filter)
             try:
-                dedupe_col = _resolve_dedupe_column(syn, deduplicate)
+                dedupe_col = _resolve_dedupe_column(syn_f, deduplicate)
             except ValueError:
                 if deduplicate == "id":
                     raise
                 dedupe_col = None
             break
 
-    for tree in forest:
-        syn = get_synapses(tree)
-        if syn is None or len(syn) == 0:
-            continue
+    for owner_id, syn in entries:
         syn = _apply_synapse_filter(syn, synapse_filter)
         if len(syn) == 0:
             continue
-        # Per-tree column if auto and first tree lacked ids.
         local_col = dedupe_col
         if local_col is None and deduplicate == "auto":
             local_col = _resolve_dedupe_column(syn, "auto")
         elif deduplicate == "id":
             local_col = _resolve_dedupe_column(syn, "id")
 
-        for src, tgt, key in _iter_directed_records(tree, syn, dedupe_col=local_col):
+        for src, tgt, key in _iter_directed_records(owner_id, syn, dedupe_col=local_col):
             if local_col is not None:
                 if key in seen_keys:
                     continue
@@ -155,7 +251,7 @@ def aggregate_connectivity(
                     src_i, tgt_i = int(src), int(tgt)
                 except (TypeError, ValueError):
                     continue
-                if src_i not in forest_ids or tgt_i not in forest_ids:
+                if src_i not in member_ids or tgt_i not in member_ids:
                     continue
             pair = (src, tgt)
             counts[pair] = counts.get(pair, 0) + 1
@@ -169,19 +265,20 @@ def aggregate_connectivity(
 
 
 def get_connectivity_table(
-    forest: _Forest,
+    source: ConnectivityInput,
     *,
     include_external: bool = False,
     deduplicate: DeduplicateMode = "auto",
     min_synapses: int = 1,
     synapse_filter: Callable[[Synapses], Synapses] | Mapping[str, Any] | None = None,
 ) -> pd.DataFrame:
-    """Return a directed synapse-count table for *forest*.
+    """Return a directed synapse-count table for *source*.
 
-    See :func:`aggregate_connectivity` for direction and deduplication semantics.
+    See :func:`aggregate_connectivity` for direction, deduplication, and
+    accepted input types.
     """
     return aggregate_connectivity(
-        forest,
+        source,
         include_external=include_external,
         deduplicate=deduplicate,
         min_synapses=min_synapses,
@@ -190,7 +287,7 @@ def get_connectivity_table(
 
 
 def get_connectivity_graph(
-    forest: _Forest,
+    source: ConnectivityInput,
     *,
     include_external: bool = False,
     deduplicate: DeduplicateMode = "auto",
@@ -198,30 +295,31 @@ def get_connectivity_graph(
     synapse_filter: Callable[[Synapses], Synapses] | Mapping[str, Any] | None = None,
     table: pd.DataFrame | None = None,
 ) -> Graph:
-    """Build a directed graph-tool connectivity graph for *forest*.
+    """Build a directed graph-tool connectivity graph for *source*.
 
-    Vertices correspond to neurons (``vp["tree_id"]``). Forest members have
+    Vertices correspond to neurons (``vp["tree_id"]``). Population members have
     ``vp["in_forest"] = True``; external partners (when requested) have
     ``False``. Edges carry ``ep["synapse_count"]``.
 
+    When *source* is a Forest, optional neuron metadata is copied onto vertices.
+    Mapping / sequence inputs build the same network graph without morphology.
+
     This is a **network** graph (neurons as nodes), not a morphology graph.
     """
+    _, id_to_tree, member_ids = _resolve_connectivity_entries(source)
     if table is None:
         table = get_connectivity_table(
-            forest,
+            source,
             include_external=include_external,
             deduplicate=deduplicate,
             min_synapses=min_synapses,
             synapse_filter=synapse_filter,
         )
 
-    forest_ids = [int(t.ID) for t in forest]
-    id_to_tree = {int(t.ID): t for t in forest}
-
+    forest_ids = sorted(member_ids, key=lambda x: str(x))
     vertex_ids: list[Any] = list(forest_ids)
     if include_external and len(table):
         extras = set(table["source_id"]).union(table["target_id"]) - set(forest_ids)
-        # Stable order: forest first, then sorted external.
         vertex_ids.extend(sorted(extras, key=lambda x: str(x)))
 
     g = Graph(directed=True)
@@ -233,31 +331,31 @@ def get_connectivity_graph(
     for i, nid in enumerate(vertex_ids):
         v = g.vertex(i)
         tree_id[v] = nid
-        in_forest[v] = nid in id_to_tree
+        in_forest[v] = nid in member_ids
     g.vp["tree_id"] = tree_id
     g.vp["in_forest"] = in_forest
 
-    # Optional metadata from Trees.
-    for key in _META_VERTEX_KEYS:
-        vals = []
-        any_present = False
-        for nid in vertex_ids:
-            tree = id_to_tree.get(int(nid) if not isinstance(nid, int) else nid)
-            if tree is None:
-                try:
-                    tree = id_to_tree.get(int(nid))
-                except (TypeError, ValueError):
-                    tree = None
-            if tree is not None and key in tree.metadata:
-                vals.append(tree.metadata[key])
-                any_present = True
-            else:
-                vals.append(None)
-        if any_present:
-            prop = g.new_vertex_property("object")
-            for i, val in enumerate(vals):
-                prop[g.vertex(i)] = val
-            g.vp[key] = prop
+    if id_to_tree:
+        for key in _META_VERTEX_KEYS:
+            vals = []
+            any_present = False
+            for nid in vertex_ids:
+                tree = id_to_tree.get(nid)
+                if tree is None:
+                    try:
+                        tree = id_to_tree.get(int(nid))
+                    except (TypeError, ValueError):
+                        tree = None
+                if tree is not None and key in tree.metadata:
+                    vals.append(tree.metadata[key])
+                    any_present = True
+                else:
+                    vals.append(None)
+            if any_present:
+                prop = g.new_vertex_property("object")
+                for i, val in enumerate(vals):
+                    prop[g.vertex(i)] = val
+                g.vp[key] = prop
 
     synapse_count = g.new_edge_property("int")
     for _, row in table.iterrows():
@@ -270,12 +368,17 @@ def get_connectivity_graph(
     return g
 
 
+def _member_id_dict(source: ConnectivityInput, fill: int = 0) -> dict[Any, int]:
+    _, _, member_ids = _resolve_connectivity_entries(source)
+    return {mid: fill for mid in member_ids}
+
+
 def _strengths_from_table(
-    forest: _Forest,
+    source: ConnectivityInput,
     table: pd.DataFrame,
 ) -> tuple[dict[Any, int], dict[Any, int]]:
-    in_s: dict[Any, int] = {int(t.ID): 0 for t in forest}
-    out_s: dict[Any, int] = {int(t.ID): 0 for t in forest}
+    in_s = _member_id_dict(source, 0)
+    out_s = _member_id_dict(source, 0)
     for _, row in table.iterrows():
         s, t, c = row["source_id"], row["target_id"], int(row["synapse_count"])
         if s in out_s:
@@ -286,11 +389,12 @@ def _strengths_from_table(
 
 
 def _degrees_from_table(
-    forest: _Forest,
+    source: ConnectivityInput,
     table: pd.DataFrame,
 ) -> tuple[dict[Any, int], dict[Any, int]]:
-    in_partners: dict[Any, set] = {int(t.ID): set() for t in forest}
-    out_partners: dict[Any, set] = {int(t.ID): set() for t in forest}
+    members = _member_id_dict(source, 0)
+    in_partners: dict[Any, set] = {k: set() for k in members}
+    out_partners: dict[Any, set] = {k: set() for k in members}
     for _, row in table.iterrows():
         s, t = row["source_id"], row["target_id"]
         if s in out_partners:
@@ -303,25 +407,25 @@ def _degrees_from_table(
     )
 
 
-def get_in_degree(forest: _Forest, **kwargs) -> dict[Any, int]:
-    """Number of distinct input partner neurons per Tree ID."""
-    table = get_connectivity_table(forest, **kwargs)
-    return _degrees_from_table(forest, table)[0]
+def get_in_degree(source: ConnectivityInput, **kwargs) -> dict[Any, int]:
+    """Number of distinct input partner neurons per neuron ID."""
+    table = get_connectivity_table(source, **kwargs)
+    return _degrees_from_table(source, table)[0]
 
 
-def get_out_degree(forest: _Forest, **kwargs) -> dict[Any, int]:
-    """Number of distinct output partner neurons per Tree ID."""
-    table = get_connectivity_table(forest, **kwargs)
-    return _degrees_from_table(forest, table)[1]
+def get_out_degree(source: ConnectivityInput, **kwargs) -> dict[Any, int]:
+    """Number of distinct output partner neurons per neuron ID."""
+    table = get_connectivity_table(source, **kwargs)
+    return _degrees_from_table(source, table)[1]
 
 
-def get_in_strength(forest: _Forest, **kwargs) -> dict[Any, int]:
-    """Total input synapse count per Tree ID."""
-    table = get_connectivity_table(forest, **kwargs)
-    return _strengths_from_table(forest, table)[0]
+def get_in_strength(source: ConnectivityInput, **kwargs) -> dict[Any, int]:
+    """Total input synapse count per neuron ID."""
+    table = get_connectivity_table(source, **kwargs)
+    return _strengths_from_table(source, table)[0]
 
 
-def get_out_strength(forest: _Forest, **kwargs) -> dict[Any, int]:
-    """Total output synapse count per Tree ID."""
-    table = get_connectivity_table(forest, **kwargs)
-    return _strengths_from_table(forest, table)[1]
+def get_out_strength(source: ConnectivityInput, **kwargs) -> dict[Any, int]:
+    """Total output synapse count per neuron ID."""
+    table = get_connectivity_table(source, **kwargs)
+    return _strengths_from_table(source, table)[1]

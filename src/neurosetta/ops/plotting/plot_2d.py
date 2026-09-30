@@ -11,6 +11,7 @@ from .synapse_plot_utils import (
     align_points_like_tree,
     categorical_rgb,
     resolve_synapse_overlay,
+    synapse_column,
     type_mask,
 )
 
@@ -209,21 +210,20 @@ def _plot_synapses_2d(
     else:
         raise ValueError("synapse_position must be 'raw' or 'mapped'")
 
-    df = syn.to_dataframe(copy=False)
-    types = df["type"].to_numpy()
+    types = syn.types
     sel = type_mask(types, synapses)  # type: ignore[arg-type]
     if not sel.any():
         return
 
     if synapse_colour_by is not None:
-        if synapse_colour_by not in df.columns:
+        if synapse_colour_by not in syn.columns:
             raise KeyError(f"Unknown synapse column {synapse_colour_by!r}")
         style = {"s": 18, "alpha": 0.85, "zorder": 50}
         if synapse_kwargs:
             style = {**style, **synapse_kwargs}
         for key in ("c", "color", "colour"):
             style.pop(key, None)
-        colours, _ = categorical_rgb(df.loc[sel, synapse_colour_by].to_numpy(), cmap=synapse_cmap)
+        colours, _ = categorical_rgb(synapse_column(syn, synapse_colour_by)[sel], cmap=synapse_cmap)
         axes.scatter(pts[sel, 0], pts[sel, 1], c=colours, **style)
         return
 

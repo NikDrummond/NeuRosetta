@@ -245,8 +245,15 @@ def save(
 
     def _save_one(t, base: Path) -> Path:
         _bind_core(t)
+        from ..ops.tree_graphs.tree_mesh import freeze_mesh_for_save, get_mesh
+        from ..ops.tree_graphs.tree_synapses import freeze_synapses_for_save, get_synapses
+
+        freeze_mesh_for_save(t)
+        freeze_synapses_for_save(t)
         out = base / f"{t.ID}.nr"
         t.graph.save(str(out), fmt="gt")
+        get_mesh(t)  # rehydrate live Tree_mesh after payload save
+        get_synapses(t)  # rehydrate live Synapses after payload save
         return out
 
     # ---- Single Tree ----
@@ -266,7 +273,14 @@ def save(
                     p.mkdir(parents=True, exist_ok=True)
                     out = p / f"{tree.ID}.nr"
 
+        from ..ops.tree_graphs.tree_mesh import freeze_mesh_for_save, get_mesh
+        from ..ops.tree_graphs.tree_synapses import freeze_synapses_for_save, get_synapses
+
+        freeze_mesh_for_save(tree)
+        freeze_synapses_for_save(tree)
         tree.graph.save(str(out), fmt="gt")
+        get_mesh(tree)
+        get_synapses(tree)
         return
 
     # ---- Forest ----

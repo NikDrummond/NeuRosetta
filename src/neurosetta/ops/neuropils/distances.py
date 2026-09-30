@@ -7,7 +7,10 @@ from ...utils.vedo_utils import mesh_surface_depth, surface_distance
 
 
 def distance_from_neuropil_surface(mesh: _Mesh, points: ndarray) -> ndarray:
-    """Compute distances from points to the closest vertices on a mesh.
+    """Compute true surface distances from points to a neuropil mesh.
+
+    Uses point-to-triangle projection (not closest-vertex KDTree). See
+    :func:`~neurosetta.utils.vedo_utils.surface_distances.surface_distance`.
 
     Parameters
     ----------

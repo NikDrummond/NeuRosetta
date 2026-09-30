@@ -29,6 +29,7 @@ from ..ops.tree_graphs import (
     center_coordinates_at_centroid,
     center_coordinates_at_root,
     check_reduced,
+    clear_mesh,
     clear_synapses,
     coordinate_extent_along_axis,
     coordinate_mean_absolute_along_axis,
@@ -99,6 +100,7 @@ from ..ops.tree_graphs import (
     get_synapse_path_distance,
     get_total_cable_length,
     get_tree_widths,
+    has_mesh,
     map_synapses,
     mask_subtree_from_root,
     recenter_coordinates,
@@ -109,6 +111,7 @@ from ..ops.tree_graphs import (
     scale_coordinates,
     scale_coordinates_about,
     scale_coordinates_along_pca,
+    set_mesh,
     set_synapses,
     summary_table,
     synapse_density,
@@ -301,6 +304,16 @@ class Tree(_Tree):
 
     get_edge_synapse_counts = get_edge_synapse_counts
     """Per-edge synapse counts."""
+
+    # --- mesh facet ---
+    set_mesh = set_mesh
+    """Attach (replace) a neuron surface mesh on this tree."""
+
+    clear_mesh = clear_mesh
+    """Detach the neuron mesh facet."""
+
+    has_mesh = has_mesh
+    """Return True when a neuron mesh is attached."""
 
     get_edge_synapse_density = get_edge_synapse_density
     """Per-edge synapse density (count / length)."""

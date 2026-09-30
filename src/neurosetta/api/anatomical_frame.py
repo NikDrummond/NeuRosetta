@@ -16,6 +16,7 @@ import numpy as np
 from numpy.linalg import norm
 
 from ..core import _Mesh
+from ..core.mesh import MESH_KIND_NEURON, is_neuron_mesh, mesh_kind_of
 from ..ops.neuropils.distances import (
     distance_from_neuropil_surface,
     neuropil_point_depth,
@@ -88,13 +89,14 @@ class AnatomicalFrame:
     ----------
     name : hashable, optional
         Human-readable identifier (e.g. neuropil or layer name).
-    reference_mesh : Neuropil or _Mesh, optional
-        Mesh used for surface distance and for single-mesh normalized depth
-        (inner/outer faces classified from normals).
-    inner_surface, outer_surface : Neuropil or _Mesh, optional
+    reference_mesh : Neuropil or generic _Mesh, optional
+        Compartment / reference surface for distance and single-mesh
+        normalized depth. Must **not** be a :class:`~neurosetta.api.Tree_mesh`
+        (neuron morphology surfaces are a different taxonomy role).
+    inner_surface, outer_surface : Neuropil or generic _Mesh, optional
         Explicit surface pair for normalized depth. Must be supplied together.
-        When both are set, depth uses distances to each surface (same
-        normalisation as the low-level single-mesh path).
+        Same type rules as ``reference_mesh`` (Neuropil / generic ``_Mesh``
+        only — not ``Tree_mesh``).
     axes : mapping of str → length-3 vector, optional
         Named anatomical axes. Stored as unit vectors.
     default_axis : str, optional
@@ -153,10 +155,20 @@ class AnatomicalFrame:
             ("inner_surface", inner_surface),
             ("outer_surface", outer_surface),
         ):
-            if obj is not None and not _is_mesh_like(obj):
+            if obj is None:
+                continue
+            if not _is_mesh_like(obj):
                 raise TypeError(
                     f"{label} must be a Neuropil/_Mesh-like object with a .mesh "
                     f"attribute, got {type(obj)!r}"
+                )
+            if is_neuron_mesh(obj):
+                raise TypeError(
+                    f"{label} must be a Neuropil (or generic _Mesh), not a "
+                    f"neuron mesh (mesh_kind={MESH_KIND_NEURON!r} / "
+                    f"{type(obj).__name__}). Tree_mesh is a morphology "
+                    f"surface; AnatomicalFrame needs compartment/reference "
+                    f"geometry (got mesh_kind={mesh_kind_of(obj)!r})."
                 )
         if depth_surface not in {"inner", "outer"}:
             raise ValueError("depth_surface must be 'inner' or 'outer'")

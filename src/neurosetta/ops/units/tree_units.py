@@ -52,7 +52,7 @@ def _set_edge_lengths(tree: _Tree, factor: float) -> None:
 
 
 def _scale_tree_geometry(tree: _Tree, factor: float) -> None:
-    """Scale node coordinates, radii, edge lengths, and synapses by a factor.
+    """Scale node coordinates, radii, edge lengths, synapses, and mesh by a factor.
 
     Parameters
     ----------
@@ -71,12 +71,20 @@ def _scale_tree_geometry(tree: _Tree, factor: float) -> None:
     tree.graph.vp["z"].a = coords[:, 2]
     tree.graph.vp["radius"].a *= factor
 
+    from ..tree_graphs.tree_mesh import _bind_mesh_gp, get_mesh
     from ..tree_graphs.tree_synapses import _bind_synapses_gp, get_synapses
 
     syn = get_synapses(tree)
     if syn is not None and len(syn) > 0:
         syn.transform_coordinates(scale=float(factor))
         _bind_synapses_gp(tree, syn)
+
+    mesh = get_mesh(tree)
+    if mesh is not None:
+        from .mesh_units import _scale_mesh_geometry
+
+        _scale_mesh_geometry(mesh, factor)
+        _bind_mesh_gp(tree, mesh)
 
 
 def _pending_units_metadata(
@@ -242,6 +250,11 @@ def set_units(
         _set_edge_lengths(tree, factor)
 
     _commit_units_metadata(tree, pending)
+    from ..tree_graphs.tree_mesh import sync_attached_mesh_units
+    from .synapse_units import sync_attached_synapse_units
+
+    sync_attached_synapse_units(tree)
+    sync_attached_mesh_units(tree)
 
 
 def set_voxel_units(
@@ -342,6 +355,11 @@ def convert_units(
         _set_edge_lengths(tree, factor)
 
     _commit_units_metadata(tree, pending)
+    from ..tree_graphs.tree_mesh import sync_attached_mesh_units
+    from .synapse_units import sync_attached_synapse_units
+
+    sync_attached_synapse_units(tree)
+    sync_attached_mesh_units(tree)
     return tree
 
 

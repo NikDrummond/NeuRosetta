@@ -16,6 +16,7 @@ from .forest_coordinate_moments import (
     coordinate_std_along_axis_forest,
     coordinate_variance_along_axis_forest,
 )
+from .forest_meshes import set_meshes
 from .forest_shape_fitting import (
     fit_circle_forest,
     fit_line_forest,
@@ -75,4 +76,5 @@ __all__ = [
     "get_out_degree",
     "get_in_strength",
     "get_out_strength",
+    "set_meshes",
 ]

@@ -1,8 +1,16 @@
 """Operational modules for plotting and tree graph algorithms."""
 
-from . import neuropils, plotting, tree_graphs, units
+from . import mesh, neuropils, plotting, tree_graphs, units
 from .neuropils import distance_from_neuropil_surface, neuropil_point_depth
-from .plotting import Viewer, build_3d_subtree, plot_2d, plot_3d, plot_dendrogram
+from .plotting import (
+    Viewer,
+    build_3d_subtree,
+    make_mesh_actor,
+    plot_2d,
+    plot_3d,
+    plot_dendrogram,
+    plot_mesh,
+)
 from .tree_graphs import (
     breadth_first_iterator,
     breadth_first_search,
@@ -67,10 +75,13 @@ __all__ = [
     "tree_graphs",
     "neuropils",
     "units",
+    "mesh",
     "Viewer",
     "plot_2d",
     "plot_3d",
     "plot_dendrogram",
+    "plot_mesh",
+    "make_mesh_actor",
     "build_3d_subtree",
     "get_root_index",
     "get_leaf_indices",

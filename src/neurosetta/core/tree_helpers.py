@@ -47,13 +47,18 @@ def copy_tree_graph(graph: Graph) -> tuple[int, dict, Graph]:
     """Return ``(ID, metadata, graph)`` for a shallow tree copy.
 
     Attached :class:`~neurosetta.core.synapses.Synapses` (if any) are deep-copied
-    so edits on the clone do not mutate the original table.
+    so edits on the clone do not mutate the original table. Attached neuron
+    meshes are likewise cloned (live ``Tree_mesh`` or verts/faces payload).
     """
     copied = graph.copy()
     meta = unwrap_metadata(copied.gp["metadata"]).copy()
     if "synapses" in copied.gp and copied.gp["synapses"] is not None:
         syn = copied.gp["synapses"]
         copied.gp["synapses"] = syn.copy()
+    if "mesh" in copied.gp and copied.gp["mesh"] is not None:
+        from ..ops.tree_graphs.tree_mesh import _copy_mesh_value
+
+        copied.gp["mesh"] = _copy_mesh_value(copied.gp["mesh"])
     return int(copied.gp["ID"]), meta, copied
 
 

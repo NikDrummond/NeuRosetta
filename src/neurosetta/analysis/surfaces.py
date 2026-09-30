@@ -231,28 +231,43 @@ def surface_from_voxel_grid(
     return trimesh.Trimesh(vertices=verts, faces=faces, process=True)
 
 
-def clean_mesh(mesh: trimesh.Trimesh | vd.Mesh, voxel_size: float | None = None) -> vd.Mesh:
+def _as_trimesh(mesh: trimesh.Trimesh | vd.Mesh) -> trimesh.Trimesh:
+    """Coerce a trimesh or vedo mesh into a :class:`trimesh.Trimesh`."""
+    if isinstance(mesh, trimesh.Trimesh):
+        return mesh
+    if isinstance(mesh, vd.Mesh):
+        verts = np.asarray(mesh.vertices, dtype=float)
+        faces = np.asarray(mesh.cells, dtype=int)
+        return trimesh.Trimesh(vertices=verts, faces=faces, process=False)
+    raise TypeError(f"mesh must be trimesh.Trimesh or vedo.Mesh, got {type(mesh)!r}")
+
+
+def clean_mesh(mesh: trimesh.Trimesh | vd.Mesh, voxel_size: float | None = None) -> trimesh.Trimesh:
     """Clean mesh by removing degenerate elements and optionally revoxelizing.
 
     Parameters
     ----------
     mesh : trimesh.Trimesh or vd.Mesh
-        Input mesh.
+        Input mesh (vedo inputs are converted to trimesh first).
     voxel_size : float or None, optional
         If mesh is not watertight, revoxelize at this resolution. By default None.
 
     Returns
     -------
-    vd.Mesh
-        Cleaned, watertight mesh.
+    trimesh.Trimesh
+        Cleaned mesh (largest component; volume sign corrected). Callers that
+        need :class:`vedo.Mesh` should wrap explicitly (as
+        :func:`reconstruct_neuropil_surface` does).
     """
+    mesh = _as_trimesh(mesh)
+
     # Close holes and split into connected components
     mesh.fill_holes()
     components = mesh.split()
     if not components:
         raise ValueError("Mesh.split() returned no components.")
     # Keep only the largest component by volume
-    mesh = max(components, key=lambda m: m.volume)
+    mesh = max(components, key=lambda m: abs(float(m.volume)))
     mesh.remove_unreferenced_vertices()
 
     # If still non-watertight, re-voxelise & re-march
@@ -265,7 +280,6 @@ def clean_mesh(mesh: trimesh.Trimesh | vd.Mesh, voxel_size: float | None = None)
     if mesh.volume < 0:
         mesh.invert()
 
-    # Return as your vd.Mesh wrapper
     return mesh
 
 
@@ -370,7 +384,7 @@ def reconstruct_neuropil_surface(
     if remove_outliers:
         coords = remove_point_cloud_outliers(coords, k, quantile)
 
-    # construct surface
+    # construct surface (trimesh)
     surf = reconstruct_surface_voxel(
         points=coords,
         voxel_size=voxel_size,
@@ -381,7 +395,7 @@ def reconstruct_neuropil_surface(
     )
 
     # convert to vedo mesh
-    mesh = vd.Mesh(surf)
+    mesh = vd.Mesh([np.asarray(surf.vertices), np.asarray(surf.faces)])
 
     # smooth
     if smooth:
@@ -389,6 +403,5 @@ def reconstruct_neuropil_surface(
             smooth_kwargs = {}
         mesh.smooth(**smooth_kwargs)
 
-    metadata = {"units": "micron"}
-    # neuropil object
-    return Neuropil(ID=name, metadata=metadata, mesh=mesh)
+    neuropil = Neuropil(ID=name, metadata={"units": "micron"}, mesh=mesh)
+    return neuropil

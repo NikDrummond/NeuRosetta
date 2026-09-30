@@ -1,4 +1,4 @@
-# NeuRosetta documentation
+****# NeuRosetta documentation
 
 **NeuRosetta** is a Python toolbox for morphological analysis of EM neuron
 reconstructions. It centres on `Tree` and `Forest` objects built on
@@ -30,28 +30,29 @@ Below I've listed what is likely to be built in (very) soon, as it pretty much a
 
 ### Coming (very) soon
 
-- Synaptic data, connectivity within forests, etc.
-- Topological descriptors on tree graphs (through `Ghudi`).
-- Expanded compartmentalisation of neuron morphology.
-- Fleshed out mesh API.
-- stochastic block models / other graph theory approaches through `graph-tool` and syanapse update.
+- [x] Synaptic data, connectivity within forests, etc.
+- [x] Neuron mesh facet (`tree.mesh` / `forest.set_meshes`) — mesh-only as main story soft-deprecated.
+- [ ] Topological descriptors on tree graphs (through `Ghudi`).
+- [ ] Expanded compartmentalisation of neuron morphology.
+- [ ] Neuropil / anatomical-frame mesh polish.
+- [ ] stochastic block models / other graph theory approaches through `graph-tool` and syanapse update.
 
 ### Future planned updates
 
-- Expanded GUI.
-- Multi-type representation (Mesh/Neuron/Reduced Neuron in the same class).
-- Workspaces: a single compressed workspace folder to work on which has datasets and extracted metrics.
-- Dynamics (This is a BIG one, likely a later version release)
-- Functional models
-- Bridging to other toolboxes - Jaxley and Connectome explorer have been discussed
+- [ ] Expanded GUI.
+- [ ] Multi-type representation (Mesh/Neuron/Reduced Neuron in the same class).
+- [ ] Workspaces: a single compressed workspace folder to work on which has datasets and extracted metrics.
+- [ ] Dynamics (This is a BIG one, likely a later version release)
+- [ ] Functional models
+- [ ] Bridging to other toolboxes - Jaxley and Connectome explorer have been discussed
 
 ### My (big picture) Wishlist
 
-- Data accesing API tools (Flywire, microns, neuromorpho, etc).
-- Repository of neuronal network graphs.
-- Cell typing.
-- Generative Models.
-- Statistical modeling.
+- [ ] Data accesing API tools (Flywire, microns, neuromorpho, etc).
+- [ ] Repository of neuronal network graphs.
+- [ ] Cell typing.
+- [ ] Generative Models.
+- [ ] Statistical modeling.
 
 ## Quick Start
 
@@ -128,6 +129,7 @@ tutorials/forests
 tutorials/plotting
 tutorials/tree_surgery
 tutorials/synapses
+tutorials/meshes
 tutorials/gui
 ```
 

@@ -159,7 +159,8 @@ def _coerce_anatomical_frame(reference_frame: Any) -> AnatomicalFrame | None:
     --------------
     * :class:`~neurosetta.AnatomicalFrame`
     * length-3 sequence / ndarray → frame with a single ``"primary"`` axis
-    * Neuropil / ``_Mesh`` → frame with ``reference_mesh``
+    * Neuropil / generic ``_Mesh`` → frame with ``reference_mesh``
+      (``Tree_mesh`` / neuron meshes are rejected)
     * mapping with optional keys ``axis``, ``axes``, ``mesh`` / ``neuropil`` /
       ``reference_mesh``, ``inner_surface``, ``outer_surface``, ``name``,
       ``metadata``, ``default_axis``
@@ -192,6 +193,7 @@ def _coerce_anatomical_frame(reference_frame: Any) -> AnatomicalFrame | None:
     if hasattr(reference_frame, "mesh") and not isinstance(
         reference_frame, (list, tuple, np.ndarray)
     ):
+        # AnatomicalFrame ctor enforces Neuropil/generic vs Tree_mesh.
         return AnatomicalFrame(reference_mesh=reference_frame)
 
     arr = np.asarray(reference_frame, dtype=float)
@@ -200,7 +202,7 @@ def _coerce_anatomical_frame(reference_frame: Any) -> AnatomicalFrame | None:
 
     raise TypeError(
         "reference_frame must be an AnatomicalFrame, length-3 axis, "
-        "Neuropil/_Mesh-like object, or a mapping with keys such as "
+        "Neuropil/generic _Mesh-like object, or a mapping with keys such as "
         "'axis'/'axes' and 'mesh'/'reference_mesh'/'neuropil'"
     )
 

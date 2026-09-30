@@ -20,7 +20,7 @@ I/O, 2D/3D plotting, neuropil surface reconstruction, and a PySide6 GUI.
 - Python 3.11 or 3.12
 - [conda-forge](https://conda-forge.org/) packages, especially **graph-tool**
   (not available on PyPI)
-
+****
 NeuRosetta is **not yet published on PyPI or conda-forge**. Install from source
 for now (see below).
 
@@ -85,8 +85,9 @@ nr.start_GUI()
 - **Tree Geometry**: Geometric analysis of neuron morphology using a custom (fast!) 3-dimensional geometry numba backend.
 - **Plotting**: 2D/3D matplotlib and vedo views, dendrograms, interactive `Viewer`.
 - **Units**: Pint-backed spatial metadata (nm, µm, voxels) with in-place conversion.
-- **Neuropils & meshes**: surface containers, point-to-surface distances,
-  alpha-shape neuropil reconstruction from forest coordinates.
+- **Neuropils & meshes**: neuron surfaces attach as `tree.mesh` (I/O via
+  `Tree_mesh`); neuropil surfaces, point-to-surface distances, alpha-shape
+  reconstruction from forest coordinates.
 - **GUI**: PySide6 desktop app for inspection, rerooting, and subtree picking.
 - **Extendable** NeuRosetta has (to my mind at least??) been built in a way which allows for easy extendability and adding features. It is worrth reading the `Architecture` section of the documentation though.
 

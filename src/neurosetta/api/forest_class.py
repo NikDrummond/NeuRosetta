@@ -48,6 +48,7 @@ from ..ops.forest_ops import (
     scale_forest,
     scale_forest_about,
     scale_forest_along_pca,
+    set_meshes,
     translate_forest,
 )
 from ..ops.plotting import Viewer
@@ -58,6 +59,7 @@ from ..ops.tree_graphs import (
     center_coordinates_at_centroid,
     center_coordinates_at_root,
     check_reduced,
+    clear_mesh,
     coordinate_extent_along_axis,
     coordinate_mean_absolute_along_axis,
     coordinate_mean_along_axis,
@@ -119,6 +121,7 @@ from ..ops.tree_graphs import (
     get_synapse_path_distance,
     get_total_cable_length,
     get_tree_widths,
+    has_mesh,
     has_property,
     map_synapses,
     recenter_coordinates,
@@ -128,6 +131,7 @@ from ..ops.tree_graphs import (
     scale_coordinates,
     scale_coordinates_about,
     scale_coordinates_along_pca,
+    set_mesh,
     synapse_density,
     synapse_mapping_summary,
     translate_coordinates,
@@ -387,6 +391,13 @@ class Forest(_Forest):
     get_edge_synapse_counts = _forest_op(get_edge_synapse_counts)
     get_edge_synapse_density = _forest_op(get_edge_synapse_density)
 
+    # --- mesh facet ---
+    set_mesh = _forest_op(set_mesh)
+    clear_mesh = _forest_op(clear_mesh)
+    has_mesh = _forest_op(has_mesh)
+    set_meshes = set_meshes
+    """Attach neuron meshes to members by matching ``ID`` (path / Forest_mesh / mapping)."""
+
     # --- Tree geometry ---
     get_edge_angles = _forest_op(get_edge_angles)
 
@@ -563,7 +574,15 @@ class Forest(_Forest):
     """Return per-tree summary metrics as a DataFrame."""
 
     # --- plotting ---
-    def show_3d(self, return_viewer: bool = False, **kwargs):
+    def show_3d(
+        self,
+        return_viewer: bool = False,
+        *,
+        mesh: bool | None = None,
+        show_mesh: bool | None = None,
+        mesh_kwargs: dict | None = None,
+        **kwargs,
+    ):
         """Show 3D interactive plot of all trees in the forest.
 
         Parameters
@@ -571,6 +590,11 @@ class Forest(_Forest):
         return_viewer : bool, optional
             If True, return the Viewer object instead of showing it.
             By default False.
+        mesh, show_mesh : bool or None, optional
+            Overlay attached neuron meshes (``tree.mesh``) when present.
+            By default None (off).
+        mesh_kwargs : dict, optional
+            Forwarded to :meth:`~neurosetta.ops.plotting.viewer.Viewer.add_mesh`.
         **kwargs : dict
             Additional keyword arguments passed to Viewer.add_forest().
 
@@ -582,7 +606,13 @@ class Forest(_Forest):
             for desktop ``vtk`` after the window is closed.
         """
         v = Viewer()
-        v.add_forest(self, **kwargs)
+        v.add_forest(
+            self,
+            mesh=mesh,
+            show_mesh=show_mesh,
+            mesh_kwargs=mesh_kwargs,
+            **kwargs,
+        )
         if return_viewer:
             return v
         shown = v.show()

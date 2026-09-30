@@ -16,12 +16,27 @@ NeuRosetta is built around a few core objects which handle the majority of thing
 
 | Object                          | What it is                   | Typical input                                                         |
 | ------------------------------- | ---------------------------- | --------------------------------------------------------------------- |
-| {class}`~neurosetta.api.Tree`   | One neuron morphology        | single `.swc` / `.nr`                                                 |
+| {class}`~neurosetta.api.Tree`   | One neuron (skeleton + optional facets) | single `.swc` / `.nr`                                      |
 | {class}`~neurosetta.api.Forest` | Ordered collection of trees  | directory of SWC/NR files                                             |
-| `Tree_mesh` / `Forest_mesh`     | Neuron surface meshes (vedo) | `.ply`, etc.                                                          |
+| `Tree_mesh` / `Forest_mesh`     | Neuron surface **payload / I/O** (attach via `tree.mesh`) | `.ply`, etc. — see {doc}`../tutorials/meshes` |
 | `Neuropil` / `Neuropils`        | Brain-region surface meshes  | `.ply`, or built via {func}`~neurosetta.reconstruct_neuropil_surface` |
 
-Single objects (single Trees or meshes) have the same 'core' properties: **ID + metadata + graph** for a `Tree`, or **ID + metadata + mesh** for mesh objects (`Tree_mesh`,`Neuropil`). Collections (`Forest`,`Forerst_mesh`,`Neuropils`) are also derived from the same containers with similar `apply` and `filter` functionality, see {doc}`../tutorials/forests` 
+A `Tree` can carry optional **facets** — observations attached to the morphology,
+not parallel neuron types:
+
+| Facet | Access | Standalone type (I/O / table) |
+|-------|--------|-------------------------------|
+| Synapses | `tree.synapses` | `Synapses` |
+| Neuron mesh | `tree.mesh` | `Tree_mesh` |
+
+Prefer `tree.set_mesh(...)` / `forest.set_meshes(...)` over treating
+`Tree_mesh` / `Forest_mesh` as the primary analysis API. Neuropils stay
+separate (compartment geometry).
+
+Single objects share Stone cores: **ID + metadata + graph** for a `Tree`, or
+**ID + metadata + mesh** for mesh containers (`Tree_mesh`, `Neuropil`).
+Collections (`Forest`, `Forest_mesh`, `Neuropils`) share similar `apply` /
+`filter` helpers — see {doc}`../tutorials/forests`.
 
 ## Two ways to call the same thing
 

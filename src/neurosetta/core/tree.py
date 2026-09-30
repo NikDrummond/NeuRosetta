@@ -230,6 +230,24 @@ class _Tree(_Stone):
             return
         set_synapses(self, value)
 
+    # --- mesh facet (graph gp object; neuron surface, not neuropil) ---
+
+    @property
+    def mesh(self):
+        """Attached :class:`~neurosetta.api.Tree_mesh`, or ``None``."""
+        from ..ops.tree_graphs.tree_mesh import get_mesh
+
+        return get_mesh(self)
+
+    @mesh.setter
+    def mesh(self, value) -> None:
+        from ..ops.tree_graphs.tree_mesh import clear_mesh, set_mesh
+
+        if value is None:
+            clear_mesh(self)
+            return
+        set_mesh(self, value)
+
     # --- 3d plot cache ---
 
     def make_plot3d(

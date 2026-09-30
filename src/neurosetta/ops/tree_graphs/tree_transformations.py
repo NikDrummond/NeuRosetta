@@ -40,27 +40,21 @@ def _transform_synapses_soa(
     syn = get_synapses(tree)
     if syn is None or len(syn) == 0:
         return
-
-    def _apply(coords: ndarray) -> tuple[ndarray, ndarray, ndarray]:
-        x = coords[:, 0].copy()
-        y = coords[:, 1].copy()
-        z = coords[:, 2].copy()
-        return fn(x, y, z)
-
-    x, y, z = _apply(syn.coordinates)
-    syn._df["x"] = x
-    syn._df["y"] = y
-    syn._df["z"] = z
-    if syn.is_mapped:
-        x, y, z = _apply(syn.mapped_coordinates)
-        syn._df["nearest_x"] = x
-        syn._df["nearest_y"] = y
-        syn._df["nearest_z"] = z
-        if distance_scale is not None:
-            syn._df["distance_to_tree"] = syn._df["distance_to_tree"].to_numpy(dtype=float) * float(
-                distance_scale
-            )
+    syn.apply_soa_transform(fn, distance_scale=distance_scale)
     _bind_synapses_gp(tree, syn)
+
+
+def _transform_mesh_soa(tree: _Tree, fn) -> None:
+    """Apply an SoA coordinate transform to the attached neuron mesh (if any)."""
+    from .tree_mesh import _bind_mesh_gp, get_mesh
+
+    mesh = get_mesh(tree)
+    if mesh is None:
+        return
+    verts = asarray(mesh.mesh.vertices, dtype=float)
+    x, y, z = fn(verts[:, 0].copy(), verts[:, 1].copy(), verts[:, 2].copy())
+    mesh.mesh.vertices = array([x, y, z]).T
+    _bind_mesh_gp(tree, mesh)
 
 
 def _apply_node_coordinates(
@@ -76,12 +70,13 @@ def _apply_node_coordinates(
     """Write transformed node coordinates to the graph or return them.
 
     When *bind* is True and *synapse_soa_fn* is provided, the same SoA
-    transform is applied to attached synapse coordinates so morphology and
-    synapses stay in one coordinate frame.
+    transform is applied to attached synapse coordinates and the neuron
+    mesh facet so morphology, synapses, and mesh stay in one frame.
     """
     if bind:
         if synapse_soa_fn is not None:
             _transform_synapses_soa(tree, synapse_soa_fn, distance_scale=distance_scale)
+            _transform_mesh_soa(tree, synapse_soa_fn)
         _set_coords_prop(tree.graph, array([x, y, z]))
         return None
     return array([x, y, z]).T

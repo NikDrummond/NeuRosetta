@@ -7,9 +7,10 @@ Public symbols re-exported from :mod:`neurosetta`:
 | `Tree` | Single neuron — see {doc}`tree` |
 | `Forest` | Tree collections — see {doc}`forest` |
 | `Synapses` | Synapse table container — see {doc}`synapses` |
-| `Tree_mesh`, `Forest_mesh`, `Neuropil`, `Neuropils` | Mesh containers — see {doc}`api_classes` |
+| `Tree_mesh`, `Forest_mesh`, `Neuropil`, `Neuropils` | Mesh containers (neuron mesh = attach to Tree) — see {doc}`api_classes` |
 | `import_swc`, `export_swc`, `load`, `save` | Morphology I/O — see {doc}`io` |
 | `import_mesh`, `export_mesh` | Mesh I/O — see {doc}`io` |
+| `set_mesh`, `clear_mesh`, `has_mesh`, `set_meshes` | Neuron mesh facet — see {doc}`tree_ops/mesh` |
 | `import_synapses`, `export_synapses` | Synapse table I/O — see {doc}`io` |
 | `Viewer` | 3D viewer — see {doc}`plotting` |
 | `reconstruct_neuropil_surface` | Surface reconstruction — see {doc}`analysis` |

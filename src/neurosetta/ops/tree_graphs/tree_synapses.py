@@ -11,7 +11,11 @@ from graph_tool.topology import shortest_distance
 from ...core import _Tree
 from ...core.synapses import (
     MAPPING_VERSION,
+    TYPE_POST,
+    TYPE_PRE,
     Synapses,
+    canonicalize_synapse_type,
+    owner_ids_compatible,
     resolve_synapse_type_filter,
 )
 from ...utils.geometry_utils.segments import project_points_to_segments
@@ -39,10 +43,31 @@ def _bind_synapses_gp(tree: _Tree, synapses: Synapses | None) -> None:
 
 
 def get_synapses(tree: _Tree) -> Synapses | None:
-    """Return attached synapses, or ``None`` if absent."""
+    """Return attached synapses, or ``None`` if absent.
+
+    After ``.nr`` load the gp may hold a versioned SoA payload dict; this
+    hydrates it to a live :class:`~neurosetta.core.synapses.Synapses` and rebinds.
+    """
     if not g_has_property(tree.graph, _SYNAPSES_GP, "g"):
         return None
-    return tree.graph.gp[_SYNAPSES_GP]
+    val = tree.graph.gp[_SYNAPSES_GP]
+    if val is None:
+        return None
+    if isinstance(val, dict):
+        syn = Synapses.from_payload(val)
+        _bind_synapses_gp(tree, syn)
+        return syn
+    return val
+
+
+def freeze_synapses_for_save(tree: _Tree) -> None:
+    """Replace a live Synapses gp with a pickleable SoA payload (in place)."""
+    if not g_has_property(tree.graph, _SYNAPSES_GP, "g"):
+        return
+    val = tree.graph.gp[_SYNAPSES_GP]
+    if val is None or isinstance(val, dict):
+        return
+    tree.graph.gp[_SYNAPSES_GP] = val._to_payload()
 
 
 def has_synapses(tree: _Tree) -> bool:
@@ -109,6 +134,31 @@ def _coerce_synapses(
     )
 
 
+def _assert_owner_compatible(syn: Synapses, tree: _Tree) -> None:
+    """Raise if *syn* declares an owner that is not *tree*."""
+    if owner_ids_compatible(syn.owner_id, tree.ID):
+        return
+    raise ValueError(f"Synapses.owner_id={syn.owner_id!r} does not match tree.ID={tree.ID!r}")
+
+
+def _stamp_owner(syn: Synapses, tree: _Tree) -> None:
+    """Record the canonical tree ID on the synapse table after a successful bind."""
+    syn.owner_id = tree.ID
+
+
+def _prepare_bind(syn: Synapses, tree: _Tree, *, context: str) -> None:
+    """Owner check, unit check/warn, then stamp owner + units from *tree*."""
+    from ..units.synapse_units import (
+        check_synapse_tree_units,
+        stamp_synapse_units_from_tree,
+    )
+
+    _assert_owner_compatible(syn, tree)
+    check_synapse_tree_units(syn, tree, context=context)
+    _stamp_owner(syn, tree)
+    stamp_synapse_units_from_tree(syn, tree)
+
+
 def set_synapses(
     tree: _Tree,
     data: Any,
@@ -123,6 +173,12 @@ def set_synapses(
     Accepts a :class:`~neurosetta.core.synapses.Synapses` instance, a pandas
     DataFrame, or a column mapping. Raw coordinates are preserved; any previous
     mapping is discarded.
+
+    If *data* is a :class:`~neurosetta.core.synapses.Synapses` with a non-``None``
+    ``owner_id``, it must match ``tree.ID`` (numeric IDs may differ in type).
+    Declared synapse units must match the tree when both are set; unset units
+    emit a :class:`UserWarning`. On success the table is stamped with
+    ``owner_id = tree.ID`` and the tree's spatial units.
     """
     syn = _coerce_synapses(
         data,
@@ -132,6 +188,7 @@ def set_synapses(
         id_column=id_column,
     )
     syn.clear_mapping()
+    _prepare_bind(syn, tree, context="set_synapses")
     _bind_synapses_gp(tree, syn)
     return syn
 
@@ -145,7 +202,13 @@ def add_synapses(
     partner_column: str = "partner_id",
     id_column: str = "synapse_id",
 ) -> Synapses:
-    """Append synapses to any existing table (invalidates mapping)."""
+    """Append synapses to any existing table (invalidates mapping).
+
+    Incoming tables with a non-``None`` ``owner_id`` must match ``tree.ID``.
+    Unit compatibility is checked before the tables are merged.
+    """
+    from ..units.synapse_units import check_synapse_tree_units
+
     new = _coerce_synapses(
         data,
         coordinate_columns=coordinate_columns,
@@ -153,21 +216,14 @@ def add_synapses(
         partner_column=partner_column,
         id_column=id_column,
     )
+    _assert_owner_compatible(new, tree)
+    check_synapse_tree_units(new, tree, context="add_synapses")
     existing = get_synapses(tree)
     if existing is None or len(existing) == 0:
         return set_synapses(tree, new)
 
-    combined = pd.concat(
-        [existing.to_dataframe(copy=False), new.to_dataframe(copy=False)],
-        ignore_index=True,
-        sort=False,
-    )
-    # Drop stale mapping columns before re-wrapping.
-    from ...core.synapses import MAPPING_COLUMNS
-
-    drop = [c for c in MAPPING_COLUMNS if c in combined.columns]
-    if drop:
-        combined = combined.drop(columns=drop)
+    # concat drops mapping; set_synapses stamps owner/units.
+    combined = Synapses.concat(existing, new)
     return set_synapses(tree, combined)
 
 
@@ -190,7 +246,7 @@ def _drop_unmapped_synapses(syn: Synapses) -> Synapses:
 def map_synapses(
     tree: _Tree,
     *,
-    max_distance: float | None = None,
+    max_distance: float | None = 10,
     drop_unmapped: bool = False,
     force: bool = False,
     method: str = "bruteforce",
@@ -215,6 +271,9 @@ def map_synapses(
         Use ``\"bruteforce\"`` for a guaranteed exhaustive search.
     """
     syn = _require_synapses(tree)
+    from ..units.synapse_units import check_synapse_tree_units
+
+    check_synapse_tree_units(syn, tree, context="map_synapses")
     if syn.mapping_valid and not force:
         if max_distance is None or syn.mapping_meta.get("max_distance") == max_distance:
             if drop_unmapped:
@@ -222,13 +281,9 @@ def map_synapses(
                 _bind_synapses_gp(tree, syn)
             return syn
         # Re-evaluate mapped flags under a new distance threshold without reprojecting.
-        dist = syn.to_dataframe(copy=False)["distance_to_tree"].to_numpy(dtype=np.float64)
+        dist = syn.distance_to_tree
         mapped = np.isfinite(dist) & (dist <= float(max_distance))
-        df = syn.to_dataframe(copy=True)
-        df["mapped"] = mapped
-        syn = Synapses(df, copy=False, mapping_meta=dict(syn.mapping_meta))
-        syn._mapping_meta["max_distance"] = max_distance
-        syn._mapping_meta["valid"] = True
+        syn.update_mapped_flags(mapped, max_distance=max_distance)
         if drop_unmapped:
             syn = _drop_unmapped_synapses(syn)
         _bind_synapses_gp(tree, syn)
@@ -305,31 +360,27 @@ def get_synapse_path_distance(
     if not syn.is_mapped:
         raise ValueError("Synapses must be mapped first (tree.map_synapses())")
 
-    df = syn.to_dataframe(copy=False)
     type_set = resolve_synapse_type_filter(type)
-    mask = np.ones(len(df), dtype=bool)
+    mask = np.ones(len(syn), dtype=bool)
     if type_set is not None:
-        mask &= df["type"].isin(type_set).to_numpy()
+        codes = [TYPE_PRE if canonicalize_synapse_type(t) == "pre" else TYPE_POST for t in type_set]
+        mask &= np.isin(syn.type_codes, codes)
     if mapped_only:
-        mask &= df["mapped"].to_numpy(dtype=bool)
+        mask &= syn.mapped_flags
 
     node_dist = _node_path_distances(tree)
     lengths = np.asarray(get_edge_length(tree, bind=False), dtype=np.float64)
     edges = get_edge_indices(tree)
 
-    out = np.full(len(df), np.nan, dtype=np.float64)
+    out = np.full(len(syn), np.nan, dtype=np.float64)
     idx = np.flatnonzero(mask)
     if idx.size:
-        eidx = df["edge_index"].to_numpy(dtype=np.int64)[idx]
+        eidx = syn.edge_index[idx]
         sources = edges[eidx, 0]
-        if "distance_along_edge" in df.columns:
-            along = df["distance_along_edge"].to_numpy(dtype=np.float64)[idx]
-            use = np.isfinite(along)
-            frac = df["edge_fraction"].to_numpy(dtype=np.float64)[idx]
-            local = np.where(use, along, frac * lengths[eidx])
-        else:
-            frac = df["edge_fraction"].to_numpy(dtype=np.float64)[idx]
-            local = frac * lengths[eidx]
+        along = syn.distance_along_edge[idx]
+        use = np.isfinite(along)
+        frac = syn.edge_fraction[idx]
+        local = np.where(use, along, frac * lengths[eidx])
         out[idx] = node_dist[sources] + local
 
     if bind:
@@ -359,7 +410,8 @@ def get_synapse_euclidean_distance_from_root(
     type_set = resolve_synapse_type_filter(type)
     d = np.linalg.norm(coords - root, axis=1)
     if type_set is not None:
-        mask = syn.to_dataframe(copy=False)["type"].isin(type_set).to_numpy()
+        codes = [TYPE_PRE if canonicalize_synapse_type(t) == "pre" else TYPE_POST for t in type_set]
+        mask = np.isin(syn.type_codes, codes)
         out = np.full(len(syn), np.nan, dtype=np.float64)
         out[mask] = d[mask]
         return out
@@ -416,7 +468,7 @@ def get_edge_synapse_counts(
     filtered = syn.filter(type=type, mapped=True if mapped_only else None)
     if len(filtered) == 0:
         return counts
-    eidx = filtered.to_dataframe(copy=False)["edge_index"].to_numpy(dtype=np.int64)
+    eidx = np.asarray(filtered.edge_index, dtype=np.int64)
     # Ignore invalid indices if mapping was invalidated inconsistently.
     valid = (eidx >= 0) & (eidx < n_edges)
     eidx = eidx[valid]
@@ -467,17 +519,10 @@ def filter_tree_synapses_to_edges(
 
     edge_indices = np.asarray(edge_indices, dtype=np.int64)
     old_to_new = {int(old): i for i, old in enumerate(edge_indices)}
-    df = syn.to_dataframe(copy=True)
-    keep = df["edge_index"].map(lambda e: int(e) in old_to_new).to_numpy(dtype=bool).copy()
-    if mapped_only and "mapped" in df.columns:
-        keep &= df["mapped"].to_numpy(dtype=bool)
-    df = df.loc[keep].reset_index(drop=True)
-    if len(df) == 0:
+    new_syn = syn.remap_edge_indices(old_to_new, mapped_only=mapped_only)
+    if len(new_syn) == 0:
         clear_synapses(tree)
         return
-    df["edge_index"] = [old_to_new[int(e)] for e in df["edge_index"]]
-    new_syn = Synapses(df, copy=False, mapping_meta=dict(syn.mapping_meta))
-    new_syn._mapping_meta["valid"] = True
     _bind_synapses_gp(tree, new_syn)
 
 
