@@ -416,7 +416,7 @@ class _Forest(Sequence):
             raise ValueError("Provide either a predicate or keyword conditions, not both.")
 
         if predicate is not None:
-            _validate_filter_predicate(predicate)
+            _validate_filter_predicate(predicate, arg_name="tree")
             return type(self)(t for t in self._trees if _ensure_bool_filter_result(predicate(t)))
 
         if not conditions:

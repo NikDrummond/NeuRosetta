@@ -15,6 +15,7 @@ from neurosetta.core.synapses import (
     PAYLOAD_VERSION,
     TYPE_POST,
     TYPE_PRE,
+    SynapseRow,
     Synapses,
     synapses_from_arrays,
 )
@@ -193,3 +194,103 @@ def test_freeze_save_load_roundtrip(tree, tmp_path: Path):
     assert syn.is_mapped
     assert "conf" in syn.annotations
     assert syn.owner_id == loaded.ID
+
+
+def _sample_synapses() -> Synapses:
+    return Synapses(
+        {
+            "synapse_id": [1, 2, 3],
+            "type": ["pre", "post", "pre"],
+            "x": [0.0, 1.0, 2.0],
+            "y": [0.0, 0.0, 0.0],
+            "z": [0.0, 0.0, 0.0],
+            "partner_id": [10, 20, 10],
+            "conf": [0.9, 0.5, 0.1],
+        }
+    )
+
+
+def test_filter_keyword_still_works():
+    s = _sample_synapses()
+    assert len(s.filter(type="pre")) == 2
+    assert len(s.filter(conf=0.9)) == 1
+    assert list(s.filter(partner_id=[10, 20]).synapse_ids) == [1, 2, 3]
+
+
+def test_filter_predicate_named_function():
+    s = _sample_synapses()
+
+    def is_pre(row):
+        return row.type == "pre"
+
+    filtered = s.filter(is_pre)
+    assert list(filtered.synapse_ids) == [1, 3]
+
+
+def test_filter_predicate_compound():
+    s = _sample_synapses()
+
+    def high_conf_pre(row):
+        return row.type == "pre" and row["conf"] > 0.5
+
+    assert list(s.filter(high_conf_pre).synapse_ids) == [1]
+
+
+def test_filter_predicate_default_args():
+    s = _sample_synapses()
+
+    def above(row, thresh=0.4):
+        return float(row["conf"]) >= thresh
+
+    assert list(s.filter(above).synapse_ids) == [1, 2]
+
+
+def test_filter_predicate_and_keywords_raises():
+    s = _sample_synapses()
+
+    def always_true(row):
+        return True
+
+    with pytest.raises(ValueError, match="not both"):
+        s.filter(always_true, type="pre")
+
+
+def test_filter_predicate_non_bool_raises():
+    s = _sample_synapses()
+
+    def not_bool(row):
+        return 1
+
+    with pytest.raises(TypeError, match="must return bool"):
+        s.filter(not_bool)
+
+
+def test_filter_predicate_wrong_arity_raises():
+    s = _sample_synapses()
+
+    def two_args(row, extra):
+        return True
+
+    with pytest.raises(TypeError, match="exactly one required argument"):
+        s.filter(two_args)
+
+
+def test_filter_no_criteria_raises():
+    s = _sample_synapses()
+    with pytest.raises(ValueError, match="predicate or at least one keyword"):
+        s.filter()
+
+
+def test_synapse_row_get_missing_column():
+    s = _sample_synapses()
+    row = SynapseRow(s, 0)
+    assert row.get("missing") is None
+    assert row.get("conf") == 0.9
+    assert row.index == 0
+    assert "conf" in row.keys()
+
+
+def test_pre_post_properties_still_work():
+    s = _sample_synapses()
+    assert len(s.pre) == 2
+    assert len(s.post) == 1

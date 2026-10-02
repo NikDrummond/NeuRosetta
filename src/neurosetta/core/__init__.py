@@ -13,7 +13,7 @@ from .mesh import (
     mesh_kind_of,
 )
 from .stone import _Stone
-from .synapses import Synapses
+from .synapses import SynapseRow, Synapses
 from .tree import _Tree
 
 __all__ = [
@@ -22,6 +22,7 @@ __all__ = [
     "_Forest",
     "_Mesh",
     "Synapses",
+    "SynapseRow",
     "MESH_KIND_KEY",
     "MESH_KIND_GENERIC",
     "MESH_KIND_NEURON",

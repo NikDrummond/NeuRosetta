@@ -89,8 +89,8 @@ def _tree_matches_metadata_conditions(tree: _Tree, conditions: dict[str, Any]) -
     return all(_tree_metadata_matches(tree, key, value) for key, value in conditions.items())
 
 
-def _validate_filter_predicate(fn: Callable) -> None:
-    """Ensure *fn* can be called as ``fn(tree)`` with one positional argument."""
+def _validate_filter_predicate(fn: Callable, *, arg_name: str = "item") -> None:
+    """Ensure *fn* can be called as ``fn(item)`` with one positional argument."""
     try:
         sig = inspect.signature(fn)
     except (TypeError, ValueError):
@@ -107,16 +107,16 @@ def _validate_filter_predicate(fn: Callable) -> None:
     required_params = [p for p in positional_params if p.default is inspect.Parameter.empty]
     if len(required_params) != 1:
         raise TypeError(
-            "filter predicate must accept exactly one required argument (tree); "
+            f"filter predicate must accept exactly one required argument ({arg_name}); "
             f"got {len(required_params)} required parameters"
         )
 
 
 def _ensure_bool_filter_result(result) -> bool:
     """Validate and return a filter predicate result."""
-    if not isinstance(result, bool):
-        raise TypeError(f"filter predicate must return bool, got {type(result).__name__}")
-    return result
+    if isinstance(result, (bool, np.bool_)):
+        return bool(result)
+    raise TypeError(f"filter predicate must return bool, got {type(result).__name__}")
 
 
 @lru_cache(maxsize=256)

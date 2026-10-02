@@ -14,6 +14,8 @@ from typing import Any, Literal, Self
 import numpy as np
 import pandas as pd
 
+from .forest_helpers import _ensure_bool_filter_result, _validate_filter_predicate
+
 REQUIRED_COLUMNS: tuple[str, ...] = (
     "synapse_id",
     "type",
@@ -176,6 +178,57 @@ def synapses_from_arrays(
 
 def _empty_object(n: int) -> np.ndarray:
     return np.array([None] * n, dtype=object)
+
+
+class SynapseRow:
+    """Lightweight read-only view of one synapse row (for :meth:`Synapses.filter`).
+
+    Supports attribute and mapping access to column values::
+
+        row.type
+        row["partner_id"]
+        row.get("conf")  # None if column absent
+    """
+
+    __slots__ = ("_synapses", "_i")
+
+    def __init__(self, synapses: Synapses, index: int) -> None:
+        self._synapses = synapses
+        self._i = int(index)
+
+    def __repr__(self) -> str:
+        sid = self._synapses._synapse_id[self._i]
+        typ = _TYPE_CODE_TO_STR[int(self._synapses._type_code[self._i])]
+        return f"SynapseRow(index={self._i}, synapse_id={sid!r}, type={typ!r})"
+
+    @property
+    def index(self) -> int:
+        """Row index in the parent :class:`Synapses` table."""
+        return self._i
+
+    def __getitem__(self, name: str) -> Any:
+        return self._synapses._column(name)[self._i]
+
+    def __getattr__(self, name: str) -> Any:
+        if name.startswith("_"):
+            raise AttributeError(name)
+        try:
+            return self[name]
+        except KeyError as exc:
+            raise AttributeError(
+                f"{type(self).__name__!r} object has no attribute {name!r}"
+            ) from exc
+
+    def get(self, name: str, default: Any = None) -> Any:
+        """Return column *name*, or *default* if the column does not exist."""
+        try:
+            return self[name]
+        except KeyError:
+            return default
+
+    def keys(self) -> list[str]:
+        """Column names available on this row."""
+        return self._synapses.columns
 
 
 def _copy_array(arr: np.ndarray | None, *, copy: bool) -> np.ndarray | None:
@@ -1084,6 +1137,7 @@ class Synapses:
 
     def filter(
         self,
+        predicate: Callable[[SynapseRow], bool] | None = None,
         *,
         type: SynapseType | str | None = None,  # noqa: A002
         partner_id: Any = None,
@@ -1094,11 +1148,22 @@ class Synapses:
     ) -> Self:
         """Return a filtered copy (does not mutate this collection).
 
+        Two filtering modes are supported (mutually exclusive), matching
+        :meth:`~neurosetta.core.forest._Forest.filter`:
+
+        1. Keyword conditions — all must match (AND logic).
+        2. Callable predicate — custom logic over each :class:`SynapseRow`.
+
         Parameters
         ----------
+        predicate : Callable[[SynapseRow], bool], optional
+            User-defined filter called as ``predicate(row)`` for each synapse.
+            Must accept exactly one required argument and return ``True`` to
+            keep or ``False`` to drop. Pass as the sole positional argument,
+            e.g. ``synapses.filter(my_fn)``.
         type
             ``\"pre\"``, ``\"post\"``, ``\"both\"`` / ``None``, or aliases
-            ``input`` / ``output``.
+            ``input`` / ``output``. Ignored when *predicate* is provided.
         partner_id
             Scalar partner or iterable of partners.
         mapped
@@ -1109,7 +1174,62 @@ class Synapses:
             Scalar ID or iterable of IDs.
         **column_equals
             Additional ``column=value`` equality filters (iterables allowed).
+
+        Returns
+        -------
+        Synapses
+            New table containing only matching synapses.
+
+        Raises
+        ------
+        ValueError
+            If both *predicate* and keyword conditions are supplied, or if
+            neither is supplied.
+        TypeError
+            If *predicate* does not accept exactly one argument or does not
+            return a ``bool``.
+        KeyError
+            If a keyword refers to an unknown column.
+
+        Notes
+        -----
+        Keyword filtering examples::
+
+            synapses.filter(type="pre", partner_id=[100, 200])
+            synapses.filter(conf=0.9)
+
+        Custom filter function examples::
+
+            def high_conf_pre(row):
+                return row.type == "pre" and row.get("conf", 0) > 0.5
+
+            synapses.filter(high_conf_pre)
+            synapses.filter(lambda row: row.partner_id == 7)
         """
+        has_conditions = (
+            type is not None
+            or partner_id is not None
+            or mapped is not None
+            or max_distance is not None
+            or synapse_id is not None
+            or bool(column_equals)
+        )
+
+        if predicate is not None and has_conditions:
+            raise ValueError("Provide either a predicate or keyword conditions, not both.")
+
+        if predicate is not None:
+            _validate_filter_predicate(predicate, arg_name="row")
+            keep = [
+                i
+                for i in range(len(self))
+                if _ensure_bool_filter_result(predicate(SynapseRow(self, i)))
+            ]
+            return self._take_indices(np.asarray(keep, dtype=np.int64), copy=False)
+
+        if not has_conditions:
+            raise ValueError("Provide a predicate or at least one keyword condition.")
+
         mask = np.ones(len(self), dtype=bool)
 
         type_set = resolve_synapse_type_filter(type)
