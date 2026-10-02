@@ -48,6 +48,7 @@ def resolve_import_id(
         return id_resolver(path)
     return stem
 
+
 ### swc utils
 
 

@@ -63,6 +63,7 @@ def _copy_mesh_value(value: Any) -> Any:
         name=value.name,
     )
 
+
 def freeze_mesh_for_save(tree: _Tree) -> None:
     """Replace a live mesh gp with a pickleable verts/faces payload (in place)."""
     if not g_has_property(tree.graph, _MESH_GP, "g"):
@@ -154,6 +155,7 @@ def _prepare_mesh_bind(mesh, tree: _Tree, *, context: str) -> None:
     check_neuron_mesh_owner_id(mesh, tree.ID)
     check_mesh_tree_units(mesh, tree, context=context)
     stamp_mesh_units_from_tree(mesh, tree)
+
 
 def set_mesh(
     tree: _Tree,

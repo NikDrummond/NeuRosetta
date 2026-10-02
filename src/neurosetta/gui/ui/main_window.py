@@ -59,6 +59,7 @@ class _FolderScanThread(QThread):
         except Exception as e:
             self.error.emit(str(e))
 
+
 # Suppress warnings
 warnings.filterwarnings("ignore")
 

@@ -35,12 +35,7 @@ FILE_CONSTANTS = {
         "neurosetta": "Neurosetta (*.nr)",
         "swc": "SWC (*.swc)",
         "csv": "CSV (*.csv)",
-        "all": (
-            "Neuron files (*.nr *.swc *.csv);;"
-            "Neurosetta (*.nr);;"
-            "SWC (*.swc);;"
-            "CSV (*.csv)"
-        ),
+        "all": ("Neuron files (*.nr *.swc *.csv);;Neurosetta (*.nr);;SWC (*.swc);;CSV (*.csv)"),
     },
     "REQUIRED_CSV_COLUMNS": ["x", "y", "z"],
 }

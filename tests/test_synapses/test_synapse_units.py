@@ -59,14 +59,15 @@ def test_bind_matching_units_stamps(tree, synapse_df):
 def test_map_mismatch_raises(tree, synapse_df):
     tree.set_units("nm")
     # Bypass set_synapses stamp by binding then manually breaking units.
-    tree.set_synapses(synapse_df)
+    tree.set_synapses(Synapses(synapse_df, units="nm"))
     tree.synapses.units = "um"
     with pytest.raises(ValueError, match="incompatible"):
         tree.map_synapses()
 
 
 def test_map_warns_when_unset(tree, synapse_df):
-    tree.set_synapses(synapse_df)  # both dimensionless → already warned on bind
+    with pytest.warns(UserWarning, match="lack spatial units|has no units|dimensionless"):
+        tree.set_synapses(synapse_df)  # both dimensionless → warn on bind
     # Clear units to force map-time unset warning.
     tree.synapses.units = None
     with pytest.warns(UserWarning, match="no units|dimensionless|lack spatial"):
@@ -75,7 +76,7 @@ def test_map_warns_when_unset(tree, synapse_df):
 
 def test_convert_units_syncs_synapse_units(tree, synapse_df):
     tree.set_units("nm")
-    tree.set_synapses(synapse_df)
+    tree.set_synapses(Synapses(synapse_df, units="nm"))
     assert tree.synapses.units == tree.get_units()
     x0 = tree.synapses.coordinates[0, 0]
     tree.convert_units("um")
@@ -93,7 +94,7 @@ def test_synapse_set_units_declare_only(synapse_df):
 
 def test_units_survive_filter_copy_nr(tree, synapse_df, tmp_path):
     tree.set_units("nm")
-    tree.set_synapses(synapse_df)
+    tree.set_synapses(Synapses(synapse_df, units="nm"))
     tree.map_synapses()
     assert tree.synapses.copy().units == tree.get_units()
     assert tree.synapses.pre.units == tree.get_units()

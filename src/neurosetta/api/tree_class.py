@@ -173,6 +173,7 @@ class Tree(_Tree):
         name: str | None = None,
     ) -> None:
         super().__init__(ID=ID, metadata=metadata, graph=graph, name=name)
+
     # --- node indices ---
     get_root_index = get_root_index
     """Get the root node index."""

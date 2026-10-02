@@ -63,6 +63,7 @@ class Neuropil(_Mesh):
         name: str | None = None,
     ) -> None:
         super().__init__(ID=ID, metadata=metadata, mesh=mesh, name=name)
+
     # --- geometry ---
     count_vertices = count_vertices
     count_faces = count_faces

@@ -10,6 +10,9 @@ from graph_tool.all import Graph
 from neurosetta.api import Tree
 from neurosetta.utils.graph_utils import ReductionMap, reduce_graph
 
+# Unit-unset warnings are covered in test_synapse_units.py.
+pytestmark = pytest.mark.filterwarnings("ignore:.*units.*:UserWarning")
+
 
 def _chain_tree() -> Tree:
     """A --e0(len=2)-- B --e1(len=3)-- C --e2(len=5)-- D  (B,C transitive)."""

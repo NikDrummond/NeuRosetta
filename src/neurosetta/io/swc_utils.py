@@ -212,8 +212,7 @@ def import_swc(
 
     if ID is not None:
         raise ValueError(
-            "ID= is only valid for single-file import; "
-            "use id_map= or id_resolver= for directories"
+            "ID= is only valid for single-file import; use id_map= or id_resolver= for directories"
         )
 
     swcs = sorted(p.glob("*.swc"))

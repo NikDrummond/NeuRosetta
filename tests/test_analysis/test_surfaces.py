@@ -97,7 +97,10 @@ def test_reconstruct_neuropil_without_clean(micron_forest):
 
 def test_reconstruct_requires_units():
     forest = make_synthetic_forest(n_trees=2, n=30, seed=1, units=None)
-    with pytest.raises(ValueError, match="dimensionless"):
+    with (
+        pytest.warns(UserWarning, match="dimensionless units"),
+        pytest.raises(ValueError, match="dimensionless"),
+    ):
         reconstruct_neuropil_surface(
             forest,
             name="bad",

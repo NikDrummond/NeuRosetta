@@ -95,6 +95,7 @@ class _Tree(_Stone):
     @metadata.setter
     def metadata(self, value: dict | _MetadataDict) -> None:
         bind_tree_metadata(self.graph, value)
+
     # --- user metadata (protected core keys) ---
 
     def set_meta(self, key: str, value) -> None:
@@ -162,10 +163,8 @@ class _Tree(_Stone):
 
     def __repr__(self) -> str:
         """Return a short summary of name, ID, and node count."""
-        return (
-            f"Tree(name={self.name!r}, ID={self.ID!r}) "
-            f"with {self.graph.num_vertices()} nodes"
-        )
+        return f"Tree(name={self.name!r}, ID={self.ID!r}) with {self.graph.num_vertices()} nodes"
+
     # --- graph properties ---
 
     def list_properties(self, level: str = "all") -> list | dict:

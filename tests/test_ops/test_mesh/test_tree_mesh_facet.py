@@ -59,7 +59,8 @@ def test_units_mismatch_raises(tree):
 
 
 def test_vedo_mesh_coercion(tree):
-    tree.set_mesh(Sphere(r=1.5))
+    with pytest.warns(UserWarning, match="mesh has no units"):
+        tree.set_mesh(Sphere(r=1.5))
     assert tree.mesh is not None
     assert tree.mesh.ID == tree.ID
     assert tree.mesh.count_vertices() > 0

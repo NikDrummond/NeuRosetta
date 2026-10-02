@@ -172,8 +172,7 @@ def import_mesh(
 
     if ID is not None:
         raise ValueError(
-            "ID= is only valid for single-file import; "
-            "use id_map= or id_resolver= for directories"
+            "ID= is only valid for single-file import; use id_map= or id_resolver= for directories"
         )
 
     loaded = vd_load_mesh(str(p))
