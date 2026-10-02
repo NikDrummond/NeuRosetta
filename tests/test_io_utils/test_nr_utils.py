@@ -16,11 +16,13 @@ def test_nr_read_write(simple_tree):
         result = load(saved_file)
 
     assert result.ID == 1, "ID not loaded"
+    assert result.name == "1"
     assert "ID" not in result.metadata
     assert result.metadata["units"] == "dimensionless", "Metadata Units not Loaded"
     assert result.metadata["isReduced"] is False, "Metadata isReduced not Loaded"
     # gp is source of truth
-    assert int(result.graph.gp["ID"]) == 1
+    assert result.graph.gp["ID"] == 1
+    assert result.graph.gp["name"] == "1"
     assert result.metadata is result.graph.gp["metadata"]
 
 

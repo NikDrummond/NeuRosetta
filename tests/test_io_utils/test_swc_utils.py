@@ -83,13 +83,15 @@ def test_swc_read_write(simple_tree):
         result = import_swc(path)
 
     # assert metadata and ID
-    assert result.ID == 1
+    # Filename stem becomes both name and logical ID (string; no int coercion).
+    assert result.ID == "1"
+    assert result.name == "1"
     assert "ID" not in result.metadata
     assert result.metadata["units"] == "dimensionless"
     assert not result.metadata["isReduced"]
     assert result.metadata["file_path"] == str(path)
     assert result.metadata is result.graph.gp["metadata"]
-    assert int(result.graph.gp["ID"]) == 1
+    assert result.graph.gp["ID"] == "1"
 
     # assert graph topology and geometry are preserved in SWC id space
     assert array_equal(sort(tree.graph.vp["ids"].a), sort(result.graph.vp["ids"].a))

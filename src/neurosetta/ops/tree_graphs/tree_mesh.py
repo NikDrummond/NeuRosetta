@@ -24,6 +24,7 @@ def _mesh_to_payload(mesh) -> dict:
     """Serialize a neuron mesh for graph-tool / ``.nr`` persistence."""
     return {
         "ID": mesh.ID,
+        "name": mesh.name,
         "metadata": dict(mesh.metadata),
         "vertices": np.asarray(mesh.mesh.vertices, dtype=np.float64).copy(),
         "faces": np.asarray(mesh.mesh.cells, dtype=np.int64).copy(),
@@ -38,6 +39,7 @@ def _payload_to_mesh(payload: dict):
         ID=payload["ID"],
         metadata=dict(payload.get("metadata") or {}),
         mesh=Mesh([payload["vertices"], payload["faces"]]),
+        name=payload.get("name"),
     )
 
 
@@ -48,6 +50,7 @@ def _copy_mesh_value(value: Any) -> Any:
     if isinstance(value, dict):
         return {
             "ID": value["ID"],
+            "name": value.get("name"),
             "metadata": dict(value.get("metadata") or {}),
             "vertices": np.asarray(value["vertices"], dtype=np.float64).copy(),
             "faces": np.asarray(value["faces"], dtype=np.int64).copy(),
@@ -57,8 +60,8 @@ def _copy_mesh_value(value: Any) -> Any:
         ID=value.ID,
         metadata=dict(value.metadata),
         mesh=value.mesh.clone() if hasattr(value.mesh, "clone") else value.mesh,
+        name=value.name,
     )
-
 
 def freeze_mesh_for_save(tree: _Tree) -> None:
     """Replace a live mesh gp with a pickleable verts/faces payload (in place)."""
@@ -124,14 +127,19 @@ def _coerce_mesh(data: Any, *, tree_id) -> Any:
                 f"got mesh_kind={mesh_kind_of(data)!r} ({type(data).__name__})"
             )
         # Generic _Mesh stamped neuron — wrap as Tree_mesh
-        return Tree_mesh(ID=data.ID, metadata=dict(data.metadata), mesh=data.mesh)
+        return Tree_mesh(
+            ID=data.ID,
+            metadata=dict(data.metadata),
+            mesh=data.mesh,
+            name=getattr(data, "name", None),
+        )
     if isinstance(data, Mesh):
         return Tree_mesh(ID=tree_id, metadata={}, mesh=data)
     raise TypeError(f"Unsupported mesh input; expected Tree_mesh or vedo.Mesh, got {type(data)!r}")
 
 
 def _prepare_mesh_bind(mesh, tree: _Tree, *, context: str) -> None:
-    """ID check, unit check/warn, stamp ID + units from *tree*."""
+    """ID check, unit check/warn; stamp logical ID (not name) from *tree*."""
     from ..units.mesh_facet_units import (
         check_mesh_tree_units,
         stamp_mesh_units_from_tree,
@@ -140,12 +148,12 @@ def _prepare_mesh_bind(mesh, tree: _Tree, *, context: str) -> None:
     if not owner_ids_compatible(mesh.ID, tree.ID):
         raise ValueError(f"{context}: mesh ID {mesh.ID!r} does not match tree.ID={tree.ID!r}")
     # Prefer exact tree ID after compatible numeric/string match.
+    # Artifact name is intentionally left untouched.
     if mesh.ID != tree.ID:
         mesh.ID = tree.ID
     check_neuron_mesh_owner_id(mesh, tree.ID)
     check_mesh_tree_units(mesh, tree, context=context)
     stamp_mesh_units_from_tree(mesh, tree)
-
 
 def set_mesh(
     tree: _Tree,

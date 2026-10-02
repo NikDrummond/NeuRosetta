@@ -139,12 +139,17 @@ class Tree(_Tree):
 
     Parameters
     ----------
-    ID : int
-        Unique identifier for the tree.
+    ID : hashable
+        Logical neuron identifier (commonly ``int`` or ``str``). Shared across
+        full / reduced / mesh representations of the same neuron. Backed by
+        ``graph.gp['ID']``.
     metadata : dict
         Metadata dictionary containing file info, transformation history, etc.
     graph : graph_tool.Graph
         The underlying graph structure representing the neuron.
+    name : str or None, optional
+        Artifact / display / default-filename string (backed by
+        ``graph.gp['name']``). Independent of ``ID``. Defaults to ``str(ID)``.
 
     Attributes
     ----------
@@ -152,15 +157,22 @@ class Tree(_Tree):
         The neuron graph.
     metadata : dict
         Metadata dictionary (backed by ``graph.gp['metadata']``).
-    ID : int
-        Tree identifier (backed by ``graph.gp['ID']``).
+    ID : hashable
+        Logical neuron identifier (backed by ``graph.gp['ID']``).
+    name : str
+        Artifact name (backed by ``graph.gp['name']``).
     """
 
     __slots__ = ()
 
-    def __init__(self, ID: int, metadata: dict, graph: Graph) -> None:
-        super().__init__(ID=ID, metadata=metadata, graph=graph)
-
+    def __init__(
+        self,
+        ID,
+        metadata: dict,
+        graph: Graph,
+        name: str | None = None,
+    ) -> None:
+        super().__init__(ID=ID, metadata=metadata, graph=graph, name=name)
     # --- node indices ---
     get_root_index = get_root_index
     """Get the root node index."""

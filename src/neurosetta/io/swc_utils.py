@@ -3,6 +3,7 @@
 ### Imports
 from __future__ import annotations
 
+from collections.abc import Callable, Hashable, Mapping
 from pathlib import Path
 from typing import TypeVar, overload
 
@@ -18,6 +19,8 @@ from .io_utils import (
     _map_with_progress,
     _swc_table,
     _table_from_swc,
+    resolve_import_id,
+    safe_export_stem,
 )
 from .swc_meta import (
     parse_swc_header,
@@ -28,6 +31,9 @@ from .swc_meta import (
 
 T = TypeVar("T")
 
+IdResolver = Callable[[Path], Hashable]
+
+
 ### Import swc
 
 
@@ -35,6 +41,9 @@ T = TypeVar("T")
 def import_swc(
     fpath: str | Path,
     *,
+    ID: Hashable | None = None,
+    id_map: Mapping[str, Hashable] | None = None,
+    id_resolver: IdResolver | None = None,
     set_units: str | None = None,
     voxel_size: float | None = None,
     voxel_unit: str | None = None,
@@ -48,6 +57,9 @@ def import_swc(
 def import_swc(
     fpath: str | Path,
     *,
+    ID: Hashable | None = None,
+    id_map: Mapping[str, Hashable] | None = None,
+    id_resolver: IdResolver | None = None,
     set_units: str | None = None,
     voxel_size: float | None = None,
     voxel_unit: str | None = None,
@@ -60,6 +72,9 @@ def import_swc(
 def import_swc(
     fpath: str | Path,
     *,
+    ID: Hashable | None = None,
+    id_map: Mapping[str, Hashable] | None = None,
+    id_resolver: IdResolver | None = None,
     set_units: str | None = None,
     voxel_size: float | None = None,
     voxel_unit: str | None = None,
@@ -76,10 +91,25 @@ def import_swc(
     all `.swc` files in that directory are imported and returned as a
     Forest.
 
+    Identity
+    --------
+    * ``name`` is always set to the file stem (arbitrary strings allowed).
+    * ``ID`` (logical neuron identifier) defaults to the same stem as a
+      string, with **no** integer coercion. Override with ``ID=`` (single
+      file), ``id_map`` (stem → ID), or ``id_resolver(path)``.
+
     Parameters
     ----------
     fpath : str or pathlib.Path
         Path to a `.swc` file or to a directory containing `.swc` files.
+    ID : hashable or None, optional
+        Explicit logical ID for a **single-file** import. Ignored for
+        directory imports (use ``id_map`` / ``id_resolver``). Default None.
+    id_map : mapping or None, optional
+        Map file stems to logical IDs (useful for batch imports).
+    id_resolver : callable or None, optional
+        ``(path: Path) -> hashable`` used when ``ID`` / ``id_map`` do not
+        supply an ID.
     set_units : str or None, optional
         Spatial units of coordinates in the imported file(s), e.g. ``"nm"``,
         ``"micron"``, or ``"voxel"``. When provided, ``metadata["units"]`` is
@@ -111,38 +141,43 @@ def import_swc(
     FileNotFoundError
         If ``fpath`` does not exist or if no `.swc` files are found in the
         specified directory.
-
-    Notes
-    -----
-    The tree identifier is inferred from the file stem and converted to
-    an integer.     Imported trees are assigned default metadata, including the source file
-    path and dimensionless units. Units may be read from SWC ``# Meta:`` header
-    comments when present; ``set_units`` overrides header values.
+    ValueError
+        If ``ID=`` is supplied for a multi-file directory import.
 
     Examples
     --------
-    Import a single SWC file::
+    Import a single SWC file (stem becomes both name and ID)::
 
-        tree = import_swc("42.swc")
+        tree = import_swc("cell_A.swc")
+        assert tree.name == tree.ID == "cell_A"
 
-    Import with voxel units assigned::
+    Explicit logical ID, filename-derived name::
 
-        tree = import_swc("42.swc", set_units="voxel", voxel_size=8, voxel_unit="nm")
+        tree = import_swc("720575940630123456_full.swc", ID="720575940630123456")
 
-    Import all SWC files from a directory::
+    Batch import with independent IDs::
 
-        forest = import_swc("swc_files/", parallel=True, progress=True)
+        forest = import_swc(
+            "swc/",
+            id_resolver=lambda p: p.stem.split("_")[0],
+        )
     """
 
     from ..api import Forest, Tree
 
     p = Path(fpath)
 
-    def _import_one(path: Path) -> _Tree:
+    def _import_one(path: Path, *, explicit_id: Hashable | None = None) -> _Tree:
         df = _table_from_swc(str(path))
         graph = _graph_from_table(df)
 
-        tree_id = int(path.stem)
+        tree_id = resolve_import_id(
+            path,
+            ID=explicit_id,
+            id_map=id_map,
+            id_resolver=id_resolver,
+        )
+        name = path.stem
         header_meta = parse_swc_header(path)
         meta = _base_meta()
         if header_units := units_from_swc_header(header_meta):
@@ -160,7 +195,7 @@ def import_swc(
         meta["file_path"] = str(path)
         meta["isReduced"] = False
 
-        tree = Tree(ID=tree_id, metadata=meta, graph=graph)
+        tree = Tree(ID=tree_id, metadata=meta, graph=graph, name=name)
         _apply_import_units(
             tree,
             set_units,
@@ -170,10 +205,16 @@ def import_swc(
         return tree
 
     if p.is_file():
-        return _import_one(p)
+        return _import_one(p, explicit_id=ID)
 
     if not p.is_dir():
         raise FileNotFoundError(f"Path not found: {p}")
+
+    if ID is not None:
+        raise ValueError(
+            "ID= is only valid for single-file import; "
+            "use id_map= or id_resolver= for directories"
+        )
 
     swcs = sorted(p.glob("*.swc"))
 
@@ -233,7 +274,7 @@ def export_swc(
 
     This function serializes a ``Tree`` or all trees in a ``Forest`` to SWC
     format. A single tree is written to one `.swc` file, while a forest is
-    written as one file per tree, named `<tree_id>.swc`.
+    written as one file per tree, named ``<tree.name>.swc`` by default.
 
     Parameters
     ----------
@@ -241,9 +282,10 @@ def export_swc(
         The tree or forest to export.
     fpath : str or pathlib.Path
         Output file or directory path. For a single ``Tree``, if ``fpath`` is a
-        directory the file ``<tree_id>.swc`` is written inside it; if it is a
-        file path, that path is used directly. For a ``Forest``, ``fpath`` must
-        be a directory and each tree is written as ``<tree_id>.swc`` inside it.
+        directory the file ``<tree.name>.swc`` is written inside it; if it is a
+        file path, that path is used directly (``name`` is not mutated). For a
+        ``Forest``, ``fpath`` must be a directory and each tree is written as
+        ``<tree.name>.swc`` inside it.
     header : str or None, optional
         Custom header text to include at the top of each SWC file. If None,
         a default header identifying the generator and serialized metadata
@@ -271,25 +313,15 @@ def export_swc(
         If attempting to export a ``Forest`` to a single SWC file path
         (i.e. when ``fpath`` has a file suffix).
 
-    Notes
-    -----
-    The SWC table is generated from each tree using the internal table
-    conversion utilities. When exporting a forest, the output directory
-    is created if it does not already exist.
-
     Examples
     --------
     Export a single tree to a file::
 
-        export_swc(tree, "42.swc")
+        export_swc(tree, "out/cell_A_full.swc")
 
-    Export a single tree to a directory::
+    Export a single tree to a directory (uses ``tree.name``)::
 
         export_swc(tree, "swc_out/")
-
-    Export a forest in parallel::
-
-        export_swc(forest, "swc_out/", parallel=True, progress=True)
     """
 
     p = Path(fpath)
@@ -298,12 +330,12 @@ def export_swc(
         df = _swc_table(t)
         warn_if_export_dimensionless(t)
         header_txt = swc_header_for_tree(t, header=header)
-        out = p / f"{t.ID}.swc"
+        out = p / f"{safe_export_stem(t.name)}.swc"
         savetxt(out, df, header=header_txt)
 
     # ---- Single Tree ----
     if not isinstance(tree, _Forest):
-        out = p / f"{tree.ID}.swc" if p.exists() and p.is_dir() else p
+        out = p / f"{safe_export_stem(tree.name)}.swc" if p.exists() and p.is_dir() else p
 
         df = _swc_table(tree)
         warn_if_export_dimensionless(tree)

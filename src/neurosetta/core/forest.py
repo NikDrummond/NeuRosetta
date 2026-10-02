@@ -29,7 +29,13 @@ T = TypeVar("T")
 
 
 class _Forest(Sequence):
-    """Ordered, mutable container of Tree (or other Stone) objects."""
+    """Ordered, mutable container of Tree (or other Stone) objects.
+
+    Indexing is by logical ``ID`` (hashable; ``int`` or ``str``). Each Forest
+    allows at most one object per logical ID — full and reduced representations
+    of the same neuron with the same ``ID`` belong in **different** Forests.
+    Artifact ``name`` is not used for indexing.
+    """
 
     __slots__ = ("_trees", "_id_index")
 

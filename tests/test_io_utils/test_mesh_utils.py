@@ -41,6 +41,7 @@ def test_import_single_neuron_metadata(mesh_file: Path):
     m = import_mesh(mesh_file, mesh_type="Neuron")
     assert isinstance(m, Tree_mesh)
     assert m.ID == "neuron42"
+    assert m.name == "neuron42"
     assert m.metadata["file_path"] == str(mesh_file)
     assert "units" in m.metadata
     assert is_dimensionless(m.metadata["units"])
@@ -117,6 +118,7 @@ def test_export_import_roundtrip(mesh_file: Path, tmp_path: Path):
     assert Path(written).exists()
     loaded = import_mesh(written, mesh_type="Neuron", set_units="nm")
     assert loaded.ID == "out"
+    assert loaded.name == "out"
     assert loaded.mesh.npoints == original.mesh.npoints
 
 

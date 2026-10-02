@@ -14,7 +14,8 @@ def test_tree_gp_is_source_of_truth(simple_tree):
 
     assert "ID" in tree.graph.gp
     assert "metadata" in tree.graph.gp
-    assert int(tree.graph.gp["ID"]) == 1
+    assert tree.graph.gp["ID"] == 1
+    assert tree.name == "1"
     assert tree.metadata is tree.graph.gp["metadata"]
     assert meta == {"units": "nm", "isReduced": False}
     assert tree.metadata == {**meta, "Flag": False}
@@ -24,7 +25,10 @@ def test_tree_id_setter_writes_gp(simple_tree):
     tree = Tree(ID=1, metadata={}, graph=simple_tree)
     tree.ID = 99
     assert tree.ID == 99
-    assert int(tree.graph.gp["ID"]) == 99
+    assert tree.graph.gp["ID"] == 99
+    tree.name = "neuron_99"
+    assert tree.name == "neuron_99"
+    assert tree.graph.gp["name"] == "neuron_99"
 
 
 def test_tree_metadata_mutation_hits_gp(simple_tree):
@@ -50,11 +54,12 @@ def test_stone_slots_reject_arbitrary_attrs():
 
 
 def test_stone_copy_and_eq():
-    stone = _Stone(ID=1, metadata={"key": "value"})
+    stone = _Stone(ID=1, metadata={"key": "value"}, name="one")
     copied = stone.copy()
 
     assert copied is not stone
     assert copied.ID == stone.ID
+    assert copied.name == stone.name
     assert copied.metadata == stone.metadata
     assert copied.metadata is not stone.metadata
     assert stone == copied
@@ -65,7 +70,7 @@ def test_stone_copy_and_eq():
 
 
 def test_stone_repr():
-    assert repr(_Stone(ID=42, metadata={})) == "_Stone(ID=42)"
+    assert repr(_Stone(ID=42, metadata={})) == "_Stone(name='42', ID=42)"
 
 
 def test_tree_eq_uses_graph_identity(simple_tree):
@@ -109,7 +114,7 @@ def test_graph_swap_keeps_gp_truth(simple_tree):
     tree.graph = new_g
     assert tree.ID == 3
     assert tree.metadata is tree.graph.gp["metadata"]
-    assert int(tree.graph.gp["ID"]) == 3
+    assert tree.graph.gp["ID"] == 3
     update_reduced(tree)
     assert new_g.gp["metadata"]["isReduced"] is tree.metadata["isReduced"]
 

@@ -21,11 +21,12 @@ import neurosetta as nr
 
 tree = nr.load("neuron.nr")          # or import_swc(...)
 
-# preferred: path → attach in one step (stem ID must match tree.ID)
+# preferred: path → attach in one step (logical mesh.ID must match tree.ID;
+# file stem becomes mesh.name and, by default, mesh.ID)
 tree.set_mesh("7.ply", set_units="um")
 
-# or explicit import then attach
-# mesh = nr.import_mesh("7.ply", mesh_type="Neuron", set_units="um")
+# differently named files: set logical ID independently
+# mesh = nr.import_mesh("neuron_7_surface.ply", ID=7, set_units="um")
 # tree.set_mesh(mesh)
 
 tree.has_mesh()
@@ -66,8 +67,10 @@ assert loaded.has_mesh()
 
 ## Forest batch attach
 
-Match meshes to trees by `ID` (same int/str coercion as synapse `owner_id`).
-File stems become mesh IDs (`7.ply` → `"7"` matches tree `ID=7`).
+Match meshes to trees by logical `ID` (same int/str coercion as synapse
+`owner_id`). File stems become mesh `name` and, by default, mesh `ID`
+(`7.ply` → `name="7"`, `ID="7"` matches tree `ID=7`). Use `id_resolver` /
+`id_map` when filenames differ from logical IDs.
 
 ```python
 forest = nr.load("neurons/")                 # Forest of Trees

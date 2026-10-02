@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Hashable, Mapping
 from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
 from typing import TypeVar
 from warnings import warn
 
@@ -23,6 +24,29 @@ from ..utils.graph_utils.vertex_inds import root_index
 from ..utils.units import DEFAULT_UNITS
 
 T = TypeVar("T")
+IdResolver = Callable[[Path], Hashable]
+
+
+def resolve_import_id(
+    path: Path,
+    *,
+    ID: Hashable | None = None,
+    id_map: Mapping[str, Hashable] | None = None,
+    id_resolver: IdResolver | None = None,
+) -> Hashable:
+    """Resolve logical ID for an imported file.
+
+    Precedence: explicit ``ID`` > ``id_map[stem]`` > ``id_resolver(path)`` >
+    ``path.stem`` (as ``str``, no int coercion).
+    """
+    if ID is not None:
+        return ID
+    stem = path.stem
+    if id_map is not None and stem in id_map:
+        return id_map[stem]
+    if id_resolver is not None:
+        return id_resolver(path)
+    return stem
 
 ### swc utils
 
@@ -186,6 +210,19 @@ def _swc_table(tree: _Tree) -> DataFrame:
 def _base_meta():
     """Basic metadata info (identity lives on ``tree.ID`` / ``gp['ID']``, not here)."""
     return {"units": DEFAULT_UNITS, "file_path": "", "isReduced": False, "Flag": False}
+
+
+def safe_export_stem(name: str) -> str:
+    """Return a filesystem-safe stem derived from an artifact ``name``.
+
+    Replaces path separators and null bytes; strips trailing dots/spaces.
+    Does not mutate the object's ``name`` — only the export filename.
+    """
+    text = str(name).replace("\x00", "").replace("/", "_").replace("\\", "_")
+    text = text.strip().rstrip(". ")
+    if not text:
+        raise ValueError("export stem is empty after sanitising artifact name")
+    return text
 
 
 def _apply_import_units(

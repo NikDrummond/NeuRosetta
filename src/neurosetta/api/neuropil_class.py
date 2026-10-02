@@ -47,14 +47,22 @@ class Neuropil(_Mesh):
         Metadata dictionary; ``mesh_kind=\"neuropil\"`` is stamped on construct.
     mesh : vedo.Mesh
         Surface mesh of the compartment boundary.
+    name : str or None, optional
+        Artifact / display / default-filename string. Defaults to ``str(ID)``.
     """
 
     __slots__ = ()
     mesh_kind = MESH_KIND_NEUROPIL
 
-    def __init__(self, ID: str, metadata: dict, mesh: Mesh) -> None:
-        super().__init__(ID=ID, metadata=metadata, mesh=mesh)
-
+    def __init__(
+        self,
+        ID: str,
+        metadata: dict,
+        mesh: Mesh,
+        *,
+        name: str | None = None,
+    ) -> None:
+        super().__init__(ID=ID, metadata=metadata, mesh=mesh, name=name)
     # --- geometry ---
     count_vertices = count_vertices
     count_faces = count_faces

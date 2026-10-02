@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import warnings
-from collections.abc import Hashable, Iterable, Mapping
+from collections.abc import Callable, Hashable, Iterable, Mapping
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
 
@@ -45,11 +45,13 @@ def _as_mesh_list(
                     f"Mapping values must be Tree_mesh; got {type(mesh)!r} for key {key!r}"
                 )
             # Mapping key is the match ID (may coerce vs mesh.ID via set_mesh).
+            # Preserve artifact name; only logical ID follows the mapping key.
             if key != mesh.ID:
                 mesh = Tree_mesh(
                     ID=key,
                     metadata=dict(mesh.metadata),
                     mesh=mesh.mesh,
+                    name=mesh.name,
                 )
             out.append(mesh)
         return out
@@ -66,6 +68,8 @@ def _load_meshes(
     set_units: str | None = None,
     voxel_size: float | None = None,
     voxel_unit: str | None = None,
+    id_map: Mapping[str, Hashable] | None = None,
+    id_resolver: Callable[[Path], Hashable] | None = None,
 ) -> list[Any]:
     from ...api.forest_mesh_class import Forest_mesh
     from ...api.tree_mesh_class import Tree_mesh
@@ -74,6 +78,8 @@ def _load_meshes(
     loaded = import_mesh(
         source,
         mesh_type="Neuron",
+        id_map=id_map,
+        id_resolver=id_resolver,
         set_units=set_units,
         voxel_size=voxel_size,
         voxel_unit=voxel_unit,
@@ -109,8 +115,10 @@ def set_meshes(
     set_units: str | None = None,
     voxel_size: float | None = None,
     voxel_unit: str | None = None,
+    id_map: Mapping[str, Hashable] | None = None,
+    id_resolver: Callable[[Path], Hashable] | None = None,
 ) -> dict[Hashable, Tree_mesh]:
-    """Attach neuron meshes to Forest trees by matching ``ID``.
+    """Attach neuron meshes to Forest trees by matching logical ``ID``.
 
     Parameters
     ----------
@@ -120,24 +128,21 @@ def set_meshes(
         Neuron meshes. A directory / file path is loaded via
         ``import_mesh(..., mesh_type=\"Neuron\")``. IDs are matched with the
         same int/str coercion as synapse ``owner_id`` (e.g. ``7`` ↔ ``\"7\"``).
+        Artifact ``name`` is not used for matching and is not overwritten.
     missing : {\"error\", \"warn\", \"ignore\"}, optional
         Policy when a tree has no matching mesh. By default ``\"warn\"``.
     unused : {\"error\", \"warn\", \"ignore\"}, optional
         Policy when a mesh matches no tree. By default ``\"ignore\"``.
     set_units, voxel_size, voxel_unit
         Forwarded to :func:`~neurosetta.import_mesh` when *meshes* is a path.
+    id_map, id_resolver
+        Forwarded to :func:`~neurosetta.import_mesh` when *meshes* is a path,
+        so differently named mesh files can share logical IDs with trees.
 
     Returns
     -------
     dict
         ``{tree.ID: bound Tree_mesh}`` for successfully attached members.
-
-    Raises
-    ------
-    ValueError
-        On ambiguous ID matches, or when *missing* / *unused* is ``\"error\"``.
-    TypeError
-        If *meshes* has the wrong type.
     """
     if missing not in ("error", "warn", "ignore"):
         raise ValueError(f"missing={missing!r} invalid")
@@ -150,10 +155,14 @@ def set_meshes(
             set_units=set_units,
             voxel_size=voxel_size,
             voxel_unit=voxel_unit,
+            id_map=id_map,
+            id_resolver=id_resolver,
         )
     else:
         if set_units is not None or voxel_size is not None or voxel_unit is not None:
             raise ValueError("set_units / voxel_size / voxel_unit only apply when meshes is a path")
+        if id_map is not None or id_resolver is not None:
+            raise ValueError("id_map / id_resolver only apply when meshes is a path")
         mesh_list = _as_mesh_list(meshes)
 
     attached: dict[Hashable, Any] = {}

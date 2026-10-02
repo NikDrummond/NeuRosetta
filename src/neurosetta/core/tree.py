@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Hashable
 from typing import TYPE_CHECKING, Self
 
 from graph_tool.all import Graph
@@ -16,9 +17,13 @@ from .stone import _Stone
 from .tree_helpers import (
     bind_tree_id,
     bind_tree_metadata,
+    bind_tree_name,
     copy_tree_graph,
     ensure_edge_lengths,
     metadata_from_graph,
+    normalize_tree_name,
+    tree_id_from_graph,
+    tree_name_from_graph,
 )
 
 if TYPE_CHECKING:
@@ -28,8 +33,16 @@ if TYPE_CHECKING:
 class _Tree(_Stone):
     """Underlying tree graph class.
 
-    ``ID`` and ``metadata`` are properties over ``graph.gp`` — the graph is
-    the source of truth. Parent ``_Stone`` slots for those names are unused.
+    ``ID``, ``name``, and ``metadata`` are properties over ``graph.gp`` — the
+    graph is the source of truth. Parent ``_Stone`` slots for those names are
+    unused.
+
+    Identity
+    --------
+    * ``ID`` — logical neuron identifier (``int`` or ``str``; hashable). Shared
+      across full / reduced / mesh representations of the same neuron.
+    * ``name`` — artifact / display / default-filename string. Independent of
+      ``ID``. Defaults to ``str(ID)`` when not supplied.
 
     Attributes
     ----------
@@ -40,11 +53,18 @@ class _Tree(_Stone):
 
     __slots__ = ("graph", "plot3d")
 
-    def __init__(self, ID: int, metadata: dict, graph: Graph) -> None:
+    def __init__(
+        self,
+        ID: Hashable,
+        metadata: dict,
+        graph: Graph,
+        name: str | None = None,
+    ) -> None:
         from ..ops.plotting.utils import TreePlot3D  # runtime import
 
         self.graph = graph
         self.ID = ID
+        self.name = normalize_tree_name(name, fallback_id=ID)
         self.metadata = metadata
         # Bound but unbuilt: styling and graph lookups work before any geometry.
         self.plot3d = TreePlot3D(tree=self, build=False)
@@ -53,12 +73,20 @@ class _Tree(_Stone):
     # --- identity (graph gp) ---
 
     @property
-    def ID(self) -> int:
-        return int(self.graph.gp["ID"])
+    def ID(self) -> Hashable:
+        return tree_id_from_graph(self.graph)
 
     @ID.setter
-    def ID(self, value: int) -> None:
+    def ID(self, value: Hashable) -> None:
         bind_tree_id(self.graph, value)
+
+    @property
+    def name(self) -> str:
+        return tree_name_from_graph(self.graph, fallback_id=self.ID)
+
+    @name.setter
+    def name(self, value: str | None) -> None:
+        bind_tree_name(self.graph, normalize_tree_name(value, fallback_id=self.ID))
 
     @property
     def metadata(self) -> _MetadataDict:
@@ -67,7 +95,6 @@ class _Tree(_Stone):
     @metadata.setter
     def metadata(self, value: dict | _MetadataDict) -> None:
         bind_tree_metadata(self.graph, value)
-
     # --- user metadata (protected core keys) ---
 
     def set_meta(self, key: str, value) -> None:
@@ -110,14 +137,20 @@ class _Tree(_Stone):
 
     @classmethod
     def from_graph(cls, graph: Graph) -> Self:
-        """Wrap a graph that already has ``gp['ID']`` and ``gp['metadata']``."""
+        """Wrap a graph that already has ``gp['ID']`` and ``gp['metadata']``.
+
+        Legacy graphs with integer ``gp['ID']`` and no ``name`` load with
+        ``name = str(ID)``. New graphs preserve exact ID type and name.
+        """
         meta = metadata_from_graph(graph)
-        return cls(ID=int(graph.gp["ID"]), metadata=meta, graph=graph)
+        tree_id = tree_id_from_graph(graph)
+        name = tree_name_from_graph(graph, fallback_id=tree_id)
+        return cls(ID=tree_id, metadata=meta, graph=graph, name=name)
 
     def copy(self) -> Self:
         """Shallow graph copy with a shallow-copied metadata dict."""
-        tree_id, meta, graph = copy_tree_graph(self.graph)
-        return type(self)(ID=tree_id, metadata=meta, graph=graph)
+        tree_id, name, meta, graph = copy_tree_graph(self.graph)
+        return type(self)(ID=tree_id, metadata=meta, graph=graph, name=name)
 
     clone = copy
 
@@ -128,9 +161,11 @@ class _Tree(_Stone):
         return self.graph is other.graph
 
     def __repr__(self) -> str:
-        """Return a short summary of tree ID and node count."""
-        return f"Tree(ID={self.ID}) with {self.graph.num_vertices()} nodes"
-
+        """Return a short summary of name, ID, and node count."""
+        return (
+            f"Tree(name={self.name!r}, ID={self.ID!r}) "
+            f"with {self.graph.num_vertices()} nodes"
+        )
     # --- graph properties ---
 
     def list_properties(self, level: str = "all") -> list | dict:

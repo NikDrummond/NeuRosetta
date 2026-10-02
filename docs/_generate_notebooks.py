@@ -117,8 +117,8 @@ from pathlib import Path
 
 out = Path(tempfile.mkdtemp())
 tree.set_units("nm")
-tree.save_tree(out / f"{tree.ID}.nr")
-reloaded = nr.load(out / f"{tree.ID}.nr")
+tree.save_tree(out / f"{tree.name}.nr")
+reloaded = nr.load(out / f"{tree.name}.nr")
 print(reloaded.metadata.get("units"), reloaded.count_nodes())"""
             ),
         ],
@@ -153,8 +153,13 @@ forest = nr.import_swc(swc_dir)
 print(forest.ids())"""
             ),
             md(
-                """SWC stems must be **integer IDs** (FlyWire segment IDs). A directory import
-returns a {class}`~neurosetta.api.Forest`.
+                """On import, the file stem becomes both ``tree.name`` (artifact / default
+filename) and, unless overridden, ``tree.ID`` (logical neuron identifier).
+Stems are **not** forced to integers — ``cell_A.swc`` and
+``720575940630123456_full.swc`` both work. Pass ``ID=`` / ``id_resolver=`` to
+set the logical ID independently of the filename.
+
+A directory import returns a {class}`~neurosetta.api.Forest`.
 
 See {doc}`../tutorials/tree_basics` for the `Tree` class and
 {doc}`../tutorials/forests` for forests."""
@@ -168,8 +173,8 @@ print(list(out.glob("*.swc")))"""
             md("## Native `.nr` files"),
             code(
                 """out = Path(tempfile.mkdtemp())
-tree.save_tree(out / f"{tree.ID}.nr")
-reloaded = nr.load(out / f"{tree.ID}.nr")
+tree.save_tree(out / f"{tree.name}.nr")
+reloaded = nr.load(out / f"{tree.name}.nr")
 print(reloaded.count_nodes(), reloaded.metadata.get("units"))"""
             ),
             md(

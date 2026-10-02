@@ -4,7 +4,7 @@ import logging
 import warnings
 
 import vedo as vd
-from PySide6.QtCore import QEvent, Qt
+from PySide6.QtCore import QEvent, Qt, QThread, Signal
 from PySide6.QtGui import QAction
 from PySide6.QtWidgets import (
     QCheckBox,
@@ -12,13 +12,13 @@ from PySide6.QtWidgets import (
     QDialog,
     QDialogButtonBox,
     QDockWidget,
-    QFileDialog,
     QHBoxLayout,
     QInputDialog,
     QLabel,
     QLineEdit,
     QMainWindow,
     QMessageBox,
+    QProgressDialog,
     QPushButton,
     QRadioButton,
     QStyle,
@@ -34,7 +34,30 @@ from vtkmodules.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 from ..config import UI_CONSTANTS, AppSettings
 from ..core import NeuroGUIApplication
 from ..utils.logging_utils import setup_logging
+from .path_dialogs import (
+    DirectoryPickerDialog,
+    get_open_file_path,
+    get_save_file_path,
+)
 from .scale_overlay import ScaleOverlay
+
+
+class _FolderScanThread(QThread):
+    """Scan a folder for supported files off the UI thread."""
+
+    result_ready = Signal(object)  # list[str]; object is safer cross-thread than list
+    error = Signal(str)
+
+    def __init__(self, folder_path: str, scan_fn):
+        super().__init__()
+        self.folder_path = folder_path
+        self.scan_fn = scan_fn
+
+    def run(self) -> None:
+        try:
+            self.result_ready.emit(self.scan_fn(self.folder_path))
+        except Exception as e:
+            self.error.emit(str(e))
 
 # Suppress warnings
 warnings.filterwarnings("ignore")
@@ -391,17 +414,81 @@ class MainWindow(QMainWindow):
     # File operations
     def _load_file(self) -> None:
         """Load a single file."""
-        filename, _ = QFileDialog.getOpenFileName(
-            self, "Open File", "", self.app_core.file_manager.get_file_filter_string()
+        filename = get_open_file_path(
+            self,
+            "Open File",
+            self.settings.last_directory,
+            self.app_core.file_manager.get_file_filter_string(),
         )
-        if filename and not self.app_core.load_file(filename):
+        if not filename:
+            return
+        self.settings.remember_directory(filename)
+        if not self.app_core.load_file(filename):
             QMessageBox.critical(self, "Error", "Failed to load file")
 
     def _load_folder(self) -> None:
-        """Load files from a folder."""
-        folder = QFileDialog.getExistingDirectory(self, "Select Folder")
-        if folder and not self.app_core.load_folder(folder):
+        """Load files from a folder (path paste / recent / non-native browse)."""
+        dialog = DirectoryPickerDialog(self, "Select Folder", self.settings)
+        if dialog.exec() != QDialog.DialogCode.Accepted:
+            return
+
+        folder = dialog.selected_path()
+        if not folder:
+            return
+
+        self.settings.remember_directory(folder)
+        self._start_folder_scan(folder)
+
+    def _start_folder_scan(self, folder: str) -> None:
+        """Scan folder on a worker thread so the UI stays responsive."""
+        existing = getattr(self, "_scan_thread", None)
+        if existing is not None:
+            try:
+                if existing.isRunning():
+                    return
+            except RuntimeError:
+                # Underlying C++ thread already deleted
+                self._scan_thread = None
+
+        self._pending_folder = folder
+        self._folder_progress = QProgressDialog("Scanning folder…", None, 0, 0, self)
+        self._folder_progress.setWindowTitle("Load Folder")
+        self._folder_progress.setWindowModality(Qt.WindowModality.WindowModal)
+        self._folder_progress.setMinimumDuration(0)
+        self._folder_progress.setCancelButton(None)
+        self._folder_progress.show()
+
+        thread = _FolderScanThread(folder, self.app_core.file_manager.scan_folder_for_files)
+        self._scan_thread = thread
+        thread.result_ready.connect(self._on_folder_scan_done)
+        thread.error.connect(self._on_folder_scan_error)
+        thread.finished.connect(thread.deleteLater)
+        thread.start()
+
+    def _on_folder_scan_done(self, files) -> None:
+        """Handle completed folder scan on the UI thread."""
+        self._scan_thread = None
+        if getattr(self, "_folder_progress", None) is not None:
+            self._folder_progress.close()
+            self._folder_progress = None
+
+        folder = getattr(self, "_pending_folder", "")
+        file_list = list(files) if files else []
+        if not file_list:
             QMessageBox.warning(self, "Warning", "No supported files found in folder")
+            return
+
+        if not self.app_core.load_folder(folder, files=file_list):
+            QMessageBox.critical(self, "Error", "Failed to load files from folder")
+
+    def _on_folder_scan_error(self, message: str) -> None:
+        """Handle folder scan failure on the UI thread."""
+        self._scan_thread = None
+        if getattr(self, "_folder_progress", None) is not None:
+            self._folder_progress.close()
+            self._folder_progress = None
+        logging.error(f"Folder scan failed: {message}")
+        QMessageBox.critical(self, "Error", f"Failed to scan folder:\n{message}")
 
     def _save_file_as(self) -> None:
         """Save current file with a new name."""
@@ -409,10 +496,16 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "Warning", "Nothing to save")
             return
 
-        filename, _ = QFileDialog.getSaveFileName(
-            self, "Save As", "", self.app_core.file_manager.get_save_filter_string()
+        filename = get_save_file_path(
+            self,
+            "Save As",
+            self.settings.last_directory,
+            self.app_core.file_manager.get_save_filter_string(),
         )
-        if filename and not self.app_core.save_file_as(filename):
+        if not filename:
+            return
+        self.settings.remember_directory(filename)
+        if not self.app_core.save_file_as(filename):
             QMessageBox.critical(self, "Error", "Failed to save file")
 
     def _save_current_file(self) -> None:
@@ -623,14 +716,13 @@ class MainWindow(QMainWindow):
 
     def _set_mesh_path(self) -> None:
         """Open dialog to select mesh directory path."""
-        folder_path = QFileDialog.getExistingDirectory(
-            self,
-            "Select Mesh Directory",
-            "",
-            QFileDialog.ShowDirsOnly | QFileDialog.DontResolveSymlinks,
-        )
+        dialog = DirectoryPickerDialog(self, "Select Mesh Directory", self.settings)
+        if dialog.exec() != QDialog.DialogCode.Accepted:
+            return
 
+        folder_path = dialog.selected_path()
         if folder_path:
+            self.settings.remember_directory(folder_path)
             self.app_core.set_mesh_directory(folder_path)
             logging.info(f"Mesh directory set to: {folder_path}")
 

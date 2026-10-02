@@ -128,8 +128,13 @@ def _coords_from_arrays(
 def owner_ids_compatible(owner_id: Hashable | None, tree_id: Hashable) -> bool:
     """Return True when *owner_id* is unset or refers to the same neuron as *tree_id*.
 
-    Exact equality is preferred. Numeric IDs also match across ``int`` /
-    ``np.integer`` / digit-strings (common connectomics footgun).
+    Exact equality is preferred. For backwards compatibility, numeric IDs also
+    match across ``int`` / ``np.integer`` / digit-strings (e.g. ``7`` ↔ ``\"7\"``).
+    Non-numeric strings only match via exact equality.
+
+    Prefer storing the same typed ID on both sides. Digit-strings with leading
+    zeros (``\"00123\"``) will also match integer ``123`` via ``int`` coercion —
+    use string IDs on both sides if leading zeros matter.
     """
     if owner_id is None:
         return True
@@ -348,9 +353,7 @@ class Synapses:
                 ),
                 owner_id=data._owner_id if owner_id is None else owner_id,
                 units=data._units if units is None else units,
-                units_meta=(
-                    dict(data._units_meta) if units_meta is None else dict(units_meta)
-                ),
+                units_meta=(dict(data._units_meta) if units_meta is None else dict(units_meta)),
             )
             return
 
@@ -395,13 +398,9 @@ class Synapses:
         units_meta: Mapping[str, Any] | None,
     ) -> None:
         self._synapse_id = _copy_array(np.asarray(arrays["synapse_id"]), copy=copy)
-        self._type_code = _copy_array(
-            np.asarray(arrays["type_code"], dtype=np.uint8), copy=copy
-        )
+        self._type_code = _copy_array(np.asarray(arrays["type_code"], dtype=np.uint8), copy=copy)
         self._xyz = _copy_array(np.asarray(arrays["xyz"], dtype=np.float64), copy=copy)
-        self._partner_id = _copy_array(
-            np.asarray(arrays["partner_id"], dtype=object), copy=copy
-        )
+        self._partner_id = _copy_array(np.asarray(arrays["partner_id"], dtype=object), copy=copy)
 
         n = len(self._synapse_id)
         if self._type_code is None or self._xyz is None or self._partner_id is None:
@@ -421,15 +420,11 @@ class Synapses:
             self._distance_along_edge = _copy_array(
                 np.asarray(arrays["distance_along_edge"], dtype=np.float64), copy=copy
             )
-            self._nearest = _copy_array(
-                np.asarray(arrays["nearest"], dtype=np.float64), copy=copy
-            )
+            self._nearest = _copy_array(np.asarray(arrays["nearest"], dtype=np.float64), copy=copy)
             self._distance_to_tree = _copy_array(
                 np.asarray(arrays["distance_to_tree"], dtype=np.float64), copy=copy
             )
-            self._mapped = _copy_array(
-                np.asarray(arrays["mapped"], dtype=bool), copy=copy
-            )
+            self._mapped = _copy_array(np.asarray(arrays["mapped"], dtype=bool), copy=copy)
         else:
             self._clear_mapping_arrays()
 
@@ -554,9 +549,7 @@ class Synapses:
         edge_buckets: dict[int, list[int]] = defaultdict(list)
         for i, e in enumerate(self._edge_index):
             edge_buckets[int(e)].append(i)
-        self._edge_to_rows = {
-            k: np.asarray(v, dtype=np.int64) for k, v in edge_buckets.items()
-        }
+        self._edge_to_rows = {k: np.asarray(v, dtype=np.int64) for k, v in edge_buckets.items()}
 
     # --- constructors ---
 
@@ -698,16 +691,12 @@ class Synapses:
         if self.is_mapped:
             mapping = {
                 "edge_index": np.asarray(self._edge_index, dtype=np.int64).copy(),
-                "edge_fraction": np.asarray(
-                    self._edge_fraction, dtype=np.float64
-                ).copy(),
+                "edge_fraction": np.asarray(self._edge_fraction, dtype=np.float64).copy(),
                 "distance_along_edge": np.asarray(
                     self._distance_along_edge, dtype=np.float64
                 ).copy(),
                 "nearest": np.asarray(self._nearest, dtype=np.float64).copy(),
-                "distance_to_tree": np.asarray(
-                    self._distance_to_tree, dtype=np.float64
-                ).copy(),
+                "distance_to_tree": np.asarray(self._distance_to_tree, dtype=np.float64).copy(),
                 "mapped": np.asarray(self._mapped, dtype=bool).copy(),
             }
         return {
@@ -755,9 +744,7 @@ class Synapses:
         self._init_from_arrays(
             arrays,
             copy=False,
-            mapping_meta=dict(
-                meta.get("mapping_meta") or state.get("mapping_meta") or {}
-            ),
+            mapping_meta=dict(meta.get("mapping_meta") or state.get("mapping_meta") or {}),
             owner_id=meta.get("owner_id", state.get("owner_id")),
             units=meta.get("units", state.get("units")),
             units_meta=dict(meta.get("units_meta") or state.get("units_meta") or {}),
@@ -1087,15 +1074,11 @@ class Synapses:
 
     def indices_for_partner(self, partner_id: Any) -> np.ndarray:
         """Return row indices for synapses with the given partner."""
-        return self._partner_to_rows.get(
-            partner_id, np.asarray([], dtype=np.int64)
-        ).copy()
+        return self._partner_to_rows.get(partner_id, np.asarray([], dtype=np.int64)).copy()
 
     def indices_on_edge(self, edge_index: int) -> np.ndarray:
         """Return row indices mapped onto *edge_index*."""
-        return self._edge_to_rows.get(
-            int(edge_index), np.asarray([], dtype=np.int64)
-        ).copy()
+        return self._edge_to_rows.get(int(edge_index), np.asarray([], dtype=np.int64)).copy()
 
     # --- filtering ---
 
@@ -1198,9 +1181,7 @@ class Synapses:
         """Write mapping columns in place."""
         n = len(self)
         edge_index = _as_1d(edge_index, "edge_index", n).astype(np.int64, copy=False)
-        edge_fraction = _as_1d(edge_fraction, "edge_fraction", n).astype(
-            np.float64, copy=False
-        )
+        edge_fraction = _as_1d(edge_fraction, "edge_fraction", n).astype(np.float64, copy=False)
         distance_to_tree = _as_1d(distance_to_tree, "distance_to_tree", n).astype(
             np.float64, copy=False
         )
@@ -1211,9 +1192,9 @@ class Synapses:
         if distance_along_edge is None:
             distance_along_edge = np.full(n, np.nan, dtype=np.float64)
         else:
-            distance_along_edge = _as_1d(
-                distance_along_edge, "distance_along_edge", n
-            ).astype(np.float64, copy=False)
+            distance_along_edge = _as_1d(distance_along_edge, "distance_along_edge", n).astype(
+                np.float64, copy=False
+            )
 
         self._edge_index = np.asarray(edge_index, dtype=np.int64)
         self._edge_fraction = np.asarray(edge_fraction, dtype=np.float64)
@@ -1265,13 +1246,9 @@ class Synapses:
         for i in range(n):
             eidx = int(old_edges[i])
             try:
-                new_e, offset, length, section_length = (
-                    reduction_map.old_edge_to_section[eidx]
-                )
+                new_e, offset, length, section_length = reduction_map.old_edge_to_section[eidx]
             except KeyError as exc:
-                raise KeyError(
-                    f"Original edge {eidx} missing from reduction map"
-                ) from exc
+                raise KeyError(f"Original edge {eidx} missing from reduction map") from exc
 
             if np.isfinite(locals_[i]):
                 local = float(np.clip(locals_[i], 0.0, length))
@@ -1316,9 +1293,7 @@ class Synapses:
             return self._take_indices(np.asarray([], dtype=np.int64), copy=False)
 
         out = self._take_indices(np.flatnonzero(keep), copy=True)
-        out._edge_index = np.asarray(
-            [old_to_new[int(e)] for e in out._edge_index], dtype=np.int64
-        )
+        out._edge_index = np.asarray([old_to_new[int(e)] for e in out._edge_index], dtype=np.int64)
         out._mapping_meta = dict(self._mapping_meta)
         out._mapping_meta["valid"] = True
         out._rebuild_indexes()
@@ -1372,9 +1347,7 @@ class Synapses:
         distance_scale: float | None = None,
     ) -> None:
         """Apply an ``(x, y, z) → (x, y, z)`` SoA transform to raw (+ mapped) coords."""
-        x, y, z = fn(
-            self._xyz[:, 0].copy(), self._xyz[:, 1].copy(), self._xyz[:, 2].copy()
-        )
+        x, y, z = fn(self._xyz[:, 0].copy(), self._xyz[:, 1].copy(), self._xyz[:, 2].copy())
         self._xyz = np.column_stack(
             [
                 np.asarray(x, dtype=np.float64),
@@ -1424,9 +1397,7 @@ class Synapses:
             "n_post": int(np.count_nonzero(self._type_code == TYPE_POST)),
             "n_mapped": n_mapped,
             "n_unmapped": n_unmapped,
-            "median_distance_to_tree": (
-                float(np.median(dist)) if dist is not None else None
-            ),
+            "median_distance_to_tree": (float(np.median(dist)) if dist is not None else None),
             "max_distance_to_tree": float(np.max(dist)) if dist is not None else None,
             "mapping_valid": self.mapping_valid,
         }

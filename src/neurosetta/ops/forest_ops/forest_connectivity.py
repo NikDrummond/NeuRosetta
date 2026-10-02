@@ -96,6 +96,23 @@ def _coerce_owner_id(key: Hashable, syn: Synapses) -> Hashable:
     return syn.owner_id if syn.owner_id == key else key
 
 
+def _numeric_id_equal(a: Hashable, b: Hashable) -> bool:
+    """True when *a* and *b* are equal after int coercion (not for arbitrary strs)."""
+    if a == b:
+        return True
+    try:
+        return int(a) == int(b)  # type: ignore[arg-type]
+    except (TypeError, ValueError):
+        return False
+
+
+def _id_in_members(nid: Hashable, member_ids: set[Any]) -> bool:
+    """Membership with exact match, falling back to int/str-compatible equality."""
+    if nid in member_ids:
+        return True
+    return any(_numeric_id_equal(nid, mid) for mid in member_ids)
+
+
 def _resolve_connectivity_entries(
     source: ConnectivityInput,
 ) -> tuple[list[tuple[Hashable, Synapses]], dict[Any, _Tree | None], set[Any]]:
@@ -116,8 +133,8 @@ def _resolve_connectivity_entries(
     entries: list[tuple[Hashable, Synapses]] = []
 
     if isinstance(source, _Forest):
-        member_ids = {int(t.ID) for t in source}
-        id_to_tree = {int(t.ID): t for t in source}
+        member_ids = {t.ID for t in source}
+        id_to_tree = {t.ID: t for t in source}
         for tree in source:
             syn = get_synapses(tree)
             if syn is None or len(syn) == 0:
@@ -134,16 +151,11 @@ def _resolve_connectivity_entries(
             owner = _coerce_owner_id(key, syn)
             if len(syn) > 0:
                 entries.append((owner, syn))
-        member_ids = set()
-        for key in source:
-            try:
-                member_ids.add(int(key))  # type: ignore[arg-type]
-            except (TypeError, ValueError):
-                member_ids.add(key)
+        member_ids = set(source.keys())
         return entries, {}, member_ids
 
     if isinstance(source, Sequence) and not isinstance(source, (str, bytes)):
-        seen: set[Any] = set()
+        seen: list[Any] = []
         for i, syn in enumerate(source):
             if not isinstance(syn, Synapses):
                 raise TypeError(
@@ -156,14 +168,10 @@ def _resolve_connectivity_entries(
                     f"Mapping[owner_id, Synapses]."
                 )
             owner = syn.owner_id
-            try:
-                oid = int(owner)  # type: ignore[arg-type]
-            except (TypeError, ValueError):
-                oid = owner
-            if oid in seen:
+            if any(_numeric_id_equal(owner, s) for s in seen):
                 raise ValueError(f"Duplicate Synapses.owner_id={owner!r} in sequence")
-            seen.add(oid)
-            member_ids.add(oid)
+            seen.append(owner)
+            member_ids.add(owner)
             if len(syn) == 0:
                 continue
             entries.append((owner, syn))
@@ -246,13 +254,10 @@ def aggregate_connectivity(
                 if key in seen_keys:
                     continue
                 seen_keys.add(key)
-            if not include_external:
-                try:
-                    src_i, tgt_i = int(src), int(tgt)
-                except (TypeError, ValueError):
-                    continue
-                if src_i not in member_ids or tgt_i not in member_ids:
-                    continue
+            if not include_external and (
+                not _id_in_members(src, member_ids) or not _id_in_members(tgt, member_ids)
+            ):
+                continue
             pair = (src, tgt)
             counts[pair] = counts.get(pair, 0) + 1
 
@@ -331,7 +336,7 @@ def get_connectivity_graph(
     for i, nid in enumerate(vertex_ids):
         v = g.vertex(i)
         tree_id[v] = nid
-        in_forest[v] = nid in member_ids
+        in_forest[v] = _id_in_members(nid, member_ids)
     g.vp["tree_id"] = tree_id
     g.vp["in_forest"] = in_forest
 
@@ -342,10 +347,10 @@ def get_connectivity_graph(
             for nid in vertex_ids:
                 tree = id_to_tree.get(nid)
                 if tree is None:
-                    try:
-                        tree = id_to_tree.get(int(nid))
-                    except (TypeError, ValueError):
-                        tree = None
+                    for mid, t in id_to_tree.items():
+                        if _numeric_id_equal(nid, mid):
+                            tree = t
+                            break
                 if tree is not None and key in tree.metadata:
                     vals.append(tree.metadata[key])
                     any_present = True

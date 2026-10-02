@@ -2,7 +2,11 @@
 
 import os
 
+from PySide6.QtCore import QSettings
+
 from .constants import ENV_CONFIG, SCALE_CONSTANTS, UI_CONSTANTS
+
+_MAX_RECENT_DIRECTORIES = 8
 
 
 class AppSettings:
@@ -12,7 +16,36 @@ class AppSettings:
         self.scale_length_nm = SCALE_CONSTANTS["DEFAULT_SCALE_LENGTH_NM"]
         self.units = "nm"
         self.window_title = UI_CONSTANTS["WINDOW_TITLE"]
+        self._qsettings = QSettings("Neurosetta", "Viewer")
         self._setup_environment()
+
+    @property
+    def last_directory(self) -> str:
+        """Last directory used in a file/folder dialog."""
+        return self._qsettings.value("last_directory", "", type=str)
+
+    def recent_directories(self) -> list[str]:
+        """Recently used directories (most recent first)."""
+        value = self._qsettings.value("recent_directories", [])
+        if value is None:
+            return []
+        if isinstance(value, str):
+            return [value] if value else []
+        return [str(p) for p in value if p]
+
+    def remember_directory(self, path: str) -> None:
+        """Remember a file or directory path for dialogs / recent list."""
+        if not path:
+            return
+        directory = path if os.path.isdir(path) else os.path.dirname(path)
+        if not directory or not os.path.isdir(directory):
+            return
+        self._qsettings.setValue("last_directory", directory)
+        recent = self.recent_directories()
+        if directory in recent:
+            recent.remove(directory)
+        recent.insert(0, directory)
+        self._qsettings.setValue("recent_directories", recent[:_MAX_RECENT_DIRECTORIES])
 
     def _setup_environment(self) -> None:
         """Configure environment variables and library loading."""

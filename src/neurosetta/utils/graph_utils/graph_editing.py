@@ -5,6 +5,7 @@ from __future__ import annotations
 from graph_tool.all import Graph, GraphView
 from numpy import concatenate, vstack
 
+from ...core.tree_helpers import copy_tree_identity
 from .coordinates import vertex_coordinates
 from .gt_properties import g_has_property, raise_internal_property_missing
 from .node_types import infer_node_types
@@ -90,8 +91,8 @@ def reduce_graph(
     g_red.vp["x"] = g_red.new_vp("double", coords[:, 0])
     g_red.vp["y"] = g_red.new_vp("double", coords[:, 1])
     g_red.vp["z"] = g_red.new_vp("double", coords[:, 2])
-    # add ID (from original)
-    g_red.gp["ID"] = g_red.new_gp("long", g.gp["ID"])
+    # add identity (from original) — preserves int/str ID and artifact name
+    copy_tree_identity(g, g_red)
     # add metadata and update reduced
     meta = g.gp["metadata"].copy()
     meta["file_path"] = ""
@@ -148,8 +149,8 @@ def reroot_graph(g: Graph, root: int) -> Graph:
 
     ### migrate properties
 
-    # ID
-    g_new.gp["ID"] = g_new.new_gp("long", g_view.gp["ID"])
+    # identity (ID + name)
+    copy_tree_identity(g_view, g_new)
     # metadata
     g_new.gp["metadata"] = g_new.new_gp("object", g_view.gp["metadata"])
     # coordinates

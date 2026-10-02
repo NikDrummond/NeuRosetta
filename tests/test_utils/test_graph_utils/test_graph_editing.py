@@ -19,7 +19,10 @@ def test_reduce_graph_fewer_vertices(reduced_graph_fixture):
 def test_reduce_graph_preserves_id(reduced_graph_fixture):
     g = reduced_graph_fixture.copy()
     g_red = reduce_graph(g)
-    assert int(g_red.gp["ID"]) == 42
+    from neurosetta.core.tree_helpers import tree_id_from_graph, tree_name_from_graph
+
+    assert tree_id_from_graph(g_red) == 42
+    assert tree_name_from_graph(g_red) == "42"
 
 
 def test_reroot_graph_same_vertex_count(reduced_graph_fixture):

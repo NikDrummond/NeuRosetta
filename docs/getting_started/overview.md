@@ -66,9 +66,15 @@ A `Tree` wraps a [graph-tool](https://graph-tool.skewed.de/)
 `Graph` representing a **directed tree** (one root, edges parent → child).
 
 ```{important}
-`tree.ID` and `tree.metadata` are **graph properties** (`graph.gp`), not
-ordinary Python attributes. The graph object is canonical — edit metadata or
-bound properties there and they persist in `.nr` files.
+``tree.ID``, ``tree.name``, and ``tree.metadata`` are **graph properties**
+(``graph.gp``), not ordinary Python attributes. The graph object is
+canonical — edit identity or metadata there and they persist in ``.nr``
+files.
+
+* ``ID`` — logical neuron identifier (``int`` or ``str``). Shared across
+  full / reduced / mesh representations of the same neuron.
+* ``name`` — artifact / display / default-filename string. Independent of
+  ``ID``; on import defaults to the file stem.
 ```
 
 Each node (vertex) carries morphology data as **bound properties**, usually:

@@ -42,20 +42,32 @@ class FileManager:
     def scan_folder_for_files(self, folder_path: str) -> list[str]:
         """Scan a folder for supported neuron files.
 
+        Uses ``os.scandir`` (no Path objects per entry) so huge directories stay
+        usable. Non-recursive: only direct children.
+
         Args:
             folder_path: Path to the folder to scan
 
         Returns:
             List of supported file paths
         """
-        folder = pathlib.Path(folder_path)
-        files = []
+        supported = {".nr", ".swc"}
+        files: list[str] = []
 
-        for file_path in folder.glob("*"):
-            if file_path.suffix.lower() in [".nr", ".swc"]:  # Only neuron files for folder scan
-                files.append(str(file_path))
+        with os.scandir(folder_path) as entries:
+            for entry in entries:
+                # Prefer dir_entry.name to avoid stat-heavy is_file on NFS
+                name = entry.name
+                if name.startswith("."):
+                    continue
+                dot = name.rfind(".")
+                if dot < 0:
+                    continue
+                if name[dot:].lower() in supported:
+                    files.append(entry.path)
 
-        return sorted(files)
+        files.sort()
+        return files
 
     def load_file(self, filepath: str) -> tuple[Any, np.ndarray, Any | None]:
         """Load a neuron file and return the data.

@@ -76,17 +76,22 @@ class NeuroGUIApplication:
             logging.error(f"Failed to load file {filepath}: {e}")
             return False
 
-    def load_folder(self, folder_path: str) -> bool:
+    def load_folder(self, folder_path: str, files: list[str] | None = None) -> bool:
         """Load all supported files from a folder.
 
         Args:
             folder_path: Path to the folder to scan
+            files: Optional pre-scanned file list (skips re-scan)
 
         Returns:
             True if files were found and loaded, False otherwise
         """
         try:
-            self.files = self.file_manager.scan_folder_for_files(folder_path)
+            self.files = (
+                list(files)
+                if files is not None
+                else self.file_manager.scan_folder_for_files(folder_path)
+            )
             self.current_file_index = 0
 
             if self.files:

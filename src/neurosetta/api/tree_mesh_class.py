@@ -4,6 +4,8 @@ This module provides the Tree_mesh class for representing neuron morphologies
 as surface meshes.
 """
 
+from collections.abc import Hashable
+
 from vedo import Mesh
 
 from ..core import _Mesh
@@ -36,28 +38,39 @@ class Tree_mesh(_Mesh):
     :class:`~neurosetta.api.Neuropil` into
     :class:`~neurosetta.api.AnatomicalFrame` instead.
 
-    ID policy
-    ---------
-    ``ID`` must match the owning :class:`~neurosetta.api.Tree` ``ID`` when the
-    mesh is bound (same idea as ``Synapses.owner_id``). Use
-    :func:`~neurosetta.core.mesh.check_neuron_mesh_owner_id` to enforce.
+    Identity
+    --------
+    * ``ID`` — logical neuron identifier; must be compatible with the owning
+      :class:`~neurosetta.api.Tree` ``ID`` when bound (same idea as
+      ``Synapses.owner_id``). Use
+      :func:`~neurosetta.core.mesh.check_neuron_mesh_owner_id` to enforce.
+    * ``name`` — artifact / display / default-filename string. May differ from
+      the Tree's ``name``; attachment does **not** overwrite ``name``.
 
     Parameters
     ----------
-    ID : int | str
-        Neuron identifier (align with ``Tree.ID`` for attachment).
+    ID : hashable
+        Logical neuron identifier (align with ``Tree.ID`` for attachment).
     metadata : dict
         Metadata dictionary; ``mesh_kind=\"neuron\"`` is stamped on construct.
     mesh : vedo.Mesh
         Surface mesh of the neuron.
+    name : str or None, optional
+        Artifact name. Defaults to ``str(ID)``.
     """
 
     __slots__ = ()
     mesh_kind = MESH_KIND_NEURON
 
-    def __init__(self, ID: int | str, metadata: dict, mesh: Mesh) -> None:
-        super().__init__(ID=ID, metadata=metadata, mesh=mesh)
-
+    def __init__(
+        self,
+        ID: Hashable,
+        metadata: dict,
+        mesh: Mesh,
+        *,
+        name: str | None = None,
+    ) -> None:
+        super().__init__(ID=ID, metadata=metadata, mesh=mesh, name=name)
     # --- geometry ---
     count_vertices = count_vertices
     count_faces = count_faces

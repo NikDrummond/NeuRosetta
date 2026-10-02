@@ -72,10 +72,16 @@ def check_neuron_mesh_owner_id(mesh: _Mesh, owner_id: Hashable) -> None:
 class _Mesh(_Stone):
     """Core mesh class wrapping a :class:`vedo.Mesh`.
 
-    Meshes are Stones (``ID`` + ``metadata``) and are **not** morphology
-    graphs — graph-oriented Forest helpers such as ``list_properties`` /
-    ``build_3d`` therefore return empty / raise clearly rather than
-    pretending to be Trees.
+    Meshes are Stones (``ID`` + ``name`` + ``metadata``) and are **not**
+    morphology graphs — graph-oriented Forest helpers such as
+    ``list_properties`` / ``build_3d`` therefore return empty / raise clearly
+    rather than pretending to be Trees.
+
+    Identity
+    --------
+    * ``ID`` — logical identifier (for neuron meshes: owning ``Tree.ID``).
+    * ``name`` — artifact / display / default-filename string. Independent of
+      ``ID``. Defaults to ``str(ID)`` when not supplied.
 
     Taxonomy
     --------
@@ -92,8 +98,15 @@ class _Mesh(_Stone):
     __slots__ = ("mesh",)
     mesh_kind: ClassVar[str] = MESH_KIND_GENERIC
 
-    def __init__(self, ID: Hashable, metadata: dict, mesh: Mesh) -> None:
-        super().__init__(ID, metadata)
+    def __init__(
+        self,
+        ID: Hashable,
+        metadata: dict,
+        mesh: Mesh,
+        *,
+        name: str | None = None,
+    ) -> None:
+        super().__init__(ID, metadata, name=name)
         self.metadata.setdefault(MESH_KIND_KEY, type(self).mesh_kind)
         self.mesh = mesh
 
@@ -107,6 +120,10 @@ class _Mesh(_Stone):
             ID=self.ID,
             metadata=dict(self.metadata),
             mesh=self.mesh.clone() if hasattr(self.mesh, "clone") else self.mesh,
+            name=self.name,
         )
 
     clone = copy
+
+    def __repr__(self) -> str:
+        return f"{type(self).__name__}(name={self.name!r}, ID={self.ID!r})"

@@ -1,17 +1,24 @@
+from collections.abc import Hashable
 from pathlib import Path
 from typing import overload
 
 from graph_tool.all import load_graph
 
 from ..core import _Forest, _Tree
-from .io_utils import _apply_import_units, _bind_core, _foreach_with_progress, _map_with_progress
+from .io_utils import (
+    _apply_import_units,
+    _bind_core,
+    _foreach_with_progress,
+    _map_with_progress,
+    safe_export_stem,
+)
 
 
 @overload
 def load(
     fpath: str | Path,
     *,
-    tree_id: int | None = None,
+    tree_id: Hashable | None = None,
     set_units: str | None = None,
     voxel_size: float | None = None,
     voxel_unit: str | None = None,
@@ -25,7 +32,7 @@ def load(
 def load(
     fpath: str | Path,
     *,
-    tree_id: int | None = None,
+    tree_id: Hashable | None = None,
     set_units: str | None = None,
     voxel_size: float | None = None,
     voxel_unit: str | None = None,
@@ -38,7 +45,7 @@ def load(
 def load(
     fpath: str | Path,
     *,
-    tree_id: int | None = None,
+    tree_id: Hashable | None = None,
     set_units: str | None = None,
     voxel_size: float | None = None,
     voxel_unit: str | None = None,
@@ -55,13 +62,16 @@ def load(
     ``<tree_id>.nr`` is loaded; when one ``.nr`` file exists, that tree is
     loaded; when multiple exist, all are loaded as a ``Forest``.
 
+    Legacy files with integer ``gp['ID']`` and no ``name`` load with
+    ``name = str(ID)``. New files preserve exact ID type and name.
+
     Parameters
     ----------
     fpath : str or pathlib.Path
         Path to a `.nr` file or to a directory containing `.nr` files.
-    tree_id : int or None, optional
-        Identifier of the tree to load when ``fpath`` points to a directory.
-        If provided, the file `<tree_id>.nr` is loaded directly.
+    tree_id : hashable or None, optional
+        Filename stem to load when ``fpath`` points to a directory
+        (``<tree_id>.nr``). Prefer the artifact ``name`` used when saving.
         Default is None.
     set_units : str or None, optional
         Override ``metadata["units"]`` after loading, without rescaling geometry.
@@ -93,24 +103,15 @@ def load(
         If ``fpath`` does not exist, if no `.nr` files are found in a directory,
         or if the requested ``tree_id`` file does not exist.
 
-    Notes
-    -----
-    Each loaded graph has its source file path recorded in
-    ``tree.metadata["file_path"]`` (backed by ``graph.gp["metadata"]``).
-
     Examples
     --------
     Load a single tree from a file::
 
-        tree = load("42.nr")
+        tree = load("cell_A_full.nr")
 
-    Load all trees from a directory::
+    Load a specific tree from a directory by filename stem::
 
-        forest = load("trees/")
-
-    Load a specific tree from a directory::
-
-        tree = load("trees/", tree_id=42)
+        tree = load("trees/", tree_id="cell_A_full")
     """
 
     from ..api import Forest, Tree
@@ -189,19 +190,19 @@ def save(
     Save a tree or forest to disk in `.nr` format.
 
     This function serializes a ``Tree`` or all trees in a ``Forest`` to `.nr`
-    files. A single tree is saved as one file, while a forest is saved as one
-    file per tree, named `<tree_id>.nr`.
+    files. Default filenames use ``tree.name`` (not ``ID``). An explicit file
+    path wins and does not mutate ``name``.
 
     Parameters
     ----------
     tree : Tree or Forest
         The tree or forest to save.
     fpath : str or pathlib.Path or None, optional
-        Output path. For a single ``Tree``, ``None`` writes ``<tree_id>.nr`` in
-        the current working directory; a directory writes inside it; a file path
-        is used directly. For a ``Forest``, use a directory (or ``None`` for
-        the current working directory); each tree is saved as ``<tree_id>.nr``.
-        Default is None.
+        Output path. For a single ``Tree``, ``None`` writes ``<tree.name>.nr``
+        in the current working directory; a directory writes inside it; a file
+        path is used directly. For a ``Forest``, use a directory (or ``None``
+        for the current working directory); each tree is saved as
+        ``<tree.name>.nr``. Default is None.
     parallel : bool, optional
         If True, save multiple trees in parallel when ``tree`` is a ``Forest``.
         Default is False.
@@ -222,25 +223,6 @@ def save(
     ValueError
         If attempting to save a ``Forest`` to a single file path (i.e. when
         ``fpath`` has a file suffix).
-
-    Notes
-    -----
-    Prior to saving, each tree is bound to its core representation to ensure
-    that all required graph properties are present.
-
-    Examples
-    --------
-    Save a single tree to the current directory::
-
-        save(tree)
-
-    Save a single tree to a specific file::
-
-        save(tree, "output/42.nr")
-
-    Save a forest to a directory::
-
-        save(forest, "output_trees/", parallel=True, progress=True)
     """
 
     def _save_one(t, base: Path) -> Path:
@@ -250,7 +232,7 @@ def save(
 
         freeze_mesh_for_save(t)
         freeze_synapses_for_save(t)
-        out = base / f"{t.ID}.nr"
+        out = base / f"{safe_export_stem(t.name)}.nr"
         t.graph.save(str(out), fmt="gt")
         get_mesh(t)  # rehydrate live Tree_mesh after payload save
         get_synapses(t)  # rehydrate live Synapses after payload save
@@ -261,17 +243,17 @@ def save(
         _bind_core(tree)
 
         if fpath is None:
-            out = Path.cwd() / f"{tree.ID}.nr"
+            out = Path.cwd() / f"{safe_export_stem(tree.name)}.nr"
         else:
             p = Path(fpath)
             if p.exists() and p.is_dir():
-                out = p / f"{tree.ID}.nr"
+                out = p / f"{safe_export_stem(tree.name)}.nr"
             else:
                 if p.suffix:
                     out = p
                 else:
                     p.mkdir(parents=True, exist_ok=True)
-                    out = p / f"{tree.ID}.nr"
+                    out = p / f"{safe_export_stem(tree.name)}.nr"
 
         from ..ops.tree_graphs.tree_mesh import freeze_mesh_for_save, get_mesh
         from ..ops.tree_graphs.tree_synapses import freeze_synapses_for_save, get_synapses
