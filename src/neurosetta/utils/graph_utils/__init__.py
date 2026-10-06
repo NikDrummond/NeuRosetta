@@ -32,6 +32,7 @@ from .gt_properties import (
     set_property,
 )
 from .node_types import infer_node_types
+from .paths import root_distance
 from .reduction_map import ReductionMap
 from .subgraphs import (
     extract_subgraph,
@@ -110,4 +111,5 @@ __all__ = [
     "partition_asymmetry",
     "get_vertex_degrees",
     "degree_distribution",
+    "root_distance",
 ]

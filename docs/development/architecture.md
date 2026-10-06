@@ -181,10 +181,13 @@ Thin user-facing classes:
 
 - {class}`~neurosetta.api.Tree` — binds ~all tree ops + plotting + units ({doc}`../api/tree`, {doc}`../api/tree_ops/index`)
 - {class}`~neurosetta.api.Forest` — per-tree batch binds + `filter`, `apply`, parallel I/O ({doc}`../api/forest`)
+- {class}`~neurosetta.api.Workspace` — analysis session around a Forest; ``.nrw`` I/O lives in `io/` ({doc}`../tutorials/workspaces`)
 - Facets on Tree/Forest — optional attachments, not parallel neuron types:
   `tree.synapses` ({doc}`../tutorials/synapses`), `tree.mesh`
-  ({doc}`../tutorials/meshes`). `Tree_mesh` / `Forest_mesh` are I/O + payload
-  types for the mesh facet (soft-deprecate mesh-only as the main story).
+  ({doc}`../tutorials/meshes`). Batch attach by ID:
+  ``Forest.set_synapses`` / ``Forest.set_meshes``. `Tree_mesh` / `Forest_mesh`
+  are I/O + payload types for the mesh facet (soft-deprecate mesh-only as the
+  main story).
 - Neuropil classes — `Neuropil` / `Neuropils` (compartment boundaries), plus
   `AnatomicalFrame` (analysis context wrapping neuropil meshes + axes — not a
   mesh). Taxonomy / ID policy: {doc}`../api/api_classes`.
@@ -236,14 +239,18 @@ File ↔ object conversion. Returns `api/` instances, never raw graphs.
 |--------|---------|
 | `io/swc_utils.py` | `import_swc`, `export_swc` |
 | `io/nr_utils.py` | `save`, `load` (graph-tool `.gt` wrapper) |
+| `io/workspace_utils.py` | `save_workspace`, `load_workspace`, `inspect_workspace` (`.nrw`) |
 | `io/mesh_utils.py` | `import_mesh`, `export_mesh` |
+| `io/synapse_io.py` | `import_synapses`, `extract_synapses`, `export_synapses` |
 
 Single file → `Tree` / mesh object. Directory → `Forest` / mesh collection.
 Neuron mesh files are meant to be **attached** (`Tree.set_mesh` /
 `Forest.set_meshes`); `Tree_mesh` / `Forest_mesh` are the import return types.
 
 `.nr` preserves bound graph properties and metadata — preferred for NeuRosetta
-workflows. SWC is the exchange format. Details: {doc}`../getting_started/io`.
+workflows. SWC is the exchange format. `.nrw` archives a Workspace (Forest +
+selections + registered results) and reuses `.nr` for each Tree. Details:
+{doc}`../getting_started/io`, {doc}`../tutorials/workspaces`.
 
 ## Layer 5: `analysis/`
 
@@ -278,8 +285,8 @@ What `import neurosetta as nr` re-exports (see {doc}`../api/package`):
 
 | Category | Examples |
 |----------|----------|
-| Classes | `Tree`, `Forest`, mesh containers |
-| I/O | `import_swc`, `save`, `import_mesh`, `load_example_data`, … |
+| Classes | `Tree`, `Forest`, `Workspace`, mesh containers |
+| I/O | `import_swc`, `save`, `import_mesh`, `load_example_data`, `save_workspace`, … |
 | Tree ops (functional) | `count_nodes`, `reduce_tree`, `get_node_coordinates`, … |
 | Plotting | `Viewer`, `plot_2d`, `plot_3d` |
 | Units | `set_units`, `convert_units`, `harmonize_forest_units` |

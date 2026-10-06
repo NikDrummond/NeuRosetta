@@ -15,6 +15,7 @@ from .api import (
     Neuropils,
     Tree,
     Tree_mesh,
+    Workspace,
 )
 from .config import (
     configure,
@@ -27,23 +28,32 @@ from .config import (
 from .core import Synapses
 from .gui import start_GUI
 from .io import (
+    WorkspaceError,
+    WorkspaceFormatError,
+    WorkspaceIntegrityError,
+    WorkspaceVersionError,
     example_data_dir,
     example_ids,
     export_mesh,
     export_swc,
     export_synapses,
+    extract_synapses,
     import_mesh,
     import_swc,
     import_synapses,
+    inspect_workspace,
     load,
     load_example_data,
+    load_workspace,
     save,
+    save_workspace,
 )
 from .ops.forest_ops import (
     get_connectivity_graph,
     get_connectivity_table,
     set_meshes,
 )
+from .ops.forest_ops import set_synapses as _set_synapses_forest
 from .ops.neuropils import distance_from_neuropil_surface, neuropil_point_depth
 from .ops.plotting import (
     Plot3DStyle,
@@ -85,6 +95,7 @@ from .ops.tree_graphs import (
     get_partition_asymmetry,
     get_post_order,
     get_root_coordinate,
+    get_root_distance,
     get_root_index,
     get_subtree,
     get_subtree_edge_coordinates,
@@ -100,10 +111,12 @@ from .ops.tree_graphs import (
     reduce_tree,
     reroot_tree,
     set_mesh,
-    set_synapses,
     synapse_density,
     synapse_mapping_summary,
     update_reduced,
+)
+from .ops.tree_graphs import (
+    set_synapses as _set_synapses_tree,
 )
 from .ops.units import (
     check_units_defined,
@@ -119,10 +132,26 @@ from .ops.units import (
 from .utils.metrics import describe, format_metrics_reference_table, list_metric_definitions
 from .utils.units import format_units_reference_table, list_unit_definitions
 
+
+def set_synapses(obj, data, /, **kwargs):
+    """Attach synapses to a Tree or Forest.
+
+    Dispatches to the tree-level or forest-level implementation based on
+    ``obj``. See :func:`~neurosetta.ops.tree_graphs.tree_synapses.set_synapses`
+    and :func:`~neurosetta.ops.forest_ops.forest_synapses.set_synapses`.
+    """
+    from .core import _Forest
+
+    if isinstance(obj, _Forest):
+        return _set_synapses_forest(obj, data, **kwargs)
+    return _set_synapses_tree(obj, data, **kwargs)
+
+
 # Public API
 __all__ = [
     "Tree",
     "Forest",
+    "Workspace",
     "Synapses",
     "Tree_mesh",
     "Forest_mesh",
@@ -135,9 +164,17 @@ __all__ = [
     "import_mesh",
     "export_mesh",
     "import_synapses",
+    "extract_synapses",
     "export_synapses",
     "load",
     "save",
+    "save_workspace",
+    "load_workspace",
+    "inspect_workspace",
+    "WorkspaceError",
+    "WorkspaceFormatError",
+    "WorkspaceIntegrityError",
+    "WorkspaceVersionError",
     "example_data_dir",
     "load_example_data",
     "example_ids",
@@ -190,6 +227,7 @@ __all__ = [
     "update_reduced",
     "has_property",
     "get_edge_length",
+    "get_root_distance",
     "get_total_cable_length",
     "get_degrees",
     "get_degree_distribution",

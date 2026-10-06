@@ -92,6 +92,62 @@ def test_synapse_set_units_declare_only(synapse_df):
     np.testing.assert_allclose(syn.coordinates, Synapses(synapse_df).coordinates)
 
 
+def test_synapse_convert_units(synapse_df):
+    syn = Synapses(synapse_df)
+    syn.set_units("nm")
+    x0 = syn.coordinates[0, 0]
+    out = syn.convert_units("um")
+    assert out is syn
+    assert syn.get_units() == "micron"
+    assert syn.coordinates[0, 0] == pytest.approx(x0 / 1000.0)
+
+    copied = Synapses(synapse_df)
+    copied.set_units("nm")
+    other = copied.convert_units("um", in_place=False)
+    assert other is not copied
+    assert copied.coordinates[0, 0] == pytest.approx(x0)
+
+
+def test_synapse_convert_units_requires_set(synapse_df):
+    syn = Synapses(synapse_df)
+    with pytest.raises(ValueError, match="dimensionless"):
+        syn.convert_units("nm")
+    with pytest.raises(ValueError, match="unset or dimensionless"):
+        syn.check_units_defined()
+
+
+def test_synapse_set_units_convert_flag(synapse_df):
+    syn = Synapses(synapse_df)
+    syn.set_units("nm")
+    x0 = syn.coordinates[0, 0]
+    syn.set_units("um", convert=True)
+    assert syn.coordinates[0, 0] == pytest.approx(x0 / 1000.0)
+
+
+def test_synapse_voxel_units_and_snap(synapse_df):
+    syn = Synapses(synapse_df)
+    syn.set_units("nm")
+    syn.convert_units(voxel_size=4.0, voxel_unit="nm")
+    assert syn.get_units() == "voxel"
+    assert syn.get_voxel_spec() == (4.0, "nanometer")
+    syn.snap_voxel_coordinates(method="floor")
+    assert np.all(syn.coordinates == np.floor(syn.coordinates))
+
+
+def test_tree_set_synapses_set_units_kwarg(tree, synapse_df):
+    from neurosetta.ops.units import get_units
+
+    tree.set_units("nm")
+    tree.set_synapses(synapse_df, set_units="nm")
+    assert tree.synapses.units == get_units(tree)
+
+
+def test_tree_set_synapses_set_units_mismatch(tree, synapse_df):
+    tree.set_units("nm")
+    with pytest.raises(ValueError, match="incompatible"):
+        tree.set_synapses(synapse_df, set_units="um")
+
+
 def test_units_survive_filter_copy_nr(tree, synapse_df, tmp_path):
     tree.set_units("nm")
     tree.set_synapses(Synapses(synapse_df, units="nm"))

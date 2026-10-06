@@ -10,7 +10,10 @@ For how the codebase is organised today, see {doc}`../development/architecture`.
 
 - **Tree / Forest** graph operations — counting, traversals, coordinates, cable
   length, subtrees, rerooting, reduction
-- **I/O** — SWC and native `.nr` files; bundled FlyWire example data
+- **I/O** — SWC and native `.nr` files; Workspace `.nrw` archives; bundled
+  FlyWire example data
+- **Workspaces** — persistent Forest + named selections + JSON / NumPy /
+  DataFrame results (see {doc}`../tutorials/workspaces`)
 - **Plotting** — 2D matplotlib, dendrogram, vedo 3D viewer
 - **GUI** — interactive inspection, reroot, subtree extraction
 - **Units** — pint-backed spatial units on trees and forests
@@ -32,6 +35,7 @@ See {doc}`overview` for the mental model, then {doc}`installation` and
 | **Synapse analysis** | Cable distances between synapses, clustering, I/O segregation        |
 | **Topology**         | Morphology analyses beyond geometry (branching structure, motifs)    |
 | **Meshes**           | Neuropil polish; empty-skeleton / synapse-only members later (hard) |
+| **Workspaces**       | GUI integration; richer artifact types; lazy / incremental loads     |
 | **Metrics**          | Expand the descriptives registry — see {doc}`../reference/metrics`   |
 | **Docs & tutorials** | More notebooks, clearer GUI and analysis walkthroughs                |
 

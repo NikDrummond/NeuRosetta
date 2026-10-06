@@ -287,7 +287,7 @@ def test_synapse_row_get_missing_column():
     assert row.get("missing") is None
     assert row.get("conf") == 0.9
     assert row.index == 0
-    assert "conf" in row.keys()
+    assert "conf" in row
 
 
 def test_pre_post_properties_still_work():

@@ -282,8 +282,9 @@ class Synapses:
     units
         Spatial units of raw ``x,y,z``. ``None`` means unset (warned on
         bind/map). Stamped from the tree when binding if the tree has declared
-        units. :meth:`set_units` declares only — it does **not** rescale;
-        rescale via tree ``convert_units`` after bind.
+        units. :meth:`set_units` declares by default (``convert=False``);
+        :meth:`convert_units` rescales coordinates. When attached, prefer
+        ``tree.convert_units`` so morphology and synapses stay in sync.
     units_meta
         Extra unit metadata (voxel size/unit when ``units == \"voxel\"``).
 
@@ -897,39 +898,90 @@ class Synapses:
 
     def set_units(
         self,
-        units: str,
+        units: str | None = None,
         *,
+        convert: bool = False,
         voxel_size: float | None = None,
         voxel_unit: str | None = None,
     ) -> None:
-        """Declare spatial units for synapse coordinates (does not rescale).
+        """Set spatial units, optionally rescaling coordinates.
 
-        Coordinates are assumed to already be expressed in *units*. Use tree
-        ``convert_units`` after binding to rescale morphology + synapses together.
+        Same contract as :meth:`neurosetta.api.Tree.set_units` /
+        mesh ``set_units``: ``convert=False`` (default) declares only;
+        ``convert=True`` rescales raw (+ mapped) coordinates and length-like
+        mapping fields. Prefer ``tree.convert_units`` when the table is
+        attached so morphology and synapses stay aligned.
         """
-        from ..utils.units import (
-            VOXEL_SIZE_KEY,
-            VOXEL_UNIT_KEY,
-            VOXEL_UNITS,
-            apply_voxel_metadata,
-            is_voxel_units,
-            normalize_units_str,
+        from ..ops.units.synapse_units import set_units as _set_units
+
+        _set_units(
+            self,
+            units,
+            convert=convert,
+            voxel_size=voxel_size,
+            voxel_unit=voxel_unit,
         )
 
-        target = normalize_units_str(units)
-        if is_voxel_units(target):
-            if voxel_size is None or voxel_unit is None:
-                raise ValueError("Voxel units require voxel_size and voxel_unit.")
-            meta: dict[str, Any] = {}
-            apply_voxel_metadata(meta, voxel_size, voxel_unit)
-            self._units = VOXEL_UNITS
-            self._units_meta = {
-                VOXEL_SIZE_KEY: meta[VOXEL_SIZE_KEY],
-                VOXEL_UNIT_KEY: meta[VOXEL_UNIT_KEY],
-            }
-        else:
-            self._units = target
-            self._units_meta = {}
+    def set_voxel_units(self, voxel_size: float, voxel_unit: str) -> None:
+        """Tag coordinates as voxel indices with a cubic edge length."""
+        from ..ops.units.synapse_units import set_voxel_units as _set_voxel_units
+
+        _set_voxel_units(self, voxel_size, voxel_unit)
+
+    def get_units(self) -> str:
+        """Return canonical spatial units (``\"dimensionless\"`` if unset)."""
+        from ..ops.units.synapse_units import get_units as _get_units
+
+        return _get_units(self)
+
+    def get_voxel_spec(self) -> tuple[float, str] | None:
+        """Return ``(voxel_size, voxel_unit)`` when using voxel coordinates."""
+        from ..ops.units.synapse_units import get_voxel_spec as _get_voxel_spec
+
+        return _get_voxel_spec(self)
+
+    def convert_units(
+        self,
+        target_units: str | None = None,
+        *,
+        in_place: bool = True,
+        voxel_size: float | None = None,
+        voxel_unit: str | None = None,
+    ) -> Synapses:
+        """Convert coordinates to *target_units* (requires units already set).
+
+        When this table is bound to a tree, prefer ``tree.convert_units`` so
+        morphology and synapses rescale together.
+        """
+        from ..ops.units.synapse_units import convert_units as _convert_units
+
+        return _convert_units(
+            self,
+            target_units,
+            in_place=in_place,
+            voxel_size=voxel_size,
+            voxel_unit=voxel_unit,
+        )
+
+    def snap_voxel_coordinates(
+        self,
+        *,
+        method: Literal["floor", "round", "ceil"] = "floor",
+    ) -> Synapses:
+        """Snap raw (+ mapped nearest) coordinates to integer voxel indices."""
+        from ..ops.units.synapse_units import (
+            snap_voxel_coordinates as _snap_voxel_coordinates,
+        )
+
+        return _snap_voxel_coordinates(self, method=method)
+
+    def check_units_defined(self) -> None:
+        """Raise if units are unset / dimensionless or voxel metadata is invalid."""
+        from ..ops.units.synapse_units import (
+            check_units_defined as _check_units_defined,
+        )
+
+        _check_units_defined(self)
 
     @property
     def is_mapped(self) -> bool:

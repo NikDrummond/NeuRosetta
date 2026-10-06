@@ -10,6 +10,7 @@ from ...utils.graph_utils import (
     bind_edge_property,
     edge_coordinates,
     g_has_property,
+    root_distance,
 )
 from .._doc_helpers import enrich_tree_graph_docstrings
 from .tree_checks import check_reduced
@@ -87,6 +88,56 @@ def get_total_cable_length(tree: _Tree, length_type: LengthType = "Path") -> flo
         lengths = get_edge_length(tree, bind=False, recalculate=True)
 
     return float(lengths.sum())
+
+
+def get_root_distance(
+    tree: _Tree,
+    length_type: LengthType = "Path",
+    bind: bool = True,
+) -> ndarray | None:
+    """Compute path distance from the root to every node.
+
+    Distances are shortest-path sums of edge lengths from the tree root
+    (in-degree == 0). Results are stored as the ``Root_distance`` vertex
+    property when ``bind=True``.
+
+    Parameters
+    ----------
+    tree : _Tree
+        Neuron tree.
+    length_type : {"Path", "Euclidean"}, optional
+        Edge length property used as path weights. ``"Path"`` uses
+        ``Path_length``; ``"Euclidean"`` uses ``Euclidean_length``.
+        If the requested property is missing, edge lengths are computed
+        from coordinates and bound under that name. By default ``"Path"``.
+    bind : bool, optional
+        If True, bind distances as the ``Root_distance`` vertex property
+        and return None. If False, return the distance array.
+        By default True.
+
+    Returns
+    -------
+    ndarray | None
+        Per-node distance from the root if ``bind=False``, otherwise None.
+        The root node has distance ``0``.
+    """
+    prop_name = "Path_length" if length_type == "Path" else "Euclidean_length"
+
+    if not g_has_property(tree.graph, prop_name, "e"):
+        lengths = get_edge_length(tree, bind=False, recalculate=True)
+        bind_edge_property(
+            tree.graph,
+            property_name=prop_name,
+            property_dtype="double",
+            property_data=lengths,
+        )
+
+    rd = root_distance(tree.graph, prop_name)
+
+    if bind:
+        tree.graph.vp["Root_distance"] = rd
+        return None
+    return rd.a
 
 
 enrich_tree_graph_docstrings(globals())

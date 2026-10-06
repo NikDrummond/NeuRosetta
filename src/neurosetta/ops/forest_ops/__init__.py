@@ -24,6 +24,7 @@ from .forest_shape_fitting import (
     fit_sphere_forest,
 )
 from .forest_summary import forest_summary, forest_summary_table
+from .forest_synapses import set_synapses
 from .forest_transforms import (
     align_forest,
     align_forest_to_vector,
@@ -77,4 +78,5 @@ __all__ = [
     "get_in_strength",
     "get_out_strength",
     "set_meshes",
+    "set_synapses",
 ]

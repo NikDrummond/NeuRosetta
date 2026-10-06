@@ -33,9 +33,31 @@ from .mesh_units import (
     snap_voxel_coordinates as snap_mesh_voxel_coordinates,
 )
 from .synapse_units import (
+    apply_synapse_import_units,
     check_synapse_tree_units,
     stamp_synapse_units_from_tree,
     sync_attached_synapse_units,
+)
+from .synapse_units import (
+    check_units_defined as check_synapse_units_defined,
+)
+from .synapse_units import (
+    convert_units as convert_synapse_units,
+)
+from .synapse_units import (
+    get_units as get_synapse_units,
+)
+from .synapse_units import (
+    get_voxel_spec as get_synapse_voxel_spec,
+)
+from .synapse_units import (
+    set_units as set_synapse_units,
+)
+from .synapse_units import (
+    set_voxel_units as set_synapse_voxel_units,
+)
+from .synapse_units import (
+    snap_voxel_coordinates as snap_synapse_voxel_coordinates,
 )
 from .tree_units import (
     check_units_defined,
@@ -70,6 +92,14 @@ __all__ = [
     "check_mesh_units_defined",
     "harmonize_mesh_collection_units",
     "ensure_mesh_collection_units",
+    "get_synapse_units",
+    "get_synapse_voxel_spec",
+    "set_synapse_units",
+    "set_synapse_voxel_units",
+    "convert_synapse_units",
+    "snap_synapse_voxel_coordinates",
+    "check_synapse_units_defined",
+    "apply_synapse_import_units",
     "check_synapse_tree_units",
     "stamp_synapse_units_from_tree",
     "sync_attached_synapse_units",

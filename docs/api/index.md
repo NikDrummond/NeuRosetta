@@ -4,9 +4,10 @@ NeuRosetta's public surface is organised as:
 
 - **Tree** — single-neuron container and method index
 - **Forest** — multi-tree batch operations
+- **Workspace** — persistent analysis session (``.nrw``)
 - **Tree ops** — lower-level functions grouped by operation type
 - **Synapses** — synapse table, tree mapping ops, forest connectivity
-- **I/O** — SWC, native `.nr`, mesh, and synapse tables
+- **I/O** — SWC, native ``.nr``, Workspace ``.nrw``, mesh, and synapse tables
 - **Plotting** — 2D/3D/dendrogram and `Viewer`
 - **Analysis** — neuropil surface reconstruction
 - **Mesh & neuropil classes** — mesh containers
@@ -23,6 +24,7 @@ documentation lives with the underlying ops.
 package
 tree
 forest
+workspace
 tree_ops/index
 synapses
 io

@@ -1,7 +1,7 @@
 """API classes for NeuRosetta.
 
 This module provides the public API classes for working with neuron trees,
-forests, and neuropil meshes.
+forests, workspaces, and neuropil meshes.
 
 Classes
 -------
@@ -9,6 +9,8 @@ Tree : class
     Main class for single neuron trees.
 Forest : class
     Container for multiple Tree objects.
+Workspace : class
+    Persistent analysis session around a Forest.
 Tree_mesh : class
     Neuron mesh representation.
 Neuropil : class
@@ -26,6 +28,7 @@ from .neuropil_class import Neuropil
 from .neuropils_class import Neuropils
 from .tree_class import Tree
 from .tree_mesh_class import Tree_mesh
+from .workspace_class import Workspace
 
 __all__ = [
     "Tree",
@@ -36,4 +39,5 @@ __all__ = [
     "Neuropils",
     "AnatomicalFrame",
     "FrameRequirementError",
+    "Workspace",
 ]

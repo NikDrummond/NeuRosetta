@@ -89,6 +89,7 @@ from ..ops.tree_graphs import (
     get_post_order,
     get_radial_angle,
     get_root_coordinate,
+    get_root_distance,
     get_root_index,
     get_section_angular_deviation,
     get_subtree,
@@ -283,6 +284,9 @@ class Tree(_Tree):
     # --- distances ---
     get_edge_length = get_edge_length
     """Get Euclidean edge lengths."""
+
+    get_root_distance = get_root_distance
+    """Path distance from the root to every node."""
 
     get_total_cable_length = get_total_cable_length
     """Get total cable length of the tree."""

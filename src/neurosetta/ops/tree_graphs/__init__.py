@@ -63,6 +63,7 @@ from .tree_mesh import (
 )
 from .tree_path_lengths import (
     get_edge_length,
+    get_root_distance,
     get_total_cable_length,
 )
 from .tree_shape_fitting import (
@@ -189,6 +190,7 @@ __all__ = [
     "update_reduced",
     "has_property",
     "get_edge_length",
+    "get_root_distance",
     "get_total_cable_length",
     "get_degrees",
     "get_degree_distribution",

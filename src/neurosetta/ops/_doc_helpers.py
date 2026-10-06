@@ -68,6 +68,7 @@ FOREST_BOUND_OPS: frozenset[str] = frozenset(
         "get_edge_coordinates",
         "get_edge_indices",
         "get_edge_length",
+        "get_root_distance",
         "get_leaf_indices",
         "get_max_subtree_node",
         "get_mean_edge_angle",

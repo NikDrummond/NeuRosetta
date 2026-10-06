@@ -59,6 +59,24 @@ SWC headers round-trip voxel metadata:
 # Meta: {"id": "1", "units": "voxel", "voxel_size": 8.0, "voxel_unit": "nanometer"}
 ```
 
+## Synapses and meshes
+
+{class}`~neurosetta.core.synapses.Synapses` and mesh containers expose the same
+unit surface as trees:
+
+``get_units``, ``get_voxel_spec``, ``set_units``, ``set_voxel_units``,
+``convert_units``, ``snap_voxel_coordinates``, ``check_units_defined``.
+
+```python
+syn.set_units("nm")                 # declare
+syn.convert_units("micron")         # rescale raw (+ mapped) coords
+syn = extract_synapses(df, ids, set_units="nm")
+```
+
+When synapses are attached to a tree, prefer ``tree.convert_units(...)`` so
+morphology and synapses rescale together. Unbound tables use
+``syn.convert_units`` directly.
+
 ## Programmatic reference
 
 ```python

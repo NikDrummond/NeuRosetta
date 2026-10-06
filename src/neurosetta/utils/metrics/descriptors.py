@@ -342,6 +342,7 @@ def _invoke_raw(
     if name in {
         "get_edge_angles",
         "get_edge_length",
+        "get_root_distance",
         "get_subtree_scores",
         "get_partition_asymmetry",
         "get_node_depth",

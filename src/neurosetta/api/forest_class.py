@@ -49,6 +49,7 @@ from ..ops.forest_ops import (
     scale_forest_about,
     scale_forest_along_pca,
     set_meshes,
+    set_synapses,
     translate_forest,
 )
 from ..ops.plotting import Viewer
@@ -115,6 +116,7 @@ from ..ops.tree_graphs import (
     get_partition_asymmetry,
     get_radial_angle,
     get_root_coordinate,
+    get_root_distance,
     get_root_index,
     get_subtree,
     get_subtree_scores,
@@ -380,9 +382,13 @@ class Forest(_Forest):
     # --- distances ---
     get_edge_length = _forest_op(get_edge_length)
 
+    get_root_distance = _forest_op(get_root_distance)
+
     get_total_cable_length = _forest_op(get_total_cable_length)
 
     # --- synapses ---
+    set_synapses = set_synapses
+    """Attach synapse tables to members by matching ``ID`` (iterable / mapping)."""
     map_synapses = _forest_op(map_synapses)
     count_synapses = _forest_op(count_synapses)
     synapse_density = _forest_op(synapse_density)

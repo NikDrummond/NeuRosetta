@@ -1,4 +1,4 @@
-****# NeuRosetta documentation
+# NeuRosetta documentation
 
 **NeuRosetta** is a Python toolbox for morphological analysis of EM neuron
 reconstructions. It centres on `Tree` and `Forest` objects built on
@@ -32,6 +32,7 @@ Below I've listed what is likely to be built in (very) soon, as it pretty much a
 
 - [x] Synaptic data, connectivity within forests, etc.
 - [x] Neuron mesh facet (`tree.mesh` / `forest.set_meshes`) — mesh-only as main story soft-deprecated.
+- [x] Workspaces (v1): persistent ``.nrw`` archives for Forest + named selections + analysis results.
 - [ ] Topological descriptors on tree graphs (through `Ghudi`).
 - [ ] Expanded compartmentalisation of neuron morphology.
 - [ ] Neuropil / anatomical-frame mesh polish.
@@ -41,7 +42,7 @@ Below I've listed what is likely to be built in (very) soon, as it pretty much a
 
 - [ ] Expanded GUI.
 - [ ] Multi-type representation (Mesh/Neuron/Reduced Neuron in the same class).
-- [ ] Workspaces: a single compressed workspace folder to work on which has datasets and extracted metrics.
+- [ ] Workspace follow-ups: GUI open/save, AnatomicalFrame / Neuropil artifacts, lazy Tree loading, incremental updates.
 - [ ] Dynamics (This is a BIG one, likely a later version release)
 - [ ] Functional models
 - [ ] Bridging to other toolboxes - Jaxley and Connectome explorer have been discussed
@@ -126,6 +127,7 @@ getting_started/io
 
 tutorials/tree_basics
 tutorials/forests
+tutorials/workspaces
 tutorials/plotting
 tutorials/tree_surgery
 tutorials/synapses

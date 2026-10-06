@@ -326,6 +326,18 @@ print(counts)"""
     )
 
 
+def build_workspaces() -> None:
+    """Hand-authored in tutorials/workspaces.ipynb — do not overwrite from here.
+
+    Re-execute with ``python docs/_execute_notebooks.py`` after edits.
+    """
+    path = DOCS / "tutorials" / "workspaces.ipynb"
+    print(
+        f"skip {path.relative_to(DOCS)} "
+        "(hand-authored; edit the notebook, then _execute_notebooks.py)"
+    )
+
+
 def build_extending() -> None:
     """Hand-authored in development/extending_nr.ipynb — do not overwrite.
 
@@ -345,6 +357,7 @@ def main() -> None:
     build_tree_surgery()
     build_plotting()
     build_forests()
+    build_workspaces()
     build_extending()
 
 

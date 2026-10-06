@@ -31,6 +31,7 @@ EULER_RAD = tuple(math.radians(a) for a in _EULER_DEG)
 _REF_AXIS = (0.0, 0.0, 1.0)
 
 _EDGE_CACHE = ("Path_length", "Euclidean_length", "Edge_angle", "Radial_angle")
+_VERTEX_CACHE = ("Root_distance",)
 _GRAPH_CACHE = ("Convex_hull",)
 
 
@@ -41,6 +42,10 @@ def clear_geometry_caches(tree: Tree, *, lengths: bool = True) -> None:
     for name in props:
         if name in g.ep:
             del g.ep[name]
+    if lengths:
+        for name in _VERTEX_CACHE:
+            if name in g.vp:
+                del g.vp[name]
     for name in _GRAPH_CACHE:
         if name in g.gp:
             del g.gp[name]
@@ -161,6 +166,7 @@ def _call_kwargs(defn: MetricDefinition) -> dict[str, Any]:
     if name in {
         "get_edge_angles",
         "get_edge_length",
+        "get_root_distance",
         "get_subtree_scores",
         "get_partition_asymmetry",
         "get_node_depth",

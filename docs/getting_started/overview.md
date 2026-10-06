@@ -18,6 +18,7 @@ NeuRosetta is built around a few core objects which handle the majority of thing
 | ------------------------------- | ---------------------------- | --------------------------------------------------------------------- |
 | {class}`~neurosetta.api.Tree`   | One neuron (skeleton + optional facets) | single `.swc` / `.nr`                                      |
 | {class}`~neurosetta.api.Forest` | Ordered collection of trees  | directory of SWC/NR files                                             |
+| {class}`~neurosetta.api.Workspace` | Analysis session around a Forest | `.nrw` archive — see {doc}`../tutorials/workspaces` |
 | `Tree_mesh` / `Forest_mesh`     | Neuron surface **payload / I/O** (attach via `tree.mesh`) | `.ply`, etc. — see {doc}`../tutorials/meshes` |
 | `Neuropil` / `Neuropils`        | Brain-region surface meshes  | `.ply`, or built via {func}`~neurosetta.reconstruct_neuropil_surface` |
 
@@ -103,6 +104,7 @@ directly.
 | -------- | ------------------------------------- | ----------------------------------------------------------------------------- |
 | **SWC**  | Interchange with other tools          | Lost on export typically (or limited, depending on what goes into the header) |
 | **NR**   | Native NeuRosetta / graph-tool format | Fully preserved                                                               |
+| **NRW**  | Workspace archive (Forest + session)  | Workspace metadata, selections, registered results — see {doc}`../tutorials/workspaces` |
 | **Mesh** | Surfaces for rendering & distance ops | Partial (via vedo + metadata)                                                 |
 
 Rule of thumb:
@@ -110,6 +112,8 @@ Rule of thumb:
 - **SWC in, SWC out** — sharing with navis, neuromorpho, etc.
 - **NR for everything else** — editing sessions, custom graph properties, units,
   reduced-tree flags.
+- **NRW for analysis sessions** — Forest + named subsets + tables/arrays/params
+  in one file.
 
 Details: {doc}`io`.
 

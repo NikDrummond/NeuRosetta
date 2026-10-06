@@ -6,6 +6,8 @@ from typing import Any, Literal
 
 import numpy as np
 import pandas as pd
+
+### NOTE - THIS SHOULD BE WRAPPED IN SOME FORM AND PUSHEDF TO UTILS
 from graph_tool.topology import shortest_distance
 
 from ...core import _Tree
@@ -167,6 +169,9 @@ def set_synapses(
     type_column: str = "type",
     partner_column: str = "partner_id",
     id_column: str = "synapse_id",
+    set_units: str | None = None,
+    voxel_size: float | None = None,
+    voxel_unit: str | None = None,
 ) -> Synapses:
     """Attach (replace) synapses on *tree*.
 
@@ -179,7 +184,17 @@ def set_synapses(
     Declared synapse units must match the tree when both are set; unset units
     emit a :class:`UserWarning`. On success the table is stamped with
     ``owner_id = tree.ID`` and the tree's spatial units.
+
+    Parameters
+    ----------
+    set_units : str or None, optional
+        Declare spatial units of the incoming coordinates before bind
+        (no rescale). Useful when attaching a raw DataFrame. Default None.
+    voxel_size, voxel_unit
+        Required together when ``set_units=\"voxel\"``.
     """
+    from ..units.synapse_units import apply_synapse_import_units
+
     syn = _coerce_synapses(
         data,
         coordinate_columns=coordinate_columns,
@@ -187,6 +202,7 @@ def set_synapses(
         partner_column=partner_column,
         id_column=id_column,
     )
+    apply_synapse_import_units(syn, set_units, voxel_size=voxel_size, voxel_unit=voxel_unit)
     syn.clear_mapping()
     _prepare_bind(syn, tree, context="set_synapses")
     _bind_synapses_gp(tree, syn)

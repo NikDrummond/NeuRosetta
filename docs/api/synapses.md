@@ -4,6 +4,15 @@ Synapses are **observations attached to a morphology**, not morphology vertices.
 The table type is {class}`~neurosetta.core.synapses.Synapses`; tree-level ops live
 in {doc}`tree_ops/synapses`, and forest-level connectivity in the section below.
 
+Connectivity-table → ``Synapses`` conversion (FlyWire / navis-style pre/post
+frames) lives in I/O: {func}`~neurosetta.io.synapse_io.extract_synapses`.
+Already per-neuron NeuRosetta-schema tables use
+{func}`~neurosetta.io.synapse_io.import_synapses` — see {doc}`io`.
+
+Batch-attach to a Forest by ID with
+{func}`~neurosetta.ops.forest_ops.forest_synapses.set_synapses`
+(``forest.set_synapses(...)``) — see {doc}`tree_ops/synapses`.
+
 ```{seealso}
 Tutorial: {doc}`../tutorials/synapses`
 ```

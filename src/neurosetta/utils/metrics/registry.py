@@ -73,6 +73,7 @@ _FOREST_BATCH_OPS: frozenset[str] = frozenset(
         "get_edge_angle_variance",
         "get_edge_angles",
         "get_edge_length",
+        "get_root_distance",
         "get_max_depth",
         "get_max_subtree_node",
         "get_max_width",
@@ -378,6 +379,14 @@ METRIC_DEFINITIONS: tuple[MetricDefinition, ...] = (
         notes="Euclidean length per edge; cable semantics depend on reduction state.",
         **_INTRINSIC_LENGTH,
         level="edge",
+    ),
+    _tree(
+        "get_root_distance",
+        "Path lengths",
+        "path_lengths",
+        notes="Weighted path distance from root to every node.",
+        **_INTRINSIC_LENGTH,
+        level="node",
     ),
     _tree(
         "get_total_cable_length",
