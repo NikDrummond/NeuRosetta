@@ -59,7 +59,10 @@ are in the linked API pages (autodoc, always current).
 | Structure | ``get_node_depth`` | ``tree.get_node_depth()`` | ``forest.get_node_depth()`` | {doc}`../api/tree_ops/tree_structure` | Per-node depth from root. |
 | Structure | ``get_tree_widths`` | ``tree.get_tree_widths()`` | ``forest.get_tree_widths()`` | {doc}`../api/tree_ops/tree_structure` | Node count at each depth. |
 | Path lengths | ``get_edge_length`` | ``tree.get_edge_length()`` | ``forest.get_edge_length()`` | {doc}`../api/tree_ops/path_lengths` | Euclidean length per edge; cable semantics depend on reduction state. |
+| Path lengths | ``get_root_distance`` | ``tree.get_root_distance()`` | ``forest.get_root_distance()`` | {doc}`../api/tree_ops/path_lengths` | Weighted path distance from root to every node. |
 | Path lengths | ``get_total_cable_length`` | ``tree.get_total_cable_length()`` | ``forest.get_total_cable_length()`` | {doc}`../api/tree_ops/path_lengths` |  |
+| TMD | ``count_tmd_bars`` | ``tree.count_tmd_bars()`` | ``forest.count_tmd_bars()`` | {doc}`../api/tree_ops/tree_topology` | Number of TMD persistence bars for the Root_distance filtration. Bound TMD is stored as graph property ``TMD`` and persisted in ``.nr``. |
+| TMD | ``get_tmd_survival_lengths`` | ``tree.get_tmd_survival_lengths()`` | ``forest.get_tmd_survival_lengths()`` | {doc}`../api/tree_ops/tree_topology` | Per-bar survival lengths ``\|death - birth\|`` from the TMD (default filtration: Root_distance). |
 | Degrees | ``get_degree_distribution`` | ``tree.get_degree_distribution()`` | ``forest.get_degree_distribution()`` | {doc}`../api/tree_ops/degrees` |  |
 | Degrees | ``get_degrees`` | ``tree.get_degrees()`` | ``forest.get_degrees()`` | {doc}`../api/tree_ops/degrees` | In/out/total degree per node. |
 | Geometry | ``get_bifurcation_angle_sums`` | ``tree.get_bifurcation_angle_sums()`` | ``forest.get_bifurcation_angle_sums()`` | {doc}`../api/tree_ops/tree_geometry` |  |
@@ -200,7 +203,10 @@ are translation / rotation / scale invariance; ``Coords`` / ``Ref`` are
 | ``get_node_depth`` | Structure | ``topology`` | ``node`` | True | True | True | False | False |
 | ``get_tree_widths`` | Structure | ``topology`` | ``distribution`` | True | True | True | False | False |
 | ``get_edge_length`` | Path lengths | ``intrinsic_geometry`` | ``edge`` | True | True | False | True | False |
+| ``get_root_distance`` | Path lengths | ``intrinsic_geometry`` | ``node`` | True | True | False | True | False |
 | ``get_total_cable_length`` | Path lengths | ``intrinsic_geometry`` | ``tree`` | True | True | False | True | False |
+| ``count_tmd_bars`` | TMD | ``intrinsic_geometry`` | ``tree`` | True | True | True | True | False |
+| ``get_tmd_survival_lengths`` | TMD | ``intrinsic_geometry`` | ``distribution`` | True | True | False | True | False |
 | ``get_degree_distribution`` | Degrees | ``topology`` | ``distribution`` | True | True | True | False | False |
 | ``get_degrees`` | Degrees | ``topology`` | ``node`` | True | True | True | False | False |
 | ``get_bifurcation_angle_sums`` | Geometry | ``intrinsic_geometry`` | ``bifurcation`` | True | True | True | True | False |

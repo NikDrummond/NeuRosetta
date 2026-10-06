@@ -49,6 +49,7 @@ from ..ops.tree_graphs import (
     count_roots,
     count_sections,
     count_synapses,
+    count_tmd_bars,
     count_transitive_nodes,
     depth_first_iterator,
     depth_first_search,
@@ -99,11 +100,16 @@ from ..ops.tree_graphs import (
     get_subtree_scores,
     get_synapse_euclidean_distance_from_root,
     get_synapse_path_distance,
+    get_tmd_survival_lengths,
     get_total_cable_length,
     get_tree_widths,
     has_mesh,
     map_synapses,
     mask_subtree_from_root,
+    persistence_diagram,
+    persistence_image,
+    plot_barcode,
+    plot_persistence_diagram,
     recenter_coordinates,
     reduce_tree,
     reroot_tree,
@@ -117,6 +123,8 @@ from ..ops.tree_graphs import (
     summary_table,
     synapse_density,
     synapse_mapping_summary,
+    tmd,
+    topology_distance,
     translate_coordinates,
     tree_summary,
     update_reduced,
@@ -388,6 +396,31 @@ class Tree(_Tree):
 
     get_section_angular_deviation = get_section_angular_deviation
     """Compute section angle mean and variance between core nodes for non-reduced neurons"""
+
+    # --- TMD / persistence ---
+    tmd = tmd
+    """Compute the Topological Morphology Descriptor (Kanari et al., 2018)."""
+
+    get_tmd_survival_lengths = get_tmd_survival_lengths
+    """TMD bar survival lengths ``|death - birth|``."""
+
+    count_tmd_bars = count_tmd_bars
+    """Number of TMD persistence bars."""
+
+    persistence_diagram = persistence_diagram
+    """Return the TMD persistence diagram as an ``(N, 2)`` array."""
+
+    plot_persistence_diagram = plot_persistence_diagram
+    """Plot the persistence diagram via GUDHI."""
+
+    plot_barcode = plot_barcode
+    """Plot the persistence barcode via GUDHI."""
+
+    persistence_image = persistence_image
+    """Compute a persistence image (prefer a Forest-fitted transformer)."""
+
+    topology_distance = topology_distance
+    """Persistence-diagram distance to another tree."""
 
     # --- Topological bits ---
     get_node_depth = get_node_depth

@@ -25,6 +25,12 @@ from .forest_shape_fitting import (
 )
 from .forest_summary import forest_summary, forest_summary_table
 from .forest_synapses import set_synapses
+from .forest_topology import (
+    persistence_diagrams,
+    persistence_images,
+    tmds,
+    topology_distance_matrix,
+)
 from .forest_transforms import (
     align_forest,
     align_forest_to_vector,
@@ -79,4 +85,8 @@ __all__ = [
     "get_out_strength",
     "set_meshes",
     "set_synapses",
+    "tmds",
+    "persistence_diagrams",
+    "persistence_images",
+    "topology_distance_matrix",
 ]

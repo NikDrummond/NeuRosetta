@@ -32,7 +32,7 @@ _REF_AXIS = (0.0, 0.0, 1.0)
 
 _EDGE_CACHE = ("Path_length", "Euclidean_length", "Edge_angle", "Radial_angle")
 _VERTEX_CACHE = ("Root_distance",)
-_GRAPH_CACHE = ("Convex_hull",)
+_GRAPH_CACHE = ("Convex_hull", "TMD")
 
 
 def clear_geometry_caches(tree: Tree, *, lengths: bool = True) -> None:

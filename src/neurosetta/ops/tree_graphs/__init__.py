@@ -107,6 +107,17 @@ from .tree_synapses import (
     synapse_density,
     synapse_mapping_summary,
 )
+from .tree_topology import (
+    count_tmd_bars,
+    freeze_tmd_for_save,
+    get_tmd_survival_lengths,
+    persistence_diagram,
+    persistence_image,
+    plot_barcode,
+    plot_persistence_diagram,
+    tmd,
+    topology_distance,
+)
 from .tree_transformations import (
     align_coordinates,
     align_coordinates_to_vector,
@@ -246,4 +257,13 @@ __all__ = [
     "get_edge_synapse_density",
     "invalidate_synapse_mapping",
     "synapses_from_arrays",
+    "tmd",
+    "freeze_tmd_for_save",
+    "get_tmd_survival_lengths",
+    "count_tmd_bars",
+    "persistence_diagram",
+    "plot_persistence_diagram",
+    "plot_barcode",
+    "persistence_image",
+    "topology_distance",
 ]

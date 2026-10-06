@@ -99,6 +99,14 @@ FOREST_BOUND_OPS: frozenset[str] = frozenset(
         "scale_coordinates_along_pca",
         "translate_coordinates",
         "update_reduced",
+        "tmd",
+        "get_tmd_survival_lengths",
+        "count_tmd_bars",
+        "persistence_diagram",
+        "plot_persistence_diagram",
+        "plot_barcode",
+        "persistence_image",
+        "topology_distance",
     }
 )
 

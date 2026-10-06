@@ -219,6 +219,9 @@ class SynapseRow:
                 f"{type(self).__name__!r} object has no attribute {name!r}"
             ) from exc
 
+    def __contains__(self, name: object) -> bool:
+        return isinstance(name, str) and name in self._synapses.columns
+
     def get(self, name: str, default: Any = None) -> Any:
         """Return column *name*, or *default* if the column does not exist."""
         try:

@@ -42,6 +42,8 @@ from ..ops.forest_ops import (
     get_in_strength,
     get_out_degree,
     get_out_strength,
+    persistence_diagrams,
+    persistence_images,
     recenter_forest,
     rotate_forest,
     rotate_forest_about,
@@ -50,6 +52,8 @@ from ..ops.forest_ops import (
     scale_forest_along_pca,
     set_meshes,
     set_synapses,
+    tmds,
+    topology_distance_matrix,
     translate_forest,
 )
 from ..ops.plotting import Viewer
@@ -79,6 +83,7 @@ from ..ops.tree_graphs import (
     count_roots,
     count_sections,
     count_synapses,
+    count_tmd_bars,
     count_transitive_nodes,
     fit_circle,
     fit_line,
@@ -121,11 +126,16 @@ from ..ops.tree_graphs import (
     get_subtree,
     get_subtree_scores,
     get_synapse_path_distance,
+    get_tmd_survival_lengths,
     get_total_cable_length,
     get_tree_widths,
     has_mesh,
     has_property,
     map_synapses,
+    persistence_diagram,
+    persistence_image,
+    plot_barcode,
+    plot_persistence_diagram,
     recenter_coordinates,
     reduce_tree,
     rotate_coordinates,
@@ -136,6 +146,8 @@ from ..ops.tree_graphs import (
     set_mesh,
     synapse_density,
     synapse_mapping_summary,
+    tmd,
+    topology_distance,
     translate_coordinates,
     update_reduced,
 )
@@ -427,6 +439,46 @@ class Forest(_Forest):
     fit_plane = _forest_op(fit_plane, global_fn=fit_plane_forest)
 
     fit_circle = _forest_op(fit_circle, global_fn=fit_circle_forest)
+
+    # --- TMD / persistence ---
+    tmd = _forest_op(tmd)
+    """Per-tree TMD (use :meth:`tmds` for an always-materialised list)."""
+
+    tmds = tmds
+    """Compute TMDs for every tree; always returns a list of result dicts."""
+
+    get_tmd_survival_lengths = _forest_op(get_tmd_survival_lengths)
+    """Per-tree TMD survival-length arrays."""
+
+    count_tmd_bars = _forest_op(count_tmd_bars)
+    """Per-tree TMD bar counts."""
+
+    persistence_diagram = _forest_op(
+        persistence_diagram,
+        global_fn=persistence_diagrams,
+    )
+    """Per-tree persistence diagrams (``global_=True`` → shared helper)."""
+
+    persistence_diagrams = persistence_diagrams
+    """Persistence diagrams for every tree in Forest order."""
+
+    persistence_image = _forest_op(persistence_image)
+    """Per-tree persistence image (prefer :meth:`persistence_images`)."""
+
+    persistence_images = persistence_images
+    """Fit one PersistenceImage transformer on the whole Forest and transform."""
+
+    plot_persistence_diagram = _forest_op(plot_persistence_diagram)
+    """Plot persistence diagrams per tree."""
+
+    plot_barcode = _forest_op(plot_barcode)
+    """Plot persistence barcodes per tree."""
+
+    topology_distance = _forest_op(topology_distance)
+    """Pairwise topology distance between trees via :meth:`Forest.apply`."""
+
+    topology_distance_matrix = topology_distance_matrix
+    """``N x N`` persistence-diagram distance matrix in Forest order."""
 
     # --- topology ---
     get_node_depth = _forest_op(get_node_depth)

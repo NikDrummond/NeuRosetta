@@ -229,9 +229,11 @@ def save(
         _bind_core(t)
         from ..ops.tree_graphs.tree_mesh import freeze_mesh_for_save, get_mesh
         from ..ops.tree_graphs.tree_synapses import freeze_synapses_for_save, get_synapses
+        from ..ops.tree_graphs.tree_topology import freeze_tmd_for_save
 
         freeze_mesh_for_save(t)
         freeze_synapses_for_save(t)
+        freeze_tmd_for_save(t)
         out = base / f"{safe_export_stem(t.name)}.nr"
         t.graph.save(str(out), fmt="gt")
         get_mesh(t)  # rehydrate live Tree_mesh after payload save
@@ -257,9 +259,11 @@ def save(
 
         from ..ops.tree_graphs.tree_mesh import freeze_mesh_for_save, get_mesh
         from ..ops.tree_graphs.tree_synapses import freeze_synapses_for_save, get_synapses
+        from ..ops.tree_graphs.tree_topology import freeze_tmd_for_save
 
         freeze_mesh_for_save(tree)
         freeze_synapses_for_save(tree)
+        freeze_tmd_for_save(tree)
         tree.graph.save(str(out), fmt="gt")
         get_mesh(tree)
         get_synapses(tree)

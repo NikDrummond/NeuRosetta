@@ -13,6 +13,7 @@ dependencies:
   - trimesh
   - vedo
   - graph-tool
+  - gudhi
   - scikit-learn
   - scikit-image
   - pyside6

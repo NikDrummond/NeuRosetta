@@ -35,6 +35,9 @@ Repository = "https://github.com/NikDrummond/NeuRosetta"
 Issues = "https://github.com/NikDrummond/NeuRosetta/issues"
 
 [project.optional-dependencies]
+tda = [
+  "gudhi>=3.9",
+]
 dev = [
   "pytest",
   "mypy",

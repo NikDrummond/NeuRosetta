@@ -88,6 +88,8 @@ _FOREST_BATCH_OPS: frozenset[str] = frozenset(
         "get_subtree_scores",
         "get_total_cable_length",
         "get_tree_widths",
+        "get_tmd_survival_lengths",
+        "count_tmd_bars",
     }
 )
 
@@ -96,6 +98,7 @@ _CATEGORY_ORDER: tuple[str, ...] = (
     "Counting",
     "Structure",
     "Path lengths",
+    "TMD",
     "Degrees",
     "Geometry",
     "Coordinates",
@@ -394,6 +397,34 @@ METRIC_DEFINITIONS: tuple[MetricDefinition, ...] = (
         "path_lengths",
         **_INTRINSIC_LENGTH,
         level="tree",
+    ),
+    # --- TMD (Kanari et al. Topological Morphology Descriptor) ---
+    _tree(
+        "count_tmd_bars",
+        "TMD",
+        "tree_topology",
+        notes=(
+            "Number of TMD persistence bars for the Root_distance filtration. "
+            "Bound TMD is stored as graph property ``TMD`` and persisted in ``.nr``."
+        ),
+        domain="intrinsic_geometry",
+        level="tree",
+        translation_invariant=True,
+        rotation_invariant=True,
+        scale_invariant=True,
+        requires_coordinates=True,
+        requires_reference_frame=False,
+    ),
+    _tree(
+        "get_tmd_survival_lengths",
+        "TMD",
+        "tree_topology",
+        notes=(
+            "Per-bar survival lengths ``|death - birth|`` from the TMD "
+            "(default filtration: Root_distance)."
+        ),
+        **_INTRINSIC_LENGTH,
+        level="distribution",
     ),
     # --- Degrees ---
     _tree(

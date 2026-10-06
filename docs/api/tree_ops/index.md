@@ -16,6 +16,7 @@ counting
 coordinates
 coordinate_moments
 path_lengths
+tree_topology
 degrees
 traversals
 tree_structure
