@@ -478,7 +478,7 @@ class Forest(_Forest):
     """Pairwise topology distance between trees via :meth:`Forest.apply`."""
 
     topology_distance_matrix = topology_distance_matrix
-    """``N x N`` persistence-diagram distance matrix in Forest order."""
+    """``N x N`` persistence-diagram distance matrix"""
 
     # --- topology ---
     get_node_depth = _forest_op(get_node_depth)
