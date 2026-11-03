@@ -72,6 +72,8 @@ from ..ops.tree_graphs import (
     get_edge_angles,
     get_edge_coordinates,
     get_edge_indices,
+    get_internal_edge_indices,
+    get_external_edge_indices,
     get_edge_length,
     get_edge_synapse_counts,
     get_edge_synapse_density,
@@ -198,6 +200,12 @@ class Tree(_Tree):
 
     get_edge_indices = get_edge_indices
     """Get edge indices as (source, target) pairs."""
+
+    get_internal_edge_indices = get_internal_edge_indices
+    """Get indices of internal edges"""
+
+    get_external_edge_indices = get_external_edge_indices
+    """Get indices of external edges"""
 
     get_subtree_indices = get_subtree_indices
     """Get node indices of subtree rooted at given vertex."""

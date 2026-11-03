@@ -30,6 +30,8 @@ from .tree_graphs import (
     get_degrees,
     get_edge_coordinates,
     get_edge_indices,
+    get_internal_edge_indices,
+    get_external_edge_indices,
     get_edge_length,
     get_leaf_indices,
     get_max_depth,

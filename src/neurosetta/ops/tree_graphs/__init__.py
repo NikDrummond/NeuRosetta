@@ -144,6 +144,8 @@ from .tree_vertex_inds import (
     get_branch_indices,
     get_core_indices,
     get_edge_indices,
+    get_external_edge_indices,
+    get_internal_edge_indices,
     get_leaf_indices,
     get_root_index,
     get_subtree_indices,

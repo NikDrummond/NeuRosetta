@@ -104,6 +104,8 @@ from ..ops.tree_graphs import (
     get_edge_angles,
     get_edge_coordinates,
     get_edge_indices,
+    get_external_edge_indices,
+    get_internal_edge_indices,
     get_edge_length,
     get_edge_synapse_counts,
     get_edge_synapse_density,
@@ -256,7 +258,9 @@ def _forest_op(
     ):
         if global_:
             if global_fn is None:
-                raise ValueError(f"{fn.__name__} does not provide a global implementation.")
+                raise ValueError(
+                    f"{fn.__name__} does not provide a global implementation."
+                )
 
             kwargs = dict(func_kwargs)
             if "bind" in signature(global_fn).parameters:
@@ -314,6 +318,10 @@ class Forest(_Forest):
     get_core_indices = _forest_op(get_core_indices)
 
     get_edge_indices = _forest_op(get_edge_indices)
+
+    get_internal_edge_indices = _forest_op(get_internal_edge_indices)
+
+    get_external_edge_indices = _forest_op(get_external_edge_indices)
 
     get_bifurcation_indices = _forest_op(get_bifurcation_indices)
 

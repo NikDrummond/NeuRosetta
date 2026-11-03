@@ -1,6 +1,6 @@
 """Functions to get node indices from graphs."""
 
-from numpy import ndarray
+from numpy import ndarray, isin, where
 
 from ...core import _Tree
 from ...utils.graph_utils import (
@@ -81,7 +81,9 @@ def get_core_indices(tree: _Tree, include_root: bool = True) -> ndarray:
     return core_indices(tree.graph, include_root)
 
 
-def get_subtree_indices(tree: _Tree, root: int, traversal_order: str = "Breadth") -> ndarray:
+def get_subtree_indices(
+    tree: _Tree, root: int, traversal_order: str = "Breadth"
+) -> ndarray:
     """Get node indices of subtree rooted at specified vertex.
 
     Parameters
@@ -130,6 +132,70 @@ def get_edge_indices(
         If traversal_order is not "Breadth" or "Depth".
     """
     return edge_indices(tree.graph, root, traversal_order)
+
+
+def get_external_edge_indices(
+    tree: _Tree, root: int | None = None, traversal_order: str = "Breadth"
+) -> ndarray:
+    """Return n x 1 array of indices in edge array (see get_edge_indices) for external edges.
+
+    Parameters
+    ----------
+    tree : _Tree
+        Neuron tree.
+    root : int | None, optional
+        If provided, returns all edges downstream of the given root in a
+        breadth-first search ordering. If None, defaults to the root node
+        of the neuron. By default None.
+    traversal_order : str, optional
+        Traversal order for subtree extraction, must be "Breadth" or "Depth".
+        By default "Breadth".
+
+    Returns
+    -------
+    ndarray
+        n x 2 array of node index pairs for each edge.
+
+    Raises
+    ------
+    ValueError
+        If traversal_order is not "Breadth" or "Depth".
+    """
+    edges = edge_indices(tree.graph, root, traversal_order)
+    l_inds = leaf_indices(tree.graph)
+    return where(isin(edges[:, 1], l_inds))
+
+
+def get_internal_edge_indices(
+    tree: _Tree, root: int | None = None, traversal_order: str = "Breadth"
+) -> ndarray:
+    """Return n x 1 array of indices in edge array (see get_edge_indices) for internal edges.
+
+    Parameters
+    ----------
+    tree : _Tree
+        Neuron tree.
+    root : int | None, optional
+        If provided, returns all edges downstream of the given root in a
+        breadth-first search ordering. If None, defaults to the root node
+        of the neuron. By default None.
+    traversal_order : str, optional
+        Traversal order for subtree extraction, must be "Breadth" or "Depth".
+        By default "Breadth".
+
+    Returns
+    -------
+    ndarray
+        n x 2 array of node index pairs for each edge.
+
+    Raises
+    ------
+    ValueError
+        If traversal_order is not "Breadth" or "Depth".
+    """
+    edges = edge_indices(tree.graph, root, traversal_order)
+    l_inds = leaf_indices(tree.graph)
+    return where(~isin(edges[:, 1], l_inds))
 
 
 def get_bifurcation_indices(tree: _Tree, include_root: bool = False) -> ndarray:
