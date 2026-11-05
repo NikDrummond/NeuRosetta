@@ -24,8 +24,7 @@ for _arr in (_X, _Y, _Z, _NEG_X, _NEG_Y, _NEG_Z):
 
 
 class _BasisVectors:
-    """
-    The cartesian basis vectors. Returned arrays are shared, read-only views;
+    """The cartesian basis vectors. Returned arrays are shared, read-only views;
     call `.copy()` if you need a mutable array of your own.
     """
 

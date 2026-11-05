@@ -19,8 +19,7 @@ example_ids = [
 
 
 def example_data_dir(*, format: ExampleFormat = "nr") -> Path:
-    """
-    Return the path to bundled tutorial example data.
+    """Return the path to bundled tutorial example data.
 
     Example morphologies from the FAFB-FlyWire dataset live under
     ``docs/data/nr/`` and ``docs/data/swc/`` in the repository.
@@ -63,7 +62,7 @@ def load_example_data(
     voxel_unit: str | None = None,
     parallel: bool | None = None,
     max_workers: int | None = None,
-    show_progress: bool = False,
+    show_progress: bool | None = None,
 ) -> _Tree: ...
 
 
@@ -76,7 +75,7 @@ def load_example_data(
     voxel_unit: str | None = None,
     parallel: bool | None = None,
     max_workers: int | None = None,
-    show_progress: bool = False,
+    show_progress: bool | None = None,
 ) -> _Forest: ...
 
 
@@ -88,10 +87,9 @@ def load_example_data(
     voxel_unit: str | None = None,
     parallel: bool | None = None,
     max_workers: int | None = None,
-    show_progress: bool = False,
+    show_progress: bool | None = None,
 ):
-    """
-    Load bundled tutorial example morphologies from ``docs/data/nr/``.
+    """Load bundled tutorial example morphologies from ``docs/data/nr/``.
 
     By default, all example ``.nr`` files are loaded as a ``Forest``. Pass
     ``tree_id`` to load a single neuron (file stem / FlyWire segment ID).
@@ -100,9 +98,20 @@ def load_example_data(
     ----------
     tree_id : int or None, optional
         FlyWire segment ID of the example neuron to load. When ``None``, load
-        all bundled examples. Default is ``None``.
-    set_units, voxel_size, voxel_unit, parallel, max_workers, show_progress
-        Forwarded to :func:`~neurosetta.io.load`.
+        all bundled examples. By default None.
+    set_units : str or None, optional
+        Spatial units to declare on load (no rescale). By default None.
+    voxel_size : float or None, optional
+        Cubic voxel edge when ``set_units=\"voxel\"``. By default None.
+    voxel_unit : str or None, optional
+        Unit of *voxel_size*. By default None.
+    parallel : bool or None, optional
+        Load a directory in parallel. By default None (global setting).
+    max_workers : int or None, optional
+        Worker cap when *parallel* is enabled. By default None.
+    show_progress : bool or None, optional
+        Show a progress bar for directory loads. By default None, which follows
+        ``configure(show_progress=...)``.
 
     Returns
     -------

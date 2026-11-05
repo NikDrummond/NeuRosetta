@@ -20,22 +20,30 @@ class NeuronTools:
     def set_neuron(self, neuron: Any) -> None:
         """Set the current neuron for operations.
 
-        Args:
-            neuron: Neurosetta neuron object
+        Parameters
+        ----------
+        neuron : Any
+            Neurosetta neuron object.
         """
         self.current_neuron = neuron
 
     def reroot_neuron(self, selected_indices: np.ndarray) -> tuple[Any, np.ndarray, np.ndarray]:
         """Reroot the neuron at the selected point.
 
-        Args:
-            selected_indices: Array of selected point indices (should contain exactly one)
+        Parameters
+        ----------
+        selected_indices : np.ndarray
+            Array of selected point indices (should contain exactly one).
 
-        Returns:
-            Tuple of (updated_neuron, new_vertex_coords, new_point_coords)
+        Returns
+        -------
+        tuple[Any, np.ndarray, np.ndarray]
+            Tuple of (updated_neuron, new_vertex_coords, new_point_coords).
 
-        Raises:
-            ValueError: If no neuron is set or selection is invalid
+        Raises
+        ------
+        ValueError
+            If no neuron is set or selection is invalid.
         """
         if self.current_neuron is None:
             raise ValueError("No neuron set for rerooting")
@@ -68,11 +76,15 @@ class NeuronTools:
     def create_subtree_mask(self, selected_indices: np.ndarray) -> None:
         """Create a subtree mask from the selected point.
 
-        Args:
-            selected_indices: Array of selected point indices (should contain exactly one)
+        Parameters
+        ----------
+        selected_indices : np.ndarray
+            Array of selected point indices (should contain exactly one).
 
-        Raises:
-            ValueError: If no neuron is set or selection is invalid
+        Raises
+        ------
+        ValueError
+            If no neuron is set or selection is invalid.
         """
         if self.current_neuron is None:
             raise ValueError("No neuron set for subtree operation")
@@ -98,8 +110,10 @@ class NeuronTools:
     def get_neuron_info(self) -> dict:
         """Get information about the current neuron.
 
-        Returns:
-            Dictionary with neuron information
+        Returns
+        -------
+        dict
+            Dictionary with neuron information.
         """
         if self.current_neuron is None:
             return {"status": "No neuron loaded"}
@@ -120,22 +134,30 @@ class NeuronTools:
     def validate_selection_for_reroot(self, selected_indices: np.ndarray) -> bool:
         """Validate if the current selection is valid for rerooting.
 
-        Args:
-            selected_indices: Array of selected point indices
+        Parameters
+        ----------
+        selected_indices : np.ndarray
+            Array of selected point indices.
 
-        Returns:
-            True if selection is valid for rerooting
+        Returns
+        -------
+        bool
+            True if selection is valid for rerooting.
         """
         return self.current_neuron is not None and len(selected_indices) == 1
 
     def validate_selection_for_subtree(self, selected_indices: np.ndarray) -> bool:
         """Validate if the current selection is valid for subtree operations.
 
-        Args:
-            selected_indices: Array of selected point indices
+        Parameters
+        ----------
+        selected_indices : np.ndarray
+            Array of selected point indices.
 
-        Returns:
-            True if selection is valid for subtree operations
+        Returns
+        -------
+        bool
+            True if selection is valid for subtree operations.
         """
         return self.current_neuron is not None and len(selected_indices) == 1
 
@@ -146,8 +168,10 @@ class NeuronTools:
     def get_flag_state(self) -> bool:
         """Get the flag state of the current neuron.
 
-        Returns:
-            True if the neuron is flagged, otherwise False
+        Returns
+        -------
+        bool
+            True if the neuron is flagged, otherwise False.
         """
         if self.current_neuron is None:
             return False

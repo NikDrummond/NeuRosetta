@@ -144,14 +144,14 @@ def count_sections(tree: _Tree) -> int:
 
 
 def count_bifurcations(tree: _Tree, include_root: bool = False) -> int:
-    """Count the number of bifurcating nodes within a tree
+    """Count the number of bifurcating nodes within a tree.
 
     Parameters
     ----------
     tree : _Tree
-        Neuron tree
+        Neuron tree.
     include_root : bool, optional
-        If True, count the root node if it is a bifurcation, by default False
+        If True, count the root node if it is a bifurcation. By default False.
 
     Returns
     -------
@@ -162,20 +162,20 @@ def count_bifurcations(tree: _Tree, include_root: bool = False) -> int:
 
 
 def count_core_nodes(tree: _Tree, include_root: bool = True) -> int:
-    """_summary_
+    """Count core nodes (root, branches, and leaves).
 
     Parameters
     ----------
     tree : _Tree
-        Neuron tree
+        Neuron tree.
     include_root : bool, optional
-        If True, count the root node in core nodes.
-        Should never really be False, kept for consistency. By default True
+        If True, include the root in the count. Kept for consistency with
+        other counters; False is rarely useful. By default True.
 
     Returns
     -------
     int
-        Number of core nodes (sum of oot, banch and leaf counts)
+        Number of core nodes (root, branch, and leaf counts).
     """
     return _count_core_vertices(tree.graph, include_root=include_root)
 

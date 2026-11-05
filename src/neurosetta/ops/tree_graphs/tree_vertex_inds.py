@@ -1,6 +1,6 @@
 """Functions to get node indices from graphs."""
 
-from numpy import ndarray, isin, where
+from numpy import isin, ndarray, where
 
 from ...core import _Tree
 from ...utils.graph_utils import (
@@ -81,9 +81,7 @@ def get_core_indices(tree: _Tree, include_root: bool = True) -> ndarray:
     return core_indices(tree.graph, include_root)
 
 
-def get_subtree_indices(
-    tree: _Tree, root: int, traversal_order: str = "Breadth"
-) -> ndarray:
+def get_subtree_indices(tree: _Tree, root: int, traversal_order: str = "Breadth") -> ndarray:
     """Get node indices of subtree rooted at specified vertex.
 
     Parameters
@@ -206,12 +204,13 @@ def get_bifurcation_indices(tree: _Tree, include_root: bool = False) -> ndarray:
     tree : _Tree
         Neuron tree.
     include_root : bool, optional
-        If True, the root node index is included if it is a bifurcation, by default False
+        If True, include the root node index when it is a bifurcation.
+        By default False.
 
     Returns
     -------
     ndarray
-        Node indices of bifurcation points
+        Node indices of bifurcation points.
     """
     return bifurcation_indices(tree.graph, include_root=include_root)
 

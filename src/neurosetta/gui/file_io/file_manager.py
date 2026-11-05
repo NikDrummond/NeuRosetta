@@ -31,25 +31,33 @@ class FileManager:
     def is_supported_file(self, filepath: str) -> bool:
         """Check if a file is supported based on its extension.
 
-        Args:
-            filepath: Path to the file
+        Parameters
+        ----------
+        filepath : str
+            Path to the file.
 
-        Returns:
-            True if the file is supported, False otherwise
+        Returns
+        -------
+        bool
+            True if the file is supported, False otherwise.
         """
         return pathlib.Path(filepath).suffix.lower() in self.supported_extensions
 
     def scan_folder_for_files(self, folder_path: str) -> list[str]:
         """Scan a folder for supported neuron files.
 
-        Uses ``os.scandir`` (no Path objects per entry) so huge directories stay
-        usable. Non-recursive: only direct children.
+        Uses ``os.scandir`` (no Path objects per entry) so huge directories stay usable.
+        Non-recursive: only direct children.
 
-        Args:
-            folder_path: Path to the folder to scan
+        Parameters
+        ----------
+        folder_path : str
+            Path to the folder to scan.
 
-        Returns:
-            List of supported file paths
+        Returns
+        -------
+        list[str]
+            List of supported file paths.
         """
         supported = {".nr", ".swc"}
         files: list[str] = []
@@ -72,16 +80,23 @@ class FileManager:
     def load_file(self, filepath: str) -> tuple[Any, np.ndarray, Any | None]:
         """Load a neuron file and return the data.
 
-        Args:
-            filepath: Path to the file to load
+        Parameters
+        ----------
+        filepath : str
+            Path to the file to load.
 
-        Returns:
-            Tuple of (neuron_object, vertex_coordinates, point_coordinates)
-            For CSV files, neuron_object will be None
+        Returns
+        -------
+        tuple[Any, np.ndarray, Any | None]
+            Tuple of (neuron_object, vertex_coordinates, point_coordinates).
+            For CSV files, neuron_object is None.
 
-        Raises:
-            ValueError: If the file format is unsupported or invalid
-            FileNotFoundError: If the file doesn't exist
+        Raises
+        ------
+        ValueError
+            If the file format is unsupported or invalid.
+        FileNotFoundError
+            If the file doesn't exist.
         """
         if not os.path.exists(filepath):
             raise FileNotFoundError(f"File not found: {filepath}")
@@ -98,11 +113,15 @@ class FileManager:
     def _load_csv(self, filepath: str) -> tuple[None, np.ndarray, None]:
         """Load a CSV file containing point cloud data.
 
-        Args:
-            filepath: Path to the CSV file
+        Parameters
+        ----------
+        filepath : str
+            Path to the CSV file.
 
-        Returns:
-            Tuple of (None, coordinates, None)
+        Returns
+        -------
+        tuple[None, np.ndarray, None]
+            Tuple of (None, coordinates, None).
         """
         try:
             df = pd.read_csv(filepath)
@@ -123,14 +142,20 @@ class FileManager:
     def _load_neuron_file(self, filepath: str) -> tuple[Any, np.ndarray, np.ndarray]:
         """Load a neuron file (.nr or .swc).
 
-        Args:
-            filepath: Path to the neuron file
+        Parameters
+        ----------
+        filepath : str
+            Path to the neuron file.
 
-        Returns:
-            Tuple of (neuron_object, vertex_coordinates, point_coordinates)
+        Returns
+        -------
+        tuple[Any, np.ndarray, np.ndarray]
+            Tuple of (neuron_object, vertex_coordinates, point_coordinates).
 
-        Raises:
-            ValueError: If the file format is not supported
+        Raises
+        ------
+        ValueError
+            If the file format is not supported.
         """
         try:
             file_ext = pathlib.Path(filepath).suffix.lower()
@@ -161,12 +186,17 @@ class FileManager:
     def save_neuron(self, neuron: Any, filepath: str) -> None:
         """Save a neuron object to file.
 
-        Args:
-            neuron: Neurosetta neuron object to save
-            filepath: Path where to save the file
+        Parameters
+        ----------
+        neuron : Any
+            Neurosetta neuron object to save.
+        filepath : str
+            Path where to save the file.
 
-        Raises:
-            ValueError: If the neuron object is invalid
+        Raises
+        ------
+        ValueError
+            If the neuron object is invalid.
         """
         if neuron is None:
             raise ValueError("Cannot save: neuron object is None")
@@ -188,12 +218,17 @@ class FileManager:
     def save_neuron_to_directory(self, neuron: Any, directory: str) -> None:
         """Save a neuron object to a directory using Neurosetta's directory save.
 
-        Args:
-            neuron: Neurosetta neuron object to save
-            directory: Directory path where to save
+        Parameters
+        ----------
+        neuron : Any
+            Neurosetta neuron object to save.
+        directory : str
+            Directory path where to save.
 
-        Raises:
-            ValueError: If the neuron object is invalid
+        Raises
+        ------
+        ValueError
+            If the neuron object is invalid.
         """
         if neuron is None:
             raise ValueError("Cannot save: neuron object is None")
@@ -213,10 +248,14 @@ class FileManager:
     def get_directory_from_path(self, filepath: str) -> str:
         """Get the directory path from a file path.
 
-        Args:
-            filepath: Full path to a file
+        Parameters
+        ----------
+        filepath : str
+            Full path to a file.
 
-        Returns:
-            Directory path
+        Returns
+        -------
+        str
+            Directory path.
         """
         return os.path.dirname(filepath)

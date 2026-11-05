@@ -40,6 +40,22 @@ def test_reroot_graph_root_has_zero_in_degree(reduced_graph_fixture):
     assert (in_deg == 0).sum() == 1
 
 
+def test_reroot_preserves_total_path_length(reduced_graph_fixture):
+    from numpy.testing import assert_allclose
+
+    g = reduced_graph_fixture.copy()
+    before = float(g.ep["Path_length"].a.sum())
+    g_new = reroot_graph(g, int(leaf_indices(g)[0]))
+    assert "Path_length" in g_new.ep
+    assert_allclose(g_new.ep["Path_length"].a.sum(), before)
+
+    reduced = reduce_graph(reduced_graph_fixture.copy())
+    reduced_before = float(reduced.ep["Path_length"].a.sum())
+    rerooted = reroot_graph(reduced, int(leaf_indices(reduced)[0]))
+    assert_allclose(rerooted.ep["Path_length"].a.sum(), reduced_before)
+    assert_allclose(reduced_before, before)
+
+
 def test_reroot_graph_reinfers_node_types(reduced_graph_fixture):
     g = reduced_graph_fixture.copy()
     new_root = int(leaf_indices(g)[0])

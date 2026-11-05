@@ -54,8 +54,14 @@ def tmds(
         Bind each TMD onto the corresponding graph. By default False.
     recalculate : bool, optional
         Recompute even if a compatible bound TMD exists. By default False.
-    parallel, max_workers, show_progress
-        Same semantics as :meth:`~neurosetta.api.forest_class.Forest.apply`.
+    parallel : bool or None, optional
+        Run per-tree TMD extraction in a thread pool. When None, use the
+        global forest-scoped setting. By default None.
+    max_workers : int or None, optional
+        Worker limit when *parallel* is enabled. By default None.
+    show_progress : bool or None, optional
+        Show a tqdm progress bar. When None, use the global setting.
+        By default None.
 
     Returns
     -------
@@ -104,12 +110,32 @@ def persistence_diagrams(
     max_workers: int | None = None,
     show_progress: bool | None = None,
 ) -> list[NDArray[np.float64]]:
-    """Persistence diagrams for every tree, preserving Forest order.
+    """Return persistence diagrams for every tree, preserving Forest order.
 
     Parameters
     ----------
-    parallel, max_workers, show_progress
-        Same semantics as :meth:`~neurosetta.api.forest_class.Forest.apply`.
+    forest : _Forest
+        Tree collection.
+    func : str or None, optional
+        Filtration property. If None, reuse a bound TMD when present, else
+        compute with ``\"Root_distance\"``. By default None.
+    normalize : bool, optional
+        Order endpoints as ``(low, high)``. By default True.
+    recalculate : bool, optional
+        Recompute TMD even if a bound result exists. By default False.
+    parallel : bool or None, optional
+        Run diagram extraction in a thread pool. When None, use the global
+        forest-scoped setting. By default None.
+    max_workers : int or None, optional
+        Worker limit when *parallel* is enabled. By default None.
+    show_progress : bool or None, optional
+        Show a tqdm progress bar. When None, use the global setting.
+        By default None.
+
+    Returns
+    -------
+    list of ndarray
+        One ``(N_i, 2)`` diagram per tree, in Forest order.
     """
     results = forest.apply(
         tree_persistence_diagram,
@@ -139,14 +165,45 @@ def persistence_images(
     max_workers: int | None = None,
     show_progress: bool | None = None,
 ) -> tuple[NDArray[np.float64], Any]:
-    """Fit/transform persistence images on the whole Forest.
+    """Fit and transform persistence images for every tree in the forest.
 
-    One transformer is fitted on all diagrams (shared coordinate range).
-    Returns ``(images, transformer)`` with ``images`` shape
-    ``(n_trees, resolution[0] * resolution[1])``.
+    One transformer is fitted on all diagrams so they share a coordinate
+    range.
 
-    Diagram extraction uses ``parallel`` / ``max_workers`` / ``show_progress``
-    like :meth:`~neurosetta.api.forest_class.Forest.apply`.
+    Parameters
+    ----------
+    forest : _Forest
+        Tree collection.
+    func : str or None, optional
+        Filtration property. If None, reuse a bound TMD when present, else
+        compute with ``\"Root_distance\"``. By default None.
+    transformer : object or None, optional
+        Pre-fitted transformer. By default None (fit on this forest).
+    bandwidth : float, optional
+        Gaussian bandwidth used when fitting. By default 1.0.
+    resolution : tuple of int, optional
+        Image grid ``(ny, nx)``. By default ``(20, 20)``.
+    im_range : list of float or None, optional
+        Explicit image bounds. By default None.
+    weight : callable or None, optional
+        Persistence weighting function. By default None.
+    normalize : bool, optional
+        Order diagram endpoints before imaging. By default True.
+    recalculate : bool, optional
+        Recompute TMDs even if bound. By default False.
+    parallel : bool or None, optional
+        Parallelize diagram extraction. By default None (global setting).
+    max_workers : int or None, optional
+        Worker limit for diagram extraction. By default None.
+    show_progress : bool or None, optional
+        Show a progress bar during diagram extraction. By default None.
+
+    Returns
+    -------
+    images : ndarray
+        Shape ``(n_trees, resolution[0] * resolution[1])``.
+    transformer : object
+        Fitted transformer.
     """
     diagrams = persistence_diagrams(
         forest,

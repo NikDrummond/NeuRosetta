@@ -12,8 +12,10 @@ class ScaleOverlay(QWidget):
     def __init__(self, parent=None):
         """Initialize the scale overlay.
 
-        Args:
-            parent: Parent widget
+        Parameters
+        ----------
+        parent
+            Parent widget.
         """
         super().__init__(parent)
         self.settings = AppSettings()
@@ -49,8 +51,10 @@ class ScaleOverlay(QWidget):
     def update_scale_display(self, pixel_width: int) -> None:
         """Update the scale bar display.
 
-        Args:
-            pixel_width: Width of the scale bar in pixels
+        Parameters
+        ----------
+        pixel_width : int
+            Width of the scale bar in pixels.
         """
         # Set the bar width
         self.bar_line.setFixedWidth(max(1, pixel_width))
@@ -61,8 +65,10 @@ class ScaleOverlay(QWidget):
     def set_visible(self, visible: bool) -> None:
         """Set the visibility of the scale overlay.
 
-        Args:
-            visible: Whether the overlay should be visible
+        Parameters
+        ----------
+        visible : bool
+            Whether the overlay should be visible.
         """
         self.setVisible(visible)
 
@@ -71,10 +77,14 @@ class ScaleOverlay(QWidget):
     ) -> None:
         """Position the overlay at the bottom center of the parent widget.
 
-        Args:
-            parent_width: Width of the parent widget
-            parent_height: Height of the parent widget
-            margin: Margin from the bottom edge
+        Parameters
+        ----------
+        parent_width : int
+            Width of the parent widget.
+        parent_height : int
+            Height of the parent widget.
+        margin : int
+            Margin from the bottom edge.
         """
         size_hint = self.sizeHint()
         x = (parent_width - size_hint.width()) // 2

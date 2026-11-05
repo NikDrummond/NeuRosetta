@@ -96,8 +96,22 @@ def get_tmd_survival_lengths(
 ) -> NDArray[np.float64]:
     """Return TMD bar survival lengths ``|death - birth|`` (one per pair).
 
-    Default filtration is ``Root_distance`` (path distance from root). Lengths
-    are in filtration units.
+    The default filtration is ``Root_distance`` (path distance from the root).
+    Lengths are in filtration units.
+
+    Parameters
+    ----------
+    tree : _Tree
+        Neuron tree.
+    func : str, optional
+        Vertex filtration property name. By default ``\"Root_distance\"``.
+    recalculate : bool, optional
+        Recompute TMD even if a bound result exists. By default False.
+
+    Returns
+    -------
+    ndarray
+        Float array of survival lengths, one per persistence pair.
     """
     result = _resolve_tmd(tree, func, recalculate=recalculate)
     return np.asarray(result["survival_len"], dtype=np.float64)
@@ -109,7 +123,22 @@ def count_tmd_bars(
     *,
     recalculate: bool = False,
 ) -> int:
-    """Return the number of TMD persistence bars (persistence pairs)."""
+    """Return the number of TMD persistence bars (persistence pairs).
+
+    Parameters
+    ----------
+    tree : _Tree
+        Neuron tree.
+    func : str, optional
+        Vertex filtration property name. By default ``\"Root_distance\"``.
+    recalculate : bool, optional
+        Recompute TMD even if a bound result exists. By default False.
+
+    Returns
+    -------
+    int
+        Number of persistence pairs.
+    """
     return int(get_tmd_survival_lengths(tree, func=func, recalculate=recalculate).size)
 
 
@@ -151,6 +180,11 @@ def persistence_diagram(
         By default True.
     recalculate : bool, optional
         Recompute TMD even if a bound result exists. By default False.
+
+    Returns
+    -------
+    ndarray
+        Shape ``(N, 2)`` birth/death pairs.
     """
     tmd_result = _resolve_tmd(tree, func, recalculate=recalculate)
     return _persistence_diagram(tmd_result, normalize=normalize)
@@ -163,7 +197,27 @@ def plot_persistence_diagram(
     axes: Axes | None = None,
     **kwargs: Any,
 ) -> Axes:
-    """Plot the tree's persistence diagram (GUDHI); return Axes."""
+    """Plot the tree's persistence diagram and return the axes.
+
+    Parameters
+    ----------
+    tree : _Tree
+        Neuron tree.
+    func : str or None, optional
+        Filtration property. If None, reuse a bound TMD when present, else
+        compute with ``\"Root_distance\"``. By default None.
+    normalize : bool, optional
+        Order endpoints as ``(low, high)``. By default True.
+    axes : matplotlib.axes.Axes or None, optional
+        Axes to draw on. By default None (create a new figure).
+    **kwargs
+        Forwarded to the GUDHI plot helper.
+
+    Returns
+    -------
+    matplotlib.axes.Axes
+        Axes containing the diagram.
+    """
     diagram = persistence_diagram(tree, func=func, normalize=normalize)
     return _plot_persistence_diagram(diagram, axes=axes, **kwargs)
 
@@ -175,7 +229,27 @@ def plot_barcode(
     axes: Axes | None = None,
     **kwargs: Any,
 ) -> Axes:
-    """Plot the tree's persistence barcode (GUDHI); return Axes."""
+    """Plot the tree's persistence barcode and return the axes.
+
+    Parameters
+    ----------
+    tree : _Tree
+        Neuron tree.
+    func : str or None, optional
+        Filtration property. If None, reuse a bound TMD when present, else
+        compute with ``\"Root_distance\"``. By default None.
+    normalize : bool, optional
+        Order endpoints as ``(low, high)``. By default True.
+    axes : matplotlib.axes.Axes or None, optional
+        Axes to draw on. By default None (create a new figure).
+    **kwargs
+        Forwarded to the GUDHI plot helper.
+
+    Returns
+    -------
+    matplotlib.axes.Axes
+        Axes containing the barcode.
+    """
     diagram = persistence_diagram(tree, func=func, normalize=normalize)
     return _plot_barcode(diagram, axes=axes, **kwargs)
 
@@ -195,7 +269,39 @@ def persistence_image(
     """Compute a persistence image for one tree.
 
     Prefer fitting ``transformer`` on a Forest / collection so the image
-    coordinate range is shared. Returns ``(image, transformer)``.
+    coordinate range is shared.
+
+    Parameters
+    ----------
+    tree : _Tree
+        Neuron tree.
+    func : str or None, optional
+        Filtration property. If None, reuse a bound TMD when present, else
+        compute with ``\"Root_distance\"``. By default None.
+    transformer : object or None, optional
+        Pre-fitted persistence-image transformer. By default None (fit on
+        this tree alone).
+    bandwidth : float, optional
+        Gaussian bandwidth used when fitting. By default 1.0.
+    resolution : tuple of int, optional
+        Image grid ``(ny, nx)``. By default ``(20, 20)``.
+    im_range : list of float or None, optional
+        ``[birth_min, birth_max, death_min, death_max]``. By default None.
+    weight : callable or None, optional
+        Persistence weighting function. By default None (unweighted).
+    reshape : bool, optional
+        If True, return the image as ``resolution`` rather than a flat vector.
+        By default False.
+    normalize : bool, optional
+        Order diagram endpoints as ``(low, high)`` before imaging.
+        By default True.
+
+    Returns
+    -------
+    image : ndarray
+        Flat vector, or a 2D array when ``reshape`` is True.
+    transformer : object
+        Fitted transformer (reuse so later trees share the coordinate range).
     """
     diagram = persistence_diagram(tree, func=func, normalize=normalize)
     images, fitted = persistence_images(
@@ -234,6 +340,11 @@ def topology_distance(
         Normalize TMD endpoints before distance. By default True.
     **kwargs
         Forwarded to the distance implementation.
+
+    Returns
+    -------
+    float
+        Distance between the two diagrams.
     """
     diag_a = persistence_diagram(tree, func=func, normalize=normalize)
     diag_b = persistence_diagram(other, func=func, normalize=normalize)

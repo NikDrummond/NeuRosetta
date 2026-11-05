@@ -61,16 +61,44 @@ from .tree_mesh import (
     has_mesh,
     set_mesh,
 )
+from .tree_partition_asymmetry import get_partition_asymmetry
+from .tree_path_ancestry import (
+    get_ancestor_indices,
+    get_branch_path,
+    get_lowest_common_ancestor,
+    get_parent_index,
+    is_ancestor,
+)
+from .tree_path_geometry import (
+    get_path_coordinates,
+    get_path_euclidean_distance,
+    get_path_tortuosity,
+)
 from .tree_path_lengths import (
     get_edge_length,
+    get_pairwise_path_lengths,
+    get_path_cumulative_length,
+    get_path_edge_count,
+    get_path_length,
+    get_path_lengths_to_vertices,
     get_root_distance,
+    get_source_distances,
     get_total_cable_length,
 )
+from .tree_path_morphology import get_path_branch_count, get_path_section_count
+from .tree_path_profiles import get_path_edge_values, get_path_vertex_values
+from .tree_paths import get_path, get_path_edges, path_exists
 from .tree_shape_fitting import (
     fit_circle,
     fit_line,
     fit_plane,
     fit_sphere,
+)
+from .tree_sholl import (
+    get_sholl_area,
+    get_sholl_peak_count,
+    get_sholl_peak_radius,
+    get_sholl_profile,
 )
 from .tree_structure import (
     get_binary_ratio,
@@ -83,13 +111,22 @@ from .tree_structure import (
     get_node_depth,
     get_tree_widths,
 )
-from .tree_subtrees import (
-    get_max_subtree_node,
-    get_partition_asymmetry,
-    get_subtree,
-    get_subtree_scores,
-    mask_subtree_from_root,
+from .tree_subtree_counts import (
+    get_subtree_branch_count,
+    get_subtree_edge_count,
+    get_subtree_leaf_count,
+    get_subtree_vertex_count,
 )
+from .tree_subtree_depth import (
+    get_subtree_branch_depth,
+    get_subtree_depth,
+    get_subtree_height,
+    get_subtree_mean_leaf_distance,
+)
+from .tree_subtree_hierarchy import get_max_strahler_order, get_strahler_order
+from .tree_subtree_lengths import get_subtree_path_length
+from .tree_subtree_scores import get_max_subtree_node, get_subtree_scores
+from .tree_subtree_selection import get_subtree, mask_subtree_from_root
 from .tree_summary import SummaryTable, summary_table, tree_summary
 from .tree_synapses import (
     add_synapses,
@@ -158,6 +195,8 @@ __all__ = [
     "get_core_indices",
     "get_subtree_indices",
     "get_edge_indices",
+    "get_external_edge_indices",
+    "get_internal_edge_indices",
     "get_bifurcation_indices",
     "count_roots",
     "count_nodes",
@@ -205,6 +244,27 @@ __all__ = [
     "get_edge_length",
     "get_root_distance",
     "get_total_cable_length",
+    "get_path",
+    "get_path_edges",
+    "path_exists",
+    "get_path_length",
+    "get_path_edge_count",
+    "get_path_cumulative_length",
+    "get_source_distances",
+    "get_path_lengths_to_vertices",
+    "get_pairwise_path_lengths",
+    "get_parent_index",
+    "get_ancestor_indices",
+    "is_ancestor",
+    "get_lowest_common_ancestor",
+    "get_branch_path",
+    "get_path_coordinates",
+    "get_path_euclidean_distance",
+    "get_path_tortuosity",
+    "get_path_vertex_values",
+    "get_path_edge_values",
+    "get_path_branch_count",
+    "get_path_section_count",
     "get_degrees",
     "get_degree_distribution",
     "reduce_tree",
@@ -214,6 +274,21 @@ __all__ = [
     "get_max_subtree_node",
     "get_subtree",
     "get_partition_asymmetry",
+    "get_subtree_leaf_count",
+    "get_subtree_edge_count",
+    "get_subtree_vertex_count",
+    "get_subtree_branch_count",
+    "get_subtree_path_length",
+    "get_subtree_depth",
+    "get_subtree_branch_depth",
+    "get_subtree_height",
+    "get_subtree_mean_leaf_distance",
+    "get_strahler_order",
+    "get_max_strahler_order",
+    "get_sholl_profile",
+    "get_sholl_peak_count",
+    "get_sholl_peak_radius",
+    "get_sholl_area",
     "align_coordinates",
     "translate_coordinates",
     "center_coordinates_at_centroid",

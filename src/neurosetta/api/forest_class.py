@@ -89,12 +89,14 @@ from ..ops.tree_graphs import (
     fit_line,
     fit_plane,
     fit_sphere,
+    get_ancestor_indices,
     get_bifurcation_angle_sums,
     get_bifurcation_angles,
     get_bifurcation_deihedral_beta,
     get_bifurcation_indices,
     get_binary_ratio,
     get_branch_indices,
+    get_branch_path,
     get_convex_hull,
     get_convex_hull_volume,
     get_core_indices,
@@ -104,13 +106,15 @@ from ..ops.tree_graphs import (
     get_edge_angles,
     get_edge_coordinates,
     get_edge_indices,
-    get_external_edge_indices,
-    get_internal_edge_indices,
     get_edge_length,
     get_edge_synapse_counts,
     get_edge_synapse_density,
+    get_external_edge_indices,
+    get_internal_edge_indices,
     get_leaf_indices,
+    get_lowest_common_ancestor,
     get_max_depth,
+    get_max_strahler_order,
     get_max_subtree_node,
     get_max_width,
     get_mean_depth,
@@ -120,20 +124,48 @@ from ..ops.tree_graphs import (
     get_median_width,
     get_node_coordinates,
     get_node_depth,
+    get_pairwise_path_lengths,
+    get_parent_index,
     get_partition_asymmetry,
+    get_path,
+    get_path_branch_count,
+    get_path_coordinates,
+    get_path_cumulative_length,
+    get_path_edge_count,
+    get_path_edge_values,
+    get_path_edges,
+    get_path_euclidean_distance,
+    get_path_length,
+    get_path_lengths_to_vertices,
+    get_path_section_count,
+    get_path_tortuosity,
+    get_path_vertex_values,
     get_radial_angle,
     get_root_coordinate,
     get_root_distance,
     get_root_index,
+    get_source_distances,
+    get_strahler_order,
     get_subtree,
+    get_subtree_branch_count,
+    get_subtree_branch_depth,
+    get_subtree_depth,
+    get_subtree_edge_count,
+    get_subtree_height,
+    get_subtree_leaf_count,
+    get_subtree_mean_leaf_distance,
+    get_subtree_path_length,
     get_subtree_scores,
+    get_subtree_vertex_count,
     get_synapse_path_distance,
     get_tmd_survival_lengths,
     get_total_cable_length,
     get_tree_widths,
     has_mesh,
     has_property,
+    is_ancestor,
     map_synapses,
+    path_exists,
     persistence_diagram,
     persistence_image,
     plot_barcode,
@@ -152,6 +184,9 @@ from ..ops.tree_graphs import (
     topology_distance,
     translate_coordinates,
     update_reduced,
+)
+from ..ops.tree_graphs import (
+    get_sholl_profile as _get_sholl_profile,
 )
 from ..ops.units import (
     convert_units,
@@ -258,9 +293,7 @@ def _forest_op(
     ):
         if global_:
             if global_fn is None:
-                raise ValueError(
-                    f"{fn.__name__} does not provide a global implementation."
-                )
+                raise ValueError(f"{fn.__name__} does not provide a global implementation.")
 
             kwargs = dict(func_kwargs)
             if "bind" in signature(global_fn).parameters:
@@ -279,6 +312,50 @@ def _forest_op(
 
     method.__doc__ = _add_forest_parameters(fn.__doc__)
 
+    return method
+
+
+def _shared_forest_method(fn: Callable) -> Callable:
+    """Apply ``fn`` to every tree without splitting index arrays.
+
+    Vertex indices belong to each tree. A list whose length equals the
+    forest size must not be unpacked into one entry per tree.
+    """
+
+    @wraps(fn, assigned=("__module__", "__name__", "__qualname__", "__doc__"))
+    def method(
+        self,
+        *args,
+        parallel: bool | None = None,
+        max_workers: int | None = None,
+        show_progress: bool | None = None,
+        bind: bool = False,
+        merge_axis: int | None = None,
+        **kwargs,
+    ):
+        accepts_bind = "bind" in signature(fn).parameters
+
+        def _one(tree, bind: bool = False):
+            if accepts_bind:
+                return fn(tree, *args, bind=bind, **kwargs)
+            return fn(tree, *args, **kwargs)
+
+        return self.apply(
+            _one,
+            parallel=parallel,
+            max_workers=max_workers,
+            show_progress=show_progress,
+            bind=bind,
+            merge_axis=merge_axis,
+        )
+
+    note = (
+        "\n\nNotes\n-----\n"
+        "On a Forest, vertex indices refer to each tree separately. "
+        "Arguments are shared across trees. They are not split when a "
+        "list or array has one row per tree.\n"
+    )
+    method.__doc__ = f"{fn.__doc__ or ''}{note}"
     return method
 
 
@@ -530,6 +607,68 @@ class Forest(_Forest):
 
     get_partition_asymmetry = _forest_op(get_partition_asymmetry)
 
+    get_subtree_leaf_count = _forest_op(get_subtree_leaf_count)
+
+    get_subtree_edge_count = _forest_op(get_subtree_edge_count)
+
+    get_subtree_vertex_count = _forest_op(get_subtree_vertex_count)
+
+    get_subtree_branch_count = _forest_op(get_subtree_branch_count)
+
+    get_subtree_path_length = _forest_op(get_subtree_path_length)
+
+    get_subtree_depth = _forest_op(get_subtree_depth)
+
+    get_subtree_branch_depth = _forest_op(get_subtree_branch_depth)
+
+    get_subtree_height = _forest_op(get_subtree_height)
+
+    get_subtree_mean_leaf_distance = _forest_op(get_subtree_mean_leaf_distance)
+
+    get_strahler_order = _forest_op(get_strahler_order)
+
+    get_max_strahler_order = _forest_op(get_max_strahler_order)
+
+    def get_sholl_profile(
+        self,
+        radii,
+        mode: str = "radial",
+        center=None,
+        *,
+        parallel: bool | None = None,
+        max_workers: int | None = None,
+        show_progress: bool | None = None,
+        merge_axis: int | None = None,
+    ):
+        """Sholl profile for every tree.
+
+        ``radii`` is shared. It is not split across trees when
+        ``len(radii)`` equals the number of trees, which is what
+        :meth:`Forest.apply` would do with a bare array argument.
+
+        Parameters
+        ----------
+        radii : array-like
+            Strictly increasing nonnegative radii.
+        mode : {"radial", "path_length", "euclidean_length"}, optional
+            Distance definition. By default ``"radial"``.
+        center : array-like or None, optional
+            Radial-mode sphere center. Defaults to each tree's root.
+        parallel, max_workers, show_progress, merge_axis
+            Forwarded to :meth:`Forest.apply`.
+        """
+
+        def _one(tree):
+            return _get_sholl_profile(tree, radii, mode=mode, center=center)
+
+        return self.apply(
+            _one,
+            parallel=parallel,
+            max_workers=max_workers,
+            show_progress=show_progress,
+            merge_axis=merge_axis,
+        )
+
     # --- transformations ---
     align_coordinates = _forest_op(
         align_coordinates,
@@ -692,3 +831,29 @@ class Forest(_Forest):
     # by_id / ids / copy / __contains__ / __getitem__ / __len__ / __iter__ / __add__
     # get_meta / set_meta / del_meta / has_meta / list_meta / meta_summary / meta_indices
     # list_properties — see _Forest and docs/api/forest.md
+
+
+for _path_fn in (
+    get_path,
+    get_path_edges,
+    path_exists,
+    get_path_length,
+    get_path_edge_count,
+    get_path_cumulative_length,
+    get_source_distances,
+    get_path_lengths_to_vertices,
+    get_pairwise_path_lengths,
+    get_parent_index,
+    get_ancestor_indices,
+    is_ancestor,
+    get_lowest_common_ancestor,
+    get_branch_path,
+    get_path_coordinates,
+    get_path_euclidean_distance,
+    get_path_tortuosity,
+    get_path_vertex_values,
+    get_path_edge_values,
+    get_path_branch_count,
+    get_path_section_count,
+):
+    setattr(Forest, _path_fn.__name__, _shared_forest_method(_path_fn))

@@ -31,7 +31,7 @@ EULER_RAD = tuple(math.radians(a) for a in _EULER_DEG)
 _REF_AXIS = (0.0, 0.0, 1.0)
 
 _EDGE_CACHE = ("Path_length", "Euclidean_length", "Edge_angle", "Radial_angle")
-_VERTEX_CACHE = ("Root_distance",)
+_VERTEX_CACHE = ("Root_distance", "Root_euclidean_distance")
 _GRAPH_CACHE = ("Convex_hull", "TMD")
 
 
@@ -142,6 +142,11 @@ EXCLUSIONS: tuple[Exclusion, ...] = (
         "Returns (evals, evecs); evecs have sign ambiguity. "
         "Eigenvalue TI/RI covered by dedicated PCA tests.",
     ),
+    Exclusion(
+        "get_sholl_profile",
+        "Requires caller-supplied radii and returns a ShollProfile. "
+        "Invariance depends on distance mode; fixed radii are not scale invariant.",
+    ),
 )
 
 EXCLUDED_NAMES: frozenset[str] = frozenset(item.name for item in EXCLUSIONS)
@@ -178,8 +183,8 @@ def _call_kwargs(defn: MetricDefinition) -> dict[str, Any]:
         kwargs["signed"] = False
 
     if name == "get_partition_asymmetry":
-        # Weighted PA uses Path_length cable fractions (still scale-invariant).
-        kwargs["weighted"] = True
+        # mode="weighted" uses Path_length cable fractions (still scale-invariant).
+        kwargs["mode"] = "weighted"
 
     return kwargs
 

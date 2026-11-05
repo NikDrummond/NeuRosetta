@@ -42,9 +42,7 @@ def cross_scalar(x1, y1, z1, x2, y2, z2):
 
 @njit(**_JIT)
 def scalar_projection_scalar(vx, vy, vz, ax, ay, az):
-    """
-    Scalar projection of vector onto another vector.
-    """
+    """Scalar projection of vector onto another vector."""
 
     mag = sqrt(ax * ax + ay * ay + az * az)
 
@@ -180,9 +178,7 @@ def cross_xyz(x1, y1, z1, x2, y2, z2):
 
 @njit(**_JIT)
 def scalar_projection_xyz(vx, vy, vz, ax, ay, az):
-    """
-    Array version of scalar projection.
-    """
+    """Array version of scalar projection."""
 
     n = vx.size
 
@@ -294,8 +290,7 @@ def scale_factor_xyz(x1, y1, z1, x2, y2, z2):
 
 
 def magnitude(x, y, z):
-    """
-    Euclidean magnitude of one or more 3D vectors.
+    """Euclidean magnitude of one or more 3D vectors.
 
     Parameters
     ----------
@@ -316,8 +311,7 @@ def magnitude(x, y, z):
 
 
 def normalize(x, y, z):
-    """
-    Normalize 3D vector(s) to unit length.
+    """Normalize 3D vector(s) to unit length.
 
     Parameters
     ----------
@@ -338,8 +332,7 @@ def normalize(x, y, z):
 
 
 def dot(x1, y1, z1, x2, y2, z2):
-    """
-    Dot product of two 3D vectors.
+    """Dot product of two 3D vectors.
 
     Parameters
     ----------
@@ -366,8 +359,7 @@ def dot(x1, y1, z1, x2, y2, z2):
 
 
 def cross(x1, y1, z1, x2, y2, z2):
-    """
-    Cross product of two 3D vectors.
+    """Cross product of two 3D vectors.
 
     Parameters
     ----------
@@ -394,8 +386,7 @@ def cross(x1, y1, z1, x2, y2, z2):
 
 
 def scalar_projection(x1, y1, z1, x2, y2, z2):
-    """
-    Scalar projection of one 3D vector onto another.
+    """Scalar projection of one 3D vector onto another.
 
     Parameters
     ----------
@@ -423,8 +414,7 @@ def scalar_projection(x1, y1, z1, x2, y2, z2):
 
 
 def project(x1, y1, z1, x2, y2, z2):
-    """
-    Vector projection of one 3D vector onto another.
+    """Vector projection of one 3D vector onto another.
 
     Parameters
     ----------
@@ -452,8 +442,7 @@ def project(x1, y1, z1, x2, y2, z2):
 
 
 def reject(x1, y1, z1, x2, y2, z2):
-    """
-    Vector rejection of one 3D vector from another.
+    """Vector rejection of one 3D vector from another.
 
     Returns the component of ``v1`` orthogonal to ``v2``:
     ``v1 - project(v1, v2)``.
@@ -482,8 +471,7 @@ def reject(x1, y1, z1, x2, y2, z2):
 
 
 def perpendicular(x1, y1, z1, x2, y2, z2, normalized=True):
-    """
-    Cross product of two 3D vectors, optionally normalized.
+    """Cross product of two 3D vectors, optionally normalized.
 
     Parameters
     ----------
@@ -511,8 +499,7 @@ def perpendicular(x1, y1, z1, x2, y2, z2, normalized=True):
 
 
 def scale_factor(x1, y1, z1, x2, y2, z2):
-    """
-    Scalar factor relating two collinear 3D vectors.
+    """Scalar factor relating two collinear 3D vectors.
 
     Computes ``(v1 · v2) / |v1|^2``, i.e. the scalar ``s`` such that
     ``v2 ≈ s * v1`` when the vectors are collinear.

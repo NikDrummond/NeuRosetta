@@ -57,12 +57,14 @@ from ..ops.tree_graphs import (
     fit_line,
     fit_plane,
     fit_sphere,
+    get_ancestor_indices,
     get_bifurcation_angle_sums,
     get_bifurcation_angles,
     get_bifurcation_deihedral_beta,
     get_bifurcation_indices,
     get_binary_ratio,
     get_branch_indices,
+    get_branch_path,
     get_convex_hull,
     get_convex_hull_volume,
     get_core_indices,
@@ -72,13 +74,15 @@ from ..ops.tree_graphs import (
     get_edge_angles,
     get_edge_coordinates,
     get_edge_indices,
-    get_internal_edge_indices,
-    get_external_edge_indices,
     get_edge_length,
     get_edge_synapse_counts,
     get_edge_synapse_density,
+    get_external_edge_indices,
+    get_internal_edge_indices,
     get_leaf_indices,
+    get_lowest_common_ancestor,
     get_max_depth,
+    get_max_strahler_order,
     get_max_subtree_node,
     get_max_width,
     get_mean_depth,
@@ -88,26 +92,55 @@ from ..ops.tree_graphs import (
     get_median_width,
     get_node_coordinates,
     get_node_depth,
+    get_pairwise_path_lengths,
+    get_parent_index,
     get_partition_asymmetry,
+    get_path,
+    get_path_branch_count,
+    get_path_coordinates,
+    get_path_cumulative_length,
+    get_path_edge_count,
+    get_path_edge_values,
+    get_path_edges,
+    get_path_euclidean_distance,
+    get_path_length,
+    get_path_lengths_to_vertices,
+    get_path_section_count,
+    get_path_tortuosity,
+    get_path_vertex_values,
     get_post_order,
     get_radial_angle,
     get_root_coordinate,
     get_root_distance,
     get_root_index,
     get_section_angular_deviation,
+    get_sholl_profile,
+    get_source_distances,
+    get_strahler_order,
     get_subtree,
+    get_subtree_branch_count,
+    get_subtree_branch_depth,
+    get_subtree_depth,
     get_subtree_edge_coordinates,
+    get_subtree_edge_count,
+    get_subtree_height,
     get_subtree_indices,
+    get_subtree_leaf_count,
+    get_subtree_mean_leaf_distance,
     get_subtree_node_coordinates,
+    get_subtree_path_length,
     get_subtree_scores,
+    get_subtree_vertex_count,
     get_synapse_euclidean_distance_from_root,
     get_synapse_path_distance,
     get_tmd_survival_lengths,
     get_total_cable_length,
     get_tree_widths,
     has_mesh,
+    is_ancestor,
     map_synapses,
     mask_subtree_from_root,
+    path_exists,
     persistence_diagram,
     persistence_image,
     plot_barcode,
@@ -307,6 +340,69 @@ class Tree(_Tree):
     get_total_cable_length = get_total_cable_length
     """Get total cable length of the tree."""
 
+    get_path = get_path
+    """Ordered node indices along a path."""
+
+    get_path_edges = get_path_edges
+    """Traversal-ordered edge endpoints along a path."""
+
+    path_exists = path_exists
+    """Whether one node is reachable from another."""
+
+    get_path_length = get_path_length
+    """Weighted length of the path between two nodes."""
+
+    get_path_edge_count = get_path_edge_count
+    """Number of edges on the path between two nodes."""
+
+    get_path_cumulative_length = get_path_cumulative_length
+    """Cumulative path weight from a source node."""
+
+    get_source_distances = get_source_distances
+    """Weighted distances from one node to every node."""
+
+    get_path_lengths_to_vertices = get_path_lengths_to_vertices
+    """Distances from one node to a list of targets."""
+
+    get_pairwise_path_lengths = get_pairwise_path_lengths
+    """Distances for a list of source-target pairs."""
+
+    get_parent_index = get_parent_index
+    """Parent of a node. None at the root."""
+
+    get_ancestor_indices = get_ancestor_indices
+    """Ancestors from the parent up to the root."""
+
+    is_ancestor = is_ancestor
+    """Whether one node is an ancestor of another, including itself."""
+
+    get_lowest_common_ancestor = get_lowest_common_ancestor
+    """Deepest common ancestor of any nonempty set of nodes."""
+
+    get_branch_path = get_branch_path
+    """Branch nodes encountered along a path."""
+
+    get_path_coordinates = get_path_coordinates
+    """Coordinates of nodes along a path."""
+
+    get_path_euclidean_distance = get_path_euclidean_distance
+    """Straight-line distance between two node coordinates."""
+
+    get_path_tortuosity = get_path_tortuosity
+    """Cable length divided by endpoint displacement."""
+
+    get_path_vertex_values = get_path_vertex_values
+    """A vertex property sampled along a path."""
+
+    get_path_edge_values = get_path_edge_values
+    """An edge property sampled along a path."""
+
+    get_path_branch_count = get_path_branch_count
+    """Number of branch nodes along a path."""
+
+    get_path_section_count = get_path_section_count
+    """Number of morphological sections travelled by a path."""
+
     # --- synapses ---
     set_synapses = set_synapses
     """Attach (replace) a synapse table on this tree."""
@@ -480,6 +576,42 @@ class Tree(_Tree):
 
     get_partition_asymmetry = get_partition_asymmetry
     """Compute partition asymmetry at branch points."""
+
+    get_subtree_leaf_count = get_subtree_leaf_count
+    """Count descendant leaves in each node's subtree."""
+
+    get_subtree_edge_count = get_subtree_edge_count
+    """Count edges inside each node's subtree."""
+
+    get_subtree_vertex_count = get_subtree_vertex_count
+    """Count nodes inside each node's subtree."""
+
+    get_subtree_branch_count = get_subtree_branch_count
+    """Count branch nodes inside each node's subtree."""
+
+    get_subtree_path_length = get_subtree_path_length
+    """Sum cable length inside each node's subtree."""
+
+    get_subtree_depth = get_subtree_depth
+    """Maximum downstream edge count from each node to a leaf."""
+
+    get_subtree_branch_depth = get_subtree_branch_depth
+    """Maximum downstream branch count from each node, excluding the node."""
+
+    get_subtree_height = get_subtree_height
+    """Maximum cable distance from each node to a descendant leaf."""
+
+    get_subtree_mean_leaf_distance = get_subtree_mean_leaf_distance
+    """Mean cable distance from each node to its descendant leaves."""
+
+    get_strahler_order = get_strahler_order
+    """Strahler order at every node."""
+
+    get_max_strahler_order = get_max_strahler_order
+    """Largest Strahler order in the tree."""
+
+    get_sholl_profile = get_sholl_profile
+    """Sholl intersection profile for radial, path, or Euclidean distance."""
 
     # --- transformations ---
     align_coordinates = align_coordinates

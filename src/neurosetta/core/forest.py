@@ -374,7 +374,7 @@ class _Forest(Sequence):
         ----------
         predicate : Callable[[Tree], bool], optional
             User-defined filter function called as ``predicate(tree)`` for each
-            tree.             Must accept exactly one required argument (the tree) and return
+            tree. Must accept exactly one required argument (the tree) and return
             ``True`` to keep the tree or ``False`` to drop it. Additional
             parameters may use defaults. Pass as the sole positional argument,
             e.g. ``forest.filter(my_filter_fn)``.

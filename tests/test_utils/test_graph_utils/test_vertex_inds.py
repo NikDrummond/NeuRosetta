@@ -55,6 +55,18 @@ def test_edge_indices_invalid_traversal_raises(simple_tree):
         edge_indices(simple_tree, root=0, traversal_order="Invalid")
 
 
+def test_subtree_indices_leaf_includes_itself(simple_tree):
+    leaf = int(leaf_indices(simple_tree)[0])
+    assert subtree_indices(simple_tree, leaf).tolist() == [leaf]
+
+
+def test_subtree_indices_rejects_bad_root(simple_tree):
+    with pytest.raises(ValueError):
+        subtree_indices(simple_tree, 10_000)
+    with pytest.raises(TypeError):
+        subtree_indices(simple_tree, 1.5)
+
+
 def test_subtree_indices_depth_first(simple_tree):
     root = root_index(simple_tree)
     bfs = unique(subtree_indices(simple_tree, root, traversal_order="Breadth"))

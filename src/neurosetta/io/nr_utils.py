@@ -24,7 +24,7 @@ def load(
     voxel_unit: str | None = None,
     parallel: bool | None = None,
     max_workers: int | None = None,
-    show_progress: bool = False,
+    show_progress: bool | None = None,
 ) -> _Tree: ...
 
 
@@ -38,7 +38,7 @@ def load(
     voxel_unit: str | None = None,
     parallel: bool | None = None,
     max_workers: int | None = None,
-    show_progress: bool = False,
+    show_progress: bool | None = None,
 ) -> _Forest: ...
 
 
@@ -51,10 +51,9 @@ def load(
     voxel_unit: str | None = None,
     parallel: bool | None = None,
     max_workers: int | None = None,
-    show_progress: bool = False,
+    show_progress: bool | None = None,
 ):
-    """
-    Load one or more trees from disk.
+    """Load one or more trees from disk.
 
     Load serialized tree graphs stored in `.nr` files. If a
     single file is provided, a single ``Tree`` instance is returned. If a
@@ -80,16 +79,17 @@ def load(
         Voxel edge length when overriding units to ``"voxel"``.
     voxel_unit : str or None, optional
         Spatial unit for the voxel edge length when overriding to voxels.
-    parallel : bool, optional
+    parallel : bool or None, optional
         If True, load multiple `.nr` files in parallel when loading a
-        directory containing more than one tree. Default is False.
+        directory containing more than one tree. By default None, which
+        follows the I/O scope (``parallel_io``, else ``parallel_default``).
     max_workers : int or None, optional
         Maximum number of worker processes or threads to use when
         ``parallel=True``. If None, the default executor configuration
         is used. Default is None.
-    show_progress : bool, optional
+    show_progress : bool or None, optional
         If True, display a progress indicator while loading multiple trees.
-        Default is False.
+        By default None, which follows ``configure(show_progress=...)``.
 
     Returns
     -------
@@ -174,7 +174,7 @@ def save(
     *,
     parallel: bool | None = None,
     max_workers: int | None = None,
-    progress: bool = False,
+    show_progress: bool | None = None,
 ) -> list[Path]: ...
 
 
@@ -184,10 +184,9 @@ def save(
     *,
     parallel: bool | None = None,
     max_workers: int | None = None,
-    show_progress: bool = False,
+    show_progress: bool | None = None,
 ):
-    """
-    Save a tree or forest to disk in `.nr` format.
+    """Save a tree or forest to disk in `.nr` format.
 
     This function serializes a ``Tree`` or all trees in a ``Forest`` to `.nr`
     files. Default filenames use ``tree.name`` (not ``ID``). An explicit file
@@ -203,16 +202,17 @@ def save(
         path is used directly. For a ``Forest``, use a directory (or ``None``
         for the current working directory); each tree is saved as
         ``<tree.name>.nr``. Default is None.
-    parallel : bool, optional
+    parallel : bool or None, optional
         If True, save multiple trees in parallel when ``tree`` is a ``Forest``.
-        Default is False.
+        By default None, which follows the I/O scope
+        (``parallel_io``, else ``parallel_default``).
     max_workers : int or None, optional
         Maximum number of worker processes or threads to use when
         ``parallel=True``. If None, the default executor configuration
         is used. Default is None.
-    show_progress : bool, optional
+    show_progress : bool or None, optional
         If True, display a progress indicator while saving multiple trees.
-        Default is False.
+        By default None, which follows ``configure(show_progress=...)``.
 
     Returns
     -------

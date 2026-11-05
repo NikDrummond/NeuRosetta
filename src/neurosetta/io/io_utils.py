@@ -53,16 +53,22 @@ def resolve_import_id(
 
 
 def _check_swc_columns(df, error_type=ValueError):
-    """
-    Checks if required columns exist in a DataFrame.
+    """Check that an SWC table has the required columns.
 
-    Parameters:
-        df (pd.DataFrame): The DataFrame to check.
-        required_columns (list): List of required column names.
-        error_type (Exception): Type of exception to raise (default: ValueError).
+    Required names are ``node_id``, ``type``, ``x``, ``y``, ``z``, ``radius``,
+    and ``parent_id``.
 
-    Raises:
-        error_type: If any required column is missing.
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        SWC node table.
+    error_type : type, optional
+        Exception type raised when a column is missing. By default ValueError.
+
+    Raises
+    ------
+    Exception
+        ``error_type`` if any required column is missing.
     """
     required_columns = ["node_id", "type", "x", "y", "z", "radius", "parent_id"]
     missing = [col for col in required_columns if col not in df.columns]
@@ -72,9 +78,7 @@ def _check_swc_columns(df, error_type=ValueError):
 
 
 def _table_from_swc(file_path: str) -> DataFrame:
-    """
-    Node table from swc file, using pandas
-    """
+    """Build a node table from an SWC file."""
     df = read_csv(
         file_path,
         names=["node_id", "type", "x", "y", "z", "radius", "parent_id"],
@@ -101,9 +105,7 @@ def _table_from_swc(file_path: str) -> DataFrame:
 
 
 def _node_inds(g: Graph, df: DataFrame) -> list[int]:
-    """
-    Map table node ids to graph vertex indices for attribute assignment.
-    """
+    """Map table node ids to graph vertex indices for attribute assignment."""
     # node id orders - graph node order matches node ids in the table
     ids = g.vp["ids"].a
     # nodes in the table
@@ -114,9 +116,7 @@ def _node_inds(g: Graph, df: DataFrame) -> list[int]:
 
 
 def _graph_from_table(df: DataFrame) -> Graph:
-    """
-    From a node table, generate a graph-tool graph
-    """
+    """Build a graph-tool graph from an SWC node table."""
 
     # check we have recognisable columns
     _check_swc_columns(df)

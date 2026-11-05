@@ -38,9 +38,7 @@ def angle_scalar(
     assume_normalized=False,
     degrees=True,
 ):
-    """
-    Unsigned angle between two 3D vectors.
-    """
+    """Unsigned angle between two 3D vectors."""
 
     d = dot_scalar(
         x1,
@@ -85,10 +83,7 @@ def planar_angle_scalar(
     lz,
     degrees=True,
 ):
-    """
-    Angle after projecting both vectors into the plane
-    perpendicular to the look vector.
-    """
+    """Return the angle of both vectors in the plane perpendicular to the look vector."""
 
     x1, y1, z1 = reject_scalar(
         x1,
@@ -133,10 +128,7 @@ def signed_angle_scalar(
     lz,
     degrees=True,
 ):
-    """
-    Signed angle in the plane perpendicular
-    to the supplied look vector.
-    """
+    """Return the signed angle in the plane perpendicular to the look vector."""
 
     #
     # Project into plane
@@ -209,10 +201,7 @@ def align_with_scalar(
     az,
     reverse=False,
 ):
-    """
-    Flip a vector so that it points along (or opposite)
-    another vector.
-    """
+    """Flip a vector so that it points along, or opposite, another vector."""
 
     d = dot_scalar(
         x,
@@ -422,8 +411,7 @@ def angular_variance_nb(angles, weights=None):
 
 
 def angle(x1, y1, z1, x2, y2, z2, assume_normalized=False, degrees=False):
-    """
-    Unsigned angle between two 3D vectors.
+    """Unsigned angle between two 3D vectors.
 
     Parameters
     ----------
@@ -454,8 +442,7 @@ def angle(x1, y1, z1, x2, y2, z2, assume_normalized=False, degrees=False):
 
 
 def planar_angle(x1, y1, z1, x2, y2, z2, l1, l2, l3, degrees=False):
-    """
-    Angle between two vectors after projecting into a plane.
+    """Angle between two vectors after projecting into a plane.
 
     Both vectors are rejected from the look vector ``(l1, l2, l3)`` before
     computing the unsigned angle.
@@ -488,8 +475,7 @@ def planar_angle(x1, y1, z1, x2, y2, z2, l1, l2, l3, degrees=False):
 
 
 def signed_angle(x1, y1, z1, x2, y2, z2, l1, l2, l3, degrees=False):
-    """
-    Signed angle between two vectors in a plane.
+    """Signed angle between two vectors in a plane.
 
     The sign is determined by the orientation of ``v1 x v2`` relative to the
     look vector ``(l1, l2, l3)``.
@@ -522,8 +508,7 @@ def signed_angle(x1, y1, z1, x2, y2, z2, l1, l2, l3, degrees=False):
 
 
 def align_with(x, y, z, ax, ay, az, reverse=False):
-    """
-    Flip a vector so it points along (or opposite) a reference direction.
+    """Flip a vector so it points along (or opposite) a reference direction.
 
     Parameters
     ----------
@@ -549,8 +534,7 @@ def align_with(x, y, z, ax, ay, az, reverse=False):
 
 
 def angular_mean(angles, weights=None):
-    """
-    Circular mean of an array of angles.
+    """Circular mean of an array of angles.
 
     Parameters
     ----------
@@ -569,8 +553,7 @@ def angular_mean(angles, weights=None):
 
 
 def angular_var(angles, weights=None):
-    """
-    Circular variance of an array of angles.
+    """Circular variance of an array of angles.
 
     Parameters
     ----------

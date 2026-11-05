@@ -59,7 +59,7 @@ are in the linked API pages (autodoc, always current).
 | Structure | ``get_node_depth`` | ``tree.get_node_depth()`` | ``forest.get_node_depth()`` | {doc}`../api/tree_ops/tree_structure` | Per-node depth from root. |
 | Structure | ``get_tree_widths`` | ``tree.get_tree_widths()`` | ``forest.get_tree_widths()`` | {doc}`../api/tree_ops/tree_structure` | Node count at each depth. |
 | Path lengths | ``get_edge_length`` | ``tree.get_edge_length()`` | ``forest.get_edge_length()`` | {doc}`../api/tree_ops/path_lengths` | Euclidean length per edge; cable semantics depend on reduction state. |
-| Path lengths | ``get_root_distance`` | ``tree.get_root_distance()`` | ``forest.get_root_distance()`` | {doc}`../api/tree_ops/path_lengths` | Weighted path distance from root to every node. |
+| Path lengths | ``get_root_distance`` | ``tree.get_root_distance()`` | ``forest.get_root_distance()`` | {doc}`../api/tree_ops/path_lengths` | Weighted path distance from the root. Path length binds to Root_distance; Euclidean length binds to Root_euclidean_distance. |
 | Path lengths | ``get_total_cable_length`` | ``tree.get_total_cable_length()`` | ``forest.get_total_cable_length()`` | {doc}`../api/tree_ops/path_lengths` |  |
 | TMD | ``count_tmd_bars`` | ``tree.count_tmd_bars()`` | ``forest.count_tmd_bars()`` | {doc}`../api/tree_ops/tree_topology` | Number of TMD persistence bars for the Root_distance filtration. Bound TMD is stored as graph property ``TMD`` and persisted in ``.nr``. |
 | TMD | ``get_tmd_survival_lengths`` | ``tree.get_tmd_survival_lengths()`` | ``forest.get_tmd_survival_lengths()`` | {doc}`../api/tree_ops/tree_topology` | Per-bar survival lengths ``\|death - birth\|`` from the TMD (default filtration: Root_distance). |
@@ -84,9 +84,21 @@ are in the linked API pages (autodoc, always current).
 | Coordinate moments | ``coordinate_rms_along_axis`` | ``tree.coordinate_rms_along_axis()`` | ``forest.coordinate_rms_along_axis()`` | {doc}`../api/tree_ops/coordinate_moments` | RMS of absolute projections onto caller-supplied axis. |
 | Coordinate moments | ``coordinate_std_along_axis`` | ``tree.coordinate_std_along_axis()`` | ``forest.coordinate_std_along_axis()`` | {doc}`../api/tree_ops/coordinate_moments` | Std of projections onto caller-supplied axis. |
 | Coordinate moments | ``coordinate_variance_along_axis`` | ``tree.coordinate_variance_along_axis()`` | ``forest.coordinate_variance_along_axis()`` | {doc}`../api/tree_ops/coordinate_moments` | Variance of projections onto caller-supplied axis. |
+| Subtrees | ``get_max_strahler_order`` | ``tree.get_max_strahler_order()`` | ``forest.get_max_strahler_order()`` | {doc}`../api/tree_ops/subtrees` |  |
 | Subtrees | ``get_max_subtree_node`` | ``tree.get_max_subtree_node()`` | ``forest.get_max_subtree_node()`` | {doc}`../api/tree_ops/subtrees` |  |
-| Subtrees | ``get_partition_asymmetry`` | ``tree.get_partition_asymmetry()`` | ``forest.get_partition_asymmetry()`` | {doc}`../api/tree_ops/subtrees` | Default weighted=True uses Path_length cable fractions; unweighted mode is topological. |
+| Subtrees | ``get_partition_asymmetry`` | ``tree.get_partition_asymmetry()`` | ``forest.get_partition_asymmetry()`` | {doc}`../api/tree_ops/subtrees` | Default mode='weighted' uses Path_length cable fractions; mode='unweighted' is topological. |
+| Subtrees | ``get_strahler_order`` | ``tree.get_strahler_order()`` | ``forest.get_strahler_order()`` | {doc}`../api/tree_ops/subtrees` | Horton–Strahler order. Leaves are 1. Independent of coordinates. |
+| Subtrees | ``get_subtree_branch_count`` | ``tree.get_subtree_branch_count()`` | ``forest.get_subtree_branch_count()`` | {doc}`../api/tree_ops/subtrees` | Branch nodes (out-degree >= 2) inside each subtree. |
+| Subtrees | ``get_subtree_branch_depth`` | ``tree.get_subtree_branch_depth()`` | ``forest.get_subtree_branch_depth()`` | {doc}`../api/tree_ops/subtrees` | Downstream branch count excluding the starting node. Not Strahler order. |
+| Subtrees | ``get_subtree_depth`` | ``tree.get_subtree_depth()`` | ``forest.get_subtree_depth()`` | {doc}`../api/tree_ops/subtrees` | Downstream edge-count to the farthest leaf. Not root-to-node depth. |
+| Subtrees | ``get_subtree_edge_count`` | ``tree.get_subtree_edge_count()`` | ``forest.get_subtree_edge_count()`` | {doc}`../api/tree_ops/subtrees` | Edges inside each subtree, excluding the parent edge. |
+| Subtrees | ``get_subtree_height`` | ``tree.get_subtree_height()`` | ``forest.get_subtree_height()`` | {doc}`../api/tree_ops/subtrees` | Max cable distance from each node to a descendant leaf. |
+| Subtrees | ``get_subtree_leaf_count`` | ``tree.get_subtree_leaf_count()`` | ``forest.get_subtree_leaf_count()`` | {doc}`../api/tree_ops/subtrees` | Descendant leaves in each subtree, including a leaf rooted there. |
+| Subtrees | ``get_subtree_mean_leaf_distance`` | ``tree.get_subtree_mean_leaf_distance()`` | ``forest.get_subtree_mean_leaf_distance()`` | {doc}`../api/tree_ops/subtrees` | Mean cable distance from each node to its descendant leaves. |
+| Subtrees | ``get_subtree_path_length`` | ``tree.get_subtree_path_length()`` | ``forest.get_subtree_path_length()`` | {doc}`../api/tree_ops/subtrees` | Subtree cable. Default property is Path_length, not Euclidean chords. |
 | Subtrees | ``get_subtree_scores`` | ``tree.get_subtree_scores()`` | ``forest.get_subtree_scores()`` | {doc}`../api/tree_ops/subtrees` |  |
+| Subtrees | ``get_subtree_vertex_count`` | ``tree.get_subtree_vertex_count()`` | ``forest.get_subtree_vertex_count()`` | {doc}`../api/tree_ops/subtrees` | Nodes inside each subtree, including the subtree root. |
+| Sholl | ``get_sholl_profile`` | ``tree.get_sholl_profile()`` | ``forest.get_sholl_profile()`` | {doc}`../api/tree_ops/sholl` | Default mode='radial': straight-line distance from the root, so a rigid motion of the whole tree does not change the profile and no anatomical axis is required. path_length and euclidean_length are different path sums. Fixed radii are not scale invariant. Not auto-summarised: radii are required. |
 | Shape fitting | ``fit_circle`` | ``tree.fit_circle()`` | ``forest.fit_circle()`` | {doc}`../api/tree_ops/shape_fitting` | Returns center/radius/normal; mixed invariance. |
 | Shape fitting | ``fit_line`` | ``tree.fit_line()`` | ``forest.fit_line()`` | {doc}`../api/tree_ops/shape_fitting` | Returns slope/center/variances; mixed invariance. |
 | Shape fitting | ``fit_plane`` | ``tree.fit_plane()`` | ``forest.fit_plane()`` | {doc}`../api/tree_ops/shape_fitting` | Returns normal/center/variances; mixed invariance. |
@@ -228,9 +240,21 @@ are translation / rotation / scale invariance; ``Coords`` / ``Ref`` are
 | ``coordinate_rms_along_axis`` | Coordinate moments | ``embedding`` | ``tree`` | False | False | False | True | True |
 | ``coordinate_std_along_axis`` | Coordinate moments | ``embedding`` | ``tree`` | True | False | False | True | True |
 | ``coordinate_variance_along_axis`` | Coordinate moments | ``embedding`` | ``tree`` | True | False | False | True | True |
+| ``get_max_strahler_order`` | Subtrees | ``topology`` | ``tree`` | True | True | True | False | False |
 | ``get_max_subtree_node`` | Subtrees | ``intrinsic_geometry`` | ``tree`` | True | True | True | True | False |
 | ``get_partition_asymmetry`` | Subtrees | ``intrinsic_geometry`` | ``node`` | True | True | True | True | False |
+| ``get_strahler_order`` | Subtrees | ``topology`` | ``node`` | True | True | True | False | False |
+| ``get_subtree_branch_count`` | Subtrees | ``topology`` | ``node`` | True | True | True | False | False |
+| ``get_subtree_branch_depth`` | Subtrees | ``topology`` | ``node`` | True | True | True | False | False |
+| ``get_subtree_depth`` | Subtrees | ``topology`` | ``node`` | True | True | True | False | False |
+| ``get_subtree_edge_count`` | Subtrees | ``topology`` | ``node`` | True | True | True | False | False |
+| ``get_subtree_height`` | Subtrees | ``intrinsic_geometry`` | ``node`` | True | True | False | True | False |
+| ``get_subtree_leaf_count`` | Subtrees | ``topology`` | ``node`` | True | True | True | False | False |
+| ``get_subtree_mean_leaf_distance`` | Subtrees | ``intrinsic_geometry`` | ``node`` | True | True | False | True | False |
+| ``get_subtree_path_length`` | Subtrees | ``intrinsic_geometry`` | ``node`` | True | True | False | True | False |
 | ``get_subtree_scores`` | Subtrees | ``intrinsic_geometry`` | ``node`` | True | True | True | True | False |
+| ``get_subtree_vertex_count`` | Subtrees | ``topology`` | ``node`` | True | True | True | False | False |
+| ``get_sholl_profile`` | Sholl | ``intrinsic_geometry`` | ``distribution`` | True | True | False | True | False |
 | ``fit_circle`` | Shape fitting | ``intrinsic_geometry`` | ``tree`` | False | False | False | True | False |
 | ``fit_line`` | Shape fitting | ``intrinsic_geometry`` | ``tree`` | False | False | False | True | False |
 | ``fit_plane`` | Shape fitting | ``intrinsic_geometry`` | ``tree`` | False | False | False | True | False |

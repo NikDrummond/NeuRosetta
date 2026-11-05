@@ -10,7 +10,13 @@ from ...utils.graph_utils import (
     bind_edge_property,
     edge_coordinates,
     g_has_property,
+    pairwise_path_lengths,
+    path_cumulative_length,
+    path_edge_count,
+    path_length,
+    path_lengths_to_vertices,
     root_distance,
+    source_distances,
 )
 from .._doc_helpers import enrich_tree_graph_docstrings
 from .tree_checks import check_reduced
@@ -98,8 +104,10 @@ def get_root_distance(
     """Compute path distance from the root to every node.
 
     Distances are shortest-path sums of edge lengths from the tree root
-    (in-degree == 0). Results are stored as the ``Root_distance`` vertex
-    property when ``bind=True``.
+    (in-degree == 0). ``length_type="Path"`` is stored as ``Root_distance``.
+    ``length_type="Euclidean"`` is stored as ``Root_euclidean_distance``.
+    The two names are distinct so a cached path distance is not read back
+    as a Euclidean distance.
 
     Parameters
     ----------
@@ -111,9 +119,9 @@ def get_root_distance(
         If the requested property is missing, edge lengths are computed
         from coordinates and bound under that name. By default ``"Path"``.
     bind : bool, optional
-        If True, bind distances as the ``Root_distance`` vertex property
-        and return None. If False, return the distance array.
-        By default True.
+        If True, bind distances under the metric-specific vertex property
+        and return None. If False, return the distance array and do not
+        write a vertex property. By default True.
 
     Returns
     -------
@@ -135,9 +143,195 @@ def get_root_distance(
     rd = root_distance(tree.graph, prop_name)
 
     if bind:
-        tree.graph.vp["Root_distance"] = rd
+        # Historical name stays ``Root_distance`` for physical cable.
+        # Euclidean results use a separate map so the two cannot collide.
+        bound_name = "Root_distance" if length_type == "Path" else "Root_euclidean_distance"
+        tree.graph.vp[bound_name] = rd
         return None
     return rd.a
+
+
+def _source_distance_name(source: int, ep, directed: bool) -> str:
+    if isinstance(ep, str):
+        weight = ep
+    elif ep is None:
+        weight = "auto"
+    else:
+        weight = "custom"
+    direction = "directed" if directed else "undirected"
+    return f"path_distance_from_{int(source)}_{weight}_{direction}"
+
+
+def get_path_length(tree: _Tree, source: int, target: int, ep=None, *, directed: bool = True):
+    """Return the weighted length of the path from ``source`` to ``target``.
+
+    Parameters
+    ----------
+    tree : _Tree
+        Neuron tree.
+    source, target : int
+        Vertex indices in this tree. 0 when they are equal.
+    ep : str or EdgePropertyMap or None, optional
+        ``None`` uses ``Path_length``, then ``Euclidean_length``. An
+        explicit name is never replaced. Coordinates are not used to
+        fill a missing property. By default None.
+    directed : bool, optional
+        Follow parent-to-child edges when True. By default True.
+
+    Returns
+    -------
+    float or None
+        Path weight, or ``None`` when that directed path does not exist.
+    """
+    return path_length(tree.graph, source, target, ep, directed=directed)
+
+
+def get_path_edge_count(tree: _Tree, source: int, target: int, *, directed: bool = True):
+    """Return the number of edges on the path.
+
+    Parameters
+    ----------
+    tree : _Tree
+        Neuron tree.
+    source, target : int
+        Vertex indices. The count is 0 when they are equal.
+    directed : bool, optional
+        Follow stored edge direction when True. By default True.
+
+    Returns
+    -------
+    int or None
+        Edge count, or ``None`` when the path does not exist.
+    """
+    return path_edge_count(tree.graph, source, target, directed=directed)
+
+
+def get_path_cumulative_length(
+    tree: _Tree,
+    source: int,
+    target: int,
+    ep=None,
+    *,
+    directed: bool = True,
+):
+    """Return cumulative path weight at each vertex from ``source``.
+
+    Parameters
+    ----------
+    tree : _Tree
+        Neuron tree.
+    source, target : int
+        Path endpoints.
+    ep : str or EdgePropertyMap or None, optional
+        Weight property. Same rules as :func:`get_path_length`.
+    directed : bool, optional
+        Stored direction when True. By default True.
+
+    Returns
+    -------
+    ndarray or None
+        float64 running sum, starting at 0. ``None`` when the path does
+        not exist. The last entry equals :func:`get_path_length`.
+    """
+    return path_cumulative_length(tree.graph, source, target, ep, directed=directed)
+
+
+def get_source_distances(
+    tree: _Tree,
+    source: int,
+    ep=None,
+    *,
+    directed: bool = True,
+    bind: bool = False,
+    property_name: str | None = None,
+):
+    """Return weighted distances from one node to every node.
+
+    Parameters
+    ----------
+    tree : _Tree
+        Neuron tree.
+    source : int
+        Source vertex. This is not required to be the root.
+    ep : str or EdgePropertyMap or None, optional
+        Weight property. ``None`` uses ``Path_length``, then
+        ``Euclidean_length``.
+    directed : bool, optional
+        Stored direction when True. Unreachable nodes are ``inf``.
+        By default True.
+    bind : bool, optional
+        Store the vertex property and return None when True. The name is
+        ``property_name`` or ``path_distance_from_{source}_{weight}_{direction}``.
+        ``Root_distance`` is not reused. By default False.
+    property_name : str or None, optional
+        Vertex property written when ``bind`` is True.
+
+    Returns
+    -------
+    ndarray or None
+        float64 distances when ``bind`` is False. The source is 0.
+    """
+    dist = source_distances(tree.graph, source, ep, directed=directed)
+    if bind:
+        name = property_name or _source_distance_name(source, ep, directed)
+        tree.graph.vp[name] = dist
+        return None
+    from numpy import array
+
+    return array(dist.a, dtype=float, copy=True)
+
+
+def get_path_lengths_to_vertices(
+    tree: _Tree,
+    source: int,
+    targets,
+    ep=None,
+    *,
+    directed: bool = True,
+):
+    """Return distances from ``source`` to each target, in target order.
+
+    Parameters
+    ----------
+    tree : _Tree
+        Neuron tree.
+    source : int
+        Source vertex.
+    targets : sequence of int
+        Target indices in this tree. Indices are not shared with other trees.
+    ep : str or EdgePropertyMap or None, optional
+        Weight property.
+    directed : bool, optional
+        Stored direction when True. Unreachable targets are ``inf``.
+
+    Returns
+    -------
+    ndarray
+        float64 distances.
+    """
+    return path_lengths_to_vertices(tree.graph, source, targets, ep, directed=directed)
+
+
+def get_pairwise_path_lengths(tree: _Tree, pairs, ep=None, *, directed: bool = True):
+    """Return one distance per ``(source, target)`` pair.
+
+    Parameters
+    ----------
+    tree : _Tree
+        Neuron tree.
+    pairs : array-like, shape (n_pairs, 2)
+        Vertex indices in this tree.
+    ep : str or EdgePropertyMap or None, optional
+        Weight property.
+    directed : bool, optional
+        Stored direction when True. Unreachable pairs are ``inf``.
+
+    Returns
+    -------
+    ndarray
+        float64 distances in pair order.
+    """
+    return pairwise_path_lengths(tree.graph, pairs, ep, directed=directed)
 
 
 enrich_tree_graph_docstrings(globals())

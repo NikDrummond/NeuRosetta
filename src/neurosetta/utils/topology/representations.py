@@ -70,8 +70,14 @@ def persistence_images(
         Persistence diagrams of shape ``(N_i, 2)``.
     transformer : PersistenceImage or None, optional
         Pre-fitted transformer. If None, fit on ``diagrams``.
-    bandwidth, resolution, im_range, weight
-        Forwarded to :func:`fit_persistence_image` when fitting.
+    bandwidth : float, optional
+        Gaussian bandwidth used when fitting. By default 1.0.
+    resolution : tuple of int, optional
+        Image grid ``(ny, nx)``. By default ``(20, 20)``.
+    im_range : sequence of float or None, optional
+        Explicit image bounds. By default None.
+    weight : callable or None, optional
+        Persistence weighting function. By default None (unweighted).
 
     Returns
     -------

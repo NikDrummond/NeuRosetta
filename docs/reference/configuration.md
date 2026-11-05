@@ -40,11 +40,16 @@ with nr.openmp_context(num_threads=1):
 When a function accepts ``parallel``, ``max_workers``, or ``show_progress``:
 
 1. **Explicit keyword** passed to the call
-2. **Context override** from ``with nr.settings(...)``
-3. **Global singleton** from ``nr.configure(...)`` or environment variables
-4. **Scoped default** (parallel only — see table below)
+2. **Context override** from ``with nr.settings(...)`` for that scope
+3. **Global singleton** for that scope, if set via ``nr.configure(...)`` or environment variables
+4. **``parallel_default``** when that scope was not set (context, then global). ``show_progress`` has no scope and stops at step 3
+5. **Scoped default** (parallel only — I/O off, forest on)
 
 Pass ``None`` (or omit the argument where supported) to defer to this chain.
+``parallel_default`` is copied onto I/O and forest only while those scopes are
+still unset, so ``configure(parallel_default=True)`` enables ``load`` / ``save``
+unless ``parallel_io`` was set on its own. ``parallel=`` sets every scope
+explicitly and is not later overwritten by ``parallel_default``.
 
 NeuRosetta uses **thread pools only** — there is no process-pool backend.
 
@@ -56,7 +61,7 @@ Parallel settings live on ``get_settings().parallel``.
 | ------------------ | --------------------- | --------- | ---------------------------------------------------------------------------------------- |
 | I/O parallel       | ``parallel_io``       | ``False`` | {func}`~neurosetta.load`, {func}`~neurosetta.save`, SWC/mesh import/export               |
 | Forest parallel    | ``parallel_forest``   | ``True``  | {class}`~neurosetta.api.Forest` batch methods and ``Forest.apply`` / ``Forest.build_3d`` |
-| Fallback scope     | ``parallel_default``  | ``False`` | Any caller using scope ``"default"``                                                     |
+| Fallback scope     | ``parallel_default``  | ``False`` | I/O and forest when those scopes are unset, plus scope ``"default"``                    |
 | All scopes at once | ``parallel``          | —         | Sets io, forest, and default together                                                    |
 | Worker limit       | ``max_workers``       | ``None``  | Thread-pool size; ``None`` uses the executor default                                     |
 | Progress bars      | ``show_progress``     | ``False`` | tqdm bars in parallel/sequential loops                                                   |

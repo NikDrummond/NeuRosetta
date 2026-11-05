@@ -83,8 +83,20 @@ _FOREST_BATCH_OPS: frozenset[str] = frozenset(
         "get_median_depth",
         "get_median_width",
         "get_node_depth",
+        "get_max_strahler_order",
         "get_partition_asymmetry",
         "get_radial_angle",
+        "get_sholl_profile",
+        "get_strahler_order",
+        "get_subtree_branch_count",
+        "get_subtree_branch_depth",
+        "get_subtree_depth",
+        "get_subtree_edge_count",
+        "get_subtree_height",
+        "get_subtree_leaf_count",
+        "get_subtree_mean_leaf_distance",
+        "get_subtree_path_length",
+        "get_subtree_vertex_count",
         "get_subtree_scores",
         "get_total_cable_length",
         "get_tree_widths",
@@ -104,6 +116,7 @@ _CATEGORY_ORDER: tuple[str, ...] = (
     "Coordinates",
     "Coordinate moments",
     "Subtrees",
+    "Sholl",
     "Shape fitting",
     "Neuropil distances",
 )
@@ -387,7 +400,10 @@ METRIC_DEFINITIONS: tuple[MetricDefinition, ...] = (
         "get_root_distance",
         "Path lengths",
         "path_lengths",
-        notes="Weighted path distance from root to every node.",
+        notes=(
+            "Weighted path distance from the root. Path length binds to "
+            "Root_distance; Euclidean length binds to Root_euclidean_distance."
+        ),
         **_INTRINSIC_LENGTH,
         level="node",
     ),
@@ -708,8 +724,8 @@ METRIC_DEFINITIONS: tuple[MetricDefinition, ...] = (
         requires_coordinates=True,
         requires_reference_frame=False,
     ),
-    # REVIEW: unweighted PA is pure topology (leaf counts). Default
-    # weighted=True multiplies by subtree cable fraction → classified as
+    # REVIEW: mode="unweighted" is pure topology (leaf counts). Default
+    # mode="weighted" multiplies by subtree cable fraction → classified as
     # intrinsic_geometry with requires_coordinates=True.
     _tree(
         "get_partition_asymmetry",
@@ -723,8 +739,114 @@ METRIC_DEFINITIONS: tuple[MetricDefinition, ...] = (
         requires_coordinates=True,
         requires_reference_frame=False,
         notes=(
-            "Default weighted=True uses Path_length cable fractions; "
-            "unweighted mode is topological."
+            "Default mode='weighted' uses Path_length cable fractions; "
+            "mode='unweighted' is topological."
+        ),
+    ),
+    _tree(
+        "get_subtree_leaf_count",
+        "Subtrees",
+        "subtrees",
+        **_TOPOLOGY,
+        level="node",
+        notes="Descendant leaves in each subtree, including a leaf rooted there.",
+    ),
+    _tree(
+        "get_subtree_edge_count",
+        "Subtrees",
+        "subtrees",
+        **_TOPOLOGY,
+        level="node",
+        notes="Edges inside each subtree, excluding the parent edge.",
+    ),
+    _tree(
+        "get_subtree_vertex_count",
+        "Subtrees",
+        "subtrees",
+        **_TOPOLOGY,
+        level="node",
+        notes="Nodes inside each subtree, including the subtree root.",
+    ),
+    _tree(
+        "get_subtree_branch_count",
+        "Subtrees",
+        "subtrees",
+        **_TOPOLOGY,
+        level="node",
+        notes="Branch nodes (out-degree >= 2) inside each subtree.",
+    ),
+    _tree(
+        "get_subtree_depth",
+        "Subtrees",
+        "subtrees",
+        **_TOPOLOGY,
+        level="node",
+        notes="Downstream edge-count to the farthest leaf. Not root-to-node depth.",
+    ),
+    _tree(
+        "get_subtree_branch_depth",
+        "Subtrees",
+        "subtrees",
+        **_TOPOLOGY,
+        level="node",
+        notes="Downstream branch count excluding the starting node. Not Strahler order.",
+    ),
+    _tree(
+        "get_strahler_order",
+        "Subtrees",
+        "subtrees",
+        **_TOPOLOGY,
+        level="node",
+        notes="Horton–Strahler order. Leaves are 1. Independent of coordinates.",
+    ),
+    _tree(
+        "get_max_strahler_order",
+        "Subtrees",
+        "subtrees",
+        **_TOPOLOGY,
+        level="tree",
+    ),
+    _tree(
+        "get_subtree_path_length",
+        "Subtrees",
+        "subtrees",
+        **_INTRINSIC_LENGTH,
+        level="node",
+        notes="Subtree cable. Default property is Path_length, not Euclidean chords.",
+    ),
+    _tree(
+        "get_subtree_height",
+        "Subtrees",
+        "subtrees",
+        **_INTRINSIC_LENGTH,
+        level="node",
+        notes="Max cable distance from each node to a descendant leaf.",
+    ),
+    _tree(
+        "get_subtree_mean_leaf_distance",
+        "Subtrees",
+        "subtrees",
+        **_INTRINSIC_LENGTH,
+        level="node",
+        notes="Mean cable distance from each node to its descendant leaves.",
+    ),
+    _tree(
+        "get_sholl_profile",
+        "Sholl",
+        "sholl",
+        domain="intrinsic_geometry",
+        level="distribution",
+        translation_invariant=True,
+        rotation_invariant=True,
+        scale_invariant=False,
+        requires_coordinates=True,
+        requires_reference_frame=False,
+        notes=(
+            "Default mode='radial': straight-line distance from the root, so a "
+            "rigid motion of the whole tree does not change the profile and no "
+            "anatomical axis is required. path_length and euclidean_length are "
+            "different path sums. Fixed radii are not scale invariant. Not "
+            "auto-summarised: radii are required."
         ),
     ),
     # --- Shape fitting ---

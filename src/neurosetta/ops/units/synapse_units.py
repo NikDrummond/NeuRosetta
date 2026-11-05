@@ -110,8 +110,11 @@ def set_units(
     convert : bool, optional
         Rescale coordinates (and mapped distances) when changing units.
         By default False (declare / re-tag only).
-    voxel_size, voxel_unit
-        Required when *units* is voxel-based.
+    voxel_size : float or None, optional
+        Cubic voxel edge when *units* is voxel-based. Required with
+        *voxel_unit*. By default None.
+    voxel_unit : str or None, optional
+        Unit of *voxel_size*. By default None.
     """
     if units is None:
         if voxel_size is None or voxel_unit is None:
@@ -257,10 +260,13 @@ def check_synapse_tree_units(
 
     Parameters
     ----------
-    syn, tree
-        Synapse table and morphology to compare.
-    context
-        Short label for warning/error messages (e.g. ``\"set_synapses\"``).
+    syn : Synapses
+        Synapse table to compare.
+    tree : _Tree
+        Morphology to compare.
+    context : str, optional
+        Short label for warning and error messages (for example
+        ``\"set_synapses\"``). By default ``\"operation\"``.
     """
     syn_unset = synapse_units_unset(syn)
     tree_unset = tree_units_unset(tree)

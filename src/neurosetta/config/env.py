@@ -32,19 +32,33 @@ def _env(name: str) -> str | None:
     return os.environ.get(f"{ENV_PREFIX}{name}")
 
 
+def apply_parallel_scope(parallel, scope: str, value: bool) -> None:
+    """Set one parallel scope and record it as explicit.
+
+    ``default`` is the fallback: it is copied onto ``io`` and ``forest`` only
+    when those scopes have not been set explicitly.
+    """
+    setattr(parallel, scope, value)
+    parallel.explicit_scopes.add(scope)
+    if scope == "default":
+        for other in ("io", "forest"):
+            if other not in parallel.explicit_scopes:
+                setattr(parallel, other, value)
+
+
 def load_env_into_settings(settings: Settings) -> None:
     """Apply ``NEUROSETTA_*`` environment variables to *settings*."""
     if (value := _env("PARALLEL")) is not None:
         flag = _parse_bool(value)
-        settings.parallel.io = flag
-        settings.parallel.forest = flag
-        settings.parallel.default = flag
+        apply_parallel_scope(settings.parallel, "io", flag)
+        apply_parallel_scope(settings.parallel, "forest", flag)
+        apply_parallel_scope(settings.parallel, "default", flag)
     if (value := _env("PARALLEL_IO")) is not None:
-        settings.parallel.io = _parse_bool(value)
+        apply_parallel_scope(settings.parallel, "io", _parse_bool(value))
     if (value := _env("PARALLEL_FOREST")) is not None:
-        settings.parallel.forest = _parse_bool(value)
+        apply_parallel_scope(settings.parallel, "forest", _parse_bool(value))
     if (value := _env("PARALLEL_DEFAULT")) is not None:
-        settings.parallel.default = _parse_bool(value)
+        apply_parallel_scope(settings.parallel, "default", _parse_bool(value))
     if (value := _env("MAX_WORKERS")) is not None:
         settings.parallel.max_workers = int(value)
     if (value := _env("SHOW_PROGRESS")) is not None:

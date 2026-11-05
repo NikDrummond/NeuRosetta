@@ -1,5 +1,6 @@
 """Tests for tree path-length ops and Forest batching."""
 
+import numpy as np
 from numpy.testing import assert_allclose
 
 from neurosetta import Forest
@@ -51,6 +52,18 @@ def test_get_root_distance_child_equals_parent_plus_edge(test_tree):
 
     dist = get_root_distance(test_tree, bind=False)
     assert_allclose(dist[child], dist[root] + edge_len)
+
+
+def test_root_distance_properties_do_not_collide(test_tree):
+    g = test_tree.graph
+    n_edges = g.num_edges()
+    g.ep["Path_length"] = g.new_ep("double", np.full(n_edges, 5.0))
+    get_root_distance(test_tree, length_type="Path", bind=True)
+    path = np.array(g.vp["Root_distance"].a, copy=True)
+    get_root_distance(test_tree, length_type="Euclidean", bind=True)
+    assert "Root_euclidean_distance" in g.vp
+    assert not np.allclose(g.vp["Root_distance"].a, g.vp["Root_euclidean_distance"].a)
+    assert_allclose(g.vp["Root_distance"].a, path)
 
 
 def test_get_root_distance_euclidean(test_tree):

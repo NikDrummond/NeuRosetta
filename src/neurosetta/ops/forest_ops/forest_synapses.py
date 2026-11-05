@@ -130,9 +130,12 @@ def set_synapses(
         Policy when a table matches no tree. By default ``\"ignore\"``.
     set_units : str or None, optional
         Declare spatial units of incoming coordinates before bind
-        (no rescale). Forwarded to each tree-level attach. Default None.
-    voxel_size, voxel_unit
-        Required together when ``set_units=\"voxel\"``.
+        (no rescale). Forwarded to each tree-level attach. By default None.
+    voxel_size : float or None, optional
+        Cubic voxel edge when ``set_units=\"voxel\"``. Required with
+        *voxel_unit*. By default None.
+    voxel_unit : str or None, optional
+        Unit of *voxel_size*. By default None.
 
     Returns
     -------

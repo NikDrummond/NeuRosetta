@@ -9,8 +9,7 @@ _JIT = dict(nogil=True, fastmath=True, cache=True, inline="always")
 
 @njit(**_JIT)
 def covariance_xyz(x, y, z):
-    """
-    Compute the unbiased 3x3 covariance matrix from x, y, z coordinates.
+    """Compute the unbiased 3x3 covariance matrix from x, y, z coordinates.
 
     Parameters
     ----------
@@ -73,8 +72,7 @@ def robust_covariance_xyz(
     tol=1e-6,
     max_iter=100,
 ):
-    """
-    Robust covariance using a Huber M-estimator.
+    """Robust covariance using a Huber M-estimator.
 
     Parameters
     ----------
@@ -206,8 +204,7 @@ def robust_covariance_xyz(
 
 @njit(**_JIT)
 def covariance_eigh(cov):
-    """
-    Eigenvalues and eigenvectors of a symmetric covariance matrix.
+    """Eigenvalues and eigenvectors of a symmetric covariance matrix.
 
     Returns
     -------
@@ -242,8 +239,7 @@ def covariance_eigh(cov):
 
 
 def eig_decomp(x: ndarray, y: ndarray, z: ndarray, robust: bool = False, norm=False):
-    """
-    Eigen-decomposition of the covariance matrix of 3D coordinates.
+    """Eigen-decomposition of the covariance matrix of 3D coordinates.
 
     Computes principal axes and explained variance from ``x``, ``y``, and ``z``
     coordinate arrays via covariance estimation and symmetric eigendecomposition.

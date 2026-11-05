@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from graph_tool.all import Graph, GraphView
-from numpy import concatenate, vstack
+from numpy import concatenate, empty, vstack
 
 from ...core.tree_helpers import copy_tree_identity
 from .coordinates import vertex_coordinates
@@ -115,6 +115,36 @@ def reduce_graph(
     return g_red, reduction_map
 
 
+def _undirected_key(a: int, b: int) -> tuple[int, int]:
+    return (a, b) if a <= b else (b, a)
+
+
+def _migrate_edge_length(g_src: Graph, g_dst: Graph, prop_name: str) -> None:
+    """Copy an edge length across rerooting by undirected endpoint identity.
+
+    Reversed edges keep the stored length. Lengths are not recomputed from
+    coordinates, so physical ``Path_length`` is not replaced by a chord.
+    """
+    if prop_name not in g_src.ep or g_dst.num_edges() == 0:
+        return
+    lookup: dict[tuple[int, int], float] = {}
+    for row in g_src.get_edges([g_src.ep[prop_name]]):
+        lookup[_undirected_key(int(row[0]), int(row[1]))] = float(row[2])
+    ids = g_dst.vp["ids"].a
+    new_edges = g_dst.get_edges()
+    lengths = empty(new_edges.shape[0], dtype=float)
+    for i, (src, tgt) in enumerate(new_edges):
+        key = _undirected_key(int(ids[int(src)]), int(ids[int(tgt)]))
+        try:
+            lengths[i] = lookup[key]
+        except KeyError as exc:
+            raise ValueError(
+                f"Cannot migrate edge property {prop_name!r} while rerooting: "
+                f"no original edge between vertices {key[0]} and {key[1]}."
+            ) from exc
+    g_dst.ep[prop_name] = g_dst.new_ep("double", lengths)
+
+
 def reroot_graph(g: Graph, root: int) -> Graph:
     """Reroot a graph at a specified vertex.
 
@@ -122,7 +152,8 @@ def reroot_graph(g: Graph, root: int) -> Graph:
     ----------
     g : Graph
         Input graph with vertex properties 'x', 'y', 'z', 'radius', 'node_type',
-        edge property 'Path_length', and graph properties 'ID' and 'metadata'.
+        and graph properties 'ID' and 'metadata'. Edge properties
+        ``Path_length`` and ``Euclidean_length`` are copied when present.
     root : int
         Vertex index to use as new root.
 
@@ -130,6 +161,8 @@ def reroot_graph(g: Graph, root: int) -> Graph:
     -------
     Graph
         New graph rooted at the specified vertex with all properties migrated.
+        Total ``Path_length`` is unchanged: reversed edges keep their stored
+        cable length.
     """
     # we need path a bunch of properties
     raise_internal_property_missing(g, "metadata", "g")
@@ -162,5 +195,9 @@ def reroot_graph(g: Graph, root: int) -> Graph:
     g_new.vp["node_type"] = g_new.new_vp("int", infer_node_types(g_new))
     # radius
     g_new.vp["radius"] = g_new.new_vp("double", g_view.vp["radius"].a[g_new.vp["ids"].a])
+    # Cable lives on the undirected segment. Do not recompute it from the
+    # straight-line chord after edges reverse.
+    _migrate_edge_length(g, g_new, "Path_length")
+    _migrate_edge_length(g, g_new, "Euclidean_length")
 
     return g_new

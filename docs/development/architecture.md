@@ -152,7 +152,7 @@ They have **no** knowledge of the `Tree` class.
 
 | Subpackage | Purpose |
 |------------|---------|
-| `utils/graph_utils/` | Property bind/get/set, traversals, vertex indices, counting, subgraph editing |
+| `utils/graph_utils/` | Property bind/get/set, traversals, vertex indices, counting, subtree metrics (`subtrees/`), Sholl (`sholl/`), paths (`paths/`) |
 | `utils/geometry_utils/` | Linear algebra, rotations, PCA, projections, tolerances |
 | `utils/units/` | Pint registry, alias normalisation, voxel specs, coordinate rescaling |
 | `utils/vedo_utils/` | Mesh distance / shape helpers used by plotting and neuropil ops |

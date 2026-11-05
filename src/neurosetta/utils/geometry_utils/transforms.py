@@ -185,8 +185,7 @@ def center_at_centroid_xyz(
 
 
 def translate(x, y, z, dx, dy, dz):
-    """
-    Translate a 3D vector or array of 3D vectors by a displacement.
+    """Translate a 3D vector or array of 3D vectors by a displacement.
 
     Parameters
     ----------
@@ -222,8 +221,7 @@ def translate(x, y, z, dx, dy, dz):
 
 
 def recenter(x, y, z, cx, cy, cz):
-    """
-    Recenter a 3D vector or array of 3D vectors relative to a point.
+    """Recenter a 3D vector or array of 3D vectors relative to a point.
 
     The supplied centre is subtracted from each vector component. This is
     equivalent to translating the coordinates by ``(-cx, -cy, -cz)``.
@@ -272,8 +270,7 @@ def scale_about(
     cy,
     cz,
 ):
-    """
-    Scale a 3D vector or array of 3D vectors about a specified point.
+    """Scale a 3D vector or array of 3D vectors about a specified point.
 
     Scaling is performed independently along each coordinate axis. The
     supplied centre remains fixed during the transformation.
@@ -327,8 +324,7 @@ def scale_about(
 
 
 def center_at_centroid(x, y, z):
-    """
-    Translate an array of 3D points so that its centroid is at the origin.
+    """Translate an array of 3D points so that its centroid is at the origin.
 
     The centroid is computed independently for each coordinate as the
     arithmetic mean of all points. The input points are then translated

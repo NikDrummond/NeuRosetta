@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 from typing import Literal
 
 from .defaults import DEFAULT_UNITS, PARALLEL_SCOPE_DEFAULTS
-from .env import ensure_runtime_env, load_env_into_settings
+from .env import apply_parallel_scope, ensure_runtime_env, load_env_into_settings
 from .openmp import OpenMPSchedule, OpenMPSettings, apply_openmp
 from .vedo_settings import VedoSettings
 
@@ -25,6 +25,8 @@ class ParallelSettings:
     default: bool = PARALLEL_SCOPE_DEFAULTS["default"]
     max_workers: int | None = None
     show_progress: bool = False
+    # Scopes set by configure/env. Unset scopes follow ``default`` once that is set.
+    explicit_scopes: set[str] = field(default_factory=set)
 
 
 @dataclass
@@ -72,15 +74,15 @@ def configure(
     """Update global settings in place and return the singleton."""
     s = get_settings()
     if parallel is not None:
-        s.parallel.io = parallel
-        s.parallel.forest = parallel
-        s.parallel.default = parallel
+        apply_parallel_scope(s.parallel, "io", parallel)
+        apply_parallel_scope(s.parallel, "forest", parallel)
+        apply_parallel_scope(s.parallel, "default", parallel)
     if parallel_io is not None:
-        s.parallel.io = parallel_io
+        apply_parallel_scope(s.parallel, "io", parallel_io)
     if parallel_forest is not None:
-        s.parallel.forest = parallel_forest
+        apply_parallel_scope(s.parallel, "forest", parallel_forest)
     if parallel_default is not None:
-        s.parallel.default = parallel_default
+        apply_parallel_scope(s.parallel, "default", parallel_default)
     if max_workers is not None:
         s.parallel.max_workers = max_workers
     if show_progress is not None:

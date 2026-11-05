@@ -72,8 +72,7 @@ def bisector_scalar(
     y2,
     z2,
 ):
-    """
-    Return the unit vector bisecting two vectors.
+    """Return the unit vector bisecting two vectors.
 
     The input vectors do not need to be normalized.
     """
@@ -157,9 +156,7 @@ def bisector_xyz(
     y2,
     z2,
 ):
-    """
-    Return unit bisectors for arrays of vectors.
-    """
+    """Return unit bisectors for arrays of vectors."""
 
     n = x1.size
 
@@ -184,8 +181,7 @@ def bisector_xyz(
 
 
 def bisector(x1, y1, z1, x2, y2, z2):
-    """
-    Unit vector bisecting two 3D vectors.
+    """Unit vector bisecting two 3D vectors.
 
     Each input vector is normalized before computing the bisector. The result
     is the normalized sum of the two unit vectors.
@@ -212,8 +208,7 @@ def bisector(x1, y1, z1, x2, y2, z2):
 
 
 def reflect_plane(x, y, z, nx, ny, nz):
-    """
-    Reflect a 3D vector across a plane.
+    """Reflect a 3D vector across a plane.
 
     The plane is defined by its normal ``(nx, ny, nz)``. The reflection is
     ``v - 2 * project(v, n)``.
@@ -240,8 +235,7 @@ def reflect_plane(x, y, z, nx, ny, nz):
 
 
 def mirror_axis(x, y, z, ax, ay, az):
-    """
-    Mirror a 3D vector across an axis.
+    """Mirror a 3D vector across an axis.
 
     The mirror transformation is ``2 * project(v, axis) - v``, which reflects
     the component orthogonal to the axis while preserving the component along

@@ -24,8 +24,7 @@ def scale_along_basis_scalar(
     by3,
     bz3,
 ):
-    """
-    Scale a vector along an orthonormal basis.
+    """Scale a vector along an orthonormal basis.
 
     Assumes the basis vectors are normalized.
     """
@@ -82,8 +81,7 @@ def scale_along_basis_xyz(
     by3,
     bz3,
 ):
-    """
-    Scale an array of vectors along an orthonormal basis.
+    """Scale an array of vectors along an orthonormal basis.
 
     Assumes the basis vectors are normalized.
     """
@@ -125,8 +123,7 @@ def scale_along_basis(
     b2: ndarray,
     b3: ndarray,
 ):
-    """
-    Scale an array of 3D vectors along an orthonormal basis.
+    """Scale an array of 3D vectors along an orthonormal basis.
 
     Each vector is decomposed into its projections onto ``b1``, ``b2``, and
     ``b3``, then reassembled with independent scale factors applied along each

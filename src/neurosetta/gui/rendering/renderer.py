@@ -19,8 +19,10 @@ class NeuronRenderer:
     def __init__(self, plotter: vd.Plotter):
         """Initialize the renderer.
 
-        Args:
-            plotter: vedo Plotter instance for rendering
+        Parameters
+        ----------
+        plotter : vd.Plotter
+            vedo Plotter instance for rendering.
         """
         self.plotter = plotter
         self.current_object = None
@@ -36,8 +38,10 @@ class NeuronRenderer:
     def render_point_cloud(self, coordinates: np.ndarray) -> None:
         """Render a point cloud from coordinate data.
 
-        Args:
-            coordinates: Array of 3D coordinates
+        Parameters
+        ----------
+        coordinates : np.ndarray
+            Array of 3D coordinates.
         """
         points = vd.Points(
             coordinates,
@@ -50,8 +54,10 @@ class NeuronRenderer:
     def render_neuron(self, neuron: Any) -> None:
         """Render a neuron object with lines and soma.
 
-        Args:
-            neuron: Neurosetta neuron object
+        Parameters
+        ----------
+        neuron : Any
+            Neurosetta neuron object.
         """
         # # Create neuron lines
         # lines = nr.plotting._vd_tree_lines(neuron, c=self.neuron_color)
@@ -78,8 +84,10 @@ class NeuronRenderer:
     def render_subtree(self, neuron: Any) -> None:
         """Render only the subtree under the current neuron root.
 
-        Args:
-            neuron: Neurosetta neuron object
+        Parameters
+        ----------
+        neuron : Any
+            Neurosetta neuron object.
         """
         if not neuron:
             logging.warning("Cannot render subtree: neuron is None")
@@ -113,8 +121,10 @@ class NeuronRenderer:
     def set_neuron_color(self, color: str) -> None:
         """Set the color of the neuron visualization.
 
-        Args:
-            color: Color name or hex string
+        Parameters
+        ----------
+        color : str
+            Color name or hex string.
         """
         self.neuron_color = color
 
@@ -137,8 +147,10 @@ class NeuronRenderer:
     def _display(self, obj: Any) -> None:
         """Display an object in the plotter.
 
-        Args:
-            obj: vedo object to display
+        Parameters
+        ----------
+        obj : Any
+            vedo object to display.
         """
         self.current_object = obj
         self.plotter.clear()
@@ -148,16 +160,20 @@ class NeuronRenderer:
     def get_current_object(self) -> Any | None:
         """Get the currently displayed object.
 
-        Returns:
-            Current vedo object or None
+        Returns
+        -------
+        Any | None
+            Current vedo object or None.
         """
         return self.current_object
 
     def has_neuron_lines(self) -> bool:
         """Check if neuron lines are currently displayed.
 
-        Returns:
-            True if neuron lines are present
+        Returns
+        -------
+        bool
+            True if neuron lines are present.
         """
         return self.current_lines is not None
 
@@ -168,8 +184,10 @@ class NeuronRenderer:
     def add_mesh(self, mesh) -> None:
         """Add a mesh to the current display.
 
-        Args:
-            mesh: vedo mesh object to add
+        Parameters
+        ----------
+        mesh
+            vedo mesh object to add.
         """
         try:
             # Remove existing mesh if present
@@ -188,8 +206,10 @@ class NeuronRenderer:
     def remove_mesh(self, mesh) -> None:
         """Remove a mesh from the display.
 
-        Args:
-            mesh: vedo mesh object to remove
+        Parameters
+        ----------
+        mesh
+            vedo mesh object to remove.
         """
         try:
             if mesh:

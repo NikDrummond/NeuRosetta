@@ -24,7 +24,7 @@ def vertex_coordinates(
         By default None (all vertices).
     SoA : bool, optional
         Whether to return in Structure of Arrays format (dimensions by vertices).
-        If False, return vertices by dimensions (vertices x 3), by default False.
+        If False, return vertices by dimensions (vertices x 3). By default False.
 
     Returns
     -------
@@ -63,11 +63,11 @@ def vertex_coordinates_subtree(
     root : int
         Root vertex index defining the subtree.
     traversal_order : str, optional
-        Traversal order for subtree extraction, must be "Breadth" or "Depth",
-        by default "Breadth".
+        Traversal order for subtree extraction, must be "Breadth" or "Depth".
+        By default "Breadth".
     SoA : bool, optional
         Whether to return in Structure of Arrays format (dimensions by vertices).
-        If False, return vertices by dimensions, by default False.
+        If False, return vertices by dimensions. By default False.
 
     Returns
     -------
@@ -94,7 +94,7 @@ def edge_coordinates(g: Graph, SoA: bool = False) -> tuple[ndarray, ndarray]:
         Graph object with vertex property 'coordinates'.
     SoA : bool, optional
         Whether to return in Structure of Arrays format (dimensions by vertices).
-        If False, return vertices by dimensions, by default False.
+        If False, return vertices by dimensions. By default False.
 
     Returns
     -------
@@ -132,11 +132,11 @@ def edge_coordinates_subtree(
     root : int
         Root vertex index defining the subtree.
     traversal_order : str, optional
-        Traversal order for subtree extraction, must be "Breadth" or "Depth",
-        by default "Breadth".
+        Traversal order for subtree extraction, must be "Breadth" or "Depth".
+        By default "Breadth".
     SoA : bool, optional
         Whether to return in Structure of Arrays format (dimensions by vertices).
-        If False, return vertices by dimensions, by default False.
+        If False, return vertices by dimensions. By default False.
 
     Returns
     -------

@@ -110,14 +110,20 @@ def import_mesh(
         :class:`~neurosetta.api.Neuropils`. Default is ``\"Neuron\"``.
     ID : hashable or None, optional
         Explicit logical ID for a single-file import.
-    id_map, id_resolver
-        Batch ID assignment (see :func:`~neurosetta.io.swc_utils.import_swc`).
+    id_map : mapping or None, optional
+        File stem → logical ID for a directory import. By default None.
+    id_resolver : callable or None, optional
+        ``(path) -> ID`` used when *ID* and *id_map* do not supply an ID.
+        By default None.
     set_units : str or None, optional
         Declare spatial units for imported coordinates (no vertex rescaling).
         By default leave ``metadata[\"units\"]`` as dimensionless from
         :func:`~neurosetta.io.io_utils._base_meta`.
-    voxel_size, voxel_unit
-        Required together when ``set_units=\"voxel\"``.
+    voxel_size : float or None, optional
+        Cubic voxel edge when ``set_units=\"voxel\"``. Required with
+        *voxel_unit*. By default None.
+    voxel_unit : str or None, optional
+        Unit of *voxel_size*. By default None.
 
     Returns
     -------
@@ -206,7 +212,7 @@ def export_mesh(
     *,
     parallel: bool | None = None,
     max_workers: int | None = None,
-    show_progress: bool = False,
+    show_progress: bool | None = None,
 ) -> list[Path]: ...
 
 
@@ -218,7 +224,7 @@ def export_mesh(
     binary: bool = True,
     parallel: bool | None = None,
     max_workers: int | None = None,
-    show_progress: bool = False,
+    show_progress: bool | None = None,
 ):
     """Export one or more meshes to disk.
 
@@ -238,12 +244,14 @@ def export_mesh(
         Default is ``\".ply\"``.
     binary : bool, optional
         Write binary mesh files when supported. Default is True.
-    parallel : bool, optional
-        Export collection members in parallel. Default is False.
+    parallel : bool or None, optional
+        Export collection members in parallel. By default None, which follows
+        the I/O scope (``parallel_io``, else ``parallel_default``).
     max_workers : int or None, optional
         Worker count when ``parallel=True``.
-    show_progress : bool, optional
-        Show a progress bar for collections. Default is False.
+    show_progress : bool or None, optional
+        Show a progress bar for collections. By default None, which follows
+        ``configure(show_progress=...)``.
 
     Returns
     -------

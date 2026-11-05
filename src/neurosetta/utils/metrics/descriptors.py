@@ -89,6 +89,10 @@ _UNSUPPORTED: dict[str, str] = {
     "fit_circle": "Multi-output fit with mixed semantics.",
     "get_degree_distribution": "Histogram (bins, masses); not summarised by default.",
     "get_section_angular_deviation": "Heterogeneous (means, variances) section tuple.",
+    "get_sholl_profile": (
+        "Requires caller-supplied radii and returns a ShollProfile, not a "
+        "numeric vector to summarise."
+    ),
 }
 
 
@@ -354,7 +358,7 @@ def _invoke_raw(
         kwargs["signed"] = False
 
     if name == "get_partition_asymmetry":
-        kwargs["weighted"] = True
+        kwargs["mode"] = "weighted"
 
     return method(**kwargs)
 
@@ -609,7 +613,7 @@ def describe(
         If True, append selected metadata columns (``meta.<key>``) in wide
         mode. By default False.
     metadata_keys : sequence of str, optional
-        Metadata keys to include when *include_metadata* is True. Default
+        Metadata keys to include when *include_metadata* is True. By default
         ``("units",)``.
     reference_frame : AnatomicalFrame, axis, Neuropil/_Mesh, or mapping, optional
         External reference for embedding metrics. Prefer
@@ -618,7 +622,7 @@ def describe(
         frame. When ``domains`` explicitly includes ``"embedding"`` and no
         usable frame is supplied, an error is raised.
     errors : {"raise", "warn", "ignore"}, optional
-        Failure policy. Default ``raise``.
+        Failure policy. By default ``\"raise\"``.
     parallel : bool or None, optional
         Forwarded to :meth:`Forest.apply` when *obj* is a Forest.
 

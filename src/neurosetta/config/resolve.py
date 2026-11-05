@@ -6,7 +6,12 @@ from .settings import ParallelScope, _current_context, get_settings
 
 
 def resolve_parallel(*, explicit: bool | None, scope: ParallelScope) -> bool:
-    """Return whether to run work in parallel for *scope*."""
+    """Return whether to run work in parallel for *scope*.
+
+    A scope that was not set explicitly follows ``parallel_default`` from the
+    active ``settings`` context, then from the global singleton. Otherwise the
+    scoped default applies (I/O off, forest on).
+    """
     if explicit is not None:
         return explicit
 
@@ -15,7 +20,11 @@ def resolve_parallel(*, explicit: bool | None, scope: ParallelScope) -> bool:
     if scope_key in ctx:
         return ctx[scope_key]
 
-    return getattr(get_settings().parallel, scope)
+    parallel = get_settings().parallel
+    if "parallel_default" in ctx and scope not in parallel.explicit_scopes:
+        return ctx["parallel_default"]
+
+    return getattr(parallel, scope)
 
 
 def resolve_max_workers(*, explicit: int | None) -> int | None:

@@ -18,9 +18,12 @@ class PointSelector:
     def __init__(self, plotter: vd.Plotter, picker: vtkPointPicker):
         """Initialize the point selector.
 
-        Args:
-            plotter: vedo Plotter instance
-            picker: VTK point picker for 3D interaction
+        Parameters
+        ----------
+        plotter : vd.Plotter
+            vedo Plotter instance.
+        picker : vtkPointPicker
+            VTK point picker for 3D interaction.
         """
         self.plotter = plotter
         self.picker = picker
@@ -39,16 +42,20 @@ class PointSelector:
     def set_selection_changed_callback(self, callback: Callable) -> None:
         """Set callback function to be called when selection changes.
 
-        Args:
-            callback: Function to call when selection changes
+        Parameters
+        ----------
+        callback : Callable
+            Function to call when selection changes.
         """
         self.selection_changed_callback = callback
 
     def activate(self, point_coords: np.ndarray) -> None:
         """Activate point selection mode.
 
-        Args:
-            point_coords: Array of 3D point coordinates for selection
+        Parameters
+        ----------
+        point_coords : np.ndarray
+            Array of 3D point coordinates for selection.
         """
         self.point_coords = point_coords
         self.point_mask = np.zeros(len(point_coords), dtype=bool)
@@ -86,9 +93,12 @@ class PointSelector:
     def handle_hover(self, event: QEvent, widget_height: int) -> None:
         """Handle mouse hover events for point highlighting.
 
-        Args:
-            event: Qt mouse event
-            widget_height: Height of the widget for coordinate conversion
+        Parameters
+        ----------
+        event : QEvent
+            Qt mouse event.
+        widget_height : int
+            Height of the widget for coordinate conversion.
         """
         if not self.is_active or self.point_coords is None:
             return
@@ -117,12 +127,17 @@ class PointSelector:
     def handle_click(self, event: QEvent, widget_height: int) -> bool:
         """Handle mouse click events for point selection.
 
-        Args:
-            event: Qt mouse event
-            widget_height: Height of the widget for coordinate conversion
+        Parameters
+        ----------
+        event : QEvent
+            Qt mouse event.
+        widget_height : int
+            Height of the widget for coordinate conversion.
 
-        Returns:
-            True if event was handled, False otherwise
+        Returns
+        -------
+        bool
+            True if event was handled, False otherwise.
         """
         if not self.is_active or self.point_coords is None:
             return False
@@ -156,8 +171,10 @@ class PointSelector:
     def get_selected_indices(self) -> np.ndarray:
         """Get indices of currently selected points.
 
-        Returns:
-            Array of selected point indices
+        Returns
+        -------
+        np.ndarray
+            Array of selected point indices.
         """
         if self.point_mask is None:
             return np.array([], dtype=int)
@@ -166,8 +183,10 @@ class PointSelector:
     def get_selection_count(self) -> int:
         """Get number of currently selected points.
 
-        Returns:
-            Number of selected points
+        Returns
+        -------
+        int
+            Number of selected points.
         """
         if self.point_mask is None:
             return 0

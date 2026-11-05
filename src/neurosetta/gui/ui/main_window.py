@@ -70,10 +70,14 @@ class JumpToFileDialog(QDialog):
     def __init__(self, parent, total_files: int, current_counter: str):
         """Initialize the dialog.
 
-        Args:
-            parent: Parent widget
-            total_files: Total number of files
-            current_counter: Current file counter string (e.g., '3/10')
+        Parameters
+        ----------
+        parent
+            Parent widget.
+        total_files : int
+            Total number of files.
+        current_counter : str
+            Current file counter string (e.g., '3/10').
         """
         super().__init__(parent)
         self.setWindowTitle("Jump to File")
@@ -117,8 +121,10 @@ class JumpToFileDialog(QDialog):
     def get_input_data(self) -> tuple[str, bool]:
         """Get the input data from the dialog.
 
-        Returns:
-            Tuple of (input_text, is_index_mode)
+        Returns
+        -------
+        tuple[str, bool]
+            Tuple of (input_text, is_index_mode).
         """
         return self.input_field.text().strip(), self.index_radio.isChecked()
 
@@ -347,12 +353,17 @@ class MainWindow(QMainWindow):
     def eventFilter(self, obj, event) -> bool:
         """Handle custom events for the VTK widget.
 
-        Args:
-            obj: Object that received the event
-            event: The event
+        Parameters
+        ----------
+        obj
+            Object that received the event.
+        event
+            The event.
 
-        Returns:
-            True if event was handled, False otherwise
+        Returns
+        -------
+        bool
+            True if event was handled, False otherwise.
         """
         if obj is self.vtk_widget:
             if event.type() == QEvent.Resize:
@@ -730,8 +741,10 @@ class MainWindow(QMainWindow):
     def _on_show_mesh_changed(self, state: int) -> None:
         """Handle show mesh checkbox state change.
 
-        Args:
-            state: Checkbox state (0=unchecked, 2=checked)
+        Parameters
+        ----------
+        state : int
+            Checkbox state (0=unchecked, 2=checked).
         """
         show_mesh = state == 2  # Qt.Checked = 2
         self.app_core.set_show_mesh(show_mesh)
@@ -739,23 +752,29 @@ class MainWindow(QMainWindow):
     def _on_show_subtree_changed(self, state: int) -> None:
         """Handle show subtree checkbox state change.
 
-        Args:
-            state: Checkbox state (0=unchecked, 2=checked)
+        Parameters
+        ----------
+        state : int
+            Checkbox state (0=unchecked, 2=checked).
         """
         self.app_core.set_show_subtree(state == 2)  # Qt.Checked = 2
 
     def _on_flag_neuron_changed(self, state: int) -> None:
         """Handle flag neuron checkbox state change.
 
-        Args:
-            state: Checkbox state (0=unchecked, 2=checked)
+        Parameters
+        ----------
+        state : int
+            Checkbox state (0=unchecked, 2=checked).
         """
         self.app_core.set_flag_state(state == 2)  # Qt.Checked = 2
 
     def _on_auto_save_changed(self, state: int) -> None:
         """Handle auto-save checkbox state change.
 
-        Args:
-            state: Checkbox state (0=unchecked, 2=checked)
+        Parameters
+        ----------
+        state : int
+            Checkbox state (0=unchecked, 2=checked).
         """
         self.app_core.set_auto_save(state == 2)  # Qt.Checked = 2

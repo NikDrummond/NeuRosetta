@@ -16,9 +16,12 @@ class NeuroGUIApplication:
     def __init__(self, plotter, picker):
         """Initialize the application core.
 
-        Args:
-            plotter: vedo Plotter instance for rendering
-            picker: VTK point picker for interaction
+        Parameters
+        ----------
+        plotter
+            vedo Plotter instance for rendering.
+        picker
+            VTK point picker for interaction.
         """
         # Initialize components
         self.settings = AppSettings()
@@ -62,11 +65,15 @@ class NeuroGUIApplication:
     def load_file(self, filepath: str) -> bool:
         """Load a single file.
 
-        Args:
-            filepath: Path to the file to load
+        Parameters
+        ----------
+        filepath : str
+            Path to the file to load.
 
-        Returns:
-            True if successful, False otherwise
+        Returns
+        -------
+        bool
+            True if successful, False otherwise.
         """
         try:
             self.files = [filepath]
@@ -79,12 +86,17 @@ class NeuroGUIApplication:
     def load_folder(self, folder_path: str, files: list[str] | None = None) -> bool:
         """Load all supported files from a folder.
 
-        Args:
-            folder_path: Path to the folder to scan
-            files: Optional pre-scanned file list (skips re-scan)
+        Parameters
+        ----------
+        folder_path : str
+            Path to the folder to scan.
+        files : list[str] | None
+            Optional pre-scanned file list (skips re-scan).
 
-        Returns:
-            True if files were found and loaded, False otherwise
+        Returns
+        -------
+        bool
+            True if files were found and loaded, False otherwise.
         """
         try:
             self.files = (
@@ -107,8 +119,10 @@ class NeuroGUIApplication:
     def save_current_file(self) -> bool:
         """Save the current neuron to its original file location.
 
-        Returns:
-            True if successful, False otherwise
+        Returns
+        -------
+        bool
+            True if successful, False otherwise.
         """
         if not self.current_neuron or not self.files:
             logging.warning("Nothing to save")
@@ -126,11 +140,15 @@ class NeuroGUIApplication:
     def save_file_as(self, filepath: str) -> bool:
         """Save the current neuron to a new file.
 
-        Args:
-            filepath: Path where to save the file
+        Parameters
+        ----------
+        filepath : str
+            Path where to save the file.
 
-        Returns:
-            True if successful, False otherwise
+        Returns
+        -------
+        bool
+            True if successful, False otherwise.
         """
         if not self.current_neuron:
             logging.warning("Nothing to save")
@@ -146,8 +164,10 @@ class NeuroGUIApplication:
     def _save_if_needed(self) -> bool:
         """Save current file if auto-save is enabled and there are unsaved changes.
 
-        Returns:
-            bool: True if save was successful or not needed, False if save failed
+        Returns
+        -------
+        bool
+            True if save was successful or not needed, False if save failed.
         """
         if not self.auto_save or not self.current_neuron:
             return True
@@ -162,8 +182,10 @@ class NeuroGUIApplication:
     def navigate_previous(self) -> bool:
         """Navigate to the previous file.
 
-        Returns:
-            bool: True if navigation was successful, False otherwise
+        Returns
+        -------
+        bool
+            True if navigation was successful, False otherwise.
         """
         if self.current_file_index <= 0:
             return False
@@ -177,8 +199,10 @@ class NeuroGUIApplication:
     def navigate_next(self) -> bool:
         """Navigate to the next file.
 
-        Returns:
-            bool: True if navigation was successful, False otherwise
+        Returns
+        -------
+        bool
+            True if navigation was successful, False otherwise.
         """
         if self.current_file_index >= len(self.files) - 1:
             return False
@@ -214,11 +238,15 @@ class NeuroGUIApplication:
     def jump_to_file_by_index(self, index: int) -> bool:
         """Jump to a specific file by 1-based index.
 
-        Args:
-            index: 1-based file index
+        Parameters
+        ----------
+        index : int
+            1-based file index.
 
-        Returns:
-            True if successful, False otherwise
+        Returns
+        -------
+        bool
+            True if successful, False otherwise.
         """
         if not self.files:
             return False
@@ -234,11 +262,15 @@ class NeuroGUIApplication:
     def jump_to_file_by_name(self, filename: str) -> bool:
         """Jump to a specific file by filename (without extension).
 
-        Args:
-            filename: Filename without extension
+        Parameters
+        ----------
+        filename : str
+            Filename without extension.
 
-        Returns:
-            True if successful, False otherwise
+        Returns
+        -------
+        bool
+            True if successful, False otherwise.
         """
         if not self.files:
             return False
@@ -259,8 +291,10 @@ class NeuroGUIApplication:
     def activate_point_selection(self) -> bool:
         """Activate point selection mode.
 
-        Returns:
-            True if activated successfully, False otherwise
+        Returns
+        -------
+        bool
+            True if activated successfully, False otherwise.
         """
         if self.point_coords is not None:
             self.point_selector.activate(self.point_coords)
@@ -278,8 +312,10 @@ class NeuroGUIApplication:
     def reroot_neuron(self) -> bool:
         """Reroot the neuron at the selected point.
 
-        Returns:
-            True if successful, False otherwise
+        Returns
+        -------
+        bool
+            True if successful, False otherwise.
         """
         try:
             selected_indices = self.point_selector.get_selected_indices()
@@ -314,8 +350,10 @@ class NeuroGUIApplication:
     def create_subtree(self) -> bool:
         """Create a subtree from the selected point.
 
-        Returns:
-            True if successful, False otherwise
+        Returns
+        -------
+        bool
+            True if successful, False otherwise.
         """
         try:
             selected_indices = self.point_selector.get_selected_indices()
@@ -340,8 +378,10 @@ class NeuroGUIApplication:
     def set_show_subtree(self, show: bool) -> None:
         """Set whether to show the subtree visualization.
 
-        Args:
-            show: Whether to show the subtree
+        Parameters
+        ----------
+        show : bool
+            Whether to show the subtree.
         """
         self.show_subtree = show
         if not show:
@@ -355,8 +395,10 @@ class NeuroGUIApplication:
     def set_flag_state(self, state: bool) -> None:
         """Set the flag state for the current neuron.
 
-        Args:
-            state: The new flag state
+        Parameters
+        ----------
+        state : bool
+            The new flag state.
         """
         if self.current_neuron:
             self.flag_state = state
@@ -365,8 +407,10 @@ class NeuroGUIApplication:
     def set_auto_save(self, enabled: bool) -> None:
         """Enable or disable auto-save functionality.
 
-        Args:
-            enabled: Whether to enable auto-save
+        Parameters
+        ----------
+        enabled : bool
+            Whether to enable auto-save.
         """
         self.auto_save = enabled
         logging.info(f"Auto-save {'enabled' if enabled else 'disabled'}")
@@ -374,8 +418,10 @@ class NeuroGUIApplication:
     def get_flag_state(self) -> bool:
         """Get the current flag state.
 
-        Returns:
-            The current flag state, or False if no neuron is loaded
+        Returns
+        -------
+        bool
+            The current flag state, or False if no neuron is loaded.
         """
         return getattr(self, "flag_state", False)
 
@@ -386,8 +432,10 @@ class NeuroGUIApplication:
     def set_neuron_color(self, color: str) -> None:
         """Set the neuron visualization color.
 
-        Args:
-            color: Color name or hex string
+        Parameters
+        ----------
+        color : str
+            Color name or hex string.
         """
         self.renderer.set_neuron_color(color)
 
@@ -408,8 +456,10 @@ class NeuroGUIApplication:
     def _load_current_file(self) -> bool:
         """Load the file at the current index.
 
-        Returns:
-            True if successful, False otherwise
+        Returns
+        -------
+        bool
+            True if successful, False otherwise.
         """
         if not self.files or self.current_file_index >= len(self.files):
             return False
@@ -472,8 +522,10 @@ class NeuroGUIApplication:
     def set_mesh_directory(self, directory_path: str) -> None:
         """Set the directory path for mesh files.
 
-        Args:
-            directory_path: Path to the directory containing mesh files
+        Parameters
+        ----------
+        directory_path : str
+            Path to the directory containing mesh files.
         """
         self.mesh_directory = directory_path
         # Try to load mesh for current neuron if show_mesh is enabled
@@ -483,8 +535,10 @@ class NeuroGUIApplication:
     def set_show_mesh(self, show_mesh: bool) -> None:
         """Set whether to show mesh alongside neuron.
 
-        Args:
-            show_mesh: True to show mesh, False to hide
+        Parameters
+        ----------
+        show_mesh : bool
+            True to show mesh, False to hide.
         """
         self.show_mesh = show_mesh
 

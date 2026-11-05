@@ -24,9 +24,7 @@ def euclidean_distance_scalar(
     y2,
     z2,
 ):
-    """
-    Euclidean distance between two 3D points.
-    """
+    """Euclidean distance between two 3D points."""
 
     dx = x2 - x1
     dy = y2 - y1
@@ -72,9 +70,7 @@ def argapex_xyz(
     ay,
     az,
 ):
-    """
-    Index of point furthest along axis.
-    """
+    """Index of point furthest along axis."""
 
     n = x.size
 
@@ -318,9 +314,7 @@ def mean_along_axis_xyz(
     ay,
     az,
 ):
-    """
-    Mean projection along a (normalized) axis.
-    """
+    """Mean projection along a (normalized) axis."""
 
     n = x.size
 
@@ -348,9 +342,7 @@ def variance_along_axis_xyz(
     ay,
     az,
 ):
-    """
-    Population variance of projections along a (normalized) axis.
-    """
+    """Population variance of projections along a (normalized) axis."""
 
     n = x.size
 
@@ -392,9 +384,7 @@ def std_along_axis_xyz(
     ay,
     az,
 ):
-    """
-    Standard deviation along a (normalized) axis.
-    """
+    """Standard deviation along a (normalized) axis."""
 
     return sqrt(
         variance_along_axis_xyz(
@@ -417,9 +407,7 @@ def minmax_along_axis_xyz(
     ay,
     az,
 ):
-    """
-    Minimum and maximum projections.
-    """
+    """Minimum and maximum projections."""
 
     n = x.size
 
@@ -462,9 +450,7 @@ def extent_along_axis_xyz(
     ay,
     az,
 ):
-    """
-    Extent along a (normalized) axis.
-    """
+    """Extent along a (normalized) axis."""
 
     pmin, pmax = minmax_along_axis_xyz(
         x,
@@ -487,9 +473,7 @@ def rms_along_axis_xyz(
     ay,
     az,
 ):
-    """
-    Root-mean-square projection along an axis.
-    """
+    """Root-mean-square projection along an axis."""
 
     n = x.size
 
@@ -519,9 +503,7 @@ def mean_absolute_along_axis_xyz(
     ay,
     az,
 ):
-    """
-    Mean absolute projection along an axis.
-    """
+    """Mean absolute projection along an axis."""
 
     n = x.size
 
@@ -551,10 +533,7 @@ def projection_moments_xyz(
     ay,
     az,
 ):
-    """
-    Return mean, variance, standard deviation,
-    minimum and maximum projection.
-    """
+    """Return mean, variance, standard deviation, minimum, and maximum projection."""
 
     pmin, pmax = minmax_along_axis_xyz(
         x,
@@ -606,8 +585,7 @@ def projection_moments_xyz(
 
 ### Numpy callers
 def euclidean_distance(x1, y1, z1, x2, y2, z2):
-    """
-    Euclidean distance between two 3D points.
+    """Euclidean distance between two 3D points.
 
     Parameters
     ----------
@@ -634,8 +612,7 @@ def euclidean_distance(x1, y1, z1, x2, y2, z2):
 
 
 def argapex(x, y, z, ax, ay, az):
-    """
-    Index of the point furthest along an axis.
+    """Index of the point furthest along an axis.
 
     Parameters
     ----------
@@ -655,8 +632,7 @@ def argapex(x, y, z, ax, ay, az):
 
 
 def apex(x, y, z, ax, ay, az):
-    """
-    Coordinates of the point furthest along an axis.
+    """Coordinates of the point furthest along an axis.
 
     Parameters
     ----------
@@ -675,8 +651,7 @@ def apex(x, y, z, ax, ay, az):
 
 
 def apex_and_opposite(x, y, z, ax, ay, az):
-    """
-    Indices of the points furthest and least far along an axis.
+    """Indices of the points furthest and least far along an axis.
 
     Parameters
     ----------
@@ -696,8 +671,7 @@ def apex_and_opposite(x, y, z, ax, ay, az):
 
 
 def nearest(x, y, z, px, py, pz):
-    """
-    Index of the point nearest to a reference point.
+    """Index of the point nearest to a reference point.
 
     Parameters
     ----------
@@ -715,8 +689,7 @@ def nearest(x, y, z, px, py, pz):
 
 
 def farthest(x, y, z, px, py, pz):
-    """
-    Index of the point farthest from a reference point.
+    """Index of the point farthest from a reference point.
 
     Parameters
     ----------
@@ -734,8 +707,7 @@ def farthest(x, y, z, px, py, pz):
 
 
 def within_radius(x, y, z, px, py, pz, radius, atol=1e-8):
-    """
-    Test which points lie within a sphere of given radius.
+    """Test which points lie within a sphere of given radius.
 
     Parameters
     ----------
@@ -758,8 +730,7 @@ def within_radius(x, y, z, px, py, pz, radius, atol=1e-8):
 
 
 def average(x, y, z, weights=None):
-    """
-    Average of 3D points, optionally weighted.
+    """Average of 3D points, optionally weighted.
 
     Parameters
     ----------
@@ -783,8 +754,7 @@ def average(x, y, z, weights=None):
 
 
 def mean_along_axis(x, y, z, ax, ay, az):
-    """
-    Mean projection of 3D points onto an axis.
+    """Mean projection of 3D points onto an axis.
 
     Parameters
     ----------
@@ -803,8 +773,7 @@ def mean_along_axis(x, y, z, ax, ay, az):
 
 
 def variance_along_axis(x, y, z, ax, ay, az):
-    """
-    Population variance of projections onto an axis.
+    """Population variance of projections onto an axis.
 
     Parameters
     ----------
@@ -823,8 +792,7 @@ def variance_along_axis(x, y, z, ax, ay, az):
 
 
 def std_along_axis(x, y, z, ax, ay, az):
-    """
-    Standard deviation of projections onto an axis.
+    """Standard deviation of projections onto an axis.
 
     Parameters
     ----------
@@ -843,8 +811,7 @@ def std_along_axis(x, y, z, ax, ay, az):
 
 
 def minmax_along_axis(x, y, z, ax, ay, az):
-    """
-    Minimum and maximum projections onto an axis.
+    """Minimum and maximum projections onto an axis.
 
     Parameters
     ----------
@@ -865,8 +832,7 @@ def minmax_along_axis(x, y, z, ax, ay, az):
 
 
 def extent_along_axis(x, y, z, ax, ay, az):
-    """
-    Extent of projections onto an axis.
+    """Extent of projections onto an axis.
 
     Parameters
     ----------
@@ -886,8 +852,7 @@ def extent_along_axis(x, y, z, ax, ay, az):
 
 
 def rms_along_axis(x, y, z, ax, ay, az):
-    """
-    Root-mean-square projection onto an axis.
+    """Root-mean-square projection onto an axis.
 
     Parameters
     ----------
@@ -906,8 +871,7 @@ def rms_along_axis(x, y, z, ax, ay, az):
 
 
 def mean_absolute_along_axis(x, y, z, ax, ay, az):
-    """
-    Mean absolute projection onto an axis.
+    """Mean absolute projection onto an axis.
 
     Parameters
     ----------
@@ -926,8 +890,7 @@ def mean_absolute_along_axis(x, y, z, ax, ay, az):
 
 
 def projection_moments(x, y, z, ax, ay, az):
-    """
-    Summary moments of projections onto an axis.
+    """Summary moments of projections onto an axis.
 
     Parameters
     ----------

@@ -187,11 +187,33 @@ def set_synapses(
 
     Parameters
     ----------
+    tree : _Tree
+        Morphology to attach synapses to.
+    data : Synapses, DataFrame, or mapping
+        Synapse table. A DataFrame or column mapping is coerced with the
+        column-name arguments below.
+    coordinate_columns : tuple of str, optional
+        ``(x, y, z)`` column names when *data* is a table. By default
+        ``(\"x\", \"y\", \"z\")``.
+    type_column : str, optional
+        Column holding pre/post labels. By default ``\"type\"``.
+    partner_column : str, optional
+        Column holding the partner neuron ID. By default ``\"partner_id\"``.
+    id_column : str, optional
+        Column holding the synapse ID. By default ``\"synapse_id\"``.
     set_units : str or None, optional
         Declare spatial units of the incoming coordinates before bind
-        (no rescale). Useful when attaching a raw DataFrame. Default None.
-    voxel_size, voxel_unit
-        Required together when ``set_units=\"voxel\"``.
+        (no rescale). Useful when attaching a raw DataFrame. By default None.
+    voxel_size : float or None, optional
+        Cubic voxel edge when ``set_units=\"voxel\"``. Required with
+        *voxel_unit*. By default None.
+    voxel_unit : str or None, optional
+        Unit of *voxel_size*. By default None.
+
+    Returns
+    -------
+    Synapses
+        The table bound on *tree*.
     """
     from ..units.synapse_units import apply_synapse_import_units
 
@@ -222,6 +244,27 @@ def add_synapses(
 
     Incoming tables with a non-``None`` ``owner_id`` must match ``tree.ID``.
     Unit compatibility is checked before the tables are merged.
+
+    Parameters
+    ----------
+    tree : _Tree
+        Morphology to append synapses to.
+    data : Synapses, DataFrame, or mapping
+        Synapse rows to append.
+    coordinate_columns : tuple of str, optional
+        ``(x, y, z)`` column names when *data* is a table. By default
+        ``(\"x\", \"y\", \"z\")``.
+    type_column : str, optional
+        Column holding pre/post labels. By default ``\"type\"``.
+    partner_column : str, optional
+        Column holding the partner neuron ID. By default ``\"partner_id\"``.
+    id_column : str, optional
+        Column holding the synapse ID. By default ``\"synapse_id\"``.
+
+    Returns
+    -------
+    Synapses
+        The combined table bound on *tree*.
     """
     from ..units.synapse_units import check_synapse_tree_units
 
@@ -276,15 +319,31 @@ def map_synapses(
 
     Parameters
     ----------
-    max_distance
+    tree : _Tree
+        Morphology whose synapses are mapped. The table must already be
+        attached.
+    max_distance : float or None, optional
         Synapses farther than this from the morphology are marked unmapped
         (and dropped when *drop_unmapped* is True). ``None`` maps all.
-    drop_unmapped
-        If True, delete rows with ``mapped=False`` after (re)mapping. By default
-        False (retain for QC / ``show_synapse_mapping``).
-    method
-        Passed to :func:`~neurosetta.utils.geometry_utils.segments.project_points_to_segments`.
+        By default 10.
+    drop_unmapped : bool, optional
+        If True, delete rows with ``mapped=False`` after (re)mapping.
+        By default False (retain for QC / ``show_synapse_mapping``).
+    force : bool, optional
+        If False, reuse a valid mapping when *max_distance* is unchanged.
+        By default False.
+    method : str, optional
+        Passed to
+        :func:`~neurosetta.utils.geometry_utils.segments.project_points_to_segments`.
         Use ``\"bruteforce\"`` for a guaranteed exhaustive search.
+        By default ``\"bruteforce\"``.
+    k_candidates : int, optional
+        Candidate edges kept by approximate methods. By default 64.
+
+    Returns
+    -------
+    Synapses
+        The mapped table bound on *tree*.
     """
     syn = _require_synapses(tree)
     from ..units.synapse_units import check_synapse_tree_units
@@ -366,11 +425,27 @@ def get_synapse_path_distance(
     mapped_only: bool = True,
     bind: bool = False,
 ) -> np.ndarray:
-    """Path (cable) distance from root to each synapse's continuous edge location.
+    """Return path (cable) distance from the root to each synapse.
 
     For edge ``source → target`` with fraction ``t``::
 
         path = dist(root, source) + t * edge_length
+
+    Parameters
+    ----------
+    tree : _Tree
+        Morphology with mapped synapses.
+    type : {\"pre\", \"post\", \"both\"}, optional
+        Synapse class to measure. Other rows are NaN. By default ``\"both\"``.
+    mapped_only : bool, optional
+        If True, unmapped rows are NaN. By default True.
+    bind : bool, optional
+        If True, store the result as a ``path_distance`` column. By default False.
+
+    Returns
+    -------
+    ndarray
+        One distance per synapse row. Filtered-out rows are NaN.
     """
     syn = _require_synapses(tree)
     if not syn.is_mapped:
@@ -411,7 +486,22 @@ def get_synapse_euclidean_distance_from_root(
     type: SynapseTypeArg = "both",  # noqa: A002
     position: Literal["raw", "mapped"] = "raw",
 ) -> np.ndarray:
-    """Euclidean distance from the root coordinate to each synapse."""
+    """Return Euclidean distance from the root coordinate to each synapse.
+
+    Parameters
+    ----------
+    tree : _Tree
+        Morphology with attached synapses.
+    type : {\"pre\", \"post\", \"both\"}, optional
+        Synapse class to measure. Other rows are NaN. By default ``\"both\"``.
+    position : {\"raw\", \"mapped\"}, optional
+        Use raw coordinates or the mapped nearest point. By default ``\"raw\"``.
+
+    Returns
+    -------
+    ndarray
+        One distance per synapse row.
+    """
     syn = _require_synapses(tree)
     root = get_root_coordinate(tree, SoA=False).ravel()
     if position == "raw":
@@ -441,7 +531,25 @@ def count_synapses(
     mapped_only: bool = False,
     max_distance: float | None = None,
 ) -> int:
-    """Count attached synapses, optionally filtered."""
+    """Count attached synapses, optionally filtered.
+
+    Parameters
+    ----------
+    tree : _Tree
+        Morphology to count. An empty or missing table returns 0.
+    type : {\"pre\", \"post\", \"both\"}, optional
+        Synapse class to count. By default ``\"both\"``.
+    mapped_only : bool, optional
+        If True, count only rows with ``mapped=True``. By default False.
+    max_distance : float or None, optional
+        If set, also require ``distance_to_tree`` at or below this value.
+        By default None.
+
+    Returns
+    -------
+    int
+        Number of synapses passing the filter.
+    """
     syn = get_synapses(tree)
     if syn is None:
         return 0
@@ -460,7 +568,29 @@ def synapse_density(
     mapped_only: bool = False,
     length_type: Literal["Path", "Euclidean"] = "Path",
 ) -> float:
-    """Synapses per unit cable length (same units as tree coordinates)."""
+    """Return synapses per unit cable length (same units as tree coordinates).
+
+    Parameters
+    ----------
+    tree : _Tree
+        Morphology to measure.
+    type : {\"pre\", \"post\", \"both\"}, optional
+        Synapse class included in the numerator. By default ``\"both\"``.
+    mapped_only : bool, optional
+        If True, count only mapped synapses. By default False.
+    length_type : {\"Path\", \"Euclidean\"}, optional
+        Cable-length definition used as the denominator. By default ``\"Path\"``.
+
+    Returns
+    -------
+    float
+        Synapse count divided by total cable length.
+
+    Raises
+    ------
+    ValueError
+        If total cable length is not positive.
+    """
     n = count_synapses(tree, type=type, mapped_only=mapped_only)
     cable = get_total_cable_length(tree, length_type=length_type)
     if cable <= 0.0:
@@ -474,7 +604,22 @@ def get_edge_synapse_counts(
     *,
     mapped_only: bool = True,
 ) -> np.ndarray:
-    """Per-edge synapse counts (length = number of edges)."""
+    """Return per-edge synapse counts (length = number of edges).
+
+    Parameters
+    ----------
+    tree : _Tree
+        Morphology to measure. Unmapped or missing synapses yield zeros.
+    type : {\"pre\", \"post\", \"both\"}, optional
+        Synapse class to count. By default ``\"both\"``.
+    mapped_only : bool, optional
+        If True, count only rows with ``mapped=True``. By default True.
+
+    Returns
+    -------
+    ndarray
+        Integer counts, one per edge, in graph edge order.
+    """
     n_edges = tree.graph.num_edges()
     counts = np.zeros(n_edges, dtype=np.int64)
     syn = get_synapses(tree)
@@ -500,7 +645,26 @@ def get_edge_synapse_density(
     mapped_only: bool = True,
     min_length: float = 1e-12,
 ) -> np.ndarray:
-    """Per-edge synapse density (count / edge length); short edges → 0."""
+    """Return per-edge synapse density (count / edge length).
+
+    Edges shorter than *min_length* are reported as 0.
+
+    Parameters
+    ----------
+    tree : _Tree
+        Morphology to measure.
+    type : {\"pre\", \"post\", \"both\"}, optional
+        Synapse class to count. By default ``\"both\"``.
+    mapped_only : bool, optional
+        If True, count only rows with ``mapped=True``. By default True.
+    min_length : float, optional
+        Edges at or below this length get density 0. By default 1e-12.
+
+    Returns
+    -------
+    ndarray
+        Density per edge, in graph edge order.
+    """
     counts = get_edge_synapse_counts(tree, type=type, mapped_only=mapped_only)
     lengths = np.asarray(get_edge_length(tree, bind=False), dtype=np.float64)
     dens = np.zeros_like(lengths, dtype=np.float64)
@@ -515,15 +679,22 @@ def filter_tree_synapses_to_edges(
     *,
     mapped_only: bool = True,
 ) -> None:
-    """Keep synapses whose ``edge_index`` is in *edge_indices*; remap local IDs.
+    """Keep synapses whose ``edge_index`` is in *edge_indices* and remap them.
 
-    Used after subtree extraction.
+    Used after subtree extraction. Surviving edges are renumbered to the
+    local edge order of the subtree.
 
     Parameters
     ----------
-    mapped_only
-        If True (default), also require ``mapped=True``. If False, keep any row
-        whose nearest edge survived, including ``mapped=False`` QC rejects.
+    tree : _Tree
+        Morphology whose synapse table is filtered in place.
+    edge_indices : ndarray
+        Original edge indices that remain in the subtree, in the new local
+        order.
+    mapped_only : bool, optional
+        If True, also require ``mapped=True``. If False, keep any row whose
+        nearest edge survived, including ``mapped=False`` QC rejects.
+        By default True.
     """
     syn = get_synapses(tree)
     if syn is None:

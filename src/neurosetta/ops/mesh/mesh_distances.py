@@ -29,8 +29,16 @@ def distance_to_surface(
         Neuron or neuropil mesh.
     points : ndarray
         Query points, shape ``(N, 3)``.
-    method, face_indices, triangle_method, k_candidates
-        Forwarded to :func:`~neurosetta.utils.vedo_utils.surface_distances.surface_distance`.
+    method : str, optional
+        Distance method forwarded to
+        :func:`~neurosetta.utils.vedo_utils.surface_distances.surface_distance`.
+        By default ``\"surface\"``.
+    face_indices : array-like or None, optional
+        Restrict the query to these faces. By default None.
+    triangle_method : str, optional
+        Triangle-query strategy. By default ``\"auto\"``.
+    k_candidates : int, optional
+        Candidate faces kept by approximate methods. By default 64.
 
     Returns
     -------

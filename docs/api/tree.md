@@ -21,11 +21,13 @@ Method groups map to the tree-ops reference:
 | Coordinates | {doc}`tree_ops/coordinates` |
 | Projection moments | {doc}`tree_ops/coordinate_moments` |
 | Cable length | {doc}`tree_ops/path_lengths` |
+| Paths | {doc}`tree_ops/paths` |
 | Degrees | {doc}`tree_ops/degrees` |
 | Traversals | {doc}`tree_ops/traversals` |
 | Angles & bifurcations | {doc}`tree_ops/tree_geometry` |
 | Shape fitting | {doc}`tree_ops/shape_fitting` |
 | Subtrees | {doc}`tree_ops/subtrees` |
+| Sholl | {doc}`tree_ops/sholl` |
 | Synapses | {doc}`tree_ops/synapses` |
 | Mesh facet | {doc}`tree_ops/mesh` |
 | Editing | {doc}`tree_ops/tree_editing` |

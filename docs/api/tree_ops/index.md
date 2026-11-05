@@ -16,6 +16,7 @@ counting
 coordinates
 coordinate_moments
 path_lengths
+paths
 tree_topology
 degrees
 traversals
@@ -23,6 +24,7 @@ tree_structure
 tree_geometry
 shape_fitting
 subtrees
+sholl
 synapses
 mesh
 tree_editing

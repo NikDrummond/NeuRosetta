@@ -279,4 +279,4 @@ def test_invariance_suite_size_anchors():
     assert len(_TI) >= 20
     assert len(_RI) >= 15
     assert len(_SI) >= 15
-    assert len(_TOPO) == 20
+    assert len(_TOPO) == 28

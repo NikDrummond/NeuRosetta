@@ -6,8 +6,7 @@ from .algebra import magnitude
 
 
 def almost_zero(v, atol=1e-08):
-    """
-    Test whether a 3D vector is close to the origin.
+    """Test whether a 3D vector is close to the origin.
 
     Parameters
     ----------
@@ -25,8 +24,7 @@ def almost_zero(v, atol=1e-08):
 
 
 def almost_unit_length(vector, atol=1e-08):
-    """
-    Test whether a 3D vector has unit length.
+    """Test whether a 3D vector has unit length.
 
     Parameters
     ----------
@@ -45,8 +43,7 @@ def almost_unit_length(vector, atol=1e-08):
 
 
 def almost_collinear(v1, v2, atol=1e-08):
-    """
-    Test whether two 3D vectors are nearly collinear.
+    """Test whether two 3D vectors are nearly collinear.
 
     Parameters
     ----------
@@ -66,8 +63,7 @@ def almost_collinear(v1, v2, atol=1e-08):
 
 
 def almost_equal(v1, v2, atol=1e-08):
-    """
-    Test whether two 3D vectors are nearly equal.
+    """Test whether two 3D vectors are nearly equal.
 
     Parameters
     ----------

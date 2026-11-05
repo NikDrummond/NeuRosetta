@@ -59,8 +59,11 @@ def set_units(
     convert : bool, optional
         Rescale vertex coordinates when changing units. By default False
         (declare / re-tag only).
-    voxel_size, voxel_unit
-        Required when *units* is voxel-based.
+    voxel_size : float or None, optional
+        Cubic voxel edge when *units* is voxel-based. Required with
+        *voxel_unit*. By default None.
+    voxel_unit : str or None, optional
+        Unit of *voxel_size*. By default None.
     """
     if units is None:
         if voxel_size is None or voxel_unit is None:

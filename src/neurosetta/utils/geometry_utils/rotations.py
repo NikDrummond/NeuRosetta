@@ -20,8 +20,7 @@ def rotate_scalar(
     rotation_angle,
     assume_normalized=False,
 ):
-    """
-    Rotate a vector about an axis using Rodrigues' rotation formula.
+    """Rotate a vector about an axis using Rodrigues' rotation formula.
 
     Angle is in radians.
     """
@@ -79,9 +78,7 @@ def rotate_about_scalar(
     cz,
     assume_normalized=False,
 ):
-    """
-    Rotate a point about an axis passing through a point.
-    """
+    """Rotate a point about an axis passing through a point."""
 
     # Translate so the rotation centre is the origin.
     rx = x - cx
@@ -155,9 +152,7 @@ def rotate_about_xyz(
     cz,
     assume_normalized=False,
 ):
-    """
-    Rotate points about an axis passing through a point.
-    """
+    """Rotate points about an axis passing through a point."""
 
     n = x.size
 
@@ -187,8 +182,7 @@ def rotate_about_xyz(
 
 
 def rotate(x, y, z, ax, ay, az, rotation_angle, assume_normalized=False):
-    """
-    Rotate a 3D vector about an axis.
+    """Rotate a 3D vector about an axis.
 
     Uses Rodrigues' rotation formula. The rotation angle is in radians.
 
@@ -199,7 +193,7 @@ def rotate(x, y, z, ax, ay, az, rotation_angle, assume_normalized=False):
     ax, ay, az : float or ndarray
         Components of the rotation axis. A scalar axis may be broadcast
         against an array vector.
-    angle : float
+    rotation_angle : float
         Rotation angle in radians.
     assume_normalized : bool, default False
         If True, treat ``(ax, ay, az)`` as a unit vector.
@@ -220,8 +214,7 @@ def rotate(x, y, z, ax, ay, az, rotation_angle, assume_normalized=False):
 
 
 def minimum_rotation_to_align(x1, y1, z1, x2, y2, z2, assume_normalized=False):
-    """
-    Compute the minimum rotation that aligns one 3D vector with another.
+    """Compute the minimum rotation that aligns one 3D vector with another.
 
     The returned rotation is the shortest rotation taking vector 1 onto
     vector 2. The rotation angle is in radians and lies in the interval
@@ -364,9 +357,7 @@ def compute_alignment_rotation(
     b3=(0.0, 0.0, 1.0),
     assume_normalized=False,
 ):
-    """
-    Compute two minimum-rotation steps that align one orthonormal basis
-    with another.
+    """Compute two minimum-rotation steps that align one orthonormal basis with another.
 
     The first rotation aligns ``e1`` with ``b1``. The second rotation is
     then computed using the transformed ``e2`` and aligns it with ``b2``.
@@ -607,9 +598,7 @@ def compute_alignment_rotation(
 
 
 def apply_rotation_steps(x, y, z, step1, step2):
-    """
-    Apply two successive axis-angle rotations to a 3D vector or array
-    of vectors.
+    """Apply two successive axis-angle rotations to a vector or an array of vectors.
 
     The rotations are applied in the order ``step1`` followed by
     ``step2``.
@@ -656,8 +645,7 @@ def rotate_about(
     cz,
     assume_normalized=False,
 ):
-    """
-    Rotate a 3D point about an axis passing through a point.
+    """Rotate a 3D point about an axis passing through a point.
 
     Uses Rodrigues' rotation formula. The rotation angle is in radians.
 

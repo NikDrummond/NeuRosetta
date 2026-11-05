@@ -193,28 +193,40 @@ def aggregate_connectivity(
 ) -> pd.DataFrame:
     """Aggregate directed synaptic counts between neuron IDs.
 
+    Direction:
+
+    - ``pre`` / output on neuron A with partner B counts as ``A → B``
+    - ``post`` / input on neuron A with partner B counts as ``B → A``
+
     Parameters
     ----------
-    source
+    source : Forest, mapping, or sequence of Synapses
         A :class:`~neurosetta.core.forest._Forest`, a ``Mapping[owner_id,
         Synapses]``, or a ``Sequence[Synapses]`` whose tables each have
-        ``owner_id`` set. Morphology is not required for mapping/sequence input.
+        ``owner_id`` set. Morphology is not required for mapping or sequence
+        input.
+    include_external : bool, optional
+        If False, drop edges whose source or target is outside the input
+        population. By default False.
+    deduplicate : {\"auto\", \"id\", \"none\"}, optional
+        How to avoid counting the same physical synapse twice.
 
-    Direction
-    ---------
-    - ``pre`` / output on neuron A with partner B → ``A → B``
-    - ``post`` / input on neuron A with partner B → ``B → A``
+        ``\"auto\"``
+            Use ``cleft_id`` when present; otherwise do not cross-deduplicate
+            (per-neuron ``synapse_id`` is not assumed globally unique).
+        ``\"id\"``
+            Require ``cleft_id`` or ``synapse_id``; each ID is counted once.
+        ``\"none\"``
+            Count every synapse record (may double-count if both neurons store
+            the same physical synapse).
 
-    Deduplication
-    -------------
-    ``auto``
-        Use ``cleft_id`` when present; otherwise do not cross-deduplicate
-        (per-neuron ``synapse_id`` is not assumed globally unique).
-    ``id``
-        Require ``cleft_id`` or ``synapse_id``; each ID counted once.
-    ``none``
-        Count every synapse record (may double-count if both neurons store the
-        same physical synapse).
+        By default ``\"auto\"``.
+    min_synapses : int, optional
+        Drop directed pairs with fewer synapses than this. By default 1.
+    synapse_filter : callable, mapping, or None, optional
+        Applied to each table before counting. A callable is called as
+        ``synapse_filter(syn)``. A mapping is forwarded to
+        :meth:`~neurosetta.core.synapses.Synapses.filter`. By default None.
 
     Returns
     -------

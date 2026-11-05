@@ -86,11 +86,33 @@ def import_synapses(
 
     Parameters
     ----------
+    source : path, DataFrame, or Synapses
+        CSV / parquet path, an in-memory table, or an existing ``Synapses``.
+    tree : _Tree or None, optional
+        If given, bind the loaded table onto this morphology. By default None.
+    coordinate_columns : tuple of str, optional
+        ``(x, y, z)`` column names. By default ``(\"x\", \"y\", \"z\")``.
+    type_column : str, optional
+        Column holding pre/post labels. By default ``\"type\"``.
+    partner_column : str, optional
+        Column holding the partner neuron ID. By default ``\"partner_id\"``.
+    id_column : str, optional
+        Column holding the synapse ID. By default ``\"synapse_id\"``.
     set_units : str or None, optional
         Declare spatial units of the loaded coordinates (no rescale), e.g.
-        ``\"nm\"``, ``\"micron\"``, or ``\"voxel\"``. Default None.
-    voxel_size, voxel_unit
-        Required together when ``set_units=\"voxel\"``.
+        ``\"nm\"``, ``\"micron\"``, or ``\"voxel\"``. By default None.
+    voxel_size : float or None, optional
+        Cubic voxel edge when ``set_units=\"voxel\"``. Required with
+        *voxel_unit*. By default None.
+    voxel_unit : str or None, optional
+        Unit of *voxel_size*. By default None.
+    **read_csv_kwargs
+        Forwarded to :func:`pandas.read_csv` for text tables.
+
+    Returns
+    -------
+    Synapses
+        Loaded table, bound to *tree* when one was passed.
     """
     if isinstance(source, Synapses):
         syn = source.copy()
@@ -261,9 +283,9 @@ def extract_synapses(
         ``Synapses`` in the same order. Strings stay scalar (not iterated).
     pre_col, post_col : str, optional
         Column names for presynaptic / postsynaptic partner IDs.
-        Defaults ``"pre"`` / ``"post"``.
+        By default ``"pre"`` / ``"post"``.
     syn_id_col : str, optional
-        Column name for the synapse identifier. Default ``"id"``.
+        Column name for the synapse identifier. By default ``"id"``.
     pre_xyz_cols, post_xyz_cols : sequence of str, optional
         Length-3 column name triples for pre- and postsynaptic coordinates.
         Defaults ``("pre_x", "pre_y", "pre_z")`` and
@@ -271,12 +293,15 @@ def extract_synapses(
     include_extra : bool, optional
         If True, append every column of ``syn_df`` that is not one of the
         remapped identity / coordinate columns to each output table.
-        Default False.
+        By default False.
     set_units : str or None, optional
         Declare spatial units of the extracted coordinates (no rescale), e.g.
-        ``\"nm\"``, ``\"micron\"``, or ``\"voxel\"``. Default None.
-    voxel_size, voxel_unit
-        Required together when ``set_units=\"voxel\"``.
+        ``\"nm\"``, ``\"micron\"``, or ``\"voxel\"``. By default None.
+    voxel_size : float or None, optional
+        Cubic voxel edge when ``set_units=\"voxel\"``. Required with
+        *voxel_unit*. By default None.
+    voxel_unit : str or None, optional
+        Unit of *voxel_size*. By default None.
 
     Returns
     -------

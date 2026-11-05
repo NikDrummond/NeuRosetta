@@ -29,8 +29,9 @@ def bfsearch(
     root: int = 0,
     bind: bool = True,
 ):
-    """Wrapper for graph_tool's bfs_search that initializes properties and binds
-    them to the graph if bind = True.
+    """Run graph_tool ``bfs_search`` after initializing properties.
+
+    Initialized properties are bound onto the graph when ``bind`` is True.
 
     Parameters
     ----------
@@ -48,10 +49,10 @@ def bfsearch(
         Dictionary of edge property name and type pairs to initialize before
         the search.
     root : int, optional
-        Index of the root vertex to start the search from, by default 0.
+        Index of the root vertex to start the search from. By default 0.
     bind : bool, optional
-        Whether to bind the initialized properties to the graph after the search,
-        by default True. If False, the properties are not bound to the graph and
+        Whether to bind the initialized properties to the graph after the search.
+        By default True. If False, the properties are not bound to the graph and
         instead returned as a dictionary.
 
     Returns
@@ -100,10 +101,10 @@ def bf_iterator(g: Graph, root: int = 0, array: bool = True) -> Iterable | ndarr
     g : Graph
         Graph object.
     root : int, optional
-        Root node index, by default 0.
+        Root node index. By default 0.
     array : bool, optional
-        If False, returns iterator over edges, otherwise returns a numpy.ndarray,
-        by default True.
+        If False, return an iterator over edges. Otherwise return a numpy.ndarray.
+        By default True.
 
     Returns
     -------
@@ -168,8 +169,9 @@ def dfsearch(
     root: int = 0,
     bind: bool = True,
 ):
-    """Wrapper for graph_tool's dfs_search that initializes properties and binds
-    them to the graph if bind = True.
+    """Run graph_tool ``dfs_search`` after initializing properties.
+
+    Initialized properties are bound onto the graph when ``bind`` is True.
 
     Parameters
     ----------
@@ -187,10 +189,10 @@ def dfsearch(
         Dictionary of edge property name and type pairs to initialize before
         the search.
     root : int, optional
-        Index of the root vertex to start the search from, by default 0.
+        Index of the root vertex to start the search from. By default 0.
     bind : bool, optional
-        Whether to bind the initialized properties to the graph after the search,
-        by default True. If False, the properties are not bound to the graph and
+        Whether to bind the initialized properties to the graph after the search.
+        By default True. If False, the properties are not bound to the graph and
         instead returned as a dictionary.
 
     Returns
@@ -242,10 +244,10 @@ def df_iterator(g: Graph, root: int = 0, array: bool = True) -> Iterable | ndarr
     g : Graph
         Graph object.
     root : int, optional
-        Root node index, by default 0.
+        Root node index. By default 0.
     array : bool, optional
-        If False, returns iterator over edges, otherwise returns a numpy.ndarray,
-        by default True.
+        If False, return an iterator over edges. Otherwise return a numpy.ndarray.
+        By default True.
 
     Returns
     -------

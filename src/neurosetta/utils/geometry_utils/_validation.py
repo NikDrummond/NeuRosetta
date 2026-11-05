@@ -4,8 +4,7 @@ import numpy as np
 
 
 def pluralize(noun, count):
-    """
-    Return a noun in singular or plural form.
+    """Return a noun in singular or plural form.
 
     Parameters
     ----------
@@ -23,8 +22,7 @@ def pluralize(noun, count):
 
 
 def raise_dimension_error(*input_values):
-    """
-    Raise a ``ValueError`` for unsupported array dimensionalities.
+    """Raise a ``ValueError`` for unsupported array dimensionalities.
 
     Parameters
     ----------
@@ -50,8 +48,7 @@ def raise_dimension_error(*input_values):
 
 
 def check_value(arr, shape, name=None):
-    """
-    Validate that an array has an expected shape.
+    """Validate that an array has an expected shape.
 
     Wildcard dimensions are denoted by ``-1``.
 
@@ -110,8 +107,7 @@ def check_value(arr, shape, name=None):
 
 
 def check_value_any(arr, *shapes, name=None):
-    """
-    Validate that an array matches one of several expected shapes.
+    """Validate that an array matches one of several expected shapes.
 
     Parameters
     ----------
@@ -164,8 +160,7 @@ def check_value_any(arr, *shapes, name=None):
 
 
 def check(locals_namespace, name, shape):
-    """
-    Validate a local variable against an expected shape.
+    """Validate a local variable against an expected shape.
 
     Convenience wrapper around :func:`check_value` for use inside functions
     that already hold arguments in a ``locals()`` namespace.
@@ -188,8 +183,7 @@ def check(locals_namespace, name, shape):
 
 
 def columnize(arr, shape=(-1, 3), name=None):
-    """
-    Ensure an array has a columnar shape, reshaping if needed.
+    """Ensure an array has a columnar shape, reshaping if needed.
 
     Parameters
     ----------
@@ -226,8 +220,7 @@ def columnize(arr, shape=(-1, 3), name=None):
 
 ### Check
 def _check_scalar(x, y, z):
-    """
-    Check whether three vector components represent a scalar 3D vector.
+    """Check whether three vector components represent a scalar 3D vector.
 
     Parameters
     ----------
@@ -263,8 +256,7 @@ def _check_vector_broadcast(
     y3=None,
     z3=None,
 ):
-    """
-    Check whether two or three vectors require broadcasting.
+    """Check whether two or three vectors require broadcasting.
 
     Returns
     -------
@@ -321,8 +313,7 @@ def _broadcast_vectors(
     y3=None,
     z3=None,
 ):
-    """
-    Broadcast two or three vectors.
+    """Broadcast two or three vectors.
 
     Returns
     -------

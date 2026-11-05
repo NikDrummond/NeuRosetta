@@ -133,11 +133,19 @@ def set_meshes(
         Policy when a tree has no matching mesh. By default ``\"warn\"``.
     unused : {\"error\", \"warn\", \"ignore\"}, optional
         Policy when a mesh matches no tree. By default ``\"ignore\"``.
-    set_units, voxel_size, voxel_unit
-        Forwarded to :func:`~neurosetta.import_mesh` when *meshes* is a path.
-    id_map, id_resolver
-        Forwarded to :func:`~neurosetta.import_mesh` when *meshes* is a path,
-        so differently named mesh files can share logical IDs with trees.
+    set_units : str or None, optional
+        Spatial units declared when *meshes* is a path (no rescale).
+        By default None.
+    voxel_size : float or None, optional
+        Cubic voxel edge when ``set_units=\"voxel\"``. By default None.
+    voxel_unit : str or None, optional
+        Unit of *voxel_size*. By default None.
+    id_map : mapping or None, optional
+        File stem → logical ID, forwarded to :func:`~neurosetta.import_mesh`
+        when *meshes* is a path. By default None.
+    id_resolver : callable or None, optional
+        ``(path) -> ID`` forwarded to :func:`~neurosetta.import_mesh` when
+        *meshes* is a path. By default None.
 
     Returns
     -------

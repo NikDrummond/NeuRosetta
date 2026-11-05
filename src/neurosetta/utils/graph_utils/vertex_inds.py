@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 from graph_tool.all import Graph
-from numpy import concatenate, ndarray, unique, where
+from numpy import array, concatenate, ndarray, unique, where
 
 from .traversals import bf_iterator, df_iterator
+from .tree_validation import as_vertex_index
 
 
 def root_index(g: Graph) -> int:
@@ -140,34 +141,51 @@ def subtree_indices(g: Graph, root: int, traversal_order: str = "Breadth") -> nd
     Returns
     -------
     ndarray
-        Sorted array of vertex indices in the subtree.
+        Sorted array of vertex indices in the subtree, including *root*.
+        A leaf-rooted subtree is ``array([root])``.
 
     Raises
     ------
+    TypeError
+        If *root* is not an integer vertex index.
     ValueError
-        If traversal_order is not "Breadth" or "Depth".
+        If *root* is outside the vertex index space, or *traversal_order*
+        is not ``"Breadth"`` or ``"Depth"``.
+
+    Notes
+    -----
+    Ordering is the sorted unique vertex set, for both traversal orders.
+    Breadth-first and depth-first therefore return the same indices.
     """
+    root = as_vertex_index(g, root)
     if traversal_order == "Breadth":
-        return unique(bf_iterator(g, root, array=True))
-    if traversal_order == "Depth":
-        return unique(df_iterator(g, root, array=True))
-    raise ValueError(f"traversal_order must be Breadth or Depth, not {traversal_order}")
+        edges = bf_iterator(g, root, array=True)
+    elif traversal_order == "Depth":
+        edges = df_iterator(g, root, array=True)
+    else:
+        raise ValueError(f"traversal_order must be Breadth or Depth, not {traversal_order}")
+    if edges is None or array(edges).size == 0:
+        return array([root], dtype=int)
+    verts = unique(array(edges))
+    if root not in verts:
+        verts = unique(concatenate((verts, [root])))
+    return verts
 
 
 def bifurcation_indices(g: Graph, include_root: bool = False) -> ndarray:
-    """Return indices of bifurcation in tree graph.
+    """Return indices of bifurcations in a tree graph.
 
     Parameters
     ----------
     g : Graph
-        Directed tree graph
+        Directed tree graph.
     include_root : bool, optional
-        If True, include root index if it is a bifurcation, by default False
+        If True, include the root index when it is a bifurcation. By default False.
 
     Returns
     -------
     ndarray
-        Array of bifurcation vertex indices
+        Array of bifurcation vertex indices.
     """
     if include_root:
         return where(g.degree_property_map("out").a == 2)[0]

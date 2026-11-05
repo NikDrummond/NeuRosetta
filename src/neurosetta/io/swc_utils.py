@@ -49,7 +49,7 @@ def import_swc(
     voxel_unit: str | None = None,
     parallel: bool | None = None,
     max_workers: int | None = None,
-    show_progress: bool = False,
+    show_progress: bool | None = None,
 ) -> _Tree: ...
 
 
@@ -65,7 +65,7 @@ def import_swc(
     voxel_unit: str | None = None,
     parallel: bool | None = None,
     max_workers: int | None = None,
-    show_progress: bool = False,
+    show_progress: bool | None = None,
 ) -> _Forest: ...
 
 
@@ -80,10 +80,9 @@ def import_swc(
     voxel_unit: str | None = None,
     parallel: bool | None = None,
     max_workers: int | None = None,
-    show_progress: bool = False,
+    show_progress: bool | None = None,
 ):
-    """
-    Import one or more SWC morphology files as trees.
+    """Import one or more SWC morphology files as trees.
 
     This function imports neuron morphology data stored in SWC format and
     converts it into neurosetta.Tree objects. If a single `.swc` file is
@@ -104,7 +103,7 @@ def import_swc(
         Path to a `.swc` file or to a directory containing `.swc` files.
     ID : hashable or None, optional
         Explicit logical ID for a **single-file** import. Ignored for
-        directory imports (use ``id_map`` / ``id_resolver``). Default None.
+        directory imports (use ``id_map`` / ``id_resolver``). By default None.
     id_map : mapping or None, optional
         Map file stems to logical IDs (useful for batch imports).
     id_resolver : callable or None, optional
@@ -119,16 +118,17 @@ def import_swc(
         with ``voxel_unit`` for voxel coordinates.
     voxel_unit : str or None, optional
         Spatial unit for the voxel edge length, e.g. ``"nm"``.
-    parallel : bool, optional
+    parallel : bool or None, optional
         If True, import multiple SWC files in parallel when loading from a
-        directory. Default is False.
+        directory. By default None, which follows the I/O scope
+        (``parallel_io``, else ``parallel_default``).
     max_workers : int or None, optional
         Maximum number of worker processes or threads to use when
         ``parallel=True``. If None, the default executor configuration
         is used. Default is None.
-    show_progress : bool, optional
+    show_progress : bool or None, optional
         If True, display a progress indicator while importing multiple SWC
-        files. Default is False.
+        files. By default None, which follows ``configure(show_progress=...)``.
 
     Returns
     -------
@@ -255,7 +255,7 @@ def export_swc(
     header: str | None = None,
     parallel: bool | None = None,
     max_workers: int | None = None,
-    show_progress: bool = False,
+    show_progress: bool | None = None,
 ) -> None: ...
 
 
@@ -266,10 +266,9 @@ def export_swc(
     header: str | None = None,
     parallel: bool | None = None,
     max_workers: int | None = None,
-    show_progress: bool = False,
+    show_progress: bool | None = None,
 ) -> None:
-    """
-    Export a tree or forest to SWC morphology files.
+    """Export a tree or forest to SWC morphology files.
 
     This function serializes a ``Tree`` or all trees in a ``Forest`` to SWC
     format. A single tree is written to one `.swc` file, while a forest is
@@ -289,16 +288,17 @@ def export_swc(
         Custom header text to include at the top of each SWC file. If None,
         a default header identifying the generator and serialized metadata
         (including units) is used. Default is None.
-    parallel : bool, optional
+    parallel : bool or None, optional
         If True, export multiple trees in parallel when ``tree`` is a
-        ``Forest``. Default is False.
+        ``Forest``. By default None, which follows the I/O scope
+        (``parallel_io``, else ``parallel_default``).
     max_workers : int or None, optional
         Maximum number of worker processes or threads to use when
         ``parallel=True``. If None, the default executor configuration
         is used. Default is None.
-    show_progress : bool, optional
+    show_progress : bool or None, optional
         If True, display a progress indicator while exporting multiple trees.
-        Default is False.
+        By default None, which follows ``configure(show_progress=...)``.
 
     Returns
     -------

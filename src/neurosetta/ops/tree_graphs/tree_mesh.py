@@ -182,8 +182,13 @@ def set_mesh(
         are rejected — use :func:`~neurosetta.set_meshes` on a Forest.
         ``ID`` must match ``tree.ID`` (numeric coercion allowed). Units must
         agree when both sides declare them.
-    set_units, voxel_size, voxel_unit
-        Forwarded to :func:`~neurosetta.import_mesh` when *data* is a path.
+    set_units : str or None, optional
+        Spatial units declared when *data* is a path (no rescale).
+        By default None.
+    voxel_size : float or None, optional
+        Cubic voxel edge when ``set_units=\"voxel\"``. By default None.
+    voxel_unit : str or None, optional
+        Unit of *voxel_size*. By default None.
 
     Returns
     -------

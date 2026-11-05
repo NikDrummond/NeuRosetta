@@ -34,14 +34,14 @@ def test_max_subgraph_ind(graph_with_path_length):
 
 def test_partition_asymmetry_unweighted(graph_with_path_length):
     g = graph_with_path_length.copy()
-    pa = partition_asymmetry(g, weighted=False, bind=False)
+    pa = partition_asymmetry(g, mode="unweighted", bind=False)
     assert pa.shape == (17,)
     assert pa[g.get_out_degrees(g.get_vertices()) >= 2].sum() >= 0
 
 
 def test_partition_asymmetry_weighted(graph_with_path_length):
     g = graph_with_path_length.copy()
-    pa = partition_asymmetry(g, weighted=True, bind=False)
+    pa = partition_asymmetry(g, mode="weighted", bind=False)
     assert pa.shape == (17,)
 
 
