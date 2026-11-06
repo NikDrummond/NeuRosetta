@@ -17,8 +17,15 @@ def test_get_root_distance_bind_false(test_tree):
     dist = get_root_distance(test_tree, bind=False)
     assert dist is not None
     assert dist.shape == (test_tree.graph.num_vertices(),)
-    assert float(dist[root_index(test_tree.graph)]) == 0.0
+    root = root_index(test_tree.graph)
+    assert float(dist[root]) == 0.0
     assert (dist >= 0).all()
+    # The returned array must be owned. A view into the temporary graph-tool
+    # map is freed when the call returns and later reads are garbage.
+    dist[:] = -1.0
+    again = get_root_distance(test_tree, bind=False)
+    assert float(again[root]) == 0.0
+    assert float(dist[root]) == -1.0
 
 
 def test_get_root_distance_bind_true(test_tree):

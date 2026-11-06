@@ -1,0 +1,15 @@
+cff-version: 1.2.0
+title: NeuRosetta
+message: >-
+  If you use NeuRosetta, please cite this repository. A peer-reviewed
+  software paper and a DOI are not available yet; do not invent one.
+type: software
+authors:
+  - family-names: Drummond
+    given-names: Nikolas
+    email: nikolasdrummond@gmail.com
+repository-code: https://github.com/NikDrummond/NeuRosetta
+url: https://nikdrummond.github.io/NeuRosetta/
+license: LGPL-3.0-only
+version: 0.1.0
+date-released: 2026-11-06

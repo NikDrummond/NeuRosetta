@@ -7,7 +7,7 @@ from typing import Literal
 
 import pandas as pd
 
-from ...ops._doc_helpers import TREE_METHOD_ALIASES
+from ...api_names import TREE_METHOD_ALIASES
 
 MetricDomain = Literal["topology", "intrinsic_geometry", "embedding"]
 MetricLevel = Literal[
@@ -392,7 +392,12 @@ METRIC_DEFINITIONS: tuple[MetricDefinition, ...] = (
         "get_edge_length",
         "Path lengths",
         "path_lengths",
-        notes="Euclidean length per edge; cable semantics depend on reduction state.",
+        notes=(
+            "Edge length in edge-index order. Returns stored Path_length when "
+            "present, including accumulated section cable on a reduced tree. "
+            "That is not the Euclidean chord. recalculate=True recomputes "
+            "endpoint distances."
+        ),
         **_INTRINSIC_LENGTH,
         level="edge",
     ),

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from graph_tool.all import Graph
-from numpy import array, concatenate, ndarray, unique, where
+from numpy import argsort, array, concatenate, empty, full, ndarray, unique, where
 
 from .traversals import bf_iterator, df_iterator
 from .tree_validation import as_vertex_index
@@ -89,6 +89,55 @@ def core_indices(g: Graph, include_root: bool = True) -> ndarray:
     return inds
 
 
+def _edges_in_index_order(g: Graph) -> ndarray:
+    """Return live ``(source, target)`` rows sorted by ``g.edge_index``.
+
+    ``Graph.get_edges()`` is not edge-index order for graphs built with
+    ``hashed=True`` (SWC import, reduction, rerooting). When edge indices
+    are exactly ``0 .. num_edges()-1``, row ``i`` is edge index ``i`` and
+    lines up with ``ep.*.a``.
+
+    ``remove_edge`` without ``purge_edges`` leaves gaps, so a surviving
+    edge can have an index greater than ``num_edges()-1``. Those graphs
+    still get one row per live edge, in increasing edge-index order. Row
+    ``i`` is then not edge index ``i``. Callers that stored an edge index
+    must not use it as a row until the graph is purged.
+    """
+    n = int(g.num_edges())
+    out = empty((n, 2), dtype=int)
+    if n == 0:
+        return out
+    indices = empty(n, dtype=int)
+    for i, edge in enumerate(g.edges()):
+        indices[i] = int(g.edge_index[edge])
+        out[i, 0] = int(edge.source())
+        out[i, 1] = int(edge.target())
+    order = argsort(indices, kind="stable")
+    return out[order]
+
+
+def source_index_by_edge_index(g: Graph) -> ndarray:
+    """Source vertex of each live edge, addressable by ``g.edge_index``.
+
+    The array length is ``max(edge_index) + 1``. Indices of edges deleted
+    but not purged are ``-1``.
+    """
+    n = int(g.num_edges())
+    if n == 0:
+        return empty(0, dtype=int)
+    max_index = -1
+    pairs: list[tuple[int, int]] = []
+    for edge in g.edges():
+        index = int(g.edge_index[edge])
+        pairs.append((index, int(edge.source())))
+        if index > max_index:
+            max_index = index
+    sources = full(max_index + 1, -1, dtype=int)
+    for index, source in pairs:
+        sources[index] = source
+    return sources
+
+
 def edge_indices(g: Graph, root: int | None = None, traversal_order: str = "Breadth") -> ndarray:
     """Return edge index array.
 
@@ -97,7 +146,8 @@ def edge_indices(g: Graph, root: int | None = None, traversal_order: str = "Brea
     g : Graph
         Directed tree graph.
     root : int or None, optional
-        Root vertex index for subtree extraction. If None, return all edges.
+        Root vertex index for subtree extraction. If None, return all edges
+        in graph-tool edge-index order (the order of ``ep.*.a``).
         By default None.
     traversal_order : {"Breadth", "Depth"}, optional
         Traversal order for subtree extraction. Only used if root is provided.
@@ -107,7 +157,10 @@ def edge_indices(g: Graph, root: int | None = None, traversal_order: str = "Brea
     -------
     ndarray
         Array of edges with shape (n_edges, 2), where each row is
-        (source, target).
+        (source, target). With ``root=None`` and no unpurged deletions,
+        row ``i`` is the edge whose ``g.edge_index`` is ``i``. After
+        ``remove_edge`` without ``purge_edges``, rows are the surviving
+        edges in increasing edge-index order.
 
     Raises
     ------
@@ -115,7 +168,7 @@ def edge_indices(g: Graph, root: int | None = None, traversal_order: str = "Brea
         If traversal_order is not "Breadth" or "Depth".
     """
     if root is None:
-        edges = g.get_edges()
+        edges = _edges_in_index_order(g)
     else:
         if traversal_order == "Breadth":
             edges = bf_iterator(g, root, array=True)

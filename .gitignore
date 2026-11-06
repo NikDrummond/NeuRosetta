@@ -122,3 +122,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Editor local history (not project data)
+.history/
+
+# Local benchmark and example outputs
+benchmarks/results/
+examples/output/

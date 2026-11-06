@@ -22,21 +22,19 @@ The second button switches to a [Bionic Reading](https://bionic-reading.com/br-a
 
 ## Why aren't we on Pip or conda yet?
 
-Simply, we are in the early days of `NeuRosetta`. It doesn't even have a cool logo yet! There are a number of additions I have implemented, or 90% complete, which are not yet built into the `NeuRosetta` architecture. Something about doing a PhD and everything being in piles that only God and myslef understand, and most of the time only God.
+NeuRosetta is at version 0.1.0 and is not yet published on PyPI or conda-forge. graph-tool has to be installed from conda-forge, so a plain `pip install` is not a complete installation. A versioned release is appropriate once the validation suite in {doc}`development/publication_readiness` is part of the maintained test run.
 
-Once I get close to a `v.1` release, the build will be stable enough to justify Pip or conda. right now, as I am adding features at a fairly fast pace, there doesn't seem much point.
-
-Below I've listed what is likely to be built in (very) soon, as it pretty much already exists, and what will come further in the future. Or sooner if I descide it is important.
+The lists below are the current roadmap. Checked items are already in the package.
 
 ### Coming (very) soon
 
 - [x] Synaptic data, connectivity within forests, etc.
 - [x] Neuron mesh facet (`tree.mesh` / `forest.set_meshes`) — mesh-only as main story soft-deprecated.
 - [x] Workspaces (v1): persistent ``.nrw`` archives for Forest + named selections + analysis results.
-- [ ] Topological descriptors on tree graphs (through `Ghudi`).
+- [ ] Topological descriptors on tree graphs (through GUDHI).
 - [ ] Expanded compartmentalisation of neuron morphology.
 - [ ] Neuropil / anatomical-frame mesh polish.
-- [ ] stochastic block models / other graph theory approaches through `graph-tool` and syanapse update.
+- [ ] Stochastic block models and other graph-tool connectivity models, plus synapse updates.
 
 ### Future planned updates
 
@@ -141,6 +139,7 @@ tutorials/gui
 
 development/architecture
 development/extending_nr
+development/publication_readiness
 ```
 
 ```{toctree}

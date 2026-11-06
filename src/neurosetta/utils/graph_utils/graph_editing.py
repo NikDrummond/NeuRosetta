@@ -84,8 +84,9 @@ def reduce_graph(
     edges = vstack((vis.edge_source, vis.edge_target)).T
     # make graph from edge list
     g_red = Graph(edges, hashed=True, hash_type=int)
-    # add path lengths to edges (reduced sections always use Path_length)
-    g_red.ep["Path_length"] = g_red.new_ep("float", vis.path_lengths)
+    # Section i is edge index i. new_ep(array) writes by edge index, which
+    # matches that order even when get_edges() does not.
+    g_red.ep["Path_length"] = g_red.new_ep("double", vis.path_lengths)
     # add coordinates to verts
     coords = vertex_coordinates(g)[g_red.vp["ids"].a]
     g_red.vp["x"] = g_red.new_vp("double", coords[:, 0])
@@ -131,17 +132,21 @@ def _migrate_edge_length(g_src: Graph, g_dst: Graph, prop_name: str) -> None:
     for row in g_src.get_edges([g_src.ep[prop_name]]):
         lookup[_undirected_key(int(row[0]), int(row[1]))] = float(row[2])
     ids = g_dst.vp["ids"].a
-    new_edges = g_dst.get_edges()
-    lengths = empty(new_edges.shape[0], dtype=float)
-    for i, (src, tgt) in enumerate(new_edges):
-        key = _undirected_key(int(ids[int(src)]), int(ids[int(tgt)]))
+    # new_ep(array) writes by edge index. Hashed graphs do not iterate in
+    # that order, so index the array with g.edge_index rather than get_edges().
+    lengths = empty(g_dst.num_edges(), dtype=float)
+    for edge in g_dst.edges():
+        src = int(edge.source())
+        tgt = int(edge.target())
+        key = _undirected_key(int(ids[src]), int(ids[tgt]))
         try:
-            lengths[i] = lookup[key]
+            value = lookup[key]
         except KeyError as exc:
             raise ValueError(
                 f"Cannot migrate edge property {prop_name!r} while rerooting: "
                 f"no original edge between vertices {key[0]} and {key[1]}."
             ) from exc
+        lengths[int(g_dst.edge_index[edge])] = value
     g_dst.ep[prop_name] = g_dst.new_ep("double", lengths)
 
 

@@ -6,22 +6,15 @@ from collections.abc import Callable
 from inspect import cleandoc
 from typing import Any
 
-# Tree method name when it differs from the underlying op function name.
-TREE_METHOD_ALIASES: dict[str, str] = {
-    "breadth_first_search": "tree_breadth_first_search",
-    "breadth_first_iterator": "tree_breadth_first_iterator",
-    "depth_first_search": "tree_depth_first_search",
-    "depth_first_iterator": "tree_depth_first_iterator",
-    "check_reduced": "is_reduced",
-    "reduce_tree": "get_reduced_tree",
-    "reroot_tree": "get_rerooted_tree",
-    "mask_subtree_from_root": "subtree_mask_from_root",
-}
+from ..api_names import FOREST_METHOD_ALIASES, TREE_METHOD_ALIASES
 
-# Forest method name when it differs from the underlying op function name.
-FOREST_METHOD_ALIASES: dict[str, str] = {
-    "check_reduced": "is_reduced",
-}
+__all__ = [
+    "FOREST_BOUND_OPS",
+    "FOREST_METHOD_ALIASES",
+    "TREE_METHOD_ALIASES",
+    "api_binding_note",
+    "enrich_tree_graph_docstrings",
+]
 
 # Ops in tree_graphs that are also exposed on Forest (via Forest.apply batch API).
 FOREST_BOUND_OPS: frozenset[str] = frozenset(

@@ -36,6 +36,19 @@ def test_core_indices_excludes_root(simple_tree):
 def test_edge_indices_all_edges(simple_tree):
     edges = edge_indices(simple_tree)
     assert edges.shape == (16, 2)
+    for edge in simple_tree.edges():
+        index = int(simple_tree.edge_index[edge])
+        assert edges[index].tolist() == [int(edge.source()), int(edge.target())]
+
+
+def test_edge_indices_after_unpurged_deletion(simple_tree):
+    """``remove_edge`` leaves index gaps. Plots still need the live edges."""
+    removed = next(simple_tree.edges())
+    removed_ends = (int(removed.source()), int(removed.target()))
+    simple_tree.remove_edge(removed)
+    edges = edge_indices(simple_tree)
+    assert edges.shape == (15, 2)
+    assert removed_ends not in {tuple(row) for row in edges.tolist()}
 
 
 def test_subtree_indices_from_root(simple_tree):

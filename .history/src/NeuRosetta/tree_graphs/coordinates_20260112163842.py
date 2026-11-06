@@ -1,1 +1,0 @@
-# frunctions to get coordinates

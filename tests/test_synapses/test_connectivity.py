@@ -74,6 +74,27 @@ def test_connectivity_direction_and_weights():
     assert forest.get_in_strength()[2] == 7
 
 
+def test_reused_integer_cleft_ids_are_not_two_synapses():
+    """``cleft_id`` is a global physical-synapse id under ``deduplicate='auto'``.
+
+    Reusing ``0..n-1`` on both neurons, as an older tutorial did, drops the
+    reciprocal direction. Distinct ids keep both directions.
+    """
+    a, b = _blank_tree(1), _blank_tree(2)
+    _attach(a, [_syn(i, "pre", 2, i) for i in range(2)])
+    _attach(b, [_syn(10 + i, "pre", 1, i) for i in range(2)])
+    collapsed = Forest([a, b]).get_connectivity_table(deduplicate="auto")
+    assert len(collapsed) == 1
+    assert int(collapsed.iloc[0]["synapse_count"]) == 2
+
+    _attach(a, [_syn(i, "pre", 2, f"a{i}") for i in range(2)])
+    _attach(b, [_syn(10 + i, "pre", 1, f"b{i}") for i in range(2)])
+    both = Forest([a, b]).get_connectivity_table(deduplicate="auto")
+    counts = {(r.source_id, r.target_id): r.synapse_count for r in both.itertuples()}
+    assert counts[(1, 2)] == 2
+    assert counts[(2, 1)] == 2
+
+
 def test_deduplicate_shared_cleft():
     a, b = _blank_tree(1), _blank_tree(2)
     # Same physical synapse recorded on both neurons.

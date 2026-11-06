@@ -2,7 +2,7 @@
 
 from typing import Literal
 
-from numpy import ndarray
+from numpy import array, ndarray
 
 from ...core import _Tree
 from ...utils.geometry_utils import euclidean_distance
@@ -27,8 +27,18 @@ LengthType = Literal["Path", "Euclidean"]
 def get_edge_length(tree: _Tree, bind: bool = True, recalculate: bool = False) -> ndarray | None:
     """Get length of edges.
 
-    For a non-reduced neuron, this is the "path length" of each edge in the graph.
-    For a reduced neuron, this is the Euclidean distance between nodes.
+    Row ``i`` is graph-tool edge index ``i`` (the index into ``ep.*.a``),
+    not necessarily the row order of ``Graph.get_edges()``.
+
+    When ``Path_length`` is present it is returned, including on a reduced
+    tree, where that property is the accumulated cable of the collapsed
+    section. That cable is not the Euclidean chord between the surviving
+    vertices. ``Euclidean_length`` is used only when ``Path_length`` is
+    absent. If neither property exists, lengths are the Euclidean distances
+    between the current endpoints and are stored as ``Path_length`` on a
+    non-reduced tree or ``Euclidean_length`` on a reduced tree.
+    ``recalculate=True`` always recomputes those endpoint distances and
+    ignores stored cable.
 
     Parameters
     ----------
@@ -148,7 +158,9 @@ def get_root_distance(
         bound_name = "Root_distance" if length_type == "Path" else "Root_euclidean_distance"
         tree.graph.vp[bound_name] = rd
         return None
-    return rd.a
+    # ``rd`` is not stored on the graph. ``rd.a`` is a view into that map and
+    # becomes invalid as soon as ``rd`` is freed, so return an owned copy.
+    return array(rd.a, dtype=float, copy=True)
 
 
 def _source_distance_name(source: int, ep, directed: bool) -> str:

@@ -43,7 +43,7 @@ mamba activate nr
 
 ## Example Data
 
-NeuRosetta comes with some example data from the [FlyWire](flywire.ai) dataset. We povide the following neuron skeletons in both `.swc`, [a standad neuron morphology file type](http://www.neuronland.org/NLMorphologyConverter/MorphologyFormats/SWC/Spec.html), and `.nr`, which is NeuRosettas own file type, which you can read about in the [NeuRosetta documentation](https://nikdrummond.github.io/NeuRosetta/).
+NeuRosetta comes with some example data from the [FlyWire](flywire.ai) dataset. We provide the following neuron skeletons in both `.swc`, [a standard neuron morphology file type](http://www.neuronland.org/NLMorphologyConverter/MorphologyFormats/SWC/Spec.html), and `.nr`, which is NeuRosetta's own file type, which you can read about in the [NeuRosetta documentation](https://nikdrummond.github.io/NeuRosetta/).
 The example dataset used come from the following papers: [1](#ref1), [2](#ref2), [3](#ref3).
 
 You can start up NeuRosetta and read in the example files to start playing around like so:
@@ -89,7 +89,7 @@ nr.start_GUI()
   `Tree_mesh`); neuropil surfaces, point-to-surface distances, alpha-shape
   reconstruction from forest coordinates.
 - **GUI**: PySide6 desktop app for inspection, rerooting, and subtree picking.
-- **Extendable** NeuRosetta has (to my mind at least??) been built in a way which allows for easy extendability and adding features. It is worrth reading the `Architecture` section of the documentation though.
+- **Extendable** NeuRosetta is structured so that new measurements can be added without rewriting the graph layer. Read the Architecture section of the documentation before adding a public method.
 
 ## Contributing
 

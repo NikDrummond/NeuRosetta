@@ -112,9 +112,9 @@ def get_edge_indices(
     tree : _Tree
         Neuron tree.
     root : int | None, optional
-        If provided, returns all edges downstream of the given root in a
-        breadth-first search ordering. If None, defaults to the root node
-        of the neuron. By default None.
+        If provided, returns edges downstream of this vertex in
+        ``traversal_order``. If None, returns every edge in graph-tool
+        edge-index order, aligned with edge property arrays. By default None.
     traversal_order : str, optional
         Traversal order for subtree extraction, must be "Breadth" or "Depth".
         By default "Breadth".
@@ -142,9 +142,8 @@ def get_external_edge_indices(
     tree : _Tree
         Neuron tree.
     root : int | None, optional
-        If provided, returns all edges downstream of the given root in a
-        breadth-first search ordering. If None, defaults to the root node
-        of the neuron. By default None.
+        Same selection as :func:`get_edge_indices`. None returns every edge
+        in edge-index order. By default None.
     traversal_order : str, optional
         Traversal order for subtree extraction, must be "Breadth" or "Depth".
         By default "Breadth".
@@ -174,9 +173,8 @@ def get_internal_edge_indices(
     tree : _Tree
         Neuron tree.
     root : int | None, optional
-        If provided, returns all edges downstream of the given root in a
-        breadth-first search ordering. If None, defaults to the root node
-        of the neuron. By default None.
+        Same selection as :func:`get_edge_indices`. None returns every edge
+        in edge-index order. By default None.
     traversal_order : str, optional
         Traversal order for subtree extraction, must be "Breadth" or "Depth".
         By default "Breadth".

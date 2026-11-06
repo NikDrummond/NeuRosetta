@@ -117,7 +117,7 @@ Rule of thumb:
 
 Details: {doc}`io`.
 
-NeuRosetta generally much prefers `.nr` files, and they are geneally significantly smaller/faster to read and write than standad text based `.swc` files. We will include other file formats eventually however.
+NeuRosetta generally much prefers `.nr` files, and they are generally significantly smaller and faster to read and write than standard text-based `.swc` files. Other file formats may be added later.
 
 ## Reduced trees
 

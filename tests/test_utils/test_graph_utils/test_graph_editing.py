@@ -1,5 +1,6 @@
 """Tests for graph_utils.graph_editing."""
 
+import pytest
 from numpy import array_equal
 
 from neurosetta.utils.graph_utils.counting import count_vertices
@@ -54,6 +55,31 @@ def test_reroot_preserves_total_path_length(reduced_graph_fixture):
     rerooted = reroot_graph(reduced, int(leaf_indices(reduced)[0]))
     assert_allclose(rerooted.ep["Path_length"].a.sum(), reduced_before)
     assert_allclose(reduced_before, before)
+
+
+def test_reroot_keeps_length_on_the_same_segment(reduced_graph_fixture):
+    """Each undirected segment keeps its cable length after rerooting.
+
+    A sum check cannot see lengths that were written onto the wrong edge.
+    """
+    g = reduced_graph_fixture.copy()
+
+    def segment_lengths(graph, id_of):
+        found = {}
+        for edge in graph.edges():
+            src = int(id_of[int(edge.source())])
+            tgt = int(id_of[int(edge.target())])
+            key = (src, tgt) if src <= tgt else (tgt, src)
+            found[key] = float(graph.ep["Path_length"][edge])
+        return found
+
+    original_ids = list(range(g.num_vertices()))
+    before = segment_lengths(g, original_ids)
+    rerooted = reroot_graph(g, int(leaf_indices(g)[0]))
+    after = segment_lengths(rerooted, rerooted.vp["ids"].a)
+    assert set(before) == set(after)
+    for key, length in before.items():
+        assert after[key] == pytest.approx(length)
 
 
 def test_reroot_graph_reinfers_node_types(reduced_graph_fixture):

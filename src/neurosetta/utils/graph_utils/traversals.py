@@ -306,8 +306,12 @@ class ReduceVisitor(DFSVisitor):
         self.section_edge_lengths: list[list[float]] = []
         self._section_edges: list[int] = []
         self._section_lengths: list[float] = []
-        edges = graph.get_edges()
-        self._edge_lookup = {(int(s), int(t)): i for i, (s, t) in enumerate(edges)}
+        # Key by graph-tool edge index, not Graph.get_edges() row order.
+        # Hashed graphs (import, reduction, reroot) permute those two orders.
+        self._edge_lookup = {
+            (int(edge.source()), int(edge.target())): int(graph.edge_index[edge])
+            for edge in graph.edges()
+        }
 
     def tree_edge(self, e):
         """Edge behaviour during traversal."""

@@ -22,7 +22,7 @@ use Miniconda, add `mamba` for faster dependency solves:
 conda install -n base -c conda-forge mamba -y
 ```
 
-To create a minimal envionment manually you can do:
+To create a minimal environment manually you can do:
 
 ```bash
 mamba create -n nr -c conda-forge python=3.11 graph-tool pyside6
@@ -33,9 +33,9 @@ mamba activate nr
 ```{note}
 ### PySide6 Installation
 
-`pyside6` is needed in order to run the Neuosetta GUI, but is not technically needed for NeuRosetta in general, so you only need this if you wish to use the GUI. 
+`import neurosetta` currently imports the GUI. `pyproject.toml` lists PySide6 and vedo as required dependencies, so a working install needs them even for metric-only use. The GUI itself is only needed if you open a window. Making that import lazy is still open; do not omit PySide6 and expect `import neurosetta` to succeed.
 
-`pyside6` should come from conda-forge, not pip, ass PySide6 (Qt 6.5+) needs the system lib `libxcb-cursor0`, but PySide6 on PyPI still dependss on OS X11 libs, so it won't install this.
+`pyside6` should come from conda-forge, not pip, as PySide6 (Qt 6.5+) needs the system lib `libxcb-cursor0`, but PySide6 on PyPI still depends on OS X11 libs, so it won't install this.
 ```
 
 You can switch `nr` to whatever you want the environment to be named. For a working NeuRosetta install you will also need the remaining runtime
@@ -43,7 +43,7 @@ dependencies (`numpy`, `scipy`, `pandas`, `matplotlib`, `vedo`, `trimesh`,
 `pyside6`, and others). The full list is in `environment.yml` and
 `pyproject.toml`.
 
-Altenatively, if you have either cloned the [NeuRosetta](https://github.com/NikDrummond/NeuRosetta.git) repo fom github, downloaded the `environment.yml` file from the repo, or simply copied its contents into your own `.yml` file, you can creat the needed environment with all dependencies as follows (this includes **graph_tool** amoungst other requirements):
+Alternatively, if you have either cloned the [NeuRosetta](https://github.com/NikDrummond/NeuRosetta.git) repo from GitHub, downloaded the `environment.yml` file from the repo, or simply copied its contents into your own `.yml` file, you can create the needed environment with all dependencies as follows (this includes **graph_tool** amongst other requirements):
 
 ```bash
 mamba env remove -n nr

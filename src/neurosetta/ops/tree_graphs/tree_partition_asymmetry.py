@@ -31,22 +31,12 @@ def get_partition_asymmetry(
 
     Supported modes
     ---------------
-    unweighted:
-        |r - s| / (r + s - 1)
-
-    weighted:
-        Unweighted partition asymmetry multiplied by the fraction
-        of total dendritic cable contained in the branching node's
-        downstream subtree.
-
-    van_pelt:
-        |r - s| / (r + s - 2)
-        The (1, 1) partition is assigned zero.
-
-    cable:
-        |C1 - C2| / (C1 + C2)
-        C1 and C2 are complete daughter-subtree cable lengths,
-        including their connecting edges.
+    * unweighted — ``abs(r - s) / (r + s - 1)``
+    * weighted — unweighted asymmetry times the fraction of total
+      cable in the downstream subtree
+    * van_pelt — ``abs(r - s) / (r + s - 2)``; the (1, 1) partition is 0
+    * cable — ``abs(C1 - C2) / (C1 + C2)``, with C1 and C2 the daughter
+      subtree cable lengths, including their connecting edges
 
     For multifurcations, scores are averaged over all unordered
     pairs of daughter subtrees.
@@ -64,7 +54,7 @@ def get_partition_asymmetry(
         Whether to include the root when it is a branching node.
     property_name : str or None, default None
         Vertex property name used when bind=True.
-        Defaults to "partition_asymmetry_<mode>".
+        Defaults to ``partition_asymmetry_<mode>``.
 
     Returns
     -------

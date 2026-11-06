@@ -22,10 +22,11 @@ from ...core.synapses import (
 )
 from ...utils.geometry_utils.segments import project_points_to_segments
 from ...utils.graph_utils import g_has_property
+from ...utils.graph_utils.vertex_inds import source_index_by_edge_index
 from .._doc_helpers import enrich_tree_graph_docstrings
 from .tree_coordinates import get_edge_coordinates, get_root_coordinate
 from .tree_path_lengths import get_edge_length, get_total_cable_length
-from .tree_vertex_inds import get_edge_indices, get_root_index
+from .tree_vertex_inds import get_root_index
 
 SynapseTypeArg = Literal["pre", "post", "both"] | str
 
@@ -461,13 +462,15 @@ def get_synapse_path_distance(
 
     node_dist = _node_path_distances(tree)
     lengths = np.asarray(get_edge_length(tree, bind=False), dtype=np.float64)
-    edges = get_edge_indices(tree)
+    # Address by graph-tool edge index. ``get_edge_indices`` row order matches
+    # that index only while indices are contiguous.
+    sources_by_index = source_index_by_edge_index(tree.graph)
 
     out = np.full(len(syn), np.nan, dtype=np.float64)
     idx = np.flatnonzero(mask)
     if idx.size:
         eidx = syn.edge_index[idx]
-        sources = edges[eidx, 0]
+        sources = sources_by_index[eidx]
         along = syn.distance_along_edge[idx]
         use = np.isfinite(along)
         frac = syn.edge_fraction[idx]

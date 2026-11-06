@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from graph_tool.all import EdgePropertyMap, Graph
-from numpy import ndarray, unique
+from numpy import array, ndarray, unique
 
 
 def _check_deg_type_input(deg: str) -> None:
@@ -49,7 +49,9 @@ def get_vertex_degrees(
     if isinstance(weight, str):
         weight = g.ep[weight]
 
-    return g.degree_property_map(deg, weight).a
+    # The degree map is temporary. Copy before it is freed; returning ``.a``
+    # directly is a dangling view.
+    return array(g.degree_property_map(deg, weight).a, copy=True)
 
 
 def degree_distribution(g: Graph, deg: str = "total", mass: bool = True) -> tuple[ndarray, ndarray]:
